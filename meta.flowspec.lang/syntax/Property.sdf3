@@ -1,0 +1,53 @@
+module Property
+
+imports
+
+  Common
+  Pattern
+
+context-free syntax // Properties
+
+  Property.Def = [[PropName]: [PropType] ([PropDir], [PropKind])]
+  Property.DefForward = [[PropName]: [PropType] ([PropKind])]
+  Property.DefMay = [[PropName]: [PropType] ([PropDir])]
+  Property.DefForwardMay = [[PropName]: [PropType]]
+  
+  PropType = PropTypeSimple
+  PropType = PropTypeSet
+  PropType.Map = [[PropTypeSimple] -> [PropTypeMapRange]]
+  
+  PropTypeSimple.Name = [name]
+  PropTypeSimple.Origin = [origin]
+  PropTypeSimple.Sort = SortName
+  // TODO: add tuples
+//  PropTypeSimple.Tuple = [([{PropTypeSimple ","}+])]
+  
+  PropTypeSet.Set = [[PropTypeSimple]*]
+  
+  PropTypeMapRange = PropTypeSimple
+  PropTypeMapRange = PropTypeSet
+  
+  PropDir.Forward  = [forward]
+  PropDir.Backward = [backward]
+  PropKind.Must = [strict]
+  PropKind.May  = [loose]
+
+context-free syntax // Property Rules
+
+  PropRule.PropRule = [[Pattern]: [{PropRuleBody "\n"}+]]
+  PropRule.PropRuleWhere =
+[[Pattern]: [{PropRuleBody "\n"}+]
+  where [{WhereClause "\n"}+]]
+  PropRuleBody.Command = [[Command] [PropRef]]
+//  PropRuleBody.CommandWhere = [adds [PropRef] where [WhereClause]]
+
+  Command.Adds = [adds]
+  Command.Removes = [removes]
+  Command.Overrides = [overrides]
+  Command.Uses = [uses]
+  
+  PropRef.PropRef = [[PropName] [VarRef]]
+  PropRef.MapPropRef = [[PropName] [VarRef] -> [VarRef]]
+  VarRef.VarRef = ID
+  
+  WhereClause.Contains = [[Pattern] in [VarRef]]

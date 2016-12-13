@@ -1,0 +1,51 @@
+module Common
+
+lexical syntax
+
+  ID             = [a-zA-Z] [a-zA-Z0-9]* 
+  INT            = "-"? [0-9]+ 
+  STRING         = "\"" StringChar* "\"" 
+  StringChar     = ~[\"\n] 
+  StringChar     = "\\\"" 
+  StringChar     = BackSlashChar 
+  BackSlashChar  = "\\" 
+  LAYOUT         = [\ \t\n\r] 
+  CommentChar    = [\*] 
+  LAYOUT         = "/*" InsideComment* "*/" 
+  InsideComment  = ~[\*] 
+  InsideComment  = CommentChar 
+  LAYOUT         = "//" ~[\n\r]* NewLineEOF 
+  NewLineEOF     = [\n\r] 
+  NewLineEOF     = EOF 
+  EOF            =  
+  
+  ModuleName     = {ID "/"}+
+  SortName       = [A-Z] [a-zA-Z0-9]*
+  ConsName       = [A-Z] [a-zA-Z0-9]*
+  PropName       = [A-Z] [a-zA-Z0-9]*
+
+lexical restrictions
+
+  // Ensure greedy matching for lexicals
+  
+  CommentChar   -/- [\/]
+  INT           -/- [0-9]
+  SortName      -/- [a-zA-Z0-9]
+  PropName      -/- [a-zA-Z0-9]
+  ConsName      -/- [a-zA-Z0-9]
+  
+  // EOF may not be followed by any char
+  
+  EOF           -/- ~[]
+  
+  // Backslash chars in strings may not be followed by " 
+  
+  BackSlashChar -/- [\"]
+
+context-free restrictions
+
+  // Ensure greedy matching for comments
+  
+  LAYOUT? -/- [\ \t\n\r]
+  LAYOUT? -/- [\/].[\/]
+  LAYOUT? -/- [\/].[\*]

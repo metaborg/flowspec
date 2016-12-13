@@ -1,0 +1,191 @@
+module static-semantics
+
+imports
+
+  signatures/-
+  
+signature
+  constraint generator
+    [[ Start ^ (global) ]]
+    [[ Imports ^ (global, moduleScope) ]]
+    Import [[ List(Import) ^ (global, moduleScope) ]]
+    Section [[ List(Section) ^ (moduleScope) ]]
+    [[ Section ^ (moduleScope) ]]
+    
+    Pattern [[ List(Pattern) ^ (ruleScope) ]]
+    [[ Pattern ^ (ruleScope) ]]
+    
+    FlowRule [[ List(FlowRule) ^ (moduleScope) ]]
+    [[ FlowExpr ^ (ruleScope) ]]
+    
+    Property [[ List(Property) ^ (moduleScope) ]]
+    [[ Property ^ (moduleScope) : type ]]
+    [[ PropType ^ () : type ]]
+    
+    PropRule [[ List(PropRule) ^ (moduleScope) ]]
+    PropRuleBody [[ List(PropRuleBody) ^ (ruleScope) ]]
+    [[ PropRef ^ (ruleScope) ]]
+    [[ VarRef ^ (ruleScope) : type ]]
+    WhereClause [[ List(WhereClause) ^ (ruleScope) ]]
+  
+  name resolution
+    namespaces
+      Module Property Variable
+
+  types
+    Prop(type, type, type)
+    Term()
+    Map(type, type)
+    Set(type)
+    Name()
+    Origin()
+
+rules
+
+// flowspec
+
+  init ^ (global) :=
+    new global.
+
+  [[ Start(module, imports, sections) ^ (global) ]] :=
+    Module { module } <- global,
+    Module { module } ===> moduleScope,
+    [[ imports ^ (global, moduleScope) ]],
+    Section [[ sections ^ (moduleScope) ]],
+    new moduleScope.
+
+  [[ NoImports() ^ (global, moduleScope) ]].
+  [[ Imports(imports) ^ (global, moduleScope) ]] :=
+    [[ imports ^ (global, moduleScope) ]].
+  
+  Import [[ [Import(mod)|imports] ^ (global, moduleScope) ]] :=
+    Module { mod } -> global,
+    Module { mod } |-> d,
+    d <=== moduleScope,
+    Import [[ imports ^ (global, moduleScope) ]].
+  
+  Import [[ [] ^ (moduleScope) ]] := true.
+  
+  Section [[ [section|sections] ^ (moduleScope) ]] :=
+    [[ section ^ (moduleScope) ]],
+    Section [[ sections ^ (moduleScope) ]].
+  
+  Section [[ [] ^ (moduleScope) ]] := true.
+
+  [[ Flow(rules) ^ (moduleScope) ]] :=
+    FlowRule [[ rules ^ (moduleScope) ]].
+
+  [[ Properties(defs) ^ (moduleScope) ]] :=
+    Property [[ defs ^ (moduleScope) ]].
+
+  [[ Rules(rules) ^ (moduleScope) ]] :=
+    PropRule [[ rules ^ (moduleScope) ]].
+
+// Pattern
+  
+  Pattern [[ [pattern|patterns] ^ (ruleScope) ]] :=
+    [[ pattern ^ (ruleScope) ]],
+    Pattern [[ patterns ^ (ruleScope) ]].
+  
+  Pattern [[ [] ^ (ruleScope) ]] := true.
+
+  [[ Match(_, patterns) ^ (ruleScope) ]] :=
+    Pattern [[ patterns ^ (ruleScope) ]].
+  
+  [[ Wildcard() ^ (ruleScope) ]] := true.
+  
+  [[ Var(x) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope.
+
+// Flow
+  
+  FlowRule [[ [FlowRule(pattern, expr)|rules] ^ (moduleScope) ]] :=
+    ruleScope ---> moduleScope,
+    [[ pattern ^ (ruleScope) ]],
+    [[ expr ^ (ruleScope) ]],
+    FlowRule [[ rules ^ (moduleScope) ]],
+    new ruleScope.
+  
+  FlowRule [[ [] ^ (moduleScope) ]] := true.
+  
+  [[ Ref(x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope.
+  
+  [[ Loop() ^ (ruleScope) ]] := true.
+  
+  [[ Linear(pattern1, pattern2) ^ (ruleScope) ]] :=
+    [[ pattern1 ^ (ruleScope) ]],
+    [[ pattern2 ^ (ruleScope) ]].
+  
+  [[ Parallel(pattern1, pattern2) ^ (ruleScope) ]] :=
+    [[ pattern1 ^ (ruleScope) ]],
+    [[ pattern2 ^ (ruleScope) ]].
+
+// Properties
+
+  Property [[ [def|defs] ^ (moduleScope) ]] :=
+    [[ def ^ (moduleScope) : ty_ ]],
+    Property [[ defs ^ (moduleScope) ]].
+  
+  Property [[ [] ^ (moduleScope) ]].
+  
+  [[ Def(name, proptype, dir, kind) ^ (moduleScope) : Prop(ty, dir, kind) ]] :=
+    Property { name } <- moduleScope,
+    [[ proptype ^ () : ty ]].
+  
+  [[ Map(simple, range) ^ () : Map(ty1, ty2) ]] :=
+    [[ range ^ () : ty2 ]],
+    [[ simple ^ () : ty1 ]].
+  
+  [[ Set(simple) ^ () : Set(ty) ]] :=
+    [[ simple ^ () : ty ]].
+  
+  [[ Name() ^ () : Name() ]] := true.
+  [[ Origin() ^ () : Origin() ]] := true.
+  [[ Sort(_) ^ () : Term() ]] := true.
+
+// Property rules
+  
+  PropRule [[ [PropRuleWhere(pattern, bodies, clauses)|rules] ^ (moduleScope) ]] :=
+    ruleScope ---> moduleScope,
+    [[ pattern ^ (ruleScope) ]],
+    PropRuleBody [[ bodies ^ (ruleScope) ]],
+    WhereClause [[ clauses ^ (ruleScope) ]],
+    new ruleScope,
+    PropRule [[ rules ^ (moduleScope) ]].
+  
+  PropRule [[ [] ^ (moduleScope) ]] := true.
+
+  PropRuleBody [[ [Command(_, propref)|bodies] ^ (ruleScope) ]] :=
+    [[ propref ^ (ruleScope) ]],
+    PropRuleBody [[ bodies ^ (ruleScope) ]].
+  
+  PropRuleBody [[ [] ^ (ruleScope) ]] := true.
+  
+  [[ PropRef(prop, ref) ^ (ruleScope) ]] :=
+    Property { prop } -> ruleScope,
+    Property { prop } |-> d,
+    d : Prop(propty, dir, kind),
+    [[ ref ^ (ruleScope) : ty1_ ]],
+    ( propty == Name()
+    ; propty == Origin()
+    ; propty == Term()
+    ; propty == Set(ty2_)
+    ; propty == Map(ty3_, Origin()) ).
+  
+  [[ MapPropRef(prop, ref1, ref2) ^ (ruleScope) ]] :=
+    Property { prop } -> ruleScope,
+    Property { prop } |-> d,
+    d : Prop(Map(ty3_, ty4_), dir, kind),
+    [[ ref1 ^ (ruleScope) : ty1_ ]],
+    [[ ref2 ^ (ruleScope) : ty2_ ]].
+  
+  [[ VarRef(id) ^ (ruleScope) : Term() ]] :=
+    Variable { id } -> ruleScope.
+
+  WhereClause [[ [Contains(pattern, ref)|clauses] ^ (ruleScope) ]] :=
+    [[ pattern ^ (ruleScope) ]],
+    [[ ref ^ (ruleScope) ]],
+    WhereClause [[ clauses ^ (ruleScope) ]].
+  
+  WhereClause [[ [] ^ (ruleScope) ]] := true.

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: flowspec language Eclipse plugin
+Bundle-SymbolicName: meta.flowspec.lang.eclipse;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Vendor: org.metaborg
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.metaborg.spoofax.eclipse
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

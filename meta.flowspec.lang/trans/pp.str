@@ -1,0 +1,49 @@
+module pp
+
+imports
+
+  libstratego-gpp
+  libspoofax/sdf/pp
+  libspoofax/editor/refactoring/-
+  pp/flowspec-parenthesize
+  pp/flowspec-pp
+
+rules
+
+  editor-format:
+    (node, _, ast, path, project-path) -> (filename, result)
+    with
+      ext      := <get-extension> path
+    ; filename := <guarantee-extension(|$[pp.[ext]])> path
+    ; result   := <pp-debug> node
+
+rules
+  
+  pp-flowspec-string =
+    parenthesize-flowspec
+    ; prettyprint-flowspec-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+      
+  pp-partial-flowspec-string =
+    parenthesize-flowspec
+    ; prettyprint-flowspec
+    ; !V([], <id>)
+    ; box2text-string(|120)
+    
+  pp-partial-flowspec-string(|sort) =
+    parenthesize-flowspec
+    ; prettyprint-flowspec(|sort)
+    ; !V([], <id>)
+    ; box2text-string(|120)  
+      
+  pp-debug :
+    ast -> result
+    with
+       result := <pp-flowspec-string> ast
+    <+ <bottomup(try(not(is-string); not(is-list); not(pp-flowspec-string); debug(!"cannot pp ")))> ast
+    ;  result := ""
+
+rules
+  
+  construct-textual-change = construct-textual-change(pp-partial-flowspec-string, parenthesize, override-reconstruction, resugar)

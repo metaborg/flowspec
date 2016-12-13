@@ -1,0 +1,16 @@
+module flow
+
+flow
+
+  Seq(s1, s2): s1, s2
+  If(e, s1, s2): e, (s1 || s2)
+  While(e, s1): e, s1, loop
+
+properties
+
+  Definition: name -> origin
+
+property rules
+
+  Assign(x, _): overrides Definition x
+  Ref(x): uses Definition x

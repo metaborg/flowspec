@@ -1,0 +1,23 @@
+module Flow
+
+imports
+
+  Common
+  Property
+  Pattern
+
+context-free syntax
+
+  FlowRule.FlowRule = [[Pattern]: [FlowExpr]]
+
+
+  FlowExpr.Ref = ID {avoid}
+  FlowExpr.Loop = [loop]
+
+  FlowExpr = [([FlowExpr])] {bracket}
+  FlowExpr.Linear = [[FlowExpr], [FlowExpr]] {left}
+  FlowExpr.Parallel = [[FlowExpr] || [FlowExpr]] {left}
+
+context-free priorities
+
+  FlowExpr.Linear > FlowExpr.Parallel

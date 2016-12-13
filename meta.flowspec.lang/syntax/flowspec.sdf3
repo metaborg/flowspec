@@ -1,0 +1,48 @@
+module flowspec
+
+imports
+  
+  Common
+  Flow
+  Property
+
+context-free start-symbols
+  
+  Start
+
+context-free syntax
+  
+  Start.Start =
+[module [ModuleName]
+
+[Imports]
+
+[{Section "\n\n"}*]
+]
+
+Imports.NoImports = []
+Imports.Imports =
+[imports
+
+[{Import "\n"}*]
+]
+
+Import.Import = ModuleName
+
+Section.Flow =
+[flow
+
+[{FlowRule "\n"}*]
+]
+
+Section.Properties =
+[properties
+
+[{Property "\n"}*]
+]
+
+Section.Rules =
+[property rules
+
+[{PropRule "\n"}*]
+]

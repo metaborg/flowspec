@@ -1,0 +1,16 @@
+module desugar
+
+imports
+
+signatures/-
+libspoofax/term/origin
+
+rules
+
+desugar-all = alltd(desugar-PropertyDef + desugar-PropRule)
+
+desugar-PropertyDef: DefForward(name, type, kind) -> Def(name, type, <origin-set-relation> (kind, Forward()), kind)
+desugar-PropertyDef: DefMay(name, type, dir) -> Def(name, type, dir, <origin-set-relation> (dir, May()))
+desugar-PropertyDef: 'def@DefForwardMay(name, type) -> Def(name, type, <origin-set-relation> ('def, Forward()), <origin-set-relation> ('def, May()))
+
+desugar-PropRule: PropRule(pattern, body) -> PropRuleWhere(pattern, body, [])

@@ -1,0 +1,11 @@
+module Pattern
+
+imports
+
+  Common
+
+context-free syntax
+
+  Pattern.Match = [[ConsName]([{Pattern ","}+])]
+  Pattern.Var = ID
+  Pattern.Wildcard = [_]
