@@ -4,13 +4,22 @@ imports
 
 signatures/-
 libspoofax/term/origin
+libspoofax/stratego/debug
 
 rules
 
-desugar-all = alltd(desugar-PropertyDef + desugar-PropRule)
+desugar-all = alltd(origin-track-forced(desugar-PropertyDef) + origin-track-forced(desugar-PropRule));warning-on-missing-origin
 
 desugar-PropertyDef: DefForward(name, type, kind) -> Def(name, type, <origin-set-relation> (kind, Forward()), kind)
 desugar-PropertyDef: DefMay(name, type, dir) -> Def(name, type, dir, <origin-set-relation> (dir, May()))
 desugar-PropertyDef: 'def@DefForwardMay(name, type) -> Def(name, type, <origin-set-relation> ('def, Forward()), <origin-set-relation> ('def, May()))
 
 desugar-PropRule: PropRule(pattern, body) -> PropRuleWhere(pattern, body, [])
+
+rules // check AST whether every sub term has an origin
+  
+  warning-on-missing-origin: term -> <id>
+    with
+      terms-missing-origin;filter(not(?[]));map(debug(|"Warning: Term missing origin"))
+  
+  terms-missing-origin = collect-all(not(origin-offset))
