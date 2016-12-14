@@ -48,6 +48,8 @@ context-free syntax // Property Rules
   
   PropRef.PropRef = [[PropName] [VarRef]]
   PropRef.MapPropRef = [[PropName] [VarRef] -> [VarRef]]
-  VarRef.VarRef = ID
+  
+  VarRef.VarRef = ID {avoid}
+  VarRef.This = [this]
   
   WhereClause.Contains = [[Pattern] in [VarRef]]

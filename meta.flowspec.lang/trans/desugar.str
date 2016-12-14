@@ -8,7 +8,11 @@ libspoofax/stratego/debug
 
 rules
 
-desugar-all = alltd(origin-track-forced(desugar-PropertyDef) + origin-track-forced(desugar-PropRule));warning-on-missing-origin
+desugar-all = alltd(desugar-one);warning-on-missing-origin
+
+desugar-one =
+    desugar-PropertyDef
+  + desugar-PropRule
 
 desugar-PropertyDef: DefForward(name, type, kind) -> Def(name, type, <origin-set-relation> (kind, Forward()), kind)
 desugar-PropertyDef: DefMay(name, type, dir) -> Def(name, type, dir, <origin-set-relation> (dir, May()))

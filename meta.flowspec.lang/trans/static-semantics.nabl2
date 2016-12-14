@@ -50,6 +50,8 @@ rules
     Module { module } ===> moduleScope,
     [[ imports ^ (global, moduleScope) ]],
     Map1 [[ sections ^ (moduleScope) ]],
+    distinct D(moduleScope)/Module,
+    distinct D(moduleScope)/Property,
     new moduleScope.
 
   [[ NoImports() ^ (global, moduleScope) ]].
@@ -72,36 +74,62 @@ rules
 
 // Pattern
 
-  [[ Match(_, patterns) ^ (ruleScope) ]] :=
+  RulePatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
+    RulePattern [[ pattern ^ (ruleScope) ]],
+    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
+  
+  RulePatternMap1 [[ [] ^ (_) ]].
+
+  RulePattern [[ Match(_, patterns) ^ (ruleScope) ]] :=
+    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
+  
+  RulePattern [[ Wildcard() ^ (ruleScope) ]] := true.
+  
+  RulePattern [[ Var(x) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope.
+
+  WhereClausePatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
+    WhereClausePattern [[ pattern ^ (ruleScope) ]],
+    WhereClausePatternMap1 [[ patterns ^ (ruleScope) ]].
+  
+  WhereClausePatternMap1 [[ [] ^ (_) ]].
+
+  WhereClausePattern [[ Match(_, patterns) ^ (ruleScope) ]] :=
     Map1 [[ patterns ^ (ruleScope) ]].
   
-  [[ Wildcard() ^ (ruleScope) ]] := true.
+  WhereClausePattern [[ Wildcard() ^ (ruleScope) ]] := true.
   
-  [[ Var(x) ^ (ruleScope) ]] :=
-    Variable { x } <- ruleScope.
+  WhereClausePattern [[ Var(x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> d.
 
 // Flow
   
   [[ FlowRule(pattern, expr) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
-    [[ pattern ^ (ruleScope) ]],
-    [[ expr ^ (ruleScope) ]],
+    RulePattern [[ pattern ^ (ruleScope) ]],
+    Variable { This() } <- ruleScope,
+    FlowExpr [[ expr ^ (ruleScope) ]],
+    distinct D(ruleScope)/Variable,
     new ruleScope.
   
-  [[ Ref(x) ^ (ruleScope) ]] :=
+  FlowExpr [[ Ref(x) ^ (ruleScope) ]] :=
     Variable { x } -> ruleScope,
     Variable { x } |-> d.
   
-  [[ Loop() ^ (ruleScope) ]] := true.
-  [[ This() ^ (ruleScope) ]]. // := true. not necessary?
+  FlowExpr [[ Loop() ^ (ruleScope) ]] := true.
   
-  [[ Linear(pattern1, pattern2) ^ (ruleScope) ]] :=
-    [[ pattern1 ^ (ruleScope) ]],
-    [[ pattern2 ^ (ruleScope) ]].
+  FlowExpr [[ t@This() ^ (ruleScope) ]] :=
+    Variable { t } -> ruleScope,
+    Variable { t } |-> d.
   
-  [[ Parallel(pattern1, pattern2) ^ (ruleScope) ]] :=
-    [[ pattern1 ^ (ruleScope) ]],
-    [[ pattern2 ^ (ruleScope) ]].
+  FlowExpr [[ Linear(expr1, expr2) ^ (ruleScope) ]] :=
+    FlowExpr [[ expr1 ^ (ruleScope) ]],
+    FlowExpr [[ expr2 ^ (ruleScope) ]].
+  
+  FlowExpr [[ Parallel(expr1, expr2) ^ (ruleScope) ]] :=
+    FlowExpr [[ expr1 ^ (ruleScope) ]],
+    FlowExpr [[ expr2 ^ (ruleScope) ]].
 
 // Properties
   
@@ -125,9 +153,11 @@ rules
   
   [[ PropRuleWhere(pattern, bodies, clauses) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
-    [[ pattern ^ (ruleScope) ]],
+    RulePattern [[ pattern ^ (ruleScope) ]],
+    Variable { This() } <- ruleScope,
     Map1 [[ bodies ^ (ruleScope) ]],
     Map1 [[ clauses ^ (ruleScope) ]],
+    distinct D(ruleScope)/Variable,
     new ruleScope.
 
   [[ Command(_, propref) ^ (ruleScope) ]] :=
@@ -137,25 +167,33 @@ rules
     Property { prop } -> ruleScope,
     Property { prop } |-> d,
     d : Prop(propty, dir_, kind_),
-    [[ ref ^ (ruleScope) : ty1_ ]],
+    VarRef [[ ref ^ (ruleScope) : ty1_ ]],
     ReduceType(propty) == SingleRefType().
-//    ( propty == Name()
-//    ; propty == Origin()
-//    ; propty == Term()
-//    ; propty == Set(ty2_)
-//    ; propty == Map(ty3_, Origin()) ).
+    // This means:
+    //  ( propty == Name()
+    //  ; propty == Origin()
+    //  ; propty == Term()
+    //  ; propty == Set(ty2_)
+    //  ; propty == Map(ty3_, Origin()) ).
   
   [[ MapPropRef(prop, ref1, ref2) ^ (ruleScope) ]] :=
     Property { prop } -> ruleScope,
     Property { prop } |-> d,
     d : Prop(Map(ty3_, ty4_), dir_, kind_),
-    [[ ref1 ^ (ruleScope) : ty1_ ]],
-    [[ ref2 ^ (ruleScope) : ty2_ ]].
+    VarRef [[ ref1 ^ (ruleScope) : ty1_ ]],
+    VarRef [[ ref2 ^ (ruleScope) : ty2_ ]].
   
-  [[ VarRef(id) ^ (ruleScope) : Term() ]] :=
+  VarRef [[ VarRef(id) ^ (ruleScope) : Term() ]] :=
     Variable { id } -> ruleScope,
     Variable { id } |-> d.
+  
+  VarRef [[ t@This() ^ (ruleScope) : Term() ]] :=
+    Variable { t } -> ruleScope,
+    Variable { t } |-> d.
+  
+  WhereClauseVarRef [[ VarRef(id) ^ (ruleScope) ]] :=
+    Variable { id } <- ruleScope.
 
   [[ Contains(pattern, ref) ^ (ruleScope) ]] :=
-    [[ pattern ^ (ruleScope) ]],
-    [[ ref ^ (ruleScope) ]].
+    WhereClausePattern [[ pattern ^ (ruleScope) ]],
+    WhereClauseVarRef [[ ref ^ (ruleScope) ]].
