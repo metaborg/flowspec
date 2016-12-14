@@ -7,9 +7,9 @@ flow
 
 properties
 
-  Definition: name -> origin
+  Use: name (backward)
 
 property rules
-
-  Assign(x, _): overrides Definition x
-  Ref(x): uses Definition x
+  
+  Ref(x): adds Use x
+  Assign(x, _): removes Use x

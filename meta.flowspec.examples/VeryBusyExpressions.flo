@@ -1,0 +1,26 @@
+module flow
+
+flow
+
+  IfThenElse(e, s1, s2): e, (s1 || s2)
+  While(e, s1): e, s1, loop
+
+properties
+
+  VeryBusyExpr: Expr (backward, strict)
+
+property rules
+
+  Assign(x, _): removes VeryBusyExpr e where x in e
+  
+  Add(_,_): adds VeryBusyExpr this
+  Sub(_,_): adds VeryBusyExpr this
+  Mul(_,_): adds VeryBusyExpr this
+  Not(_): adds VeryBusyExpr this
+  Or(_,_): adds VeryBusyExpr this
+  And(_,_): adds VeryBusyExpr this
+  Eq(_,_): adds VeryBusyExpr this
+  Gt(_,_): adds VeryBusyExpr this
+  Gte(_,_): adds VeryBusyExpr this
+  Lt(_,_): adds VeryBusyExpr this
+  Lte(_,_): adds VeryBusyExpr this

@@ -1,0 +1,26 @@
+module flow
+
+flow
+
+  IfThenElse(e, s1, s2): e, (s1 || s2)
+  While(e, s1): e, s1, loop
+
+properties
+
+  AExpr: Expr (strict)
+
+property rules
+
+  Assign(x, _): removes AExpr a where x in a
+  
+  Add(_,_): uses AExpr this
+  Sub(_,_): uses AExpr this
+  Mul(_,_): uses AExpr this
+  Not(_): uses AExpr this
+  Or(_,_): uses AExpr this
+  And(_,_): uses AExpr this
+  Eq(_,_): uses AExpr this
+  Gt(_,_): uses AExpr this
+  Gte(_,_): uses AExpr this
+  Lt(_,_): uses AExpr this
+  Lte(_,_): uses AExpr this
