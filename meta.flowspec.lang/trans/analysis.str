@@ -52,4 +52,5 @@ rules
     + ?Term()
     + ?Set(_)
     + ?Map(_, Origin())
+    + ?Map(_, Set(Origin()))
       

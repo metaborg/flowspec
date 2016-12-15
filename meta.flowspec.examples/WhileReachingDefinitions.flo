@@ -7,7 +7,7 @@ flow
 
 properties
 
-  Definition: name -> origin
+  Definition: name -> origin*
 
 property rules
 
