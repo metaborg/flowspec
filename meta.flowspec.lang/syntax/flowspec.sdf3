@@ -30,7 +30,7 @@ Imports.Imports =
 Import.Import = ModuleName
 
 Section.Flow =
-[flow
+[flow rules
 
 [{FlowRule "\n"}*]
 ]

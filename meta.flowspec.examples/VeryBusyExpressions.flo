@@ -1,6 +1,6 @@
 module flow
 
-flow
+flow rules
 
   IfThenElse(e, s1, s2): e, (s1 || s2)
   While(e, s1): e, s1, loop
