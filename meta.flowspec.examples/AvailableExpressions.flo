@@ -13,14 +13,14 @@ property rules
 
   Assign(x, _): removes AExpr a where x in a
   
-  Add(_,_): uses AExpr this
-  Sub(_,_): uses AExpr this
-  Mul(_,_): uses AExpr this
-  Not(_): uses AExpr this
-  Or(_,_): uses AExpr this
-  And(_,_): uses AExpr this
-  Eq(_,_): uses AExpr this
-  Gt(_,_): uses AExpr this
-  Gte(_,_): uses AExpr this
-  Lt(_,_): uses AExpr this
-  Lte(_,_): uses AExpr this
+  Add(_,_): adds AExpr this
+  Sub(_,_): adds AExpr this
+  Mul(_,_): adds AExpr this
+  Not(_): adds AExpr this
+  Or(_,_): adds AExpr this
+  And(_,_): adds AExpr this
+  Eq(_,_): adds AExpr this
+  Gt(_,_): adds AExpr this
+  Gte(_,_): adds AExpr this
+  Lt(_,_): adds AExpr this
+  Lte(_,_): adds AExpr this
