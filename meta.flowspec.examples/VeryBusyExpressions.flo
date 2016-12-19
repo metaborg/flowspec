@@ -13,14 +13,7 @@ property rules
 
   Assign(x, _): removes VeryBusy e where x in e
   
-  Add(_,_): adds VeryBusy this
-  Sub(_,_): adds VeryBusy this
-  Mul(_,_): adds VeryBusy this
-  Not(_): adds VeryBusy this
-  Or(_,_): adds VeryBusy this
-  And(_,_): adds VeryBusy this
-  Eq(_,_): adds VeryBusy this
-  Gt(_,_): adds VeryBusy this
-  Gte(_,_): adds VeryBusy this
-  Lt(_,_): adds VeryBusy this
-  Lte(_,_): adds VeryBusy this
+  Add(_,_), Sub(_,_), Mul(_,_),
+  Not(_), Or(_,_), And(_,_),
+  Eq(_,_), Gt(_,_), Gte(_,_), Lt(_,_), Lte(_,_):
+    adds VeryBusy this

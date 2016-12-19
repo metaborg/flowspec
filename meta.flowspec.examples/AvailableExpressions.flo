@@ -11,16 +11,10 @@ properties
 
 property rules
 
-  Assign(x, _): removes Available a where x in a
+  Assign(x, _): removes Available a
+    where x in a
   
-  Add(_,_): adds Available this
-  Sub(_,_): adds Available this
-  Mul(_,_): adds Available this
-  Not(_): adds Available this
-  Or(_,_): adds Available this
-  And(_,_): adds Available this
-  Eq(_,_): adds Available this
-  Gt(_,_): adds Available this
-  Gte(_,_): adds Available this
-  Lt(_,_): adds Available this
-  Lte(_,_): adds Available this
+  Add(_,_), Sub(_,_), Mul(_,_),
+  Not(_), Or(_,_), And(_,_),
+  Eq(_,_), Gt(_,_), Gte(_,_), Lt(_,_), Lte(_,_):
+    adds Available this

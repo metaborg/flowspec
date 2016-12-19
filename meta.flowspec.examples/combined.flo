@@ -24,37 +24,10 @@ property rules
     removes VeryBusy e
   where x in e
   
-  Add(_,_): 
-    adds VeryBusy this
-    adds Available this
-  Sub(_,_):
-    adds VeryBusy this
-    adds Available this
-  Mul(_,_):
-    adds VeryBusy this
-    adds Available this
-  Not(_):
-    adds VeryBusy this
-    adds Available this
-  Or(_,_):
-    adds VeryBusy this
-    adds Available this
-  And(_,_):
-    adds VeryBusy this
-    adds Available this
-  Eq(_,_):
-    adds VeryBusy this
-    adds Available this
-  Gt(_,_):
-    adds VeryBusy this
-    adds Available this
-  Gte(_,_):
-    adds VeryBusy this
-    adds Available this
-  Lt(_,_):
-    adds VeryBusy this
-    adds Available this
-  Lte(_,_):
+  
+  Add(_,_), Sub(_,_), Mul(_,_),
+  Not(_), Or(_,_), And(_,_),
+  Eq(_,_), Gt(_,_), Gte(_,_), Lt(_,_), Lte(_,_):
     adds VeryBusy this
     adds Available this
   

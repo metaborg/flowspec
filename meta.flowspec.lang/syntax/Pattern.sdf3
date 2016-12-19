@@ -6,6 +6,12 @@ imports
 
 context-free syntax
 
+  TLPattern.Match = [[ConsName]([{Pattern ","}+])]
+  TLPattern.Var = ID
+  TLPattern.Wildcard = [_]
+
   Pattern.Match = [[ConsName]([{Pattern ","}+])]
   Pattern.Var = ID
   Pattern.Wildcard = [_]
+
+  TLPattern.Var = [where] {reject}

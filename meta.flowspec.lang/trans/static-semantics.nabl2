@@ -155,13 +155,14 @@ rules
 
 // Property rules
   
-  [[ PropRuleWhere(pattern, bodies, clauses) ^ (moduleScope) ]] :=
+  [[ PropRuleWhere(patterns, bodies, clauses) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
-    RulePattern [[ pattern ^ (ruleScope) ]],
+    RulePatternMap1 [[ patterns ^ (ruleScope) ]],
     Variable { This() } <- ruleScope,
     Map1 [[ bodies ^ (ruleScope) ]],
     Map1 [[ clauses ^ (ruleScope) ]],
-    distinct D(ruleScope)/Variable,
+// TODO: find something else for definitions of multiple patterns. 
+//    distinct D(ruleScope)/Variable,
     new ruleScope.
 
   [[ Command(_, propref) ^ (ruleScope) ]] :=
@@ -197,6 +198,10 @@ rules
   
   WhereClauseVarRef [[ VarRef(id) ^ (ruleScope) ]] :=
     Variable { id } <- ruleScope.
+  
+  WhereClauseVarRef [[ t@This() ^ (ruleScope) : Term() ]] :=
+    Variable { t } -> ruleScope,
+    Variable { t } |-> d.
 
   [[ Contains(pattern, ref) ^ (ruleScope) ]] :=
     WhereClausePattern [[ pattern ^ (ruleScope) ]],

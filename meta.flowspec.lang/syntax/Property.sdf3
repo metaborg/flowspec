@@ -36,20 +36,13 @@ context-free syntax // Properties
 
 context-free syntax // Property Rules
 
-  PropRule.PropRule = [[Pattern]: [{PropRuleBody "\n"}+]]
+  PropRule.PropRule = [[{TLPattern ", "}+]: [{PropRuleBody "\n"}+]]
   PropRule.PropRuleWhere =
-[[Pattern]: [{PropRuleBody "\n"}+]
+[[{TLPattern ", "}+]: [{PropRuleBody "\n"}+]
   where [{WhereClause "\n"}+]]
-//  PropRule.PropRuleMultiPattern =
-//[[{Pattern "\n"}+]:
-//  [{PropRuleBody "\n"}+]]
-//  PropRule.PropRuleWhereMultiPattern =
-//[[{Pattern "\n"}+]:
-//  [{PropRuleBody "\n"}+]
-//  where [{WhereClause "\n"}+]]
   
   PropRuleBody.Command = [[Command] [PropRef]]
-//  PropRuleBody.CommandWhere = [adds [PropRef] where [WhereClause]]
+//  PropRuleBody.CommandWhere = [[Command] [PropRef] where [{WhereClause "\n"}+]]
 
   Command.Adds = [adds]
   Command.Removes = [removes]
@@ -62,4 +55,4 @@ context-free syntax // Property Rules
   VarRef.VarRef = ID {avoid}
   VarRef.This = [this]
   
-  WhereClause.Contains = [[Pattern] in [VarRef]]
+  WhereClause.Contains = [[TLPattern] in [VarRef]]
