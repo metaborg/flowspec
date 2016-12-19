@@ -15,6 +15,7 @@ signature
     
     [[ FlowRule ^ (moduleScope) ]]
     [[ FlowExpr ^ (ruleScope) ]]
+    [[ ResolutionConstraint ^ (ruleScope) ]]
     
     [[ Property ^ (moduleScope) ]]
     [[ PropType ^ () : type ]]
@@ -112,6 +113,20 @@ rules
     FlowExpr [[ expr ^ (ruleScope) ]],
     distinct D(ruleScope)/Variable,
     new ruleScope.
+  
+  [[ FlowRuleWhere(pattern, expr, resCs) ^ (moduleScope) ]] :=
+    ruleScope ---> moduleScope,
+    RulePattern [[ pattern ^ (ruleScope) ]],
+    Variable { This() } <- ruleScope,
+    FlowExpr [[ expr ^ (ruleScope) ]],
+    Map1 [[ resCs ^ (ruleScope) ]],
+    distinct D(ruleScope)/Variable,
+    new ruleScope.
+  
+  [[ ResolvesTo(ref, def) ^ (ruleScope) ]] :=
+    Variable { ref } -> ruleScope,
+    Variable { ref } |-> d,
+    Variable { def } <- ruleScope.
   
   FlowExpr [[ Ref(x) ^ (ruleScope) ]] :=
     Variable { x } -> ruleScope,

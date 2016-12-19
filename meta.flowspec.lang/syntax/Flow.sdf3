@@ -9,6 +9,8 @@ imports
 context-free syntax
 
   FlowRule.FlowRule = [[Pattern]: [FlowExpr]]
+  FlowRule.FlowRuleWhere = [[Pattern]: [FlowExpr]
+where [{ResolutionConstraint "\n"}+]]
 
   FlowExpr.Ref = ID {avoid}
   FlowExpr.Loop = [loop]
@@ -17,6 +19,8 @@ context-free syntax
   FlowExpr = [([FlowExpr])] {bracket}
   FlowExpr.Linear = [[FlowExpr], [FlowExpr]] {left}
   FlowExpr.Parallel = [[FlowExpr] || [FlowExpr]] {left}
+  
+  ResolutionConstraint.ResolvesTo = [[ID] |-> [ID]]
 
 context-free priorities
 
