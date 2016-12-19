@@ -7,20 +7,20 @@ flow rules
 
 properties
 
-  AExpr: Expr (strict)
+  Available Expr (strict)
 
 property rules
 
-  Assign(x, _): removes AExpr a where x in a
+  Assign(x, _): removes Available a where x in a
   
-  Add(_,_): adds AExpr this
-  Sub(_,_): adds AExpr this
-  Mul(_,_): adds AExpr this
-  Not(_): adds AExpr this
-  Or(_,_): adds AExpr this
-  And(_,_): adds AExpr this
-  Eq(_,_): adds AExpr this
-  Gt(_,_): adds AExpr this
-  Gte(_,_): adds AExpr this
-  Lt(_,_): adds AExpr this
-  Lte(_,_): adds AExpr this
+  Add(_,_): adds Available this
+  Sub(_,_): adds Available this
+  Mul(_,_): adds Available this
+  Not(_): adds Available this
+  Or(_,_): adds Available this
+  And(_,_): adds Available this
+  Eq(_,_): adds Available this
+  Gt(_,_): adds Available this
+  Gte(_,_): adds Available this
+  Lt(_,_): adds Available this
+  Lte(_,_): adds Available this

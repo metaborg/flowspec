@@ -7,20 +7,20 @@ flow rules
 
 properties
 
-  VeryBusyExpr: Expr (backward, strict)
+  VeryBusy Expr (backward, strict)
 
 property rules
 
-  Assign(x, _): removes VeryBusyExpr e where x in e
+  Assign(x, _): removes VeryBusy e where x in e
   
-  Add(_,_): adds VeryBusyExpr this
-  Sub(_,_): adds VeryBusyExpr this
-  Mul(_,_): adds VeryBusyExpr this
-  Not(_): adds VeryBusyExpr this
-  Or(_,_): adds VeryBusyExpr this
-  And(_,_): adds VeryBusyExpr this
-  Eq(_,_): adds VeryBusyExpr this
-  Gt(_,_): adds VeryBusyExpr this
-  Gte(_,_): adds VeryBusyExpr this
-  Lt(_,_): adds VeryBusyExpr this
-  Lte(_,_): adds VeryBusyExpr this
+  Add(_,_): adds VeryBusy this
+  Sub(_,_): adds VeryBusy this
+  Mul(_,_): adds VeryBusy this
+  Not(_): adds VeryBusy this
+  Or(_,_): adds VeryBusy this
+  And(_,_): adds VeryBusy this
+  Eq(_,_): adds VeryBusy this
+  Gt(_,_): adds VeryBusy this
+  Gte(_,_): adds VeryBusy this
+  Lt(_,_): adds VeryBusy this
+  Lte(_,_): adds VeryBusy this

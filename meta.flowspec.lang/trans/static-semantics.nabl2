@@ -138,16 +138,20 @@ rules
     Property { name } : Prop(ty, dir, kind),
     [[ proptype ^ () : ty ]].
   
-  [[ Map(simple, range) ^ () : Map(ty1, ty2) ]] :=
-    [[ range ^ () : ty2 ]],
-    [[ simple ^ () : ty1 ]].
+  [[ Map(domain, range) ^ () : Map(ty1, ty2) ]] :=
+    [[ domain ^ () : ty1 ]],
+    [[ range ^ () : ty2 ]].
   
-  [[ Set(simple) ^ () : Set(ty) ]] :=
-    [[ simple ^ () : ty ]].
+  [[ NameSet() ^ () : Set(Name()) ]] := true.
+  [[ OriginSet() ^ () : Set(Origin()) ]] := true.
+  [[ SortSet(_) ^ () : Set(Term()) ]] := true.
   
   [[ Name() ^ () : Name() ]] := true.
   [[ Origin() ^ () : Origin() ]] := true.
   [[ Sort(_) ^ () : Term() ]] := true.
+  
+  [[ NonSet(simple) ^ () : ty ]] :=
+    [[ simple ^ () : ty ]].
 
 // Property rules
   

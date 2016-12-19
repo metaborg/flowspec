@@ -4,6 +4,7 @@ imports
 
   libspoofax/color/default
   completion/colorer/flowspec-cc-esv
+  Colorer
 
 language
 

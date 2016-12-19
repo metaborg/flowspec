@@ -7,9 +7,9 @@ flow rules
 
 properties
 
-  Definition: name -> origin*
+  Definition name -> origin
 
 property rules
 
   Assign(x, _): overrides Definition x
-  Ref(x): uses Definition x
+  Ref(x): uses Definition x // enough to build reverse relation, which is the LiveVariables analysis

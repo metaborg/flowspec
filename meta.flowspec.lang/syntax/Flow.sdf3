@@ -10,7 +10,6 @@ context-free syntax
 
   FlowRule.FlowRule = [[Pattern]: [FlowExpr]]
 
-
   FlowExpr.Ref = ID {avoid}
   FlowExpr.Loop = [loop]
   FlowExpr.This = [this]

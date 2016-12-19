@@ -7,25 +7,27 @@ imports
 
 context-free syntax // Properties
 
-  Property.Def = [[PropName]: [PropType] ([PropDir], [PropKind])]
-  Property.DefForward = [[PropName]: [PropType] ([PropKind])]
-  Property.DefMay = [[PropName]: [PropType] ([PropDir])]
-  Property.DefForwardMay = [[PropName]: [PropType]]
+  Property.Def = [[PropName] [PropType] ([PropDir], [PropKind])]
+  Property.DefForward = [[PropName] [PropType] ([PropKind])]
+  Property.DefMay = [[PropName] [PropType] ([PropDir])]
+  Property.DefForwardMay = [[PropName] [PropType]]
   
   PropType = PropTypeSimple
-  PropType = PropTypeSet
-  PropType.Map = [[PropTypeSimple] -> [PropTypeMapRange]]
+  PropType.Map = [[PropTypeDomain] -> [PropTypeRange]]
   
-  PropTypeSimple.Name = [name]
-  PropTypeSimple.Origin = [origin]
-  PropTypeSimple.Sort = SortName
+  PropTypeDomain.Name = [name]
+  PropTypeDomain.Origin = [origin]
+  PropTypeDomain.Sort = SortName
+  
+  PropTypeSimple.NameSet = [name]
+  PropTypeSimple.OriginSet = [origin]
+  PropTypeSimple.SortSet = SortName
   // TODO: add tuples
-//  PropTypeSimple.Tuple = [([{PropTypeSimple ","}+])]
-  
-  PropTypeSet.Set = [[PropTypeSimple]*]
-  
-  PropTypeMapRange = PropTypeSimple
-  PropTypeMapRange = PropTypeSet
+//  PropTypeSimple.Tuple = [[{PropTypeSimple "*"}+]]
+//  PropTypeSimple = [([PropTypeSimple])] {bracket}
+
+  PropTypeRange = PropTypeSimple
+  PropTypeRange.NonSet = [[PropTypeDomain]?]
   
   PropDir.Forward  = [forward]
   PropDir.Backward = [backward]
@@ -38,6 +40,14 @@ context-free syntax // Property Rules
   PropRule.PropRuleWhere =
 [[Pattern]: [{PropRuleBody "\n"}+]
   where [{WhereClause "\n"}+]]
+//  PropRule.PropRuleMultiPattern =
+//[[{Pattern "\n"}+]:
+//  [{PropRuleBody "\n"}+]]
+//  PropRule.PropRuleWhereMultiPattern =
+//[[{Pattern "\n"}+]:
+//  [{PropRuleBody "\n"}+]
+//  where [{WhereClause "\n"}+]]
+  
   PropRuleBody.Command = [[Command] [PropRef]]
 //  PropRuleBody.CommandWhere = [adds [PropRef] where [WhereClause]]
 

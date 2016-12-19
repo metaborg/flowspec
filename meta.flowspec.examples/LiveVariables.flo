@@ -7,9 +7,9 @@ flow rules
 
 properties
 
-  Use: name (backward)
+  Live name (backward)
 
 property rules
   
-  Ref(x): adds Use x
-  Assign(x, _): removes Use x
+  Ref(x): adds Live x
+  Assign(x, _): removes Live x

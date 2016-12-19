@@ -1,0 +1,60 @@
+module flow
+
+flow rules
+
+  IfThenElse(e, s1, s2): e, (s1 || s2)
+  While(e, s1): e, s1, loop
+
+properties
+
+  Definition name -> origin
+  Live name (backward)
+  Available Expr (strict)
+  VeryBusy Expr (backward, strict)
+
+property rules
+  
+  Ref(x):
+    adds Live x
+    uses Definition x
+  Assign(x, _):
+    removes Live x
+    overrides Definition x
+    removes Available e
+    removes VeryBusy e
+  where x in e
+  
+  Add(_,_): 
+    adds VeryBusy this
+    adds Available this
+  Sub(_,_):
+    adds VeryBusy this
+    adds Available this
+  Mul(_,_):
+    adds VeryBusy this
+    adds Available this
+  Not(_):
+    adds VeryBusy this
+    adds Available this
+  Or(_,_):
+    adds VeryBusy this
+    adds Available this
+  And(_,_):
+    adds VeryBusy this
+    adds Available this
+  Eq(_,_):
+    adds VeryBusy this
+    adds Available this
+  Gt(_,_):
+    adds VeryBusy this
+    adds Available this
+  Gte(_,_):
+    adds VeryBusy this
+    adds Available this
+  Lt(_,_):
+    adds VeryBusy this
+    adds Available this
+  Lte(_,_):
+    adds VeryBusy this
+    adds Available this
+  
