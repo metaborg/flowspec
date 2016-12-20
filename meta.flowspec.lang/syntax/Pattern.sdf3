@@ -9,7 +9,17 @@ context-free syntax
   TLPattern = Pattern
   TLPattern.Var = "where" {reject}
 
-  Pattern.Match = [[ConsName]([{Pattern ","}*])]
+  Pattern.Match = [[ConsName]([{Pattern ", "}*])]
+  Pattern = Wildcard
   Pattern.Var = ID
-  Pattern.Wildcard = "_"
   Pattern.At = [[ID]@[Pattern]]
+  
+  Wildcard.Wildcard = "_"
+  
+  NoNamePattern.Match = [[ConsName]([{NoNameSubPattern ", "}+])]
+  NoNameSubPattern = NoNamePattern
+  NoNameSubPattern = Wildcard
+
+template options
+
+  keyword -/- [A-Za-z\-]

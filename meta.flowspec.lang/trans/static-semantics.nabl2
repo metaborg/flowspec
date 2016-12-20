@@ -136,6 +136,14 @@ rules
     Variable { x } -> ruleScope,
     Variable { x } |-> d.
   
+  FlowExpr [[ Jump(x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> d.
+  
+  FlowExpr [[ Opaque() ^ (ruleScope) ]] := true.
+  
+  FlowExpr [[ End() ^ (ruleScope) ]] := true.
+  
   FlowExpr [[ SeqList(x) ^ (ruleScope) ]] :=
     Variable { x } -> ruleScope,
     Variable { x } |-> d.
@@ -144,13 +152,7 @@ rules
     Variable { x } -> ruleScope,
     Variable { x } |-> d.
   
-  FlowExpr [[ Loop() ^ (ruleScope) ]] := true.
-  
-  FlowExpr [[ t@This() ^ (ruleScope) ]] :=
-    Variable { t } -> ruleScope,
-    Variable { t } |-> d.
-  
-  FlowExpr [[ Linear(expr1, expr2) ^ (ruleScope) ]] :=
+  FlowExpr [[ Sequential(expr1, expr2) ^ (ruleScope) ]] :=
     FlowExpr [[ expr1 ^ (ruleScope) ]],
     FlowExpr [[ expr2 ^ (ruleScope) ]].
   

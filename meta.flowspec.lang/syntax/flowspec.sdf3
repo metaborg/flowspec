@@ -49,3 +49,7 @@ Section.Rules =
 
 [{PropRule "\n"}*]
 ]
+
+template options
+
+  keyword -/- [A-Za-z\-]

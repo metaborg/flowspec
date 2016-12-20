@@ -56,3 +56,7 @@ context-free syntax // Property Rules
   VarRef.This = [this]
   
   WhereClause.Contains = [[TLPattern] in [VarRef]]
+
+template options
+
+  keyword -/- [A-Za-z\-]

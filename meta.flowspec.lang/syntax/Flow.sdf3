@@ -13,19 +13,29 @@ context-free syntax
 [[TLPattern]: [FlowExpr]
 where [{ResolutionConstraint "\n"}+]]
 
+  FlowRule.MultiRule = [[{NoNamePattern ", "}+]: [MultiRuleBody]] {prefer}
+  MultiRuleBody.Opaques = "opaque"
+  MultiRuleBody.Sequentials = "sequential"
+  MultiRuleBody.Parallels = "parallel"
+
   FlowExpr.Ref = ID {avoid}
-  FlowExpr.Loop = "loop"
-  FlowExpr.This = "this"
+  FlowExpr.Jump = [jump [ID]]
+  FlowExpr.Opaque = "opaque"
+  FlowExpr.End = "end"
   
   FlowExpr.SeqList = [seq [ID]]
   FlowExpr.ParList = [par [ID]]
 
   FlowExpr = [([FlowExpr])] {bracket}
-  FlowExpr.Linear = [[FlowExpr], [FlowExpr]] {left}
+  FlowExpr.Sequential = [[FlowExpr], [FlowExpr]] {left}
   FlowExpr.Parallel = [[FlowExpr] || [FlowExpr]] {left}
   
   ResolutionConstraint.ResolvesTo = [[ID] |-> [ID]]
 
 context-free priorities
 
-  FlowExpr.Linear > FlowExpr.Parallel
+  FlowExpr.Sequential > FlowExpr.Parallel
+
+template options
+
+  keyword -/- [A-Za-z\-]
