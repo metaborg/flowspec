@@ -57,7 +57,7 @@ rules
   [[ Import(mod) ^ (global, moduleScope) ]] :=
     Module { mod } -> global,
     Module { mod } |-> d,
-    d <=== moduleScope.
+    Module { mod } <=== moduleScope.
 
   [[ Flow(rules) ^ (moduleScope) ]] :=
     Map1 [[ rules ^ (moduleScope) ]].
