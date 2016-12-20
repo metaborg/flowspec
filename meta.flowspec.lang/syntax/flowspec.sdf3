@@ -15,19 +15,22 @@ context-free syntax
   Start.Start =
 [module [ModuleName]
 
-[Imports]
+[{Import "\n"}*]
 
 [{Section "\n\n"}*]
 ]
 
-Imports.NoImports = []
-Imports.Imports =
+Import.Import = [imports [ModuleName]] {prefer}
+Import.ImportsList =
 [imports
 
-[{Import "\n"}*]
+[{ListImport "\n"}*]
 ]
 
-Import.Import = ModuleName
+ListImport.Import = ModuleName
+ListImport = [rules] {reject}
+ListImport = [imports] {reject}
+ListImport = [properties] {reject}
 
 Section.Flow =
 [flow rules

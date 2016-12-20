@@ -19,7 +19,8 @@ lexical syntax
   NewLineEOF     = EOF 
   EOF            =  
   
-  ModuleName     = {ID "/"}+
+  ModuleID       = [a-zA-Z] [a-zA-Z0-9\-]*
+  ModuleName     = {ModuleID "/"}+
   SortName       = [A-Z] [a-zA-Z0-9]*
   ConsName       = [A-Z] [a-zA-Z0-9]*
   PropName       = [A-Z] [a-zA-Z0-9]*
@@ -31,6 +32,8 @@ lexical restrictions
   CommentChar   -/- [\/]
   INT           -/- [0-9]
   ID            -/- [a-zA-Z0-9]
+  
+  ModuleID      -/- [a-zA-Z0-9\-]
   SortName      -/- [a-zA-Z0-9]
   PropName      -/- [a-zA-Z0-9]
   ConsName      -/- [a-zA-Z0-9]

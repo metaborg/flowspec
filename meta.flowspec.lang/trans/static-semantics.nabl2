@@ -7,7 +7,6 @@ imports
 signature
   constraint generator
     [[ Start ^ (global) ]]
-    [[ Imports ^ (global, moduleScope) ]]
     [[ Import ^ (global, moduleScope) ]]
     [[ Section ^ (moduleScope) ]]
     
@@ -49,15 +48,11 @@ rules
     Module { module } <- global,
     moduleScope ---> global,
     Module { module } ===> moduleScope,
-    [[ imports ^ (global, moduleScope) ]],
+    Map1 [[ imports ^ (global, moduleScope) ]],
     Map1 [[ sections ^ (moduleScope) ]],
     distinct D(moduleScope)/Module,
     distinct D(moduleScope)/Property,
     new moduleScope.
-
-  [[ NoImports() ^ (global, moduleScope) ]].
-  [[ Imports(imports) ^ (global, moduleScope) ]] :=
-    Map1 [[ imports ^ (global, moduleScope) ]].
   
   [[ Import(mod) ^ (global, moduleScope) ]] :=
     Module { mod } -> global,
@@ -88,6 +83,10 @@ rules
   
   RulePattern [[ Var(x) ^ (ruleScope) ]] :=
     Variable { x } <- ruleScope.
+  
+  RulePattern [[ At(x, pattern) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope,
+    RulePattern [[ pattern ^ (ruleScope) ]].
 
   WhereClausePatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
     WhereClausePattern [[ pattern ^ (ruleScope) ]],
@@ -103,6 +102,11 @@ rules
   WhereClausePattern [[ Var(x) ^ (ruleScope) ]] :=
     Variable { x } -> ruleScope,
     Variable { x } |-> d.
+  
+  WhereClausePattern [[ At(x, pattern) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> d,
+    WhereClausePattern [[ pattern ^ (ruleScope) ]].
 
 // Flow
   
@@ -129,6 +133,14 @@ rules
     Variable { def } <- ruleScope.
   
   FlowExpr [[ Ref(x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> d.
+  
+  FlowExpr [[ SeqList(x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> d.
+  
+  FlowExpr [[ ParList(x) ^ (ruleScope) ]] :=
     Variable { x } -> ruleScope,
     Variable { x } |-> d.
   

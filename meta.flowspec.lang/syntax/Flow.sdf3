@@ -8,13 +8,17 @@ imports
 
 context-free syntax
 
-  FlowRule.FlowRule = [[Pattern]: [FlowExpr]]
-  FlowRule.FlowRuleWhere = [[Pattern]: [FlowExpr]
+  FlowRule.FlowRule = [[TLPattern]: [FlowExpr]]
+  FlowRule.FlowRuleWhere =
+[[TLPattern]: [FlowExpr]
 where [{ResolutionConstraint "\n"}+]]
 
   FlowExpr.Ref = ID {avoid}
-  FlowExpr.Loop = [loop]
-  FlowExpr.This = [this]
+  FlowExpr.Loop = "loop"
+  FlowExpr.This = "this"
+  
+  FlowExpr.SeqList = [seq [ID]]
+  FlowExpr.ParList = [par [ID]]
 
   FlowExpr = [([FlowExpr])] {bracket}
   FlowExpr.Linear = [[FlowExpr], [FlowExpr]] {left}
