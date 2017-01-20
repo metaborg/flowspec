@@ -1,9 +1,65 @@
 module flow
 
-flow rules
+properties
 
-  IfThenElse(e, s1, s2): e, (s1 || s2)
-  While(e, s1): e, s1, loop
+  Write name  (upward)
+  Read name  (upward)
+  Value Value
+
+flow graph rules
+
+  While(st):
+    entry -> st,
+    st -> exit.
+  
+  Assign(x, e):
+    entry -> e,
+    e -> x,
+    x -> exit.
+  
+  Skip().
+  
+  Seq(st1, st2):
+    entry -> st1,
+    st1 -> st2,
+    st2 -> exit.
+
+//  rule block([]).
+//  rule block([h | t]): h -> block(t).
+//  
+//  Block(list):
+//    b@block(list),
+//    entry -> b,
+//    b -> exit.
+
+  IfThenElse(e, s1, s2):
+    entry -> e,
+    e -> s1 where e: Value True(),
+    e -> s2 where e: Value False(),
+    s1 -> exit,
+    s2 -> exit.
+
+  While(e, s1):
+    entry -> e,
+    e -> s1 where e: Value True(),
+    s1 -> e,
+    e -> exit where e: Value False().
+
+  Ref(_), Num(_), True(), False().
+  
+  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
+  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2):
+    entry -> e1,
+    entry -> e2,
+    e1 -> exit,
+    e2 -> exit.
+  
+  Not(e): e.
+
+property rules
+
+  Assign(x, _): Write x.
+  Ref(x): Read x.
 
 properties
 
@@ -11,10 +67,12 @@ properties
 
 property rules
 
-  Assign(x, _): removes Available a
-    where x in a
-  
+  st: Available expr
+  where st2 -> st,
+        st2: Available expr,
+        not (st: Write x, e: Read x).
+
   Add(_,_), Sub(_,_), Mul(_,_),
   Not(_), Or(_,_), And(_,_),
   Eq(_,_), Gt(_,_), Gte(_,_), Lt(_,_), Lte(_,_):
-    adds Available this
+    Available this.

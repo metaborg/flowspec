@@ -32,25 +32,3 @@ rules // Debugging
   debug-show-analyzed: (selected, _, _, path, project-path) -> (filename, result)
     with filename := <guarantee-extension(|"analyzed.aterm")> path
        ; result   := selected
-
-// Custom hooks so we don't need disjunction to check if a type is one of a list of types
-signature constructors
-  
-  ReduceType : Type -> TypeOp // type to check
-  SingleRefType : Type
-
-rules
-
-  nabl2-is-op-hook = ?ReduceType(_)
-
-  nabl2-reduce-op-hook(|sol): ReduceType(someType) -> SingleRefType()
-    where <single-ref-type> someType
-  
-  single-ref-type =
-      ?Name()
-    + ?Origin()
-    + ?Term()
-    + ?Set(_)
-    + ?Map(_, Origin())
-    + ?Map(_, Set(Origin()))
-      

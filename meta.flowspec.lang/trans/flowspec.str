@@ -6,11 +6,18 @@ imports
   pp
   outline
   analysis
+  desugar
 
 rules // Debugging
-  
-  debug-show-aterm:
+
+  debug-show-parsed:
     (node, _, _, path, project-path) -> (filename, result)
     with
       filename := <guarantee-extension(|"aterm")> path
     ; result   := node
+
+  debug-show-desugared:
+    (node, _, _, path, project-path) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"desugared.aterm")> path
+    ; result   := <desugar-all> node

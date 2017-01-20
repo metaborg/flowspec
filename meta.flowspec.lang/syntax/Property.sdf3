@@ -29,33 +29,37 @@ context-free syntax // Properties
   PropTypeRange = PropTypeSimple
   PropTypeRange.NonSet = [[PropTypeDomain]?]
   
-  PropDir.Forward  = [forward]
+  PropDir.Forward  = [forward] // only these first two need may/must right?
   PropDir.Backward = [backward]
+  PropDir.Upward  = [upward]
+  PropDir.Downward = [downward]
   PropKind.Must = [strict]
   PropKind.May  = [loose]
 
 context-free syntax // Property Rules
 
-  PropRule.PropRule = [[{TLPattern ", "}+]: [{PropRuleBody "\n"}+]]
+  PropRule.PropRule = [[{TLPattern ", "}+]: [PropRuleBody].]
   PropRule.PropRuleWhere =
-[[{TLPattern ", "}+]: [{PropRuleBody "\n"}+]
-  where [{WhereClause "\n"}+]]
+[[{TLPattern ", "}+]: [PropRuleBody]
+  where [PropWhereClause].]
   
-  PropRuleBody.Command = [[Command] [PropRef]]
-//  PropRuleBody.CommandWhere = [[Command] [PropRef] where [{WhereClause "\n"}+]]
-
-  Command.Adds = [adds]
-  Command.Removes = [removes]
-  Command.Overrides = [overrides]
-  Command.Uses = [uses]
+  PropRuleBody.PropRef = [[PropName] [VarRef]]
+  PropRuleBody.MapPropRef = [[PropName] [VarRef] -> [VarRef]]
   
-  PropRef.PropRef = [[PropName] [VarRef]]
-  PropRef.MapPropRef = [[PropName] [VarRef] -> [VarRef]]
+  PropWhereClause.And = [[PropWhereClause], [PropWhereClause]] {right}
+  PropWhereClause.CFGArrow = [[TLPattern] -> [TLPattern]]
+  PropWhereClause = HasPropExpr
+  PropWhereClause.Not = [not [PropBooleanExpr]]
+  
+  HasPropExpr.HasProp = [[ID]: [PropName] [VarRef]]
+  HasPropExpr.HasMapProp = [[ID]: [PropName] [VarRef] -> [VarRef]]
+  
+  PropBooleanExpr = [([PropBooleanExpr])] {bracket}
+  PropBooleanExpr.And = [[PropBooleanExpr], [PropBooleanExpr]] {right}
+  PropBooleanExpr = HasPropExpr
   
   VarRef.VarRef = ID {avoid}
   VarRef.This = [this]
-  
-  WhereClause.Contains = [[TLPattern] in [VarRef]]
 
 template options
 

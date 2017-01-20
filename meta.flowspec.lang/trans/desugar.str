@@ -16,13 +16,15 @@ where <s> (x, t) => (y, t')
 
 rules
 
-desugar-all = alltd(desugar-one);warning-on-missing-origin
+desugar-all = outermost(desugar-one);warning-on-missing-origin
 
-desugar-one =
+desugar-one = origin-track-forced(
     desugar-PropertyDef
-  + desugar-PropRule
+  + desugar-FlowExpr
+  + desugar-in-list(desugar-FlowRule)
+  + desugar-in-list(desugar-PropRule)
   + desugar-in-list(desugar-ImportsList)
-  + desugar-in-list(desugar-MultiRule)
+)
 
 desugar-PropertyDef: DefForward(name, type, kind) ->
   Def(name, type, <origin-set-relation> (kind, Forward()), kind)
@@ -35,30 +37,27 @@ desugar-PropertyDef: 'def@DefForwardMay(name, type) ->
     <origin-set-relation> ('def, Forward()),
     <origin-set-relation> ('def, May()) )
 
-desugar-PropRule: PropRule(pattern, body) -> PropRuleWhere(pattern, body, [])
+desugar-FlowExpr: Edge(from, to) -> ConditionalEdge(from, to, [])
 
-desugar-in-list(s) =
-  origin-track-forced(
-      is-list
+desugar-PropRule: PropRule(pattern*, body) ->
+  <map(origin-track-forced(\pattern -> PropRuleWhere(pattern, body, [])\))> pattern*
+desugar-PropRule: PropRuleWhere(pattern*, body, whereclause) ->
+  <map(origin-track-forced(\pattern -> PropRuleWhere(pattern, body, whereclause)\))> pattern*
+
+desugar-FlowRule: MultiFlowRule(pattern*, expr*) ->
+  <map(origin-track-forced(\pattern -> FlowRule(pattern, expr*)\))> pattern*
+desugar-FlowRule: EmptyRule(pattern*) ->
+  <map(origin-track-forced(\pattern -> FlowRule(pattern, [])\))> pattern*
+
+desugar-ImportsList: ImportsList(l*) -> l*
+
+desugar-in-list(s): subj -> <origin-set-relation> (subj, obj)
+where is-list
     ; if map(not(s))
         then fail
         else mapconcat(s <+ ![<id>])
       end//if
-    )
-
-desugar-ImportsList: ImportsList(l*) -> l*
-
-desugar-MultiRule: MultiRule(opaques, l@Opaques()) -> l*
-with l* := <map(desugar-MR-Match(|l))> opaques
-
-desugar-MR-Match(|l): m ->
-  <origin-set-relation> (m, FlowRule(m, <origin-set-relation> (l, Opaque())))
-
-desugar-MultiRule: MultiRule(seqs, s@Sequentials()) -> s*
-with s* := <filter(desugar-NoNamePattern(!Sequential(<Fst>, <Snd>)|"s"))> seqs
-
-desugar-MultiRule: MultiRule(pars, p@Parallels()) -> p*
-with p* := <filter(desugar-NoNamePattern(!Parallel(<Fst>, <Snd>)|"p"))> pars
+    ; ?obj
 
 desugar-NoNamePattern(s|v) = 
     with(!(<id>, 0); desugar-NNP(|v); Fst)
@@ -82,7 +81,7 @@ rules // check AST whether every sub term has an origin
 
 warning-on-missing-origin: term -> <id>
 with terms-missing-origin
-   ; filter(not(?[]))
-   ; map(debug(|"Warning: Term missing origin"))
+   ; remove-all(?[])
+   ; map(debug(|"[WARNING] Term missing origin: "))
 
 terms-missing-origin = collect-all(not(origin-offset))

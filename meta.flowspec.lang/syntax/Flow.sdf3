@@ -8,33 +8,24 @@ imports
 
 context-free syntax
 
-  FlowRule.FlowRule = [[TLPattern]: [FlowExpr]]
-  FlowRule.FlowRuleWhere =
-[[TLPattern]: [FlowExpr]
-where [{ResolutionConstraint "\n"}+]]
+  FlowRule.MultiFlowRule = [[{TLPattern ", "}+]: [{FlowExpr ", "}+].] {prefer}
+  FlowRule.EmptyRule = [[{TLPattern ", "}+].]
+  // MultiFlowRules and EmptyRules get desugared to FlowRules later
+  FlowRule.FlowRule = [[TLPattern]: [{FlowExpr ", "}+].]
 
-  FlowRule.MultiRule = [[{NoNamePattern ", "}+]: [MultiRuleBody]] {prefer}
-  MultiRuleBody.Opaques = "opaque"
-  MultiRuleBody.Sequentials = "sequential"
-  MultiRuleBody.Parallels = "parallel"
-
-  FlowExpr.Ref = ID {avoid}
-  FlowExpr.Jump = [jump [ID]]
-  FlowExpr.Opaque = "opaque"
-  FlowExpr.End = "end"
+  FlowExpr.Recurse = ID {avoid}
+  FlowExpr.Edge = [[FlowNode] -> [FlowNode]]
+  FlowExpr.ConditionalEdge = [[FlowNode] -> [FlowNode] where [{FlowWhereClause ",\n"}+]]
+  FlowExpr.Writes = [writes [ID]]
+  FlowExpr.Reads = [reads [ID]]
   
-  FlowExpr.SeqList = [seq [ID]]
-  FlowExpr.ParList = [par [ID]]
-
-  FlowExpr = [([FlowExpr])] {bracket}
-  FlowExpr.Sequential = [[FlowExpr], [FlowExpr]] {left}
-  FlowExpr.Parallel = [[FlowExpr] || [FlowExpr]] {left}
+  FlowNode.Ref = ID {avoid}
+  FlowNode.Entry = [entry]
+  FlowNode.Exit = [exit]
   
-  ResolutionConstraint.ResolvesTo = [[ID] |-> [ID]]
-
-context-free priorities
-
-  FlowExpr.Sequential > FlowExpr.Parallel
+//  FlowWhereClause.CFGArrow = [[TLPattern] -> [TLPattern]]
+  FlowWhereClause.HasProp = [[ID]: [PropName] [Pattern]]
+  FlowWhereClause.HasMapProp = [[ID]: [PropName] [Pattern] -> [Pattern]]
 
 template options
 

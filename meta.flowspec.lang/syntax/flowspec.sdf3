@@ -33,7 +33,7 @@ ListImport = [imports] {reject}
 ListImport = [properties] {reject}
 
 Section.Flow =
-[flow rules
+[flow graph rules
 
 [{FlowRule "\n"}*]
 ]
