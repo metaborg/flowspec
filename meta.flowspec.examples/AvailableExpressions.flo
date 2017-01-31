@@ -70,7 +70,7 @@ property rules
   st: Available expr
   where st2 -> st,
         st2: Available expr,
-        not (st: Write x, e: Read x).
+        not (st: Write x, expr: Read x).
 
   Add(_,_), Sub(_,_), Mul(_,_),
   Not(_), Or(_,_), And(_,_),

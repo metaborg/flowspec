@@ -12,11 +12,11 @@ thread-map_(s): ([], t) -> ([], t)
 thread-map_(s): ([x | xs], t) -> ([y' | ys], t'')
 where <s> (x, t) => (y, t')
     ; <thread-map_(s)> (xs, t') => (ys, t'')
-    ; y' := <origin-set-relation> (x, y)
+    ; y' := <origin-track-forced(!y)> x
 
 rules
 
-desugar-all = outermost(desugar-one);warning-on-missing-origin
+desugar-all = topdown(try(desugar-one));remove-object-sharing-in-strings;warning-on-missing-origin
 
 desugar-one = origin-track-forced(
     desugar-PropertyDef
@@ -27,22 +27,24 @@ desugar-one = origin-track-forced(
 )
 
 desugar-PropertyDef: DefForward(name, type, kind) ->
-  Def(name, type, <origin-set-relation> (kind, Forward()), kind)
+  Def(name, type, <origin-track-forced(!Forward())> kind, kind)
 desugar-PropertyDef: DefMay(name, type, dir) ->
-  Def(name, type, dir, <origin-set-relation> (dir, May()))
+  Def(name, type, dir, <origin-track-forced(!May())> dir)
 desugar-PropertyDef: 'def@DefForwardMay(name, type) ->
   Def(
     name,
     type, 
-    <origin-set-relation> ('def, Forward()),
-    <origin-set-relation> ('def, May()) )
+    <origin-track-forced(!Forward())> 'def,
+    <origin-track-forced(!May())> 'def )
 
 desugar-FlowExpr: Edge(from, to) -> ConditionalEdge(from, to, [])
 
-desugar-PropRule: PropRule(pattern*, body) ->
-  <map(origin-track-forced(\pattern -> PropRuleWhere(pattern, body, [])\))> pattern*
+desugar-PropRule: pr@PropRule(pattern*, body) ->
+  <map(origin-track-forced(\pattern ->
+    PropRuleWhere(pattern, body, <origin-track-forced(!True())> pr)\))> pattern*
 desugar-PropRule: PropRuleWhere(pattern*, body, whereclause) ->
   <map(origin-track-forced(\pattern -> PropRuleWhere(pattern, body, whereclause)\))> pattern*
+where <is-list> pattern*
 
 desugar-FlowRule: MultiFlowRule(pattern*, expr*) ->
   <map(origin-track-forced(\pattern -> FlowRule(pattern, expr*)\))> pattern*
@@ -51,11 +53,10 @@ desugar-FlowRule: EmptyRule(pattern*) ->
 
 desugar-ImportsList: ImportsList(l*) -> l*
 
-desugar-in-list(s): subj -> <origin-set-relation> (subj, obj)
-where is-list
-    ; if map(not(s))
+desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
+where if map(not(s))
         then fail
-        else mapconcat(s <+ ![<id>])
+        else mapconcat(origin-track-forced(s <+ ![<id>]))
       end//if
     ; ?obj
 
@@ -72,7 +73,7 @@ with v* := <postorder-collect(?Var(_));reverse> match
 where body := <desugar-NNP-FR-Vars(s)> v*
 
 desugar-NNP-FR-Wildcard(|v): (wc, c) ->
-  (<origin-set-relation> (wc, Var($[[v][c]])), <add> c)
+  (<origin-track-forced(!Var($[[v][c]]))> wc, <add> c)
 
 desugar-NNP-FR-Vars(s): [ v | vs ] -> <s>(v, <desugar-NNP-FR-Vars(s)> vs)
 desugar-NNP-FR-Vars(s): [ v1 ] -> v1
@@ -85,3 +86,11 @@ with terms-missing-origin
    ; map(debug(|"[WARNING] Term missing origin: "))
 
 terms-missing-origin = collect-all(not(origin-offset))
+
+warning-on-origin-loss(s|str): original -> <s> original
+where transformed := <s> original
+    ; if <(origin-offset, not(origin-offset))> (original, transformed)
+        then <debug(|${[WARNING] Origin just lost in {str}:{" "}})> transformed
+      end//if
+
+remove-object-sharing-in-strings = topdown(try(is-string;origin-track-forced(explode-string;implode-string)))

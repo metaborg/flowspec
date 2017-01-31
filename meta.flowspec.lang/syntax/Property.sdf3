@@ -50,6 +50,7 @@ context-free syntax // Property Rules
   PropWhereClause.CFGArrow = [[TLPattern] -> [TLPattern]]
   PropWhereClause = HasPropExpr
   PropWhereClause.Not = [not [PropBooleanExpr]]
+  PropWhereClause.True = [true]
   
   HasPropExpr.HasProp = [[ID]: [PropName] [VarRef]]
   HasPropExpr.HasMapProp = [[ID]: [PropName] [VarRef] -> [VarRef]]

@@ -1,5 +1,6 @@
 module static-semantics
 
+
 imports
 
   signatures/-
@@ -62,9 +63,9 @@ rules
     Name() <test! IsSingle(),
     Origin() <test! IsSingle(),
     Term() <test! IsSingle(),
-    (Name(), Origin()) <test! IsSingle(),
-    (Origin(), Origin()) <test! IsSingle(),
-    (Term(), Origin()) <test! IsSingle(),
+//    (Name(), Origin()) <test! IsSingle(),
+//    (Origin(), Origin()) <test! IsSingle(),
+//    (Term(), Origin()) <test! IsSingle(),
 
     (Name(), Origin()) <test! IsDual(),
     (Origin(), Origin()) <test! IsDual(),
@@ -82,10 +83,14 @@ rules
     Module { module } <- global,
     moduleScope ---> global,
     Module { module } ===> moduleScope,
-    Map1 [[ imports ^ (global, moduleScope) ]],
-    Map1 [[ sections ^ (moduleScope) ]],
-    distinct D(moduleScope)/Module,
-    distinct D(moduleScope)/Property,
+/** Currently this does basically nothing. Using these rules makes everything too slow. 
+    I'm not sure where the problem lies. Perhaps with the Variable { v @ v } stuff for the
+    inference variables. 
+*/
+//    Map1 [[ imports ^ (global, moduleScope) ]],
+//    Map1 [[ sections ^ (moduleScope) ]],
+//    distinct D(moduleScope)/Module,
+//    distinct D(moduleScope)/Property,
     new moduleScope.
   
   [[ Import(mod) ^ (global, moduleScope) ]] :=
@@ -125,7 +130,7 @@ rules
   WhereClausePatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
     WhereClausePattern [[ pattern ^ (ruleScope) ]],
     WhereClausePatternMap1 [[ patterns ^ (ruleScope) ]].
-  
+
   WhereClausePatternMap1 [[ [] ^ (_) ]].
 
   WhereClausePattern [[ Match(_, patterns) ^ (ruleScope) ]] :=
@@ -134,12 +139,10 @@ rules
   WhereClausePattern [[ Wildcard() ^ (ruleScope) ]] := true.
 
   WhereClausePattern [[ Var(x) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> d.
+    Variable { id @ ruleScope } <- ruleScope.
 
   WhereClausePattern [[ At(x, pattern) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> d,
+    Variable { id @ ruleScope } <- ruleScope,
     WhereClausePattern [[ pattern ^ (ruleScope) ]].
 
 // Flow
@@ -150,12 +153,10 @@ rules
     Variable { Entry() } <- ruleScope,
     Variable { Exit() } <- ruleScope,
     Map1 [[ exprs ^ (ruleScope) ]],
-    distinct D(ruleScope)/Variable,
     new ruleScope.
 
   [[ Recurse(x) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> d.
+    Variable { x @ ruleScope } <- ruleScope.
 
   [[ ConditionalEdge(from, to, flowclauses) ^ (ruleScope) ]] :=
     [[ from ^ (ruleScope) ]],
@@ -163,16 +164,13 @@ rules
     Map1 [[ flowclauses ^ (ruleScope) ]].
 
   [[ Writes(x) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> d.
+    Variable { x @ ruleScope } <- ruleScope.
 
   [[ Reads(x) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> d.
+    Variable { x @ ruleScope } <- ruleScope.
 
   [[ Ref(x) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> d.
+    Variable { x @ ruleScope } <- ruleScope.
 
   [[ e@Entry() ^ (ruleScope) ]] :=
     Variable { e } -> ruleScope.
@@ -181,15 +179,13 @@ rules
     Variable { e } -> ruleScope.
 
   [[ HasProp(x, propname, pattern) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> dX,
+    Variable { x @ ruleScope } <- ruleScope,
     Property { propname } -> ruleScope,
     Property { propname } |-> dPropname,
     WhereClausePattern [[ pattern ^ (ruleScope) ]].
 
   [[ HasMapProp(x, propname, pattern1, pattern2) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> dX,
+    Variable { x @ ruleScope } <- ruleScope,
     Property { propname } -> ruleScope,
     Property { propname } |-> dPropname,
     WhereClausePattern [[ pattern1 ^ (ruleScope) ]],
@@ -225,7 +221,6 @@ rules
     Variable { This() } <- ruleScope,
     [[ body ^ (ruleScope) ]],
     [[ whereclause ^ (ruleScope) ]],
-    distinct D(ruleScope)/Variable,
     new ruleScope.
 
   [[ PropRef(prop, ref) ^ (ruleScope) ]] :=
@@ -251,46 +246,39 @@ rules
     VarRef [[ ref1 ^ (ruleScope) : ty1_ ]],
     VarRef [[ ref2 ^ (ruleScope) : ty2_ ]].
 
-  [[ And(whereclause1, whereclause2) ^ (ruleScope) ]] :=
-    [[ whereclause1 ^ (ruleScope) ]],
-    [[ whereclause2 ^ (ruleScope) ]].
-
-  [[ CFGArrow(pattern1, pattern2) ^ (ruleScope) ]] :=
-  // TODO: is this really the case? Seems more like these are inference variables
-    WhereClausePattern [[ pattern1 ^ (ruleScope) ]],
-  // TODO: is this really the case? Seems more like these are inference variables
-    WhereClausePattern [[ pattern2 ^ (ruleScope) ]].
-
-  [[ HasProp(x, propname, varref) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> dX,
-    Property { propname } -> ruleScope,
-    Property { propname } |-> dPropname,
-  // TODO: is this really the case? Seems more like these are inference variables
-    VarRef [[ varref ^ (ruleScope) ]].
-
-  [[ HasMapProp(x, propname, varref1, varref2) ^ (ruleScope) ]] :=
-    Variable { x } -> ruleScope,
-    Variable { x } |-> dX,
-    Property { propname } -> ruleScope,
-    Property { propname } |-> dPropname,
-  // TODO: is this really the case? Seems more like these are inference variables
-    VarRef [[ varref1 ^ (ruleScope) ]],
-  // TODO: is this really the case? Seems more like these are inference variables
-    VarRef [[ varref2 ^ (ruleScope) ]].
-
   VarRef [[ VarRef(id) ^ (ruleScope) : Term() ]] :=
-    Variable { id } -> ruleScope,
-    Variable { id } |-> d.
+    Variable { id @ ruleScope } <- ruleScope.
 
   VarRef [[ t@This() ^ (ruleScope) : Term() ]] :=
     Variable { t } -> ruleScope,
     Variable { t } |-> d.
 
-// Currently unused while we figure out what to do with inference variables
-//  WhereClauseVarRef [[ VarRef(id) ^ (ruleScope) ]] :=
-//    Variable { id } <- ruleScope.
-//
-//  WhereClauseVarRef [[ t@This() ^ (ruleScope) : Term() ]] :=
-//    Variable { t } -> ruleScope,
-//    Variable { t } |-> d.
+  [[ And(whereclause1, whereclause2) ^ (ruleScope) ]] :=
+    [[ whereclause1 ^ (ruleScope) ]],
+    [[ whereclause2 ^ (ruleScope) ]].
+
+  [[ CFGArrow(pattern1, pattern2) ^ (ruleScope) ]] :=
+    WhereClausePattern [[ pattern1 ^ (ruleScope) ]],
+    WhereClausePattern [[ pattern2 ^ (ruleScope) ]].
+
+  [[ HasProp(x, propname, varref) ^ (ruleScope) ]] :=
+    Variable { x @ ruleScope } <- ruleScope,
+    Property { propname } -> ruleScope,
+    Property { propname } |-> dPropname,
+    VarRef [[ varref ^ (ruleScope) : t ]].
+
+  [[ HasMapProp(x, propname, varref1, varref2) ^ (ruleScope) ]] :=
+    Variable { x @ ruleScope } <- ruleScope,
+    Property { propname } -> ruleScope,
+    Property { propname } |-> dPropname,
+    VarRef [[ varref1 ^ (ruleScope) : t1 ]],
+    VarRef [[ varref2 ^ (ruleScope) : t2 ]].
+
+  [[ Not(pbe) ^ (ruleScope) ]] :=
+    [[ pbe ^ (ruleScope) ]].
+
+  [[ True() ^ (ruleScope) ]] :=
+    true. // what else? :)
+
+  // pbe : PropBooleanExpr uses a subset of constructors from PropWhereClause, so the untyped
+  //  Stratego rules that this gets translated into will match them without explicit definition here

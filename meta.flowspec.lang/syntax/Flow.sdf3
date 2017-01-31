@@ -22,7 +22,8 @@ context-free syntax
   FlowNode.Ref = ID {avoid}
   FlowNode.Entry = [entry]
   FlowNode.Exit = [exit]
-  
+
+// This would probably be too powerful:
 //  FlowWhereClause.CFGArrow = [[TLPattern] -> [TLPattern]]
   FlowWhereClause.HasProp = [[ID]: [PropName] [Pattern]]
   FlowWhereClause.HasMapProp = [[ID]: [PropName] [Pattern] -> [Pattern]]
