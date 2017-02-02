@@ -163,12 +163,6 @@ rules
     [[ to ^ (ruleScope) ]],
     Map1 [[ flowclauses ^ (ruleScope) ]].
 
-  [[ Writes(x) ^ (ruleScope) ]] :=
-    Variable { x @ ruleScope } <- ruleScope.
-
-  [[ Reads(x) ^ (ruleScope) ]] :=
-    Variable { x @ ruleScope } <- ruleScope.
-
   [[ Ref(x) ^ (ruleScope) ]] :=
     Variable { x @ ruleScope } <- ruleScope.
 

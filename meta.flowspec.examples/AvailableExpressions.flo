@@ -1,4 +1,4 @@
-module flow
+module AvailableExpressions
 
 properties
 
@@ -9,20 +9,15 @@ properties
 flow graph rules
 
   While(st):
-    entry -> st,
-    st -> exit.
+    st.
   
   Assign(x, e):
-    entry -> e,
-    e -> x,
-    x -> exit.
+    e -> x.
   
   Skip().
   
   Seq(st1, st2):
-    entry -> st1,
-    st1 -> st2,
-    st2 -> exit.
+    st1 -> st2.
 
 //  rule block([]).
 //  rule block([h | t]): h -> block(t).

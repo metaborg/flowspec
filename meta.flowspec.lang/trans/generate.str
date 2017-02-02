@@ -1,0 +1,111 @@
+module generate
+
+imports
+
+signatures/-
+
+rules
+
+// flowspec
+// flowspec - Start
+gen-str: Start(modulename, import*, section*) ->
+  $[module [modulename]
+
+  imports
+
+//  flowspec/signatures/-
+  signatures/-
+  [importstring /* there's a newline in this string, so don't put a newline after it */]
+  // temporary, should be moved to runtime part of the language so it can be imported
+  signature constructors
+    CFGEdge : Term * Term * List(Term) -> Constraint
+    Entry : Condition
+    Exit : Condition
+    HasProp : Term * Term * Term -> Condition
+
+  rules
+
+  [sectionstring]]
+with importstring := <map(?Import(<id>));lines> import*
+   ; sectionstring := <filter(gen-str);lines> section*
+
+// flowspec - Section
+gen-str: Rules(_) -> <fail>
+with <debug> "[NOTE] we're not generating code for the property rules section yet. "
+
+gen-str: Properties(_) -> <fail>
+with <debug> "[NOTE] we're not generating code for the properties section yet. "
+
+gen-str: Flow(flowrule*) -> <map(gen-str);lines> flowrule*
+
+// Flow
+// Flow - FlowRule
+gen-str: FlowRule(pattern, edge*) ->
+  ${flowspec--generate-cfg-constraint-rule:
+    this@{patternstring} -> <concat> [{constraintstring}]
+  with(constr := [{withclausestring}])
+  {subtermconstraintstring}}
+with patternstring := <gen-str> pattern
+   ; variables := <pattern-variables> pattern
+   ; withclausestring := <map(gen-constraints(|variables));separate-by(|",\n");concat-strings> edge*
+   ; constraintstring :=
+      <separate-by(|", ")> [ "constr" | <map(!$[constr-[<id>]])> variables ]
+   ; subtermconstraintstring := <map(gen-subterm-constraints);lines> variables
+
+// Flow - FlowExpr
+gen-constraints(|variables): ConditionalEdge(Entry(), to@Ref(_), cond*) ->
+  ${CFGEdge(this, {tostring}, [{condstring}])}
+with tostring := <gen-constraints(|variables)> to
+   ; condstring := <map(gen-constraints(|variables))
+                   ;!["Entry()"|<id>]
+                   ;separate-by(|", ")
+                   ;concat-strings> cond*
+   
+gen-constraints(|variables): ConditionalEdge(from@Ref(_), Exit(), cond*) ->
+  ${CFGEdge({fromstring}, this, [{condstring}])}
+with fromstring := <gen-constraints(|variables)> from
+   ; condstring := <map(gen-constraints(|variables))
+                   ;!["Exit()"|<id>]
+                   ;separate-by(|", ")
+                   ;concat-strings> cond*
+   
+gen-constraints(|variables): ConditionalEdge(from@Ref(_), to@Ref(_), cond*) ->
+  ${CFGEdge({fromstring}, {tostring}, [{condstring}])}
+with fromstring := <gen-constraints(|variables)> from
+   ; tostring := <gen-constraints(|variables)> to
+   ; condstring := <map(gen-constraints(|variables));separate-by(|", ");concat-strings> cond*
+
+gen-constraints(|variables): Ref(ident) -> $[flo-[ident]]
+where if <not(member)> (ident, variables)
+    then <debug>
+      ${[ERROR] Variable {ident} does not come from the AST; this is currently not supported!}
+  end
+
+gen-constraints(|variables): HasProp(ident, prop, pattern) ->
+  $[HasProp(flo-[ident], "[prop]", [patternstring])]
+with patternstring := <gen-str> pattern
+where if <not(member)> (ident, variables)
+    then <debug>
+      ${[ERROR] Variable {ident} doesn't come from the AST; this is currently not supported!}
+  end
+; if <pattern-variables;?idents;not(?[])> pattern
+    then <debug>
+      ${[ERROR] Matching properties to variables in flow rules is currently not supported!}
+  end
+
+gen-subterm-constraints: var ->
+  ${with(constr-{var} := <flowspec--generate-cfg-constraint-rule> flo-{var})}
+
+// Pattern
+// Pattern - Pattern, Wildcard
+gen-str: Var(ident) -> $[flo-[ident]]
+gen-str: At(ident, pattern) -> $[flo-[ident]@[patternstring]]
+with patternstring := <gen-str> pattern
+gen-str: Match(consname, subpattern*) -> $[[consname]([subpatternsstring])]
+with subpatternsstring := <map(gen-str);separate-by(|", ");concat-strings> subpattern*
+gen-str: Wildcard() -> "_"
+
+pattern-variables: Var(ident) -> [ident]
+pattern-variables: At(ident, pattern) -> [ ident | <pattern-variables> pattern ]
+pattern-variables: Match(_, subpattern*) -> <mapconcat(pattern-variables)> subpattern*
+pattern-variables: Wildcard() -> []

@@ -20,6 +20,7 @@ desugar-all = topdown(try(desugar-one));remove-object-sharing-in-strings;warning
 
 desugar-one = origin-track-forced(
     desugar-PropertyDef
+  + desugar-FlowRuleBody
   + desugar-FlowExpr
   + desugar-in-list(desugar-FlowRule)
   + desugar-in-list(desugar-PropRule)
@@ -36,6 +37,24 @@ desugar-PropertyDef: 'def@DefForwardMay(name, type) ->
     type, 
     <origin-track-forced(!Forward())> 'def,
     <origin-track-forced(!May())> 'def )
+
+desugar-FlowRuleBody: r@Recurse(identid) -> [ce1, ce2]
+where ident := <origin-track-forced(!Ref(identid))> identid
+    ; entry := <origin-track-forced(!Entry())> r
+    ; ce1 := <origin-track-forced(!ConditionalEdge(entry, ident, []))> r
+    ; exit := <origin-track-forced(!Exit())> r
+    ; ce2 := <origin-track-forced(!ConditionalEdge(ident, exit, []))> r
+
+desugar-FlowRuleBody: s@SingleEdge(fromid, toid) -> [ce1, ce, ce2]
+where from := <origin-track-forced(!Ref(fromid))> fromid
+    ; to := <origin-track-forced(!Ref(toid))> toid
+    ; ce := <origin-track-forced(!ConditionalEdge(from, to, []))> s
+    ; entry := <origin-track-forced(!Entry())> s
+    ; ce1 := <origin-track-forced(!ConditionalEdge(entry, from, []))> s
+    ; exit := <origin-track-forced(!Exit())> s
+    ; ce2 := <origin-track-forced(!ConditionalEdge(to, exit, []))> s
+
+desugar-FlowRuleBody: Multiple(l) -> l
 
 desugar-FlowExpr: Edge(from, to) -> ConditionalEdge(from, to, [])
 

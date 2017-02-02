@@ -1,0 +1,7 @@
+module Transform
+
+menus
+  
+  menu: "Generate" (openeditor)
+    
+    action: "Generate Stratego" = generate-stratego

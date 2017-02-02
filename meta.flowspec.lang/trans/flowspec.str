@@ -7,6 +7,7 @@ imports
   outline
   analysis
   desugar
+  generate
 
 rules // Debugging
 
@@ -21,3 +22,9 @@ rules // Debugging
     with
       filename := <guarantee-extension(|"desugared.aterm")> path
     ; result   := <desugar-all> node
+
+generate-stratego: 
+    (node, _, _, path, project-path) -> (filename, result)
+    with
+      filename := <guarantee-extension(|"str")> path
+    ; result   := <gen-str> node

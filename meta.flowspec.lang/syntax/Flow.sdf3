@@ -8,17 +8,22 @@ imports
 
 context-free syntax
 
-  FlowRule.MultiFlowRule = [[{TLPattern ", "}+]: [{FlowExpr ", "}+].] {prefer}
+  FlowRule.MultiFlowRule = [[{TLPattern ", "}+]: [FlowRuleBody].] {prefer}
   FlowRule.EmptyRule = [[{TLPattern ", "}+].]
   // MultiFlowRules and EmptyRules get desugared to FlowRules later
-  FlowRule.FlowRule = [[TLPattern]: [{FlowExpr ", "}+].]
+  FlowRule.FlowRule = [[TLPattern]: [FlowRuleBody].]
 
-  FlowExpr.Recurse = ID {avoid}
+  FlowRuleBody.Recurse = FlowRef
+  FlowRuleBody.SingleEdge = [[FlowRef] -> [FlowRef]] {prefer}
+  FlowRuleBody.Multiple = {FlowExpr ",\n"}+
+
+  FlowRef = ID
+  FlowRef = [entry] {reject}
+  FlowRef = [exit] {reject}
+
   FlowExpr.Edge = [[FlowNode] -> [FlowNode]]
   FlowExpr.ConditionalEdge = [[FlowNode] -> [FlowNode] where [{FlowWhereClause ",\n"}+]]
-  FlowExpr.Writes = [writes [ID]]
-  FlowExpr.Reads = [reads [ID]]
-  
+
   FlowNode.Ref = ID {avoid}
   FlowNode.Entry = [entry]
   FlowNode.Exit = [exit]
