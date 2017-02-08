@@ -5,6 +5,7 @@ properties
   Write name  (upward)
   Read name  (upward)
   Value Value
+  Expr Term
 
 flow graph rules
 
@@ -56,6 +57,11 @@ property rules
   Assign(x, _): Write x.
   Ref(x): Read x.
 
+  Add(_,_), Sub(_,_), Mul(_,_),
+  Not(_), Or(_,_), And(_,_),
+  Eq(_,_), Gt(_,_), Gte(_,_), Lt(_,_), Lte(_,_):
+    Expr this.
+
 properties
 
   Available Expr (strict)
@@ -67,7 +73,5 @@ property rules
         st2: Available expr,
         not (st: Write x, expr: Read x).
 
-  Add(_,_), Sub(_,_), Mul(_,_),
-  Not(_), Or(_,_), And(_,_),
-  Eq(_,_), Gt(_,_), Gte(_,_), Lt(_,_), Lte(_,_):
-    Available this.
+  st: Available e
+  where st: Expr e.

@@ -1,0 +1,16 @@
+module IR
+
+imports
+
+Flow
+Common
+
+context-free syntax
+
+CFGEdge.CFGEdge = [[CFGEdgeNode] -> [CFGEdgeNode] where [{CFGEdgeWhereClause ",\n"}+]]
+
+CFGEdgeWhereClause = FlowWhereClause
+CFGEdgeWhereClause.Entry = [entry]
+CFGEdgeWhereClause.Exit = [exit]
+
+CFGEdgeNode.IndexTerm = [[STRING]@[INT]] // Nabl2 IndexTerm really

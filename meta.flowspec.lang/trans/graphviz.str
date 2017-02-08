@@ -1,0 +1,122 @@
+module graphviz
+
+imports
+
+signatures/-
+nabl2/shared/-
+nabl2/runtime/-
+
+libspoofax/stratego/debug
+
+rules
+
+to-dot(s): input -> $[digraph {
+  [<s> input]
+}]
+
+to-dot-tree: ast -> $<
+node [ shape = box ];
+<nodes>
+edge [ style = invis, weight = 1 ];
+<nodes-order>
+edge [ style = normal, arrowhead = none, color = grey, weight = 3 ];
+<edges>>
+with nodes := <to-dot-tree-nodes> ast
+   ; nodes-order := <to-dot-tree-nodes-order> ast
+   ; edges := <to-dot-tree-edges> ast
+
+to-dot-tree-node: this@c#(_) -> $[[c] ([n])]
+where <not(is-string)> this
+with TermIndex(_, n) := <nabl2--get-ast-index> this
+
+to-dot-tree-node: this -> $[[this] ([n])]
+where <is-string> this
+with TermIndex(_, n) := <nabl2--get-ast-index> this
+
+to-dot-tree-nodes: ast -> <topdown-fold(to-dot-tree-nodes-1);lines> (ast, [])
+
+to-dot-tree-nodes-1: (term, list) -> [ <to-dot-tree-node;!$["[<id>]";]> term | list ]
+
+to-dot-tree-nodes-order: ast -> <topdown-fold(to-dot-tree-nodes-order-1);lines> (ast, [])
+
+to-dot-tree-nodes-order-1: (term, list) -> [ <to-dot-tree-nodes-order-2> term | list ]
+
+to-dot-tree-nodes-order-2: term -> $<{ rank = same;
+<nodes>;
+}>
+where <gt> (<get-arguments;length> term, 1)
+with nodes := <get-arguments;map(to-dot-tree-node;double-quote);separate-by(|" -> ");concat-strings> term
+
+to-dot-tree-nodes-order-2: term -> "" where <leq> (<get-arguments;length> term, 1)
+
+to-dot-tree-edge: term -> <map(!$["[node]" -> "[<id>]";])> nodes
+with node := <to-dot-tree-node> term
+   ; nodes := <get-arguments;map(to-dot-tree-node)> term
+
+to-dot-tree-edges: ast -> <topdown-fold(to-dot-tree-edges-1);lines> (ast, [])
+
+to-dot-tree-edges-1: (term, list) -> <concat> [ <to-dot-tree-edge> term, list ]
+
+to-dot-tree-cfg(|revidx): (ast, cfgedge*) -> $<
+<<to-dot-tree> ast>
+edge [ arrowhead = normal, color = normal, weight = 2 ];
+<<to-dot-tree-cfg-edges(|revidx)> cfgedge*>>
+
+to-dot-tree-cfg-edges(|revidx) = map(to-dot-tree-cfg-edge(|revidx));lines
+
+to-dot-tree-cfg-edge(|revidx): CFGEdge(from, to, constraints) -> ${"{f}" -> "{t}" [ {cs} ];}
+with f := <lookup;to-dot-tree-node> (from, revidx)
+   ; t := <lookup;to-dot-tree-node> (to, revidx)
+   ; cs := <map(to-dot-attr-constraint(|revidx))
+           ;!["constraint=none"|<id>]
+           ;separate-by(|", ")
+           ;concat-strings> constraints
+
+to-dot-attr-constraint(|revidx): Entry() -> "arrowtail = odot, dir = both"
+to-dot-attr-constraint(|revidx): Exit() -> "arrowhead = dotnormal"
+to-dot-attr-constraint(|revidx): HasProp(from, prop, term) -> ${label = "{f}: {prop} {trm}"}
+with f := <lookup;to-dot-tree-node> (from, revidx)
+   ; trm := <write-to-string;escape> term
+
+//to-dot-linear-cfg(|revidx): (ast, cfgedge*) -> ${
+//node [ shape = box ];
+//"start" [ label = "", shape = circle ];
+//"end" [ label = "", shape = circle, background = black ];
+//{nodes}
+//"{node}" -> "end";
+//{startedges}
+//{edges-string}}
+//with nodes := <to-dot-tree-nodes> ast
+//   ; node := <to-dot-tree-node> ast
+//   ; startedges := <entries-reachable(|revidx, cfgedge*)
+//                   ;map(CFGEdge(!"start",id,id))
+//                   ;to-dot-linear-cfg-edges(|revidx)> ast
+//   ; edges-string := <to-dot-linear-cfg-edges2(|revidx, cfgedge*)> ast
+//
+//entries-reachable(|revidx, cfgedge*): node -> <concat> [ l1 | l2 ]
+//with edge* := <retain-all(CFGEdge(?node, id, where(getfirst(?Entry()))))> cfgedge*
+//   ; (l2, l1) := <partition(entries-reachable-1)> edge*
+//
+//entries-reachable-1: CFGEdge(from, to, cs) -> edges'
+//with edges := <entries-reachable(|revidx, cfgedge*)> to
+//   ; edges' := <map(CFGEdge(!from, id, ![<id>, cs];concat;remove-all(?Entry())))> edges
+//
+//to-dot-linear-cfg-edges(|revidx) = map(to-dot-linear-cfg-edge(|revidx));lines
+//
+//to-dot-linear-cfg-edge(|revidx): CFGEdge(from, to, constraints) -> ${"{f}" -> "{t}" [ {cs} ];}
+//with f := <lookup < to-dot-tree-node + "start"> (from, revidx)
+//   ; t := <lookup < to-dot-tree-node + "end"> (to, revidx)
+//   ; cs := <map(to-dot-attr-constraint(|revidx));separate-by(|", ");concat-strings> constraints
+//
+//to-dot-linear-cfg-edges2(|revidx, cfgedge*): node -> <fail>
+//with reachable := <entries-reachable(|revidx, cfgedge*)> node
+//   ; reachable-nodes := <map(?CFGEdge(_, <id>, _))> reachable
+//   ; 
+//
+//to-dot-linear-cfg-edges2(|revidx, cfgedge*): (node, (visited, edges*) -> (visited', edges')
+//with 
+
+strategies
+
+topdown-fold(s): (term, thing) ->
+  <foldl(topdown-fold(s))> (<get-arguments> term, <s> (term, thing))

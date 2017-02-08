@@ -1,0 +1,12 @@
+module reverse-index
+
+imports
+
+signatures/-
+nabl2/shared/-
+
+strategies
+
+create-reverse-index = !(<id>, []);topdown-fold(reverse-index)
+
+reverse-index: (term, revidx) -> [ (<nabl2--get-ast-index> term, term) | revidx ]
