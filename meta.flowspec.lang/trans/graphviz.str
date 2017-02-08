@@ -16,13 +16,13 @@ to-dot(s): input -> $[digraph {
 
 to-dot-tree: ast -> $<
 node [ shape = box ];
-<nodes>
 edge [ style = invis, weight = 1 ];
+
 <nodes-order>
 edge [ style = normal, arrowhead = none, color = grey, weight = 3 ];
+
 <edges>>
-with nodes := <to-dot-tree-nodes> ast
-   ; nodes-order := <to-dot-tree-nodes-order> ast
+with nodes-order := <to-dot-tree-nodes-order> ast
    ; edges := <to-dot-tree-edges> ast
 
 to-dot-tree-node: this@c#(_) -> $[[c] ([n])]
@@ -33,21 +33,15 @@ to-dot-tree-node: this -> $[[this] ([n])]
 where <is-string> this
 with TermIndex(_, n) := <nabl2--get-ast-index> this
 
-to-dot-tree-nodes: ast -> <topdown-fold(to-dot-tree-nodes-1);lines> (ast, [])
-
-to-dot-tree-nodes-1: (term, list) -> [ <to-dot-tree-node;!$["[<id>]";]> term | list ]
-
 to-dot-tree-nodes-order: ast -> <topdown-fold(to-dot-tree-nodes-order-1);lines> (ast, [])
 
 to-dot-tree-nodes-order-1: (term, list) -> [ <to-dot-tree-nodes-order-2> term | list ]
+to-dot-tree-nodes-order-1: (term, list) -> list
+where <not(to-dot-tree-nodes-order-2)> term
 
-to-dot-tree-nodes-order-2: term -> $<{ rank = same;
-<nodes>;
-}>
+to-dot-tree-nodes-order-2: term -> $<{ rank = same; <nodes>; }>
 where <gt> (<get-arguments;length> term, 1)
 with nodes := <get-arguments;map(to-dot-tree-node;double-quote);separate-by(|" -> ");concat-strings> term
-
-to-dot-tree-nodes-order-2: term -> "" where <leq> (<get-arguments;length> term, 1)
 
 to-dot-tree-edge: term -> <map(!$["[node]" -> "[<id>]";])> nodes
 with node := <to-dot-tree-node> term
