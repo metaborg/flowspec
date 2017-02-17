@@ -96,7 +96,7 @@ with edge* := <retain-all(CFGEdge(?idx, id, where(getfirst(?Entry()))))> cfgedge
    ; (l2, l1) := <partition(extend-edge-via-entries(|revidx, cfgedge*))> edge*
 
 extend-edge-via-entries(|revidx, cfgedge*): CFGEdge(from, to, cs) -> edges'
-with edges := <entries-reachable(|revidx, cfgedge*);debuga> to
+with edges := <entries-reachable(|revidx, cfgedge*)> to
    ; edges' := <map(CFGEdge(!from, id, ![<id>, cs];concat;remove-all(?Entry())))> edges
 where <not(?[])> edges'
 
@@ -108,32 +108,6 @@ with f := <lookup < to-dot-tree-node + Fst;"start"> (from, revidx)
    ; cs := <remove-all(?Entry() + ?Exit())
            ;map(to-dot-attr-constraint(|revidx))
            ;separate-by(|", ");concat-strings> constraints
-
-//to-dot-linear-cfg-edges2(|revidx, cfgedge*): node -> <map(to-dot-linear-cfg-edge(|revidx))> edges
-//with reachable := <entries-reachable(|revidx, cfgedge*)> node
-//   ; reachable-idxs := <map(?CFGEdge(_, <id>, _))> reachable
-//   ; (_, edges) :=
-//       <foldl(to-dot-linear-cfg-edges2-step(|revidx, cfgedge*))> (reachable-idxs, ([], []))
-//
-//to-dot-linear-cfg-edges2-step(|revidx, cfgedge*):
-//  (node, (visited, edges*)) -> (visited2, edges2)
-//with visited1 := [ <nabl2--get-ast-index> node | visited ]
-//   ; edges1 := <entries-reachable(|revidx, cfgedge*)> node
-//where <not(?[])> edges1
-//with reachable-idxs := <diff> (<map(?CFGEdge(_, <id>, _));nub> edges1, visited1)
-//   ; (visited2, edges2) :=
-//       <foldl(to-dot-linear-cfg-edges2-step(|revidx, cfgedge*))>
-//         (reachable-idxs, (visited1, edges1))
-//
-//to-dot-linear-cfg-edges2-step(|revidx, cfgedge*):
-//  (node, (visited, edges*)) -> (visited2, edges2)
-//with visited1 := [ <nabl2--get-ast-index> node | visited ]
-//where [] := <entries-reachable(|revidx, cfgedge*)> node
-//with edges1 := <retain-all(?CFGEdge(node, _, _))> cfgedge*
-//   ; reachable-idxs := <diff> (<map(?CFGEdge(_, <id>, _));nub> edges1, visited1)
-//   ; (visited2, edges2) :=
-//       <foldl(to-dot-linear-cfg-edges2-step(|revidx, cfgedge*))>
-//         (reachable-idxs, (visited1, edges1))
 
 strategies
 
