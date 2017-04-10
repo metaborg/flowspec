@@ -1,13 +1,13 @@
-module analysis
+module flowspec/analysis
 
 imports
-  desugar
+  flowspec/desugar
   
   nabl2/api
   nabl2shared
   nabl2runtime
   
-  static-semantics
+  flowspec/static-semantics
 
   pp
   

@@ -1,4 +1,4 @@
-module outline
+module flowspec/outline
 
 imports
   

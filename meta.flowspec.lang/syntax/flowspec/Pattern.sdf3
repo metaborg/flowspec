@@ -1,8 +1,8 @@
-module Pattern
+module flowspec/Pattern
 
 imports
 
-  Common
+  flowspec/Common
 
 context-free syntax
 

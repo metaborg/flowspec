@@ -1,9 +1,10 @@
-module reverse-index
+module flowspec/reverse-index
 
 imports
 
 signatures/-
 nabl2/shared/-
+flowspec/utils
 
 strategies
 

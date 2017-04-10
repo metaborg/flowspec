@@ -1,4 +1,4 @@
-module Common
+module flowspec/Common
 
 lexical syntax
 
@@ -21,6 +21,7 @@ lexical syntax
   
   ModuleID       = [a-zA-Z] [a-zA-Z0-9\-]*
   ModuleName     = {ModuleID "/"}+
+  TypeName       = [a-zA-Z0-9]+
   SortName       = [A-Z] [a-zA-Z0-9]*
   ConsName       = [A-Z] [a-zA-Z0-9]*
   PropName       = [A-Z] [a-zA-Z0-9]*
@@ -34,6 +35,7 @@ lexical restrictions
   ID            -/- [a-zA-Z0-9]
   
   ModuleID      -/- [a-zA-Z0-9\-]
+  TypeName      -/- [a-zA-Z0-9]
   SortName      -/- [a-zA-Z0-9]
   PropName      -/- [a-zA-Z0-9]
   ConsName      -/- [a-zA-Z0-9]

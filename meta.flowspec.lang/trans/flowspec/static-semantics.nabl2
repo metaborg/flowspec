@@ -1,13 +1,14 @@
-module static-semantics
+module flowspec/static-semantics
 
 
 imports
 
-  signatures/-
+  signatures/flowspec/-
+  flowspec/desugar
 
 signature
   constraint generator
-    [[ Start ^ (global) ]]
+    [[ Module ^ (global) ]]
     [[ Import ^ (global, moduleScope) ]]
     [[ Section ^ (moduleScope) ]]
 
@@ -45,7 +46,7 @@ signature
     }
 
   constructors
-    Prop: Type * Type * Type -> Type
+    Prop: Type -> Type // * Type * Type -> Type
     Term : Type
     Map : Type * Type -> Type
     Set : Type -> Type
@@ -79,7 +80,7 @@ rules
 
     new global.
 
-  [[ Start(module, imports, sections) ^ (global) ]] :=
+  [[ FlowProgram(module, imports, defs, flowrules, proprules) ^ (global) ]] :=
     Module { module } <- global,
     moduleScope ---> global,
     Module { module } ===> moduleScope,
@@ -88,7 +89,9 @@ rules
     inference variables. 
 */
 //    Map1 [[ imports ^ (global, moduleScope) ]],
-//    Map1 [[ sections ^ (moduleScope) ]],
+//    Map1 [[ rules ^ (moduleScope) ]],
+//    Map1 [[ defs ^ (moduleScope) ]],
+//    Map1 [[ rules ^ (moduleScope) ]],
 //    distinct D(moduleScope)/Module,
 //    distinct D(moduleScope)/Property,
     new moduleScope.
@@ -97,15 +100,6 @@ rules
     Module { mod } -> global,
     Module { mod } |-> d,
     Module { mod } <=== moduleScope.
-
-  [[ Flow(rules) ^ (moduleScope) ]] :=
-    Map1 [[ rules ^ (moduleScope) ]].
-
-  [[ Properties(defs) ^ (moduleScope) ]] :=
-    Map1 [[ defs ^ (moduleScope) ]].
-
-  [[ Rules(rules) ^ (moduleScope) ]] :=
-    Map1 [[ rules ^ (moduleScope) ]].
 
 // Pattern
 
@@ -147,6 +141,7 @@ rules
 
 // Flow
 
+// TODO: disallow pattern variable only at top-level of pattern
   [[ FlowRule(pattern, exprs) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
     RulePattern [[ pattern ^ (ruleScope) ]],
@@ -187,25 +182,10 @@ rules
 
 // Properties
 
-  [[ Def(name, proptype, dir, kind) ^ (moduleScope) ]] :=
-    Property { name } <- moduleScope,
-    Property { name } : Prop(ty, dir, kind),
-    [[ proptype ^ () : ty ]].
-
-  [[ Map(domain, range) ^ () : Map(ty1, ty2) ]] :=
-    [[ domain ^ () : ty1 ]],
-    [[ range ^ () : ty2 ]].
-
-  [[ NameSet() ^ () : Set(Name()) ]] := true.
-  [[ OriginSet() ^ () : Set(Origin()) ]] := true.
-  [[ SortSet(_) ^ () : Set(Term()) ]] := true.
-
-  [[ Name() ^ () : Name() ]] := true.
-  [[ Origin() ^ () : Origin() ]] := true.
-  [[ Sort(_) ^ () : Term() ]] := true.
-
-  [[ NonSet(simple) ^ () : ty ]] :=
-    [[ simple ^ () : ty ]].
+  [[ Def(name, type/*, kind*/) ^ (moduleScope) ]] :=
+    Property { name } <- moduleScope.
+//    Property { name } : Prop(ty, kind),
+//    [[ type ^ () : ty ]].
 
 // Property rules
 
@@ -220,7 +200,7 @@ rules
   [[ PropRef(prop, ref) ^ (ruleScope) ]] :=
     Property { prop } -> ruleScope,
     Property { prop } |-> d,
-    d : Prop(propty, dir_, kind_),
+    d : Prop(propty),//, kind_),
     VarRef [[ ref ^ (ruleScope) : ty1_ ]],
     elemty is propElemType of propty,
     elemty <test? IsSingle().
@@ -234,7 +214,7 @@ rules
   [[ MapPropRef(prop, ref1, ref2) ^ (ruleScope) ]] :=
     Property { prop } -> ruleScope,
     Property { prop } |-> d,
-    d : Prop(propty, dir_, kind_),
+    d : Prop(propty),//, kind_),
     elemty is propElemType of propty,
     elemty <test? IsDual(),
     VarRef [[ ref1 ^ (ruleScope) : ty1_ ]],

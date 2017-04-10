@@ -1,10 +1,10 @@
-module Flow
+module flowspec/Flow
 
 imports
 
-  Common
-  Property
-  Pattern
+  flowspec/Common
+  flowspec/Property
+  flowspec/Pattern
 
 context-free syntax
 
@@ -14,15 +14,15 @@ context-free syntax
   FlowRule.FlowRule = [[TLPattern]: [FlowRuleBody].]
 
   FlowRuleBody.Recurse = FlowRef
-  FlowRuleBody.SingleEdge = [[FlowRef] -> [FlowRef]] {prefer}
+  FlowRuleBody.SingleEdge = [[FlowRef] has [Successor] [FlowRef]] {prefer}
   FlowRuleBody.Multiple = {FlowExpr ",\n"}+
 
   FlowRef = ID
   FlowRef = [entry] {reject}
   FlowRef = [exit] {reject}
 
-  FlowExpr.Edge = [[FlowNode] -> [FlowNode]]
-  FlowExpr.ConditionalEdge = [[FlowNode] -> [FlowNode] where [{FlowWhereClause ",\n"}+]]
+  FlowExpr.Edge = [[FlowNode] has [Successor] [FlowNode]]
+  FlowExpr.ConditionalEdge = [[FlowNode] has [Successor] [FlowNode] where [{FlowWhereClause ",\n"}+]]
 
   FlowNode.Ref = ID {avoid}
   FlowNode.Entry = [entry]
@@ -30,8 +30,12 @@ context-free syntax
 
 // This would probably be too powerful:
 //  FlowWhereClause.CFGArrow = [[TLPattern] -> [TLPattern]]
-  FlowWhereClause.HasProp = [[ID]: [PropName] [Pattern]]
-  FlowWhereClause.HasMapProp = [[ID]: [PropName] [Pattern] -> [Pattern]]
+  FlowWhereClause.HasProp = [[ID] has [PropName] [Pattern]]
+  FlowWhereClause.HasMapProp = [[ID] has [PropName] [Pattern] -> [Pattern]]
+
+lexical syntax
+
+Successor = "successor"
 
 template options
 

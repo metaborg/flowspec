@@ -1,0 +1,53 @@
+module flowspec/Property
+
+imports
+
+  flowspec/Common
+  flowspec/Pattern
+  flowspec/Type
+
+context-free syntax // Properties
+
+  Property.Def = [[PropName] [Type]]// ([PropKind])]
+//  Property.DefMay = [[PropName] [PropType]]
+
+//  PropKind.Must = [must]
+//  PropKind.May  = [may]
+
+context-free syntax // Property Rules
+
+  PropRule.PropRule = [[{TLPattern ", "}+] has [PropRuleBody].]
+  PropRule.PropRuleWhere =
+[[{TLPattern ", "}+] has [PropRuleBody]
+  where [PropWhereClause].]
+
+  PropRuleBody.PropRef = [[PropName] [VarRef]]
+  PropRuleBody.MapPropRef = [[PropName] [VarRef] -> [VarRef]]
+
+  PropWhereClause.And = [[PropWhereClause], [PropWhereClause]] {right}
+  PropWhereClause.BuiltinRelation = [[TLPattern] has [BuiltinRelation] [TLPattern]]
+  PropWhereClause = HasPropExpr
+  PropWhereClause.Not = [not [PropBooleanExpr]]
+  PropWhereClause.True = [true]
+
+//  PropWhereClauseDesugared.CFGArrow = [[TLPattern] has successor [TLPattern]]
+//  PropWhereClauseDesugared.ASTRelation = [[TLPattern] has child [TLPattern]]
+
+  HasPropExpr.HasProp = [[ID] has [PropName] [VarRef]]
+  HasPropExpr.HasMapProp = [[ID] has [PropName] [VarRef] -> [VarRef]]
+
+  PropBooleanExpr = [([PropBooleanExpr])] {bracket}
+  PropBooleanExpr.And = [[PropBooleanExpr], [PropBooleanExpr]] {right}
+  PropBooleanExpr = HasPropExpr
+
+  VarRef.VarRef = ID {avoid}
+  VarRef.This = [this]
+
+lexical syntax
+
+  BuiltinRelation = "successor" // For the CFG
+  BuiltinRelation = "child"     // For the AST
+
+template options
+
+  keyword -/- [A-Za-z\-]

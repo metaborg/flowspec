@@ -1,0 +1,5 @@
+module flowspec/extra-sig
+
+signature constructors
+  HasProp : Term * Term * Term * List(Condition) -> Condition
+  HasChild : Term * Term -> Condition

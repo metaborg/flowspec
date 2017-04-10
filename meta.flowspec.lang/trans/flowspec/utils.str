@@ -1,0 +1,14 @@
+module flowspec/utils
+
+strategies
+
+/**
+fold over a tree in topdown fashion (folding left-to-right over children)
+*/
+topdown-fold(s): (term, thing) ->
+  <foldl(topdown-fold(s))> (<get-arguments> term, <s> (term, thing))
+
+strategies
+
+lines_ = separate-by(|"\n");concat-strings
+csv = separate-by(|", ");concat-strings

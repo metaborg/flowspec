@@ -2,9 +2,16 @@ module desugar
 
 imports
 
-signatures/-
+signatures/flowspec/-
 libspoofax/term/origin
 libspoofax/stratego/debug
+
+signature constructors
+
+CFGArrow : TLPattern * TLPattern -> PropWhereClause
+ASTRelation : TLPattern * TLPattern -> PropWhereClause
+ConditionalEdge : FlowNode * FlowNode * List(FlowWhereClause) -> FlowExpr
+FlowProgram : ModuleName * List(Import) * List(Property) * List(FlowRule) * List(PropRule) -> Module
 
 rules
 
@@ -18,25 +25,30 @@ rules
 
 desugar-all = topdown(try(desugar-one));remove-object-sharing-in-strings;warning-on-missing-origin
 
-desugar-one = origin-track-forced(
-    desugar-PropertyDef
+desugar-one = origin-track-forced(fail
+//  + desugar-PropertyDef
+  + desugar-PropWhereClause
   + desugar-FlowRuleBody
   + desugar-FlowExpr
   + desugar-in-list(desugar-FlowRule)
   + desugar-in-list(desugar-PropRule)
   + desugar-in-list(desugar-ImportsList)
+  + desugar-Module
 )
 
-desugar-PropertyDef: DefForward(name, type, kind) ->
-  Def(name, type, <origin-track-forced(!Forward())> kind, kind)
-desugar-PropertyDef: DefMay(name, type, dir) ->
-  Def(name, type, dir, <origin-track-forced(!May())> dir)
-desugar-PropertyDef: 'def@DefForwardMay(name, type) ->
-  Def(
-    name,
-    type, 
-    <origin-track-forced(!Forward())> 'def,
-    <origin-track-forced(!May())> 'def )
+//desugar-PropertyDef: DefForward(name, type, kind) ->
+//  Def(name, type, <origin-track-forced(!Forward())> kind, kind)
+//desugar-PropertyDef: DefMay(name, type, dir) ->
+//  Def(name, type, dir, <origin-track-forced(!May())> dir)
+//desugar-PropertyDef: 'def@DefForwardMay(name, type) ->
+//  Def(
+//    name,
+//    type, 
+//    <origin-track-forced(!Forward())> 'def,
+//    <origin-track-forced(!May())> 'def )
+
+desugar-PropWhereClause: BuiltinRelation(a, "successor", b) -> CFGArrow(a,b)
+desugar-PropWhereClause: BuiltinRelation(a, "child", b) -> ASTRelation(a,b)
 
 desugar-FlowRuleBody: r@Recurse(identid) -> [ce1, ce2]
 where ident := <origin-track-forced(!Ref(identid))> identid
@@ -45,7 +57,7 @@ where ident := <origin-track-forced(!Ref(identid))> identid
     ; exit := <origin-track-forced(!Exit())> r
     ; ce2 := <origin-track-forced(!ConditionalEdge(ident, exit, []))> r
 
-desugar-FlowRuleBody: s@SingleEdge(fromid, toid) -> [ce1, ce, ce2]
+desugar-FlowRuleBody: s@SingleEdge(fromid, _, toid) -> [ce1, ce, ce2]
 where from := <origin-track-forced(!Ref(fromid))> fromid
     ; to := <origin-track-forced(!Ref(toid))> toid
     ; ce := <origin-track-forced(!ConditionalEdge(from, to, []))> s
@@ -56,7 +68,8 @@ where from := <origin-track-forced(!Ref(fromid))> fromid
 
 desugar-FlowRuleBody: Multiple(l) -> l
 
-desugar-FlowExpr: Edge(from, to) -> ConditionalEdge(from, to, [])
+desugar-FlowExpr: Edge(from, _, to) -> ConditionalEdge(from, to, [])
+desugar-FlowExpr: ConditionalEdge(from, _, to, cs) -> ConditionalEdge(from, to, cs)
 
 desugar-PropRule: pr@PropRule(pattern*, body) ->
   <map(origin-track-forced(\pattern ->
@@ -78,6 +91,11 @@ where if map(not(s))
         else mapconcat(origin-track-forced(s <+ ![<id>]))
       end//if
     ; ?obj
+
+desugar-Module: Module(modulename, import*, section*) -> FlowProgram(modulename, import*, propdef*, flowrule*, proprule*)
+with propdef* := <retain-all(?Properties(<id>));concat> section*
+   ; flowrule* := <retain-all(?Flow(<id>));concat> section*
+   ; proprule* := <retain-all(?Rules(<id>));concat> section*
 
 desugar-NoNamePattern(s|v) = 
     with(!(<id>, 0); desugar-NNP(|v); Fst)

@@ -1,0 +1,27 @@
+module flowspec/shared
+
+imports
+
+flowspec/utils
+libspoofax/stratego/debug
+
+strategies
+
+flowspec--new-var = id
+
+flowspec--generate-cfg-constraint =
+  flowspec--generate-cfg-constraint-rule
+  <+ (debug(|"[WARNING] Rule missing for this constructor: ");![])
+
+flowspec--generate-cfg-constraint-rule = fail
+
+flowspec--no-of-prop-rules = fail
+
+flowspec--generate-prop-rule(|n) = fail
+
+flowspec--generate-prop: ast ->
+  <topdown-fold(\(t,l) -> <concat> [<flowspec--generate-prop-1> t, l]\)> (ast, [])
+
+flowspec--generate-prop-1: term -> result
+with numbers := <flowspec--no-of-prop-rules;dec;upto>
+   ; result := <mapconcat(\n -> <flowspec--generate-prop-rule(|n)> term\)> numbers

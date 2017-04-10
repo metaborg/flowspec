@@ -1,0 +1,28 @@
+module flowspec/Type
+
+imports
+
+  flowspec/Common
+  flowspec/Pattern
+
+context-free syntax // Types
+
+  TypeDef.TypeDef = [[TypeName] = [{ConsDef "\n|"}+]]
+  ConsDef.Cons0 = [[ConsName]]
+  ConsDef.Cons1 = [[ConsName] [Type]]
+
+
+  Type = SimpleType
+  SimpleType.Name = "name"
+  SimpleType.Origin = "origin"
+  SimpleType.CFGNode = "cfgNode"
+  SimpleType.UserType = TypeName {avoid}
+  SimpleType.Sort = SortName
+  Type = [([Type])] {bracket}
+  Type.Tuple = [[Type] * [Type]] {right}
+  Type.Map = [[Type] -> [Type]] {right}
+  Type.Set = [[Type]*]
+  Type.Option = [[Type]?]
+
+context-free priorities
+  { Type.Option Type.Set } > Type.Tuple > Type.Map

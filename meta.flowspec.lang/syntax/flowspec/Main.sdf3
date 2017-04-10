@@ -1,0 +1,58 @@
+module flowspec/Main
+
+imports
+  
+  flowspec/Common
+  flowspec/Flow
+  flowspec/Property
+  flowspec/Type
+
+context-free syntax
+  
+  Module.Module =
+[module [ModuleName]
+
+[{Import "\n"}*]
+
+[{Section "\n\n"}*]
+]
+
+Import.Import = [imports [ModuleName]] {prefer}
+Import.ImportsList =
+[imports
+
+[{ListImport "\n"}*]
+]
+
+ListImport.Import = ModuleName
+ListImport = [rules] {reject}
+ListImport = [imports] {reject}
+ListImport = [properties] {reject}
+
+Section.Types =
+[types
+
+[{TypeDef "\n"}*]
+]
+
+Section.Flow =
+[flow graph rules
+
+[{FlowRule "\n"}*]
+]
+
+Section.Properties =
+[properties
+
+[{Property "\n"}*]
+]
+
+Section.Rules =
+[property rules
+
+[{PropRule "\n"}*]
+]
+
+template options
+
+  keyword -/- [A-Za-z\-]

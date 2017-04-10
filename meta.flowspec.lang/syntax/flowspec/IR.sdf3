@@ -1,9 +1,9 @@
-module IR
+module flowspec/IR
 
 imports
 
-Flow
-Common
+flowspec/Flow
+flowspec/Common
 
 context-free syntax
 

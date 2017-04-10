@@ -28,6 +28,8 @@ colorer Default, token-based highlighting
 colorer Language specific colours
 
   PropName : 0 0 128 italic
+  BuiltinRelation : 0 0 128 bold italic
+  Successor : 0 0 128 bold italic
 
 colorer System colors
                             

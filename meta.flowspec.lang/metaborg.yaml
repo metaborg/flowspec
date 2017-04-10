@@ -11,6 +11,16 @@ dependencies:
   - org.metaborg:org.metaborg.meta.lib.analysis:${metaborgVersion}
   - org.metaborg:org.metaborg.meta.nabl2.shared:${metaborgVersion}
   - org.metaborg:org.metaborg.meta.nabl2.runtime:${metaborgVersion}
+generates:
+- language: Stratego-Sugar
+  directory: src-gen/flowspec
+exports:
+- language: Stratego-Sugar
+  directory: trans
+  includes: "**/*.str"
+- language: Stratego-Sugar
+  directory: src-gen
+  includes: "**/*.str"
 pardonedLanguages:
 - EditorService
 - Stratego-Sugar
