@@ -2,64 +2,71 @@ module flow
 
 properties
 
-  Write name  (upward)
-  Read name  (upward)
   Value Value
 
 flow graph rules
 
-  While(st):
-    entry -> st,
-    st -> exit.
-  
-  Assign(x, e):
-    entry -> e,
-    e -> x,
-    x -> exit.
-  
-  Skip().
-  
-  Seq(st1, st2):
-    entry -> st1,
-    st1 -> st2,
-    st2 -> exit.
+  Root(s):
+    entry has successor s,
+    s has successor exit.
 
-//  rule block([]).
-//  rule block([h | t]): h -> block(t).
-//  
-//  Block(list):
-//    b@block(list),
-//    entry -> b,
-//    b -> exit.
+  Assign(x, e):
+    entry has successor e,
+    e has successor x,
+    x has successor exit.
+
+  Skip().
+
+  Seq(s1, s2):
+    entry has successor s1,
+    s1 has successor s2,
+    s2 has successor exit.
 
   IfThenElse(e, s1, s2):
-    entry -> e,
-    e -> s1 where e: Value True(),
-    e -> s2 where e: Value False(),
-    s1 -> exit,
-    s2 -> exit.
+    entry has successor e,
+    e has successor s1 where e has Value True(),
+    e has successor s2 where e has Value False(),
+    s1 has successor exit,
+    s2 has successor exit.
 
-  While(e, s1):
-    entry -> e,
-    e -> s1 where e: Value True(),
-    s1 -> e,
-    e -> exit where e: Value False().
+  While(e, s):
+    entry has successor e,
+    e has successor s where e has Value True(),
+    s has successor e,
+    e has successor exit where e has Value False().
 
   Ref(_), Num(_), True(), False().
-  
+
   Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
   Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2):
-    entry -> e1,
-    entry -> e2,
-    e1 -> exit,
-    e2 -> exit.
-  
-  Not(e): e.
+    e1 has successor e2.
+
+  Not(e):
+    entry has successor e,
+    e has successor exit.
+
+properties
+
+  Write name
+  Read name
+  Expr Term
 
 property rules
 
-  Assign(x, _): Write x.
-  Ref(x): Read x.
+  term has Write n
+  where term has child c,
+        c has Write n.
+
+  term has Read n
+  where term has child c,
+        c has Read n.
+
+  Assign(x, e) has Write x.
+
+  Ref(n) has Read n.
+
+  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
+  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
 
 properties
 
@@ -67,13 +74,13 @@ properties
 
 property rules
 
-  st: Definition x -> this
-  where st: Write x.
+  st has Definition x -> this
+  where st has Write x.
 
-  st: Definition x -> o
-  where not st: Write x,
-        st2 -> st,
-        st2: Definition x -> o.
+  st has Definition x -> o
+  where not st has Write x,
+        st2 has successor st,
+        st2 has Definition x -> o.
 
 // Can we find a way to add this back in?
-//  Ref(x): uses Definition x // enough to build reverse relation, which is the LiveVariables analysis
+//  Ref(x) uses Definition x // enough to build reverse relation, which is the LiveVariables analysis
