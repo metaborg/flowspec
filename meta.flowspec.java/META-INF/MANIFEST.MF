@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1492095882492
+Build-Jdk: 1.8.0_92
+Built-By: jeff
+Bundle-Description: Maven parent POM for Java projects
+Bundle-License: https://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: meta.flowspec.java
+Bundle-SymbolicName: meta.flowspec.java
+Bundle-Version: 2.2.0.20170413-160634-flowspec-addition
+Created-By: Apache Maven Bundle Plugin
+Eclipse-BuddyPolicy: registered
+Embed-Transitive: true
+Import-Package: org.apache.tools.ant
+Tool: Bnd-2.4.1.201501161923

@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-  id="meta.flowspec.lang.eclipse.feature"
-  label="flowspec language Eclipse plugin"
-  version="0.1.0.qualifier"
->
-  <plugin id="meta.flowspec.lang.eclipse" version="0.1.0.qualifier" unpack="true" />
-  <includes id="org.metaborg.spoofax.eclipse.feature" version="0" />
+      id="meta.flowspec.lang.eclipse.feature"
+      label="flowspec language Eclipse plugin"
+      version="2.2.0.qualifier">
+
+   <includes
+         id="org.metaborg.spoofax.eclipse.feature"
+         version="0"/>
+
+   <plugin
+         id="meta.flowspec.lang.eclipse"
+         download-size="0"
+         install-size="0"
+         version="2.2.0.qualifier"/>
+
 </feature>

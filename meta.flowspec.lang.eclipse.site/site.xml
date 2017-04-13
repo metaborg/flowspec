@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/meta.flowspec.lang.eclipse.feature_0.1.0.qualifier.jar" id="meta.flowspec.lang.eclipse.feature" version="0.1.0.qualifier">
+   <feature url="features/meta.flowspec.lang.eclipse.feature_2.2.0.qualifier.jar" id="meta.flowspec.lang.eclipse.feature" version="2.2.0.qualifier">
       <category name="flowspec"/>
    </feature>
    <category-def name="flowspec" label="flowspec language Eclipse plugin">
