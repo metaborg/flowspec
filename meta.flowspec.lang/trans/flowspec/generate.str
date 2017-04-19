@@ -6,6 +6,7 @@ signatures/-
 libspoofax/stratego/debug
 flowspec/desugar
 flowspec/utils
+nabl2/shared/-
 
 rules
 
@@ -56,8 +57,8 @@ gen-str: (n, PropRuleWhere(pattern, PropRef(name, varref), cond)) ->
   with(prop := HasProp(index-this, "{name}", {varref-index}, [{condstring}]))
 }
 with patternstring := <gen-match-pattern> pattern
-   ; variables := <pattern-variables;strip-annos;nub> pattern
-   ; free-variables := <diff> (<constraint-variables;strip-annos;nub> cond, variables)
+   ; variables := <pattern-variables;make-set_(where(strip-annos;eq))> pattern
+   ; free-variables := <diff(where(strip-annos;eq))> (<constraint-variables;make-set_(where(strip-annos;eq))> cond, variables)
    ; varref-index := <gen-str> varref
    ; condstring := <gen-conditions(|variables);csv> cond
    ; indicesgenerationstring := <map(gen-index-rule);lines_> variables
@@ -67,7 +68,7 @@ gen-conditions(|variables): And(l,r) ->
   <concat> [<gen-conditions(|variables)> l, <gen-conditions(|variables)> r]
 gen-conditions(|variables): CFGArrow(_, _) -> <debug(|"Not supporting CFG relation in properties just yet.");fail>
 gen-conditions(|variables): ASTRelation(parent, child) -> 
-  [$[HasChild([<gen-constraint-pattern> parent], [<gen-constraint-pattern> child])]]
+  [$[HasProp([<gen-constraint-pattern> parent], "child", [<gen-constraint-pattern> child])]]
 gen-conditions(|variables) = ![<gen-condition(|variables)>]
 gen-conditions(|variables): Not(stuff) -> <gen-conditions(|variables);map(!${Not({<id>})})> stuff
 gen-conditions(|variables): True() -> []
@@ -138,7 +139,7 @@ gen-index-rule: var ->
   ${with(index-{var} := <nabl2--get-ast-index> match-{var})}
 
 gen-var-rule: var ->
-  ${with(index-{var} := <flowspec--new-var> (index-this, "{var}"))}
+  ${with(index-{var} := <flowspec--new-var> (index-this, {<nabl2--get-ast-index;pp-aterm> var}))}
 
 gen-subterm-constraints: var ->
   ${with(constr-{var} := <flowspec--generate-cfg-constraint> match-{var})}

@@ -5,6 +5,6 @@ import org.strategoxt.lang.Strategy;
 
 public class InteropRegisterer extends JavaInteropRegisterer {
     public InteropRegisterer() {
-        super(new Strategy[] { flowspec_solver_0_1.INSTANCE });
+        super(new Strategy[] {  });
     }
 }

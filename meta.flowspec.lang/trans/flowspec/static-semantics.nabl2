@@ -88,10 +88,10 @@ rules
     I'm not sure where the problem lies. Perhaps with the Variable { v @ v } stuff for the
     inference variables. 
 */
-//    Map1 [[ imports ^ (global, moduleScope) ]],
-//    Map1 [[ rules ^ (moduleScope) ]],
-//    Map1 [[ defs ^ (moduleScope) ]],
-//    Map1 [[ rules ^ (moduleScope) ]],
+    Map1 [[ imports ^ (global, moduleScope) ]],
+    Map1 [[ rules ^ (moduleScope) ]],
+    Map1 [[ defs ^ (moduleScope) ]],
+    Map1 [[ rules ^ (moduleScope) ]],
 //    distinct D(moduleScope)/Module,
 //    distinct D(moduleScope)/Property,
     new moduleScope.
@@ -133,10 +133,10 @@ rules
   WhereClausePattern [[ Wildcard() ^ (ruleScope) ]] := true.
 
   WhereClausePattern [[ Var(x) ^ (ruleScope) ]] :=
-    Variable { id @ ruleScope } <- ruleScope.
+    Variable { id } <- ruleScope.
 
   WhereClausePattern [[ At(x, pattern) ^ (ruleScope) ]] :=
-    Variable { id @ ruleScope } <- ruleScope,
+    Variable { id } <- ruleScope,
     WhereClausePattern [[ pattern ^ (ruleScope) ]].
 
 // Flow
@@ -151,7 +151,7 @@ rules
     new ruleScope.
 
   [[ Recurse(x) ^ (ruleScope) ]] :=
-    Variable { x @ ruleScope } <- ruleScope.
+    Variable { x } <- ruleScope.
 
   [[ ConditionalEdge(from, to, flowclauses) ^ (ruleScope) ]] :=
     [[ from ^ (ruleScope) ]],
@@ -159,7 +159,7 @@ rules
     Map1 [[ flowclauses ^ (ruleScope) ]].
 
   [[ Ref(x) ^ (ruleScope) ]] :=
-    Variable { x @ ruleScope } <- ruleScope.
+    Variable { x } <- ruleScope.
 
   [[ e@Entry() ^ (ruleScope) ]] :=
     Variable { e } -> ruleScope.
@@ -168,13 +168,13 @@ rules
     Variable { e } -> ruleScope.
 
   [[ HasProp(x, propname, pattern) ^ (ruleScope) ]] :=
-    Variable { x @ ruleScope } <- ruleScope,
+    Variable { x } <- ruleScope,
     Property { propname } -> ruleScope,
     Property { propname } |-> dPropname,
     WhereClausePattern [[ pattern ^ (ruleScope) ]].
 
   [[ HasMapProp(x, propname, pattern1, pattern2) ^ (ruleScope) ]] :=
-    Variable { x @ ruleScope } <- ruleScope,
+    Variable { x } <- ruleScope,
     Property { propname } -> ruleScope,
     Property { propname } |-> dPropname,
     WhereClausePattern [[ pattern1 ^ (ruleScope) ]],
@@ -221,7 +221,7 @@ rules
     VarRef [[ ref2 ^ (ruleScope) : ty2_ ]].
 
   VarRef [[ VarRef(id) ^ (ruleScope) : Term() ]] :=
-    Variable { id @ ruleScope } <- ruleScope.
+    Variable { id } <- ruleScope.
 
   VarRef [[ t@This() ^ (ruleScope) : Term() ]] :=
     Variable { t } -> ruleScope,
@@ -236,13 +236,13 @@ rules
     WhereClausePattern [[ pattern2 ^ (ruleScope) ]].
 
   [[ HasProp(x, propname, varref) ^ (ruleScope) ]] :=
-    Variable { x @ ruleScope } <- ruleScope,
+    Variable { x } <- ruleScope,
     Property { propname } -> ruleScope,
     Property { propname } |-> dPropname,
     VarRef [[ varref ^ (ruleScope) : t ]].
 
   [[ HasMapProp(x, propname, varref1, varref2) ^ (ruleScope) ]] :=
-    Variable { x @ ruleScope } <- ruleScope,
+    Variable { x } <- ruleScope,
     Property { propname } -> ruleScope,
     Property { propname } |-> dPropname,
     VarRef [[ varref1 ^ (ruleScope) : t1 ]],

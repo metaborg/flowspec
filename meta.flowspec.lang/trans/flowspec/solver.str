@@ -1,0 +1,5 @@
+module solver
+
+rules
+
+flowspec-solver = prim("FS_solver")

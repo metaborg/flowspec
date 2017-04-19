@@ -118,9 +118,9 @@ desugar-NNP-FR-Vars(s): [ v1 ] -> v1
 rules // check AST whether every sub term has an origin
 
 warning-on-missing-origin: term -> <id>
-with terms-missing-origin
-   ; remove-all(?[])
-   ; map(debug(|"[WARNING] Term missing origin: "))
+//with terms-missing-origin
+//   ; remove-all(?[])
+//   ; map(debug(|"[WARNING] Term missing origin: "))
 
 terms-missing-origin = collect-all(not(origin-offset))
 

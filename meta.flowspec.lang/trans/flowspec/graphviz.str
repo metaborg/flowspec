@@ -2,7 +2,7 @@ module graphviz
 
 imports
 
-signatures/-
+signatures/flowspec/-
 nabl2/shared/-
 nabl2/runtime/-
 
@@ -136,17 +136,19 @@ with node := <to-dot-tree-node> ast // final node is the top of the AST
                    // but should start at the artificial start node
                    ;map(CFGEdge(!"start",id,id)) 
                    ;to-dot-linear-cfg-edges(|revidx)> ast
-   // We remove the "step into" edges, those are fused to normal edges
-   ; non-entry-edges := <remove-all(CFGEdge(id, id, where(getfirst(?Entry()))))> cfgedge*
-   // The "step out" edges can be used directly
+   ; edges-string := <tree-cfg-to-linear(|revidx);to-dot-linear-cfg-edges(|revidx)> cfgedge*
+
+tree-cfg-to-linear(|revidx): cfgedge* -> [exit-edges*, fused-edges*]
+with // We remove the "step into" edges, those are fused to normal edges
+     non-entry-edges := <remove-all(CFGEdge(id, id, where(getfirst(?Entry()))))> cfgedge*
+     // The "step out" edges can be used directly
    ; (exit-edges*, startpoint-edges) :=
-      <partition(CFGEdge(id, id, where(getfirst(?Exit()))))> non-entry-edges
-   // The "normal" edges are extended with entry edges, combining the constraints, possibly
-   // extending to multiple edges when we find an AST node with multiple entry edges going to
-   // different children
+        <partition(CFGEdge(id, id, where(getfirst(?Exit()))))> non-entry-edges
+     // The "normal" edges are extended with entry edges, combining the constraints, possibly
+     // extending to multiple edges when we find an AST node with multiple entry edges going to
+     // different children
    ; fused-edges* :=
        <mapconcat(extend-edge-via-entries(|revidx, cfgedge*) <+ ![<id>])> startpoint-edges
-   ; edges-string := <to-dot-linear-cfg-edges(|revidx)> [exit-edges*, fused-edges*]
 
 /**
 Find places reachable by following only entry edges. Gives possibly artificial edges from the given

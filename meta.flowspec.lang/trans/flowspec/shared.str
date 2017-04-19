@@ -2,12 +2,15 @@ module flowspec/shared
 
 imports
 
+signatures/flowspec/-
+flowspec/extra-sig
 flowspec/utils
 libspoofax/stratego/debug
+nabl2/shared/-
 
 strategies
 
-flowspec--new-var = id
+flowspec--new-var: (TermIndex(_,idx-file), TermIndex(_,idx-analysis)) -> Var(idx-file, idx-analysis)
 
 flowspec--generate-cfg-constraint =
   flowspec--generate-cfg-constraint-rule
@@ -24,4 +27,11 @@ flowspec--generate-prop: ast ->
 
 flowspec--generate-prop-1: term -> result
 with numbers := <flowspec--no-of-prop-rules;dec;upto>
-   ; result := <mapconcat(\n -> <flowspec--generate-prop-rule(|n)> term\)> numbers
+   ; result := <filter(\n -> <flowspec--generate-prop-rule(|n)> term\);concat> numbers
+
+flowspec--generate-tree-prop: ast ->
+  <topdown-fold(\(t,l) -> <concat> [<flowspec--generate-tree-prop-1> t, l]\)> (ast, [])
+
+flowspec--generate-tree-prop-1: term -> <map(\child -> HasProp(parent, "child", child, [])\)> children
+with parent := <nabl2--get-ast-index> term
+   ; children := <get-arguments;map(nabl2--get-ast-index)> term

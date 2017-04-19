@@ -13,4 +13,6 @@ CFGEdgeWhereClause = FlowWhereClause
 CFGEdgeWhereClause.Entry = [entry]
 CFGEdgeWhereClause.Exit = [exit]
 
-CFGEdgeNode.IndexTerm = [[STRING]@[INT]] // Nabl2 IndexTerm really
+CFGEdgeNode.TermIndex = [[STRING]@[INT]] // Nabl2 IndexTerm really
+
+CFGEdgeNode.Var = [v[INT]_[INT]]
