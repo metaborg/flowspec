@@ -12,10 +12,10 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-public class SF_solver extends AbstractPrimitive {
+public class FS_solver extends AbstractPrimitive {
 
-    public SF_solver() {
-        super(SF_solver.class.getSimpleName(), 0, 0);
+    public FS_solver() {
+        super(FS_solver.class.getSimpleName(), 0, 0);
     }
 
     @Override
