@@ -29,24 +29,24 @@
       <artifactId>org.spoofax.interpreter.core</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.metaborg</groupId>
       <artifactId>org.metaborg.meta.nabl2.java</artifactId>
       <version>${metaborg-version}</version>
-    </dependency>
-    <dependency>
+    </dependency> -->
+    <!-- <dependency>
       <groupId>org.metaborg</groupId>
       <artifactId>org.strategoxt.strj</artifactId>
       <version>${metaborg-version}</version>
-    </dependency>
-    <dependency>
+    </dependency> -->
+    <!-- <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-    </dependency>
-    <dependency>
+    </dependency> -->
+    <!-- <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.pcollections</groupId>
       <artifactId>pcollections</artifactId>
@@ -63,16 +63,17 @@
       <version>${immutables-version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- NOTE: This is for javax.annotations.* -->
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-    </dependency>
+    </dependency> -->
   </dependencies>
 
   <build>

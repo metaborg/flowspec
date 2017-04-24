@@ -3,9 +3,9 @@ package meta.flowspec.java;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-public class Variable extends Value {
-    public int file_index;
-    public int analysis_index;
+public class Variable implements Value {
+    public final int file_index;
+    public final int analysis_index;
 
     /**
      * @param index

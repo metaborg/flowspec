@@ -1,8 +1,7 @@
 package meta.flowspec.java;
 
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+import meta.flowspec.java.stratego.ToIStrategoTerm;
 
-abstract class Value {
-    public abstract IStrategoTerm toIStrategoTerm(ITermFactory factory);
+public interface Value extends ToIStrategoTerm {
+    
 }

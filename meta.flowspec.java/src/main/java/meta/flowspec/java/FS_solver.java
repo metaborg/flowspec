@@ -1,16 +1,16 @@
 package meta.flowspec.java;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.AbstractPrimitive;
+import org.spoofax.interpreter.library.IOAgent;
+import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+
+import meta.flowspec.java.pcollections.MapSetPRelation;
+import meta.flowspec.java.pcollections.PRelation;
+import meta.flowspec.java.stratego.FromIStrategoTerm;
 
 public class FS_solver extends AbstractPrimitive {
 
@@ -20,27 +20,25 @@ public class FS_solver extends AbstractPrimitive {
 
     @Override
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
-        final ITermFactory factory = env.getFactory();
-//        final IOAgent ioAgent = context.getIOAgent();
-        // PropName -> TermIndex -> ResultValue
-        final Map<String, Map<Integer, Set<Value>>> results = new HashMap<>();
+//        final ITermFactory factory = env.getFactory();
+        final IOAgent ioAgent = ((SSLLibrary) env.getOperatorRegistry(SSLLibrary.REGISTRY_NAME)).getIOAgent();
+        // PropName -> TermIndex -> ResultValue*
+        final PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
+        final PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();
         final IStrategoTerm current = env.current();
 
-        switch (current.getTermType()) {
-        case IStrategoTerm.LIST: {
-            final IStrategoList list = (IStrategoList) current;
-
+        return MatchTerm.list(current).map(list -> {
             for (IStrategoTerm term : list) {
-                flowspec_solver_0_0.addPropConstraint(results, term);
+                try {
+                    FromIStrategoTerm.addPropConstraint(simple, conditional, term, ioAgent);
+                } catch (TermMatchException e) {
+                    ioAgent.printError("[WARNING] FlowSpec solver did not receive well-formed input: " + e.getMessage());
+                }
             }
 
-            env.setCurrent(flowspec_solver_0_0.translateResults(results, factory));
+//            env.setCurrent(flowspec_solver_0_0.translateResults(simple, factory));
             return true;
-        }
-        default:
-            // Invalid input, fall through to return null
-        }
-        return false;
+        }).orElse(false);
     }
 
 }

@@ -1,36 +1,24 @@
 package meta.flowspec.java;
 
-import java.util.Map;
-
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoConstructor;
 
-public class TermIndex extends Value {
-    public int index;
-
-    public Map<Value, Value> childConditions;
-    public Map<Value, Map<String, Value>> propConditions;
-
-    /**
-     * @param index
-     * @param childConditions
-     * @param propConditions
-     */
-    public TermIndex(int index, Map<Value, Value> childConditions, Map<Value, Map<String, Value>> propConditions) {
-        this.index = index;
-        this.childConditions = childConditions;
-        this.propConditions = propConditions;
-    }
+public class TermIndex implements Value, Dependency {
+    public final String file;
+    public final int index;
 
     /**
      * @param index
      */
-    public TermIndex(int index) {
+    public TermIndex(String file, int index) {
+        this.file = file;
         this.index = index;
     }
 
     @Override
     public IStrategoTerm toIStrategoTerm(ITermFactory factory) {
-        return factory.makeInt(index);
+        return factory.makeAppl(factory.makeConstructor("TermIndex", 2), factory.makeString(file),
+                factory.makeInt(index));
     }
 }
