@@ -22,4 +22,6 @@ public interface PRelation<L,R> {
     Set<L> lhsSet();
     PSet<R> rhsSet();
     Set<Map.Entry<L, R>> entrySet();
+
+    PRelation<R,L> reverse();
 }

@@ -15,6 +15,18 @@ public class MapSetPRelation<L, R> implements PRelation<L, R> {
         this.map = Empty.map();
     }
 
+    protected MapSetPRelation(PRelation<L, R> rel) {
+        PMap<L, PSet<R>> map = Empty.map();
+        for (Map.Entry<L,R> e : rel.entrySet()) {
+            PSet<R> rhs = map.get(e.getKey());
+            if (rhs == null) {
+                rhs = Empty.set();
+            }
+            map = map.plus(e.getKey(), rhs.plus(e.getValue()));
+        }
+        this.map = map;
+    }
+
     protected MapSetPRelation(PMap<L, PSet<R>> map) {
         this.map = map;
     }
@@ -154,5 +166,14 @@ public class MapSetPRelation<L, R> implements PRelation<L, R> {
         public R setValue(R value) {
             throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public PRelation<R, L> reverse() {
+        PRelation<R,L> result = new MapSetPRelation<>();
+        for (Map.Entry<L, R> e : entrySet()) {
+            result = result.plus(e.getValue(), e.getKey());
+        }
+        return result;
     }
 }
