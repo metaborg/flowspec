@@ -26,18 +26,23 @@ public class FS_solver extends AbstractPrimitive {
         final PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
         final PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();
         final IStrategoTerm current = env.current();
-
-        return MatchTerm.list(current).map(list -> {
-            for (IStrategoTerm term : list) {
-                try {
-                    FromIStrategoTerm.addPropConstraint(simple, conditional, term, ioAgent);
-                } catch (TermMatchException e) {
-                    ioAgent.printError("[WARNING] FlowSpec solver did not receive well-formed input: " + e.getMessage());
-                }
+        
+        return MatchTerm.tuple(current).map(tuple -> {
+            if (tuple.getSubtermCount() != 2) {
+                return false;
             }
+            return MatchTerm.list(current.getSubterm(1)).map(list -> {
+                for (IStrategoTerm term : list) {
+                    try {
+                        FromIStrategoTerm.addPropConstraint(simple, conditional, term, ioAgent);
+                    } catch (TermMatchException e) {
+                        ioAgent.printError("[WARNING] FlowSpec solver did not receive well-formed input: " + e.getMessage());
+                    }
+                }
 
-//            env.setCurrent(flowspec_solver_0_0.translateResults(simple, factory));
-            return true;
+//                env.setCurrent(flowspec_solver_0_0.translateResults(simple, factory));
+                return true;
+            }).orElse(false);
         }).orElse(false);
     }
 
