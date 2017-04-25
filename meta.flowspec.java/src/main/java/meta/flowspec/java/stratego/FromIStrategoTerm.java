@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.spoofax.interpreter.library.IOAgent;
+import org.pcollections.PMap;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.StrategoConstructor;
 
@@ -20,15 +20,16 @@ import meta.flowspec.java.TermIndexUtils;
 import meta.flowspec.java.TermMatchException;
 import meta.flowspec.java.Value;
 import meta.flowspec.java.ValueUtils;
+import meta.flowspec.java.pcollections.MapSetPRelation;
 import meta.flowspec.java.pcollections.PRelation;
 
 public class FromIStrategoTerm {
     private static final String SUCCESSOR = "successor";
 
-    public static Pair<PRelation<Pair<String, TermIndex>, Value>, PRelation<Pair<String, TermIndex>, ConditionalValue>> addPropConstraint(
-            PRelation<Pair<String, TermIndex>, Value> simple,
-            PRelation<Pair<String, TermIndex>, ConditionalValue> conditional, IStrategoTerm term, IOAgent ioAgent)
+    public static Pair<PRelation<Pair<String, TermIndex>, Value>, PRelation<Pair<String, TermIndex>, ConditionalValue>> getPropConstraints(IStrategoTerm term)
             throws TermMatchException {
+        PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
+        PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();
         Optional<IStrategoTerm[]> c1 = MatchTerm.applChildren(new StrategoConstructor("HasProp", 4), term);
         if (c1.isPresent()) {
             IStrategoTerm[] children = c1.get();
@@ -74,4 +75,14 @@ public class FromIStrategoTerm {
         }
         return ImmutablePair.of(simple, conditional);
     }
+
+//    @SuppressWarnings("rawtypes")
+//    public static PMap<String, PropType> getTypeDefs(IStrategoTerm term) {
+//        MatchTerm.tuple(term).map(tuple -> {
+//            if(tuple.getSubtermCount() != 2) {
+//                return 
+//            }
+//        })
+//        return null;
+//    }
 }

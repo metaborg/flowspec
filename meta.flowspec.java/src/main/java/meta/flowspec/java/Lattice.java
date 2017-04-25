@@ -2,55 +2,55 @@ package meta.flowspec.java;
 
 import java.util.Set;
 
-public interface Lattice<Val> {
-    public Val top();
+public interface Lattice<E> {
+    public E top();
 
-    public Val bottom();
+    public E bottom();
 
-    public boolean lte(Val one, Val other);
+    public boolean lte(E one, E other);
 
-    public Val glb(Val one, Val other);
+    public E glb(E one, E other);
 
-    public Val lub(Val one, Val other);
+    public E lub(E one, E other);
 
-    default public Val glb(Set<Val> elements) {
+    default public E glb(Set<E> elements) {
         return elements.stream().reduce(top(), this::glb);
     }
 
-    default public Val lub(Set<Val> elements) {
+    default public E lub(Set<E> elements) {
         return elements.stream().reduce(bottom(), this::lub);
     }
 
-    default public Lattice<Val> flipLattice() {
-        return new Lattice<Val>() {
+    default public Lattice<E> flipLattice() {
+        return new Lattice<E>() {
             @Override
-            public Val top() {
+            public E top() {
                 return Lattice.this.bottom();
             }
 
             @Override
-            public Val bottom() {
+            public E bottom() {
                 return Lattice.this.top();
             }
 
             @Override
-            public boolean lte(Val one, Val other) {
+            public boolean lte(E one, E other) {
                 return Lattice.this.gte(one, other);
             }
 
             @Override
-            public Val glb(Val one, Val other) {
+            public E glb(E one, E other) {
                 return Lattice.this.lub(one, other);
             }
 
             @Override
-            public Val lub(Val one, Val other) {
+            public E lub(E one, E other) {
                 return Lattice.this.glb(one, other);
             }
         };
     }
 
-    default public boolean gte(Val one, Val other) {
+    default public boolean gte(E one, E other) {
         return lte(other, one);
     }
 }

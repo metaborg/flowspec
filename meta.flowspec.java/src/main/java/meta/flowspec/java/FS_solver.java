@@ -23,18 +23,30 @@ public class FS_solver extends AbstractPrimitive {
 //        final ITermFactory factory = env.getFactory();
         final IOAgent ioAgent = ((SSLLibrary) env.getOperatorRegistry(SSLLibrary.REGISTRY_NAME)).getIOAgent();
         // PropName -> TermIndex -> ResultValue*
-        final PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
-        final PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();
+//        final PRelation<Pair<String, TermIndex>, Value> simple;
+//        final PRelation<Pair<String, TermIndex>, ConditionalValue> conditional;
         final IStrategoTerm current = env.current();
         
         return MatchTerm.tuple(current).map(tuple -> {
             if (tuple.getSubtermCount() != 2) {
                 return false;
             }
-            return MatchTerm.list(current.getSubterm(1)).map(list -> {
+//            boolean types = MatchTerm.list(tuple.getSubterm(0)).map(list -> {
+//                for (IStrategoTerm term : list) {
+//                    try {
+//                        FromIStrategoTerm.getTypeDefs(term);
+//                    } catch (TermMatchException e) {
+//                        ioAgent.printError("[WARNING] FlowSpec solver did not receive well-formed input: " + e.getMessage());
+//                    }
+//                }
+//                return true;
+//            }).orElse(false);
+            boolean conds = MatchTerm.list(current.getSubterm(1)).map(list -> {
                 for (IStrategoTerm term : list) {
                     try {
-                        FromIStrategoTerm.addPropConstraint(simple, conditional, term, ioAgent);
+                        Pair<PRelation<Pair<String, TermIndex>, Value>, PRelation<Pair<String, TermIndex>, ConditionalValue>> p = FromIStrategoTerm.getPropConstraints(term);
+//                        simple = p.left();
+//                        conditional = p.right();
                     } catch (TermMatchException e) {
                         ioAgent.printError("[WARNING] FlowSpec solver did not receive well-formed input: " + e.getMessage());
                     }
@@ -42,8 +54,16 @@ public class FS_solver extends AbstractPrimitive {
 
 //                env.setCurrent(flowspec_solver_0_0.translateResults(simple, factory));
                 return true;
-            }).orElse(false);
-        }).orElse(false);
+            }).orElseGet(() -> {
+                ioAgent.printError("[WARNING] FlowSpec solver did not receive well-formed input: Expected list, got " + current);
+                return false;
+            });
+            
+            return conds;//types && conds;
+        }).orElseGet(() -> {
+            ioAgent.printError("[WARNING] FlowSpec solver did not receive well-formed input: Expected tuple, got " + current);
+            return false;
+        });
     }
 
 }
