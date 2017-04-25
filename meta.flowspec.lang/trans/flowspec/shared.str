@@ -5,6 +5,7 @@ imports
 signatures/flowspec/-
 flowspec/extra-sig
 flowspec/utils
+flowspec/solver
 libspoofax/stratego/debug
 nabl2/shared/-
 
@@ -40,8 +41,10 @@ with parent := <nabl2--get-ast-index> term
   
 rules
 
-solver-input: node -> (types, [tree-c*, prop-c*, cfg-c*])
+flowspec--solver-input: node -> (types, [tree-c*, prop-c*, cfg-c*])
 where types    := <flowspec--generate-prop-types> node
     ; tree-c*  := <flowspec--generate-tree-prop> node
     ; cfg-c*   := <flowspec--generate-cfg-constraint> node
     ; prop-c*  := <flowspec--generate-prop> node
+
+flowspec--solve = flowspec--solver-input;flowspec-solver

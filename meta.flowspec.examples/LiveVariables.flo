@@ -72,13 +72,13 @@ properties
 
   Live name
 
-//property rules
-//  
-//  st has Live x
-//  where st has Read x,
-//        not (st has Write x).
-//  
-//  st has Live x
-//  where st has successor st2,
-//        st2 has Live x,
-//        not (st has Write x).
+property rules
+  
+  st has Live x
+  where st has Read x,
+        not (st has Write x).
+  
+  st has Live x
+  where st has successor st2,
+        st2 has Live x,
+        not (st has Write x).

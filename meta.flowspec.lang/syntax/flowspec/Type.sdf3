@@ -20,7 +20,7 @@ context-free syntax // Types
   SimpleType.Sort = SortName
   Type = [([Type])] {bracket}
   Type.Tuple = [[Type] * [Type]] {right} // TODO: find different symbol, * is used for sets
-  Type.Map = [[Type] -> [Type]] {right} // TODO: remove
+//  Type.Map = [[Type] -> [Type]] {right} // TODO: remove
   Type.Set = [[Type]*]
   Type.Option = [[Type]?]
 

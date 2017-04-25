@@ -84,14 +84,10 @@ rules
     Module { module } <- global,
     moduleScope ---> global,
     Module { module } ===> moduleScope,
-/** Currently this does basically nothing. Using these rules makes everything too slow. 
-    I'm not sure where the problem lies. Perhaps with the Variable { v @ v } stuff for the
-    inference variables. 
-*/
     Map1 [[ imports ^ (global, moduleScope) ]],
-    Map1 [[ rules ^ (moduleScope) ]],
     Map1 [[ defs ^ (moduleScope) ]],
-    Map1 [[ rules ^ (moduleScope) ]],
+//    Map1 [[ flowrules ^ (moduleScope) ]],
+//    Map1 [[ proprules ^ (moduleScope) ]],
 //    distinct D(moduleScope)/Module,
 //    distinct D(moduleScope)/Property,
     new moduleScope.
