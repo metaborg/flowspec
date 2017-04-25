@@ -12,6 +12,8 @@ strategies
 
 flowspec--new-var: (TermIndex(_,idx-file), TermIndex(_,idx-analysis)) -> Var(idx-file, idx-analysis)
 
+flowspec--generate-prop-types = fail
+
 flowspec--generate-cfg-constraint =
   flowspec--generate-cfg-constraint-rule
   <+ (debug(|"[WARNING] Rule missing for this constructor: ");![])
@@ -35,3 +37,11 @@ flowspec--generate-tree-prop: ast ->
 flowspec--generate-tree-prop-1: term -> <map(\child -> HasProp(parent, "child", child, [])\)> children
 with parent := <nabl2--get-ast-index> term
    ; children := <get-arguments;map(nabl2--get-ast-index)> term
+  
+rules
+
+solver-input: node -> (types, [tree-c*, prop-c*, cfg-c*])
+where types    := <flowspec--generate-prop-types> node
+    ; tree-c*  := <flowspec--generate-tree-prop> node
+    ; cfg-c*   := <flowspec--generate-cfg-constraint> node
+    ; prop-c*  := <flowspec--generate-prop> node

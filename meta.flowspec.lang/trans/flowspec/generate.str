@@ -25,18 +25,22 @@ gen-str: FlowProgram(modulename, import*, def*, flowrule*, proprule*) ->
   signatures/-
   {importstring}
 
-  rules
+  rules // PROP DEF RULES
+
+  {defstring}
+
+  rules // FLOW RULES
 
   {flowrulestring}
 
-  rules
+  rules // PROP RULES
 
   flowspec--no-of-prop-rules = !{proprulenumber}
 
   {proprulestring}
 }
 with importstring := <map(?Import(<id>));lines_> import*
-//   ; defstring := <map(gen-str);lines_> def* // TODO <-
+   ; defstring := <gen-str> def*
    ; flowrulestring := <map(gen-str);lines_> flowrule*
    ; proprulestring := <map-with-index(gen-str);lines_> proprule*
    ; proprulenumber := <length;int-to-string> proprule*
@@ -44,6 +48,12 @@ with importstring := <map(?Import(<id>));lines_> import*
 
 // Property
 // Property - Property
+
+gen-str: def* ->
+  ${flowspec--generate-prop-types =
+  ![ {types} ]
+}
+where types := <map(\Def(name, type) -> ${("{name}", {<pp-aterm> type})}\);csv> def*
 
 // Property - PropRule
 

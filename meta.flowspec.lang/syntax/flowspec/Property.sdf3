@@ -8,11 +8,7 @@ imports
 
 context-free syntax // Properties
 
-  Property.Def = [[PropName] [Type]]// ([PropKind])]
-//  Property.DefMay = [[PropName] [PropType]]
-
-//  PropKind.Must = [must]
-//  PropKind.May  = [may]
+  Property.Def = [[PropName] [Type]]
 
 context-free syntax // Property Rules
 
