@@ -49,6 +49,7 @@ properties
 
   Write name
   Read name
+  ProgramStart Term // Should be unit
   Expr Term
 
 property rules
@@ -67,20 +68,32 @@ property rules
 
   Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
   Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
+  
+  Root(_) has ProgramStart this.
 
 properties
 
-  Definition name -> origin
+  Definition name -> origin?*
 
 property rules
 
-  st has Definition x -> this
+//  term has Definition x -> None
+//    where term has ProgramStart term,
+//          term has Write x,
+//          not term has Read x.
+
+//  term has Definition x -> None
+//    where term has ProgramStart term,
+//          term has Read x,
+//          not term has Write x.
+
+  st has Definition x -> this // Some(this)
   where st has Write x.
 
-  st has Definition x -> o
+  st has Definition x -> o // Some(o)
   where not st has Write x,
         st2 has successor st,
-        st2 has Definition x -> o.
+        st2 has Definition x -> o. // Some(o)
 
 // Can we find a way to add this back in?
 //  Ref(x) uses Definition x // enough to build reverse relation, which is the LiveVariables analysis
