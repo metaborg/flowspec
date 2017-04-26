@@ -26,7 +26,7 @@ import meta.flowspec.java.pcollections.PRelation;
 public class FromIStrategoTerm {
     private static final String SUCCESSOR = "successor";
 
-    public static Pair<PRelation<Pair<String, TermIndex>, Value>, PRelation<Pair<String, TermIndex>, ConditionalValue>> getPropConstraints(IStrategoTerm term)
+    public static Pair<Pair<String, TermIndex>, ConditionalValue> getPropConstraints(IStrategoTerm term)
             throws TermMatchException {
         PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
         PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();
@@ -73,7 +73,8 @@ public class FromIStrategoTerm {
                 throw new TermMatchException("HasProp/4 or CFGEdge/3", term.toString());
             }
         }
-        return ImmutablePair.of(simple, conditional);
+        return null; // TODO
+//        return ImmutablePair.of(simple, conditional);
     }
 
 //    @SuppressWarnings("rawtypes")

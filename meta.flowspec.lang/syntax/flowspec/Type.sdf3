@@ -25,4 +25,4 @@ context-free syntax // Types
   Type.Option = [[Type]?]
 
 context-free priorities
-  { Type.Option Type.Set } > Type.Tuple > Type.Map
+  { Type.Option Type.Set } > Type.Tuple

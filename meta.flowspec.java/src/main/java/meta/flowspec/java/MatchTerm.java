@@ -74,7 +74,7 @@ public class MatchTerm {
     }
 
     public static Optional<IStrategoTuple> tuple(IStrategoTerm term) {
-        if (term.getTermType() == IStrategoTerm.LIST) {
+        if (term.getTermType() == IStrategoTerm.TUPLE) {
             return Optional.of((IStrategoTuple) term);
         } else {
             return Optional.empty();

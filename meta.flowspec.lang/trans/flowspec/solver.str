@@ -2,4 +2,4 @@ module solver
 
 rules
 
-flowspec-solver = prim("FS_solver")
+flowspec-solver = ?x; prim("FS_solver", x)
