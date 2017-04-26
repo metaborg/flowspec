@@ -11,8 +11,9 @@ Bundle-Version: 2.3.0.qualifier
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: registered
 Embed-Transitive: true
-Export-Package: meta.flowspec,meta.flowspec.java,meta.flowspec.java.pcol
- lections,meta.flowspec.java.stratego
+Export-Package: meta.flowspec,meta.flowspec.java,meta.flowspec.java.ast,
+ meta.flowspec.java.pcollections,meta.flowspec.java.solver,meta.flowspec
+ .java.stratego
 Import-Package: org.spoofax.interpreter.core,org.spoofax.interpreter.lib
  rary,org.spoofax.interpreter.stratego,org.spoofax.interpreter.terms,org
  .spoofax.terms,org.metaborg.util.log,org.pcollections;provider=metaborg

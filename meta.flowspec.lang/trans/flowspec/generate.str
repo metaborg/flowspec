@@ -44,7 +44,6 @@ with importstring := <map(?Import(<id>));lines_> import*
    ; flowrulestring := <map(gen-str);lines_> flowrule*
    ; proprulestring := <map-with-index(gen-str);lines_> proprule*
    ; proprulenumber := <length;int-to-string> proprule*
-   ; <debug> "[NOTE] we're not generating correct code for the property rules section yet. "
 
 // Property
 // Property - Property
@@ -53,7 +52,7 @@ gen-str: def* ->
   ${flowspec--generate-prop-types =
   ![ {types} ]
 }
-where types := <map(\Def(name, type) -> ${("{name}", {<pp-aterm> type})}\);csv> def*
+where types := <map(\Def(name, type) -> ${("{name}", {<write-to-string> type})}\);csv> def*
 
 // Property - PropRule
 
@@ -149,7 +148,7 @@ gen-index-rule: var ->
   ${with(index-{var} := <nabl2--get-ast-index> match-{var})}
 
 gen-var-rule: var ->
-  ${with(index-{var} := <flowspec--new-var> (index-this, {<nabl2--get-ast-index;pp-aterm> var}))}
+  ${with(index-{var} := <flowspec--new-var> (index-this, {<nabl2--get-ast-index;write-to-string> var}))}
 
 gen-subterm-constraints: var ->
   ${with(constr-{var} := <flowspec--generate-cfg-constraint> match-{var})}

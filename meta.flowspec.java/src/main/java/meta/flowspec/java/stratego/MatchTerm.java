@@ -1,4 +1,4 @@
-package meta.flowspec.java;
+package meta.flowspec.java.stratego;
 
 import java.util.ArrayList;
 import java.util.List;

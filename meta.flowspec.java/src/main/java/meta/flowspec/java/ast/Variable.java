@@ -1,4 +1,4 @@
-package meta.flowspec.java;
+package meta.flowspec.java.ast;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;

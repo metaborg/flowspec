@@ -1,4 +1,4 @@
-package meta.flowspec.java;
+package meta.flowspec.java.solver;
 
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 import org.pcollections.HashPMap;
 import org.pcollections.IntTreePMap;
 import org.pcollections.PMap;
+
+import meta.flowspec.java.ImmutablePair;
+import meta.flowspec.java.Pair;
 
 public abstract class MaximalFixedPoint {
     public static <Label, Property> Pair<PMap<Label, Property>, PMap<Label, Property>> intraProcedural(

@@ -6,30 +6,27 @@ import java.util.stream.Collectors;
 
 import org.pcollections.PMap;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.terms.StrategoConstructor;
 
-import meta.flowspec.java.Condition;
-import meta.flowspec.java.ConditionUtils;
-import meta.flowspec.java.ConditionalValue;
 import meta.flowspec.java.ImmutablePair;
-import meta.flowspec.java.MatchTerm;
-import meta.flowspec.java.OptionalUtils;
 import meta.flowspec.java.Pair;
-import meta.flowspec.java.TermIndex;
-import meta.flowspec.java.TermIndexUtils;
-import meta.flowspec.java.TermMatchException;
-import meta.flowspec.java.Value;
-import meta.flowspec.java.ValueUtils;
+import meta.flowspec.java.ast.Condition;
+import meta.flowspec.java.ast.ConditionUtils;
+import meta.flowspec.java.ast.ConditionalValue;
+import meta.flowspec.java.ast.OptionalUtils;
+import meta.flowspec.java.ast.TermIndex;
+import meta.flowspec.java.ast.TermIndexUtils;
+import meta.flowspec.java.ast.Value;
+import meta.flowspec.java.ast.ValueUtils;
 import meta.flowspec.java.pcollections.MapSetPRelation;
 import meta.flowspec.java.pcollections.PRelation;
 
 public class FromIStrategoTerm {
     private static final String SUCCESSOR = "successor";
 
-    public static Pair<Pair<String, TermIndex>, ConditionalValue> getPropConstraints(IStrategoTerm term)
+    public static Pair<Pair<String, TermIndex>, ConditionalValue> getPropConstraint(IStrategoTerm term)
             throws TermMatchException {
-        PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
-        PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();
         Optional<IStrategoTerm[]> c1 = MatchTerm.applChildren(new StrategoConstructor("HasProp", 4), term);
         if (c1.isPresent()) {
             IStrategoTerm[] children = c1.get();
@@ -44,12 +41,7 @@ public class FromIStrategoTerm {
                     .map(c -> ConditionUtils.fromIStrategoTerm(c)).collect(OptionalUtils.toOptionalList())
                     .orElseThrow(() -> new TermMatchException("list of HasProp/3", children[3].toString()));
 
-            if (conditions.isEmpty()) {
-                simple = simple.plus(ImmutablePair.of(propName, subject), object);
-            } else {
-                conditional = conditional.plus(ImmutablePair.of(propName, subject),
-                        new ConditionalValue(object, conditions));
-            }
+            return ImmutablePair.of(ImmutablePair.of(propName, subject), new ConditionalValue(object, conditions));
         } else {
             Optional<IStrategoTerm[]> c2 = MatchTerm.applChildren(new StrategoConstructor("CFGEdge", 3), term);
             if (c2.isPresent()) {
@@ -63,27 +55,23 @@ public class FromIStrategoTerm {
                         .map(ConditionUtils::fromIStrategoTerm).filter(Optional::isPresent).map(Optional::get)
                         .collect(Collectors.toList());
 
-                if (conditions.isEmpty()) {
-                    simple = simple.plus(ImmutablePair.of(SUCCESSOR, subject), object);
-                } else {
-                    conditional = conditional.plus(ImmutablePair.of(SUCCESSOR, subject),
-                            new ConditionalValue(object, conditions));
-                }
+                return ImmutablePair.of(ImmutablePair.of(SUCCESSOR, subject), new ConditionalValue(object, conditions));
             } else {
                 throw new TermMatchException("HasProp/4 or CFGEdge/3", term.toString());
             }
         }
-        return null; // TODO
-//        return ImmutablePair.of(simple, conditional);
     }
 
-//    @SuppressWarnings("rawtypes")
-//    public static PMap<String, PropType> getTypeDefs(IStrategoTerm term) {
-//        MatchTerm.tuple(term).map(tuple -> {
-//            if(tuple.getSubtermCount() != 2) {
-//                return 
-//            }
-//        })
-//        return null;
-//    }
+    @SuppressWarnings("rawtypes")
+    public static Pair<String, PropType> getTypeDef(IStrategoTerm term) {
+        IStrategoTuple tuple = MatchTerm.tuple(term).orElseThrow(() -> new TermMatchException("tuple", term.toString()));
+        if(tuple.getSubtermCount() != 2) {
+            throw new TermMatchException("tuple of 2", tuple.toString());
+        }
+        String propname = MatchTerm.string(tuple.getSubterm(0)).orElseThrow(() -> new TermMatchException("string", tuple.getSubterm(0).toString()));
+        tuple.getSubterm(1);
+        MatchTerm.tuple(term).map(tuple -> {
+        });
+        return null;
+    }
 }

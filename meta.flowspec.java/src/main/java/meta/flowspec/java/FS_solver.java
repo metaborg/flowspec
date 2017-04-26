@@ -12,9 +12,14 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
+import meta.flowspec.java.ast.ConditionalValue;
+import meta.flowspec.java.ast.TermIndex;
+import meta.flowspec.java.ast.Value;
 import meta.flowspec.java.pcollections.MapSetPRelation;
 import meta.flowspec.java.pcollections.PRelation;
 import meta.flowspec.java.stratego.FromIStrategoTerm;
+import meta.flowspec.java.stratego.MatchTerm;
+import meta.flowspec.java.stratego.TermMatchException;
 
 public class FS_solver extends AbstractPrimitive {
     private static final ILogger logger = LoggerUtils.logger(FS_solver.class);
@@ -46,7 +51,7 @@ public class FS_solver extends AbstractPrimitive {
             List<IStrategoTerm> conds = MatchTerm.list(current.getSubterm(1)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
             List<Pair<Pair<String, TermIndex>, ConditionalValue>> pairs = new ArrayList<>();
             for (IStrategoTerm cond : conds) {
-                pairs.add(FromIStrategoTerm.getPropConstraints(cond));
+                pairs.add(FromIStrategoTerm.getPropConstraint(cond));
             }
             PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
             PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();
@@ -63,7 +68,6 @@ public class FS_solver extends AbstractPrimitive {
             logger.warn("Did not receive well-formed input: " + e.getMessage());
             return false;
         }
-        logger.warn("Hi!");
         return true;
     }
 

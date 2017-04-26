@@ -1,9 +1,11 @@
-package meta.flowspec.java;
+package meta.flowspec.java.ast;
 
 import java.util.Optional;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.StrategoConstructor;
+
+import meta.flowspec.java.stratego.MatchTerm;
 
 public class VariableUtils {
     public static Optional<Variable> fromIStrategoTerm(IStrategoTerm term) {

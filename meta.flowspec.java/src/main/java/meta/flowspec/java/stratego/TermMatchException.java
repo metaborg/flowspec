@@ -1,4 +1,4 @@
-package meta.flowspec.java;
+package meta.flowspec.java.stratego;
 
 public class TermMatchException extends Exception {
     private static final long serialVersionUID = -5302097636293457608L;

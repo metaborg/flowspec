@@ -1,4 +1,4 @@
-package meta.flowspec.java;
+package meta.flowspec.java.ast;
 
 public interface Dependency {
 

@@ -1,4 +1,4 @@
-package meta.flowspec.java;
+package meta.flowspec.java.solver;
 
 import java.util.Set;
 
