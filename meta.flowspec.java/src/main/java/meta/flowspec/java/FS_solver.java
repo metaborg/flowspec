@@ -13,7 +13,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
 import meta.flowspec.java.ast.ConditionalValue;
-import meta.flowspec.java.ast.TermIndex;
 import meta.flowspec.java.ast.Value;
 import meta.flowspec.java.ast.types.Type;
 import meta.flowspec.java.pcollections.MapSetPRelation;
@@ -40,19 +39,20 @@ public class FS_solver extends AbstractPrimitive {
                 throw new TermMatchException("tuple of 2", current.toString());
             }
             List<IStrategoTerm> typedefs = MatchTerm.list(tuple.getSubterm(0)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
+            @SuppressWarnings("rawtypes")
             List<Pair<String, Type>> types = new ArrayList<>();
             for (IStrategoTerm td: typedefs) {
                 types.add(MatchSolverTerms.getTypeDef(td));
             }
             List<IStrategoTerm> conds = MatchTerm.list(current.getSubterm(1)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
-            List<Pair<Pair<String, TermIndex>, ConditionalValue>> pairs = new ArrayList<>();
+            List<Pair<Pair<String, Value>, ConditionalValue>> pairs = new ArrayList<>();
             for (IStrategoTerm cond : conds) {
                 pairs.add(MatchSolverTerms.getPropConstraint(cond));
             }
-            PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
-            PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();
-            for (Pair<Pair<String, TermIndex>, ConditionalValue> pair : pairs) {
-                Pair<String, TermIndex> key = pair.left();
+            PRelation<Pair<String, Value>, Value> simple = new MapSetPRelation<>();
+            PRelation<Pair<String, Value>, ConditionalValue> conditional = new MapSetPRelation<>();
+            for (Pair<Pair<String, Value>, ConditionalValue> pair : pairs) {
+                Pair<String, Value> key = pair.left();
                 ConditionalValue value = pair.right();
                 if (value.conditions.isEmpty()) {
                     simple = simple.plus(key, value.value);

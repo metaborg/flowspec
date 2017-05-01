@@ -20,20 +20,17 @@ import meta.flowspec.java.ast.types.Type;
 public class MatchSolverTerms {
     private static final String SUCCESSOR = "successor";
 
-    public static Pair<Pair<String, TermIndex>, ConditionalValue> getPropConstraint(IStrategoTerm term)
+    public static Pair<Pair<String, Value>, ConditionalValue> getPropConstraint(IStrategoTerm term)
             throws TermMatchException {
-        /**
-         * TODO: update to {@link Var} instead of {@link TermIndex}
-         */
         Optional<IStrategoTerm[]> c1 = MatchTerm.applChildren(new StrategoConstructor("HasProp", 4), term);
         if (c1.isPresent()) {
             IStrategoTerm[] children = c1.get();
-            final TermIndex subject = TermIndex.match(children[0])
-                    .orElseThrow(() -> new TermMatchException("TermIndex/2", children[0].toString()));
+            final Value subject = Value.match(children[0]).orElseThrow(
+                    () -> new TermMatchException("TermIndex/2 or Var/2", children[0].toString()));
             final String propName = MatchTerm.string(children[1])
                     .orElseThrow(() -> new TermMatchException("string", children[1].toString()));
             final Value object = Value.match(children[2]).orElseThrow(
-                    () -> new TermMatchException("TermIndex/2 or (TermIndex/2, string)", children[2].toString()));
+                    () -> new TermMatchException("TermIndex/2 or Var/2", children[2].toString()));
             final List<Condition> conditions = MatchTerm.list(children[3])
                     .orElseThrow(() -> new TermMatchException("list", children[3].toString())).stream()
                     .map(Condition.Utils::match).collect(OptionalUtils.toOptionalList())
