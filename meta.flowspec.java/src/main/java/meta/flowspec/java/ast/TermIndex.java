@@ -8,7 +8,7 @@ import org.spoofax.terms.StrategoConstructor;
 
 import meta.flowspec.java.stratego.MatchTerm;
 
-public class TermIndex implements Value, Dependency {
+public class TermIndex implements Value {
     public final String file;
     public final int index;
 
