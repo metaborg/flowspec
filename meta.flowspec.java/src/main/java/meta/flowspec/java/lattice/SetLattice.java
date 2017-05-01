@@ -1,9 +1,9 @@
-package meta.flowspec.java.solver;
+package meta.flowspec.java.lattice;
 
 import org.pcollections.Empty;
 import org.pcollections.PSet;
 
-public class SetLattice<E> implements Lattice<PSet<E>> {
+public class SetLattice<E> implements CompleteLattice<PSet<E>> {
     private final PSet<E> top;
 
     /**

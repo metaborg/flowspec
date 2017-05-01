@@ -1,18 +1,17 @@
-package meta.flowspec.java.solver;
+package meta.flowspec.java.lattice;
 
 import java.util.Collection;
 import java.util.Iterator;
 
 import org.pcollections.Empty;
-import org.pcollections.OrderedPSet;
 import org.pcollections.PSet;
 
-public class FullSetLattice<E> implements Lattice<PSet<E>> {
+public class FullSetLattice<E> implements CompleteLattice<PSet<E>> {
 
     @SuppressWarnings("unchecked")
     @Override
     public PSet<E> top() {
-        return (PSet<E>) TOP;
+        return TOP;
     }
 
     @Override
@@ -70,7 +69,7 @@ public class FullSetLattice<E> implements Lattice<PSet<E>> {
         }
 
         @Override
-        public Iterator iterator() {
+        public Iterator<Object> iterator() {
             throw new UnsupportedOperationException();
         }
 
@@ -108,7 +107,7 @@ public class FullSetLattice<E> implements Lattice<PSet<E>> {
 
 //        @SuppressWarnings("unchecked")
         @Override
-        public PSet minusAll(Collection list) {
+        public PSet<Object> minusAll(Collection list) {
             throw new UnsupportedOperationException();
 //            return new Complement(OrderedPSet.from(list));
         }

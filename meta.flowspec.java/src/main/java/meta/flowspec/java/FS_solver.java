@@ -15,9 +15,10 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import meta.flowspec.java.ast.ConditionalValue;
 import meta.flowspec.java.ast.TermIndex;
 import meta.flowspec.java.ast.Value;
+import meta.flowspec.java.ast.types.Type;
 import meta.flowspec.java.pcollections.MapSetPRelation;
 import meta.flowspec.java.pcollections.PRelation;
-import meta.flowspec.java.stratego.FromIStrategoTerm;
+import meta.flowspec.java.stratego.MatchSolverTerms;
 import meta.flowspec.java.stratego.MatchTerm;
 import meta.flowspec.java.stratego.TermMatchException;
 
@@ -38,20 +39,15 @@ public class FS_solver extends AbstractPrimitive {
             if (tuple.getSubtermCount() != 2) {
                 throw new TermMatchException("tuple of 2", current.toString());
             }
-//                boolean types = MatchTerm.list(tuple.getSubterm(0)).map(list -> {
-//                    for (IStrategoTerm term : list) {
-//                        try {
-//                            FromIStrategoTerm.getTypeDefs(term);
-//                        } catch (TermMatchException e) {
-//                            logger.warn("Did not receive well-formed input: " + e.getMessage());
-//                        }
-//                    }
-//                    return true;
-//                }).orElse(false);
+            List<IStrategoTerm> typedefs = MatchTerm.list(tuple.getSubterm(0)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
+            List<Pair<String, Type>> types = new ArrayList<>();
+            for (IStrategoTerm td: typedefs) {
+                types.add(MatchSolverTerms.getTypeDef(td));
+            }
             List<IStrategoTerm> conds = MatchTerm.list(current.getSubterm(1)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
             List<Pair<Pair<String, TermIndex>, ConditionalValue>> pairs = new ArrayList<>();
             for (IStrategoTerm cond : conds) {
-                pairs.add(FromIStrategoTerm.getPropConstraint(cond));
+                pairs.add(MatchSolverTerms.getPropConstraint(cond));
             }
             PRelation<Pair<String, TermIndex>, Value> simple = new MapSetPRelation<>();
             PRelation<Pair<String, TermIndex>, ConditionalValue> conditional = new MapSetPRelation<>();

@@ -11,10 +11,11 @@ import org.pcollections.PMap;
 
 import meta.flowspec.java.ImmutablePair;
 import meta.flowspec.java.Pair;
+import meta.flowspec.java.lattice.CompleteLattice;
 
 public abstract class MaximalFixedPoint {
     public static <Label, Property> Pair<PMap<Label, Property>, PMap<Label, Property>> intraProcedural(
-            Lattice<Property> lattice, BiFunction<Label, Property, Property> transfer, ControlFlow<Label> flow,
+            CompleteLattice<Property> lattice, BiFunction<Label, Property, Property> transfer, ControlFlow<Label> flow,
             Property extremalValue) {
 
         Set<Label> workList = flow.lhsSet();
