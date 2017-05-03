@@ -47,9 +47,9 @@ flow graph rules
 
 properties
 
-  Write name
-  Read name
-  Expr Term
+  Write:  Set(name)
+  Read:  Set(name)
+  Expr:  Option(Term)
 
 property rules
 
@@ -70,14 +70,14 @@ property rules
 
 properties
 
-  VeryBusy Expr// (strict)
+  VeryBusy:  MustSet(Expr)
 
 property rules
 
   st has VeryBusy e
   where st has Expr e.
 
-  st has VeryBusy e                         // forall st, e, 
-  where st has successor st2,               // 
-        st2 has VeryBusy e,                 // 
-        not (e has Read x, st has Write x). // 
+  st has VeryBusy e
+  where st has successor st2,
+        st2 has VeryBusy e,
+        not (e has Read x, st has Write x).

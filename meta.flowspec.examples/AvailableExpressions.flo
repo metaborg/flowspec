@@ -70,7 +70,7 @@ property rules
 
 properties
 
-  Available Expr// (strict) // or use forall/exists in formula?
+  Available MustSet(Expr)
 
 property rules
 
@@ -82,4 +82,5 @@ property rules
         not (st has Write x, expr has Read x). //       not (st has Write x, expr has Read x)
 
   st has Available e
-  where st has Expr e.
+  where st has Expr e,
+        not (st has Write x, e has Read x).

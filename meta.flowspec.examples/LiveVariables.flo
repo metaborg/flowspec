@@ -70,7 +70,7 @@ property rules
 
 properties
 
-  Live name
+  Live MaySet(name)
 
 property rules
   
