@@ -5,24 +5,67 @@ imports
   flowspec/Common
   flowspec/Pattern
 
-context-free syntax // Types
+context-free syntax // Type definitions
 
-  TypeDef.TypeDef = [[TypeName] = [{ConsDef "\n|"}+]]
+  TypeDef.TypeDef = [[TypeName] [Var*] = [{ConsDef "\n|"}+]]
   ConsDef.Cons0 = [[ConsName]]
-  ConsDef.Cons1 = [[ConsName] [Type]]
+  ConsDef.Cons1 = [[ConsName] [TypeOrVar]]
+  
+  TypeOrVar = Type
+  TypeOrVar.Var = Var
 
+context-free syntax // Lattice definitions
+
+  TypeDef.JSLImpl = [join semi-lattice of [TypeName] [Var*] {
+    [LatticeImplDef*]
+  }]
+  TypeDef.MSLImpl = [meet semi-lattice of [TypeName] [Var*] {
+    [LatticeImplDef*]
+  }]
+  TypeDef.CLImpl  = [complete lattice of [TypeName] [Var*] {
+    [LatticeImplDef*]
+  }]
+  
+  LatticeImplDef.TopDef = [top = [FunExpr]]
+  LatticeImplDef.BottomDef = [bottom = [FunExpr]]
+  LatticeImplDef.LUBDef = [lub [Var] [Var] = [FunExpr]]
+  LatticeImplDef.GLBDef = [glb [Var] [Var] = [FunExpr]]
+
+context-free syntax // Functions
+
+  FunExpr.Ref = Var
+  FunExpr.Match = [match [Var] {
+    [MatchArm+]
+  }]
+  MatchArm.MatchArm = [[ConsName] [FunPattern] => [FunExpr];]
+  FunExpr.Tuple = [([FunExpr], [FunExpr])]
+  FunExpr.Set = [set([{FunExpr ", "}+])]
+  FunExpr.Map = [map([{MappingExpr ", "}+])]
+  MappingExpr.Mapping = [[FunExpr] -> [FunExpr]]
+  FunExpr = FunLiteral
+  
+  FunPattern.Wildcard = "_"
+  FunPattern.Var = Var
+  FunPattern.Tuple = [([Pattern], [Pattern])]
+  FunPattern.Set = [set([{Pattern ", "}+])]
+  FunPattern.Map = [map([{MappingPattern ", "}+])]
+  MappingPattern.Mapping = [[FunPattern] -> [FunPattern]]
+  FunPattern = FunLiteral
+  
+  FunLiteral.Int = INT
+  FunLiteral.String = STRING
+
+context-free syntax // Type expressions
 
   Type = SimpleType
   SimpleType.Name = "name"
-  SimpleType.Origin = "origin"
-  SimpleType.CFGNode = "cfgNode"
-  SimpleType.UserType = TypeName {avoid}
+  SimpleType.Term = "term"
+  SimpleType.UserType = [[TypeName] [Type*]] {avoid}
   SimpleType.Sort = SortName
   Type = [([Type])] {bracket}
-  Type.Tuple = [[Type] * [Type]] {right} // TODO: find different symbol, * is used for sets
-//  Type.Map = [[Type] -> [Type]] {right} // TODO: remove
-  Type.Set = [[Type]*]
-  Type.Option = [[Type]?]
+  Type.Tuple = [[Type] * [Type]] {right}
+  Type.Map = [map([Type], [Type])]
+  Type.Set = [set([Type])]
 
 context-free priorities
-  { Type.Option Type.Set } > Type.Tuple
+  { Type.Set } > Type.Tuple
