@@ -11,46 +11,46 @@ import org.spoofax.terms.StrategoConstructor;
 import meta.flowspec.java.ImmutablePair;
 import meta.flowspec.java.Pair;
 import meta.flowspec.java.ast.Condition;
-import meta.flowspec.java.ast.ConditionalValue;
+import meta.flowspec.java.ast.ConditionalRhs;
 import meta.flowspec.java.ast.OptionalUtils;
 import meta.flowspec.java.ast.TermIndex;
-import meta.flowspec.java.ast.Value;
+import meta.flowspec.java.ast.Rhs;
 import meta.flowspec.java.ast.types.Type;
 
 public class MatchSolverTerms {
     private static final String SUCCESSOR = "successor";
 
-    public static Pair<Pair<String, Value>, ConditionalValue> getPropConstraint(IStrategoTerm term)
+    public static Pair<Pair<String, TermIndex>, ConditionalRhs> propConstraint(IStrategoTerm term)
             throws TermMatchException {
         Optional<IStrategoTerm[]> c1 = MatchTerm.applChildren(new StrategoConstructor("HasProp", 4), term);
         if (c1.isPresent()) {
             IStrategoTerm[] children = c1.get();
-            final Value subject = Value.match(children[0]).orElseThrow(
-                    () -> new TermMatchException("TermIndex/2 or Var/2", children[0].toString()));
+            final TermIndex subject = TermIndex.match(children[0]).orElseThrow(
+                    () -> new TermMatchException("TermIndex/2", children[0].toString()));
             final String propName = MatchTerm.string(children[1])
                     .orElseThrow(() -> new TermMatchException("string", children[1].toString()));
-            final Value object = Value.match(children[2]).orElseThrow(
+            final Rhs object = Rhs.match(children[2]).orElseThrow(
                     () -> new TermMatchException("TermIndex/2 or Var/2", children[2].toString()));
             final List<Condition> conditions = MatchTerm.list(children[3])
                     .orElseThrow(() -> new TermMatchException("list", children[3].toString())).stream()
                     .map(Condition.Utils::match).collect(OptionalUtils.toOptionalList())
                     .orElseThrow(() -> new TermMatchException("list of HasProp/3", children[3].toString()));
 
-            return ImmutablePair.of(ImmutablePair.of(propName, subject), new ConditionalValue(object, conditions));
+            return ImmutablePair.of(ImmutablePair.of(propName, subject), new ConditionalRhs(object, conditions));
         } else {
             Optional<IStrategoTerm[]> c2 = MatchTerm.applChildren(new StrategoConstructor("CFGEdge", 3), term);
             if (c2.isPresent()) {
                 IStrategoTerm[] children = c2.get();
                 final TermIndex subject = TermIndex.match(children[0])
                         .orElseThrow(() -> new TermMatchException("TermIndex/2", children[0].toString()));
-                final Value object = TermIndex.match(children[1])
+                final Rhs object = TermIndex.match(children[1])
                         .orElseThrow(() -> new TermMatchException("TermIndex/2", children[0].toString()));
                 final List<Condition> conditions = MatchTerm.list(children[2])
                         .orElseThrow(() -> new TermMatchException("list", children[3].toString())).stream()
                         .map(Condition.Utils::match).filter(Optional::isPresent).map(Optional::get)
                         .collect(Collectors.toList());
 
-                return ImmutablePair.of(ImmutablePair.of(SUCCESSOR, subject), new ConditionalValue(object, conditions));
+                return ImmutablePair.of(ImmutablePair.of(SUCCESSOR, subject), new ConditionalRhs(object, conditions));
             } else {
                 throw new TermMatchException("HasProp/4 or CFGEdge/3", term.toString());
             }
@@ -58,7 +58,7 @@ public class MatchSolverTerms {
     }
 
     @SuppressWarnings("rawtypes")
-    public static Pair<String, Type> getTypeDef(IStrategoTerm term) throws TermMatchException {
+    public static Pair<String, Type> typeDef(IStrategoTerm term) throws TermMatchException {
         IStrategoTuple tuple = MatchTerm.tuple(term)
                 .orElseThrow(() -> new TermMatchException("tuple", term.toString()));
         if (tuple.getSubtermCount() != 2) {

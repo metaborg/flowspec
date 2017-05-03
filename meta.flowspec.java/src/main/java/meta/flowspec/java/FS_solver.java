@@ -1,7 +1,9 @@
 package meta.flowspec.java;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
@@ -12,11 +14,14 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
-import meta.flowspec.java.ast.ConditionalValue;
-import meta.flowspec.java.ast.Value;
+import meta.flowspec.java.ast.ConditionalRhs;
+import meta.flowspec.java.ast.TermIndex;
+import meta.flowspec.java.ast.Rhs;
 import meta.flowspec.java.ast.types.Type;
 import meta.flowspec.java.pcollections.MapSetPRelation;
 import meta.flowspec.java.pcollections.PRelation;
+import meta.flowspec.java.solver.MFP2;
+import meta.flowspec.java.stratego.BuildSolverTerms;
 import meta.flowspec.java.stratego.MatchSolverTerms;
 import meta.flowspec.java.stratego.MatchTerm;
 import meta.flowspec.java.stratego.TermMatchException;
@@ -40,26 +45,23 @@ public class FS_solver extends AbstractPrimitive {
             }
             List<IStrategoTerm> typedefs = MatchTerm.list(tuple.getSubterm(0)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
             @SuppressWarnings("rawtypes")
-            List<Pair<String, Type>> types = new ArrayList<>();
+            Map<String, Type> types = new HashMap<>();
             for (IStrategoTerm td: typedefs) {
-                types.add(MatchSolverTerms.getTypeDef(td));
+                @SuppressWarnings("rawtypes")
+                final Pair<String, Type> pair = MatchSolverTerms.typeDef(td);
+                types.put(pair.left(), pair.right());
             }
             List<IStrategoTerm> conds = MatchTerm.list(current.getSubterm(1)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
-            List<Pair<Pair<String, Value>, ConditionalValue>> pairs = new ArrayList<>();
+            List<Pair<Pair<String, TermIndex>, ConditionalRhs>> pairs = new ArrayList<>();
             for (IStrategoTerm cond : conds) {
-                pairs.add(MatchSolverTerms.getPropConstraint(cond));
+                pairs.add(MatchSolverTerms.propConstraint(cond));
             }
-            PRelation<Pair<String, Value>, Value> simple = new MapSetPRelation<>();
-            PRelation<Pair<String, Value>, ConditionalValue> conditional = new MapSetPRelation<>();
-            for (Pair<Pair<String, Value>, ConditionalValue> pair : pairs) {
-                Pair<String, Value> key = pair.left();
-                ConditionalValue value = pair.right();
-                if (value.conditions.isEmpty()) {
-                    simple = simple.plus(key, value.value);
-                } else {
-                    conditional = conditional.plus(key, value);
-                }
+            PRelation<Pair<String, TermIndex>, ConditionalRhs> conditional = new MapSetPRelation<>();
+            for (Pair<Pair<String, TermIndex>, ConditionalRhs> pair : pairs) {
+                conditional = conditional.plus(pair.left(), pair.right());
             }
+            PRelation<Pair<String, TermIndex>, Pair<Rhs, Rhs>> results = MFP2.intraProcedural(conditional, types);
+            env.setCurrent(new BuildSolverTerms(results).toIStrategoTerm(env.getFactory()));
         } catch (TermMatchException e) {
             logger.warn("Did not receive well-formed input: " + e.getMessage());
             return false;

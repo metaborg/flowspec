@@ -1,6 +1,10 @@
 package meta.flowspec.java.pcollections;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -10,14 +14,14 @@ import org.pcollections.PSet;
 
 public class MapSetPRelation<L, R> implements PRelation<L, R> {
     protected final PMap<L, PSet<R>> map;
-    
+
     public MapSetPRelation() {
         this.map = Empty.map();
     }
 
     protected MapSetPRelation(PRelation<L, R> rel) {
         PMap<L, PSet<R>> map = Empty.map();
-        for (Map.Entry<L,R> e : rel.entrySet()) {
+        for (Map.Entry<L, R> e : rel.entrySet()) {
             PSet<R> rhs = map.get(e.getKey());
             if (rhs == null) {
                 rhs = Empty.set();
@@ -170,10 +174,36 @@ public class MapSetPRelation<L, R> implements PRelation<L, R> {
 
     @Override
     public PRelation<R, L> reverse() {
-        PRelation<R,L> result = new MapSetPRelation<>();
+        PRelation<R, L> result = new MapSetPRelation<>();
         for (Map.Entry<L, R> e : entrySet()) {
             result = result.plus(e.getValue(), e.getKey());
         }
         return result;
+    }
+
+    public static <E> Optional<List<E>> topoSort(PRelation<E, E> rel) {
+        List<E> result = new ArrayList<>();
+        Set<E> frontier = new HashSet<>();
+        for (E lhs : rel.lhsSet()) {
+            if (!rel.containsRhs(lhs)) {
+                frontier.add(lhs);
+            }
+        }
+
+        while (!frontier.isEmpty()) {
+            E node = frontier.iterator().next();
+            frontier.remove(node);
+            result.add(node);
+            for (E rhs : rel.getRhsSet(node)) {
+                rel = rel.minus(node, rhs);
+                if (!rel.containsRhs(rhs)) {
+                    frontier.add(rhs);
+                }
+            }
+        }
+        if (!rel.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(result);
     }
 }

@@ -2,15 +2,15 @@ package meta.flowspec.java.ast;
 
 import java.util.List;
 
-public class ConditionalValue {
-    public final Value value;
+public class ConditionalRhs {
+    public final Rhs value;
     public final List<Condition> conditions;
 
     /**
      * @param value
      * @param conditions
      */
-    public ConditionalValue(Value value, List<Condition> conditions) {
+    public ConditionalRhs(Rhs value, List<Condition> conditions) {
         this.value = value;
         this.conditions = conditions;
     }
@@ -38,7 +38,7 @@ public class ConditionalValue {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ConditionalValue other = (ConditionalValue) obj;
+        ConditionalRhs other = (ConditionalRhs) obj;
         if (conditions == null) {
             if (other.conditions != null)
                 return false;

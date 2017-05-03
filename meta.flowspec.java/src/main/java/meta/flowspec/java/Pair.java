@@ -1,9 +1,13 @@
 package meta.flowspec.java;
 
-import org.immutables.value.Value;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Parameter;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.interpreter.terms.ITermFactory;
 
-@Value.Immutable
+@Immutable
 public abstract class Pair<L,R> {
-    @Value.Parameter public abstract L left();
-    @Value.Parameter public abstract R right();
+    @Parameter public abstract L left();
+    @Parameter public abstract R right();
 }

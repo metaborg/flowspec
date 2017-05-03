@@ -6,9 +6,11 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoConstructor;
 
+import meta.flowspec.java.ast.types.Sort;
+import meta.flowspec.java.ast.types.Type;
 import meta.flowspec.java.stratego.MatchTerm;
 
-public class TermIndex implements Value {
+public class TermIndex implements Rhs, Value {
     public final String file;
     public final int index;
 
@@ -72,6 +74,4 @@ public class TermIndex implements Value {
     public String toString() {
         return "TermIndex [file=" + file + ", index=" + index + "]";
     }
-    
-    
 }

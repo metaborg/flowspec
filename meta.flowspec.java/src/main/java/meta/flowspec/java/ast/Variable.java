@@ -8,7 +8,7 @@ import org.spoofax.terms.StrategoConstructor;
 
 import meta.flowspec.java.stratego.MatchTerm;
 
-public class Variable implements Value {
+public class Variable implements Rhs {
 
     public final int file_index;
     public final int analysis_index;
