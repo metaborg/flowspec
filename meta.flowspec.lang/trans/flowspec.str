@@ -24,7 +24,7 @@ rules // Debugging
     ; result   := <desugar-all> node
 
   generate-stratego: 
-    (node@FlowProgram(name, _, _, _, _), _, _, path, project-path) -> (filename, result)
+    (node@FlowProgram(name, _, _, _, _, _), _, _, path, project-path) -> (filename, result)
     with
       filename := <src-gen-file(|project-path, "flowspec", ".str")> name
     ; result   := <gen-str> node

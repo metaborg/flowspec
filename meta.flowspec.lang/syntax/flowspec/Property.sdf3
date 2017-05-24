@@ -5,6 +5,7 @@ imports
   flowspec/Common
   flowspec/Pattern
   flowspec/Type
+  flowspec/Expr
 
 context-free syntax // Properties
 
@@ -12,32 +13,35 @@ context-free syntax // Properties
 
 context-free syntax // Property Rules
 
-  PropRule.PropRule = [[{TLPattern ", "}+] has [PropRuleBody].]
-  PropRule.PropRuleWhere =
-[[{TLPattern ", "}+] has [PropRuleBody]
-  where [PropWhereClause].]
+  PropRule.PropRule = [[{TLRulePattern ", "}+] has [PropName] [FunExpr] [PropWhere].]
+  PropRule.PropContribRule = [[{TLRulePattern ", "}+] has a [PropName] [PropExpr] [PropWhere].]
+  
+  // This is desugared later to not have the WhereClause wrapper and give True() if no
+  //  clause is given.
+  PropWhere.NoWhereClause =
+  PropWhere.WhereClause = [where [PropWhereClause]]
 
-  PropRuleBody.PropRef = [[PropName] [VarRef]]
-  PropRuleBody.MapPropRef = [[PropName] [VarRef] -> [VarRef]]
+  PropPattern = FunPattern
+  PropPattern.Mapping = [[FunPattern] -> [FunPattern]]
+  
+  PropExpr = FunExpr
+  PropExpr.Mapping = [[FunExpr] -> [FunExpr]]
 
   PropWhereClause.And = [[PropWhereClause], [PropWhereClause]] {right}
-  PropWhereClause.BuiltinRelation = [[TLPattern] has [BuiltinRelation] [TLPattern]]
+  PropWhereClause.BuiltinRelation = [[TLRulePattern] has a [BuiltinRelation] [TLRulePattern]]
   PropWhereClause = HasPropExpr
-  PropWhereClause.Not = [not [PropBooleanExpr]]
+  PropWhereClause.Filter = [not [PropBooleanExpr]]
   PropWhereClause.True = [true]
 
-//  PropWhereClauseDesugared.CFGArrow = [[TLPattern] has successor [TLPattern]]
-//  PropWhereClauseDesugared.ASTRelation = [[TLPattern] has child [TLPattern]]
+//  PropWhereClauseDesugared.CFGArrow = [[TLRulePattern] has a successor [TLRulePattern]]
+//  PropWhereClauseDesugared.ASTRelation = [[TLRulePattern] has a child [TLRulePattern]]
 
-  HasPropExpr.HasProp = [[ID] has [PropName] [VarRef]]
-  HasPropExpr.HasMapProp = [[ID] has [PropName] [VarRef] -> [VarRef]]
+  HasPropExpr.HasProp = [[ID] has [PropName] [FunPattern]]
+  HasPropExpr.HasPropContrib = [[ID] has a [PropName] [PropPattern]]
 
   PropBooleanExpr = [([PropBooleanExpr])] {bracket}
   PropBooleanExpr.And = [[PropBooleanExpr], [PropBooleanExpr]] {right}
   PropBooleanExpr = HasPropExpr
-
-  VarRef.VarRef = ID {avoid}
-  VarRef.This = [this]
 
 lexical syntax
 

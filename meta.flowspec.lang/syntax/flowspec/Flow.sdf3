@@ -8,30 +8,27 @@ imports
 
 context-free syntax
 
-  FlowRule.MultiFlowRule = [[{TLPattern ", "}+]: [FlowRuleBody].] {prefer}
-  FlowRule.EmptyRule = [[{TLPattern ", "}+].]
+  FlowRule.MultiFlowRule = [[{TLRulePattern ", "}+]: [FlowRuleBody].] {prefer}
+  FlowRule.EmptyRule = [[{TLRulePattern ", "}+].]
   // MultiFlowRules and EmptyRules get desugared to FlowRules later
-  FlowRule.FlowRule = [[TLPattern]: [FlowRuleBody].]
+  FlowRule.FlowRule = [[TLRulePattern]: [FlowRuleBody].]
 
   FlowRuleBody.Recurse = FlowRef
-  FlowRuleBody.SingleEdge = [[FlowRef] has [Successor] [FlowRef]] {prefer}
+  FlowRuleBody.SingleEdge = [[FlowRef] has a [Successor] [FlowRef]] {prefer}
   FlowRuleBody.Multiple = {FlowExpr ",\n"}+
 
   FlowRef = ID
   FlowRef = [entry] {reject}
   FlowRef = [exit] {reject}
 
-  FlowExpr.Edge = [[FlowNode] has [Successor] [FlowNode]]
-  FlowExpr.ConditionalEdge = [[FlowNode] has [Successor] [FlowNode] where [{FlowWhereClause ",\n"}+]]
+  FlowExpr.Edge = [[FlowNode] has a [Successor] [FlowNode]]
+  FlowExpr.ConditionalEdge = [[FlowNode] has a [Successor] [FlowNode] where [{FlowWhereClause ",\n"}+]]
 
   FlowNode.Ref = ID {avoid}
   FlowNode.Entry = [entry]
   FlowNode.Exit = [exit]
 
-// This would probably be too powerful:
-//  FlowWhereClause.CFGArrow = [[TLPattern] -> [TLPattern]]
-  FlowWhereClause.HasProp = [[ID] has [PropName] [Pattern]]
-  FlowWhereClause.HasMapProp = [[ID] has [PropName] [Pattern] -> [Pattern]]
+  FlowWhereClause = HasPropExpr
 
 lexical syntax
 

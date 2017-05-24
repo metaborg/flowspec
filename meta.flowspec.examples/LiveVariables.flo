@@ -7,78 +7,71 @@ properties
 flow graph rules
 
   Root(s):
-    entry has successor s,
-    s has successor exit.
+    entry has a successor s,
+    s has a successor exit.
 
   Assign(x, e):
-    entry has successor e,
-    e has successor x,
-    x has successor exit.
+    entry has a successor e,
+    e has a successor x,
+    x has a successor exit.
 
   Skip().
 
   Seq(s1, s2):
-    entry has successor s1,
-    s1 has successor s2,
-    s2 has successor exit.
+    entry has a successor s1,
+    s1 has a successor s2,
+    s2 has a successor exit.
 
   IfThenElse(e, s1, s2):
-    entry has successor e,
-    e has successor s1 where e has Value True(),
-    e has successor s2 where e has Value False(),
-    s1 has successor exit,
-    s2 has successor exit.
+    entry has a successor e,
+    e has a successor s1 where e has Value True(),
+    e has a successor s2 where e has Value False(),
+    s1 has a successor exit,
+    s2 has a successor exit.
 
   While(e, s):
-    entry has successor e,
-    e has successor s where e has Value True(),
-    s has successor e,
-    e has successor exit where e has Value False().
+    entry has a successor e,
+    e has a successor s where e has Value True(),
+    s has a successor e,
+    e has a successor exit where e has Value False().
 
-  Ref(_), Num(_), True(), False().
+  Ref(_), Num(_), True(), False(), Var(_).
 
   Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2):
-    e1 has successor e2.
+  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2).
 
-  Not(e):
-    entry has successor e,
-    e has successor exit.
+  Not(e).
 
 properties
 
   Write name
   Read name
-  Expr Term
 
 property rules
 
-  term has Write n
-  where term has child c,
-        c has Write n.
-
-  term has Read n
-  where term has child c,
-        c has Read n.
-
-  Assign(x, e) has Write x.
+  Var(n) has Write n.
 
   Ref(n) has Read n.
-
-  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
 
 properties
 
   Live MaySet(name)
 
 property rules
-  
-  st has Live x
-  where st has Read x,
+
+  st has a Live x
+  where st has Read x.
+
+  st has a Live x
+  where st has a successor st2,
+        st2 has a Live x,
         not (st has Write x).
-  
-  st has Live x
-  where st has successor st2,
-        st2 has Live x,
-        not (st has Write x).
+
+/*
+  st.Live := setUnion(x1,x2)
+    where if let x = s.Read then x1 = singletonSet(x) else x1 = emptySet
+        ; st2 := st.successor
+        ; lives := maySet.LUB(setMap(st2, \x. x.Live))
+        ; x2 := lives - st.Write
+*/
+

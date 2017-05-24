@@ -4,6 +4,7 @@ imports
 
   flowspec/Common
   flowspec/Pattern
+  flowspec/Expr
 
 context-free syntax // Type definitions
 
@@ -26,41 +27,25 @@ context-free syntax // Lattice definitions
     [LatticeImplDef*]
   }]
   
-  LatticeImplDef.TopDef = [top = [FunExpr]]
-  LatticeImplDef.BottomDef = [bottom = [FunExpr]]
-  LatticeImplDef.LUBDef = [lub [Var] [Var] = [FunExpr]]
-  LatticeImplDef.GLBDef = [glb [Var] [Var] = [FunExpr]]
+  LatticeImplDef.TopDef = [top = [LatExpr]]
+  LatticeImplDef.BottomDef = [bottom = [LatExpr]]
+  LatticeImplDef.LUBDef = [lub [Var] [Var] = [LatExpr]]
+  LatticeImplDef.GLBDef = [glb [Var] [Var] = [LatExpr]]
 
 context-free syntax // Functions
 
-  FunExpr.Ref = Var
-  FunExpr.Match = [match [Var] {
+  LatExpr = FunExpr
+  LatExpr.Match = [match [Var] {
     [MatchArm+]
   }]
-  MatchArm.MatchArm = [[ConsName] [FunPattern] => [FunExpr];]
-  FunExpr.Tuple = [([FunExpr], [FunExpr])]
-  FunExpr.Set = [set([{FunExpr ", "}+])]
-  FunExpr.Map = [map([{MappingExpr ", "}+])]
-  MappingExpr.Mapping = [[FunExpr] -> [FunExpr]]
-  FunExpr = FunLiteral
-  
-  FunPattern.Wildcard = "_"
-  FunPattern.Var = Var
-  FunPattern.Tuple = [([Pattern], [Pattern])]
-  FunPattern.Set = [set([{Pattern ", "}+])]
-  FunPattern.Map = [map([{MappingPattern ", "}+])]
-  MappingPattern.Mapping = [[FunPattern] -> [FunPattern]]
-  FunPattern = FunLiteral
-  
-  FunLiteral.Int = INT
-  FunLiteral.String = STRING
+  MatchArm.MatchArm = [[ConsName] [FunPattern] => [LatExpr];]
 
 context-free syntax // Type expressions
 
   Type = SimpleType
   SimpleType.Name = "name"
   SimpleType.Term = "term"
-  SimpleType.UserType = [[TypeName] [Type*]] {avoid}
+  SimpleType.UserType = [[TypeName]([Type*])] {avoid}
   SimpleType.Sort = SortName
   Type = [([Type])] {bracket}
   Type.Tuple = [[Type] * [Type]] {right}

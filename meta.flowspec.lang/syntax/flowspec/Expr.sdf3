@@ -1,0 +1,18 @@
+module flowspec/Expr
+
+imports
+
+  flowspec/Common
+
+context-free syntax // Fun(tional) expressions
+
+  FunExpr.Ref = Var
+  FunExpr.Tuple = [([FunExpr], [FunExpr])]
+  FunExpr.Set = [set([{FunExpr ", "}+])]
+  FunExpr.Map = [map([{MappingExpr ", "}+])]
+  MappingExpr.Mapping = [[FunExpr] -> [FunExpr]]
+  FunExpr = FunLiteral
+  FunExpr.Term = [[ConsName]([{FunExpr ","}*])]
+  
+  FunLiteral.Int = INT
+  FunLiteral.String = STRING

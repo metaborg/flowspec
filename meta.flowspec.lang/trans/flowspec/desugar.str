@@ -11,7 +11,13 @@ signature constructors
 CFGArrow : TLPattern * TLPattern -> PropWhereClause
 ASTRelation : TLPattern * TLPattern -> PropWhereClause
 ConditionalEdge : FlowNode * FlowNode * List(FlowWhereClause) -> FlowExpr
-FlowProgram : ModuleName * List(Import) * List(Property) * List(FlowRule) * List(PropRule) -> Module
+FlowProgram : ModuleName
+            * List(Import)
+            * List(TypeDef)
+            * List(Property)
+            * List(FlowRule)
+            * List(PropRule)
+            -> Module
 
 rules
 
@@ -23,10 +29,10 @@ where <s> (x, t) => (y, t')
 
 rules
 
-desugar-all = topdown(try(desugar-one));remove-object-sharing-in-strings;warning-on-missing-origin
+desugar-all =
+  topdown(try(desugar-one));remove-object-sharing-in-strings;warning-on-missing-origin
 
 desugar-one = origin-track-forced(fail
-//  + desugar-PropertyDef
   + desugar-PropWhereClause
   + desugar-FlowRuleBody
   + desugar-FlowExpr
@@ -35,17 +41,6 @@ desugar-one = origin-track-forced(fail
   + desugar-in-list(desugar-ImportsList)
   + desugar-Module
 )
-
-//desugar-PropertyDef: DefForward(name, type, kind) ->
-//  Def(name, type, <origin-track-forced(!Forward())> kind, kind)
-//desugar-PropertyDef: DefMay(name, type, dir) ->
-//  Def(name, type, dir, <origin-track-forced(!May())> dir)
-//desugar-PropertyDef: 'def@DefForwardMay(name, type) ->
-//  Def(
-//    name,
-//    type, 
-//    <origin-track-forced(!Forward())> 'def,
-//    <origin-track-forced(!May())> 'def )
 
 desugar-PropWhereClause: BuiltinRelation(a, "successor", b) -> CFGArrow(a,b)
 desugar-PropWhereClause: BuiltinRelation(a, "child", b) -> ASTRelation(a,b)
@@ -71,11 +66,18 @@ desugar-FlowRuleBody: Multiple(l) -> l
 desugar-FlowExpr: Edge(from, _, to) -> ConditionalEdge(from, to, [])
 desugar-FlowExpr: ConditionalEdge(from, _, to, cs) -> ConditionalEdge(from, to, cs)
 
-desugar-PropRule: pr@PropRule(pattern*, body) ->
+desugar-PropRule: pr@PropRule(pattern*, name, expr, w@NoWhereClause()) ->
   <map(origin-track-forced(\pattern ->
-    PropRuleWhere(pattern, body, <origin-track-forced(!True())> pr)\))> pattern*
-desugar-PropRule: PropRuleWhere(pattern*, body, whereclause) ->
-  <map(origin-track-forced(\pattern -> PropRuleWhere(pattern, body, whereclause)\))> pattern*
+    PropRule(pattern, name, expr, <origin-track-forced(!True())> w)\))> pattern*
+desugar-PropRule: PropRule(pattern*, name, expr, WhereClause(w)) ->
+  <map(origin-track-forced(\pattern -> PropRule(pattern, name, expr, w)\))> pattern*
+where <is-list> pattern*
+
+desugar-PropRule: pr@PropContribRule(pattern*, name, expr, w@NoWhereClause()) ->
+  <map(origin-track-forced(\pattern ->
+    PropContribRule(pattern, name, expr, <origin-track-forced(!True())> w)\))> pattern*
+desugar-PropRule: PropContribRule(pattern*, name, expr, WhereClause(w)) ->
+  <map(origin-track-forced(\pattern -> PropContribRule(pattern, name, expr, w)\))> pattern*
 where <is-list> pattern*
 
 desugar-FlowRule: MultiFlowRule(pattern*, expr*) ->
@@ -92,10 +94,12 @@ where if map(not(s))
       end//if
     ; ?obj
 
-desugar-Module: Module(modulename, import*, section*) -> FlowProgram(modulename, import*, propdef*, flowrule*, proprule*)
-with propdef* := <retain-all(?Properties(<id>));concat> section*
-   ; flowrule* := <retain-all(?Flow(<id>));concat> section*
-   ; proprule* := <retain-all(?Rules(<id>));concat> section*
+desugar-Module: Module(modulename, import*, section*) ->
+  FlowProgram(modulename, import*, types*, propdef*, flowrule*, proprule*)
+with types*    := <retain-all(?Types(<id>));      concat> section*
+   ; propdef*  := <retain-all(?Properties(<id>)); concat> section*
+   ; flowrule* := <retain-all(?Flow(<id>));       concat> section*
+   ; proprule* := <retain-all(?Rules(<id>));      concat> section*
 
 desugar-NoNamePattern(s|v) = 
     with(!(<id>, 0); desugar-NNP(|v); Fst)
@@ -130,4 +134,5 @@ where transformed := <s> original
         then <debug(|${[WARNING] Origin just lost in {str}:{" "}})> transformed
       end//if
 
-remove-object-sharing-in-strings = topdown(try(is-string;origin-track-forced(explode-string;implode-string)))
+remove-object-sharing-in-strings =
+  topdown(try(is-string;origin-track-forced(explode-string;implode-string)))

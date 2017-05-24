@@ -49,7 +49,6 @@ properties
 
   Write name
   Read name
-  ProgramStart Term // Should be unit
   Expr Term
 
 property rules
@@ -68,38 +67,29 @@ property rules
 
   Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
   Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
-  
-  Root(_) has ProgramStart this.
 
 properties
 
-  Definition MaySet(name * Undef(origin))
+  Definition MaySet(Tuple(name, Undef(Term)))
 
 property rules
 
-  term has Definition (x, None)
-  where term has ProgramStart term,
-        term has Write x,
-        not term has Read x.
+  term has a Definition (x, None)
+  where term has Declaration x.
 
-  term has Definition (x, None)
-  where term has ProgramStart term,
-        term has Read x,
-        not term has Write x.
-
-  st has Definition (x, Some(this))
-  where st has Write x.
+  st has a Definition (x, Some(this))
+  where st has a Write x.
 
   st has Definition (x, Some(o))
-  where not st has Write x,
-        st2 has successor st,
-        st2 has Definition (x, Some(o)).
+  where not st has a Write x,
+        st2 has a successor st,
+        st2 has a Definition (x, Some(o)).
 
 // properties
 // 
-//   UsesDef MaySet(Undef(origin))
+//   UsesDef MaySet(Term)
 // 
 // property rules
 // 
-//   e@Ref(x) has UsesDef d
-//   where e has Definition (x, d).
+//   e@Ref(x) has a UsesDef d
+//   where e has a Definition (x, Some(d)).

@@ -2,3 +2,4 @@ module flowspec/extra-sig
 
 signature constructors
   HasProp : Term * Term * Term * List(Condition) -> Condition
+  ContribsProp : Term * Term * Term * List(Condition) -> Condition

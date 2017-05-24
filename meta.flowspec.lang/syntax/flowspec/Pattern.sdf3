@@ -3,22 +3,28 @@ module flowspec/Pattern
 imports
 
   flowspec/Common
+  flowspec/Expr
 
 context-free syntax
 
-  TLPattern = Pattern
-  TLPattern.Var = "where" {reject}
+  TLRulePattern = RulePattern
+  TLRulePattern.Var = "where" {reject}
 
-  Pattern.Match = [[ConsName]([{Pattern ", "}*])]
-  Pattern = Wildcard
-  Pattern.Var = ID
-  Pattern.At = [[ID]@[Pattern]]
+  RulePattern.Term = [[ConsName]([{RulePattern ", "}*])]
+  RulePattern = Wildcard
+  RulePattern.Var = Var
+  RulePattern.At = [[Var]@[RulePattern]]
   
   Wildcard.Wildcard = "_"
   
-  NoNamePattern.Match = [[ConsName]([{NoNameSubPattern ", "}+])]
-  NoNameSubPattern = NoNamePattern
-  NoNameSubPattern = Wildcard
+  FunPattern = Wildcard
+  FunPattern.Var = Var
+  FunPattern.Tuple = [([FunPattern], [FunPattern])]
+  FunPattern.Set = [set([{FunPattern ", "}+])]
+  FunPattern.Map = [map([{MappingPattern ", "}+])]
+  MappingPattern.Mapping = [[FunPattern] -> [FunPattern]]
+  FunPattern = FunLiteral
+  FunPattern.Term = [[ConsName]([{FunPattern ","}*])]
 
 template options
 
