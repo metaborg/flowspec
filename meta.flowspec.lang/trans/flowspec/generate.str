@@ -9,200 +9,200 @@ flowspec/utils
 nabl2/shared/-
 
 rules
-
-// flowspec
-// flowspec - Module
-gen-str: FlowProgram(modulename, import*, type*, def*, flowrule*, proprule*) ->
-  ${module {modulename}
-
-  imports
-
-  signatures/flowspec/-
-  flowspec/extra-sig
-  flowspec/shared
-  nabl2/shared/-
-
-  signatures/-
-  {importstring}
-
-  rules // TYPE DEFS
-
-  {typestring}
-
-  rules // PROP DEFS
-
-  {defstring}
-
-  rules // FLOW RULES
-
-  {flowrulestring}
-
-  rules // PROP RULES
-
-  flowspec--no-of-prop-rules = !{proprulenumber}
-
-  {proprulestring}
-}
-with importstring := <map(?Import(<id>));lines_> import*
-   ; typestring := <if ?[_|_]
-                      then !"[ERROR] Not generating code for type definitions yet!"
-                         ; debug
-                         ; ![] else id end
-                   ; lines_> type*
-   ; defstring := <gen-str> def*
-   ; flowrulestring := <map(gen-str);lines_> flowrule*
-   ; proprulestring := <map-with-index(gen-str);lines_> proprule*
-   ; proprulenumber := <length;int-to-string> proprule*
-
-// Property
-// Property - Property
-
-gen-str: def* ->
-  ${flowspec--generate-prop-types =
-  ![ {types} ]
-}
-where types := <map(\Def(name, type) -> ${("{name}", {<gen-str> type})}\);csv-lines> def*
-
-gen-str: Name() -> "Name()"
-gen-str: Term() -> "Term()"
-gen-str: UserType(typename, types) -> ${UserType("{typename}", {<map(gen-str);csv> types})}
-gen-str: Sort(sortname) -> ${Sort("{sortname}")}
-gen-str: Tuple(l,r) -> ${Tuple({<gen-str> l}, {<gen-str> r})}
-gen-str: Map(l,r) -> ${Map({<gen-str> l}, {<gen-str> r})}
-gen-str: Set(t) -> ${Set({<gen-str> t})}
-
-// Property - PropRule
-
-gen-str: (n, PropRule(pattern, name, expr, whereclause)) ->
-  ${flowspec--generate-prop-rule(|n):
-    this@{patternstring} -> [ prop ]
-  where({n} := n)
-  with(index-this := <nabl2--get-ast-index> this)
-  {indicesgenerationstring}
-  {variablesgenerationstring}
-  with(prop := HasProp(index-this, "{name}", {varref-index}, [{condstring}]))
-}
-with patternstring := <gen-match-pattern> pattern
-   ; variables := <pattern-variables;make-set_(where(strip-annos;eq))> pattern
-   ; free-variables := <diff(where(strip-annos;eq))> (<constraint-variables;make-set_(where(strip-annos;eq))> whereclause, variables)
-   ; varref-index := <gen-str> expr
-   ; condstring := <gen-conditions(|variables);csv> whereclause
-   ; indicesgenerationstring := <map(gen-index-rule);lines_> variables
-   ; variablesgenerationstring := <map(gen-var-rule);lines_> free-variables
-
-gen-str: (n, PropContribRule(pattern, name, expr, whereclause)) ->
-  ${flowspec--generate-prop-rule(|n):
-    this@{patternstring} -> [ prop ]
-  where({n} := n)
-  with(index-this := <nabl2--get-ast-index> this)
-  {indicesgenerationstring}
-  {variablesgenerationstring}
-  with(prop := ContribsProp(index-this, "{name}", {varref-index}, [{condstring}]))
-}
-with patternstring := <gen-match-pattern> pattern
-   ; variables := <pattern-variables;make-set_(where(strip-annos;eq))> pattern
-   ; free-variables := <diff(where(strip-annos;eq))> (<constraint-variables;make-set_(where(strip-annos;eq))> whereclause, variables)
-   ; varref-index := <gen-str> expr
-   ; condstring := <gen-conditions(|variables);csv> whereclause
-   ; indicesgenerationstring := <map(gen-index-rule);lines_> variables
-   ; variablesgenerationstring := <map(gen-var-rule);lines_> free-variables
-
-gen-conditions(|variables): And(l,r) ->
-  <concat> [<gen-conditions(|variables)> l, <gen-conditions(|variables)> r]
-gen-conditions(|variables): CFGArrow(from, to) -> 
-  [${ContribsProp({<gen-constraint-pattern> from}, "successor", {<gen-constraint-pattern> to}, [])}]
-gen-conditions(|variables): ASTRelation(parent, child) -> 
-  [${ContribsProp({<gen-constraint-pattern> parent}, "child", {<gen-constraint-pattern> child}, [])}]
-gen-conditions(|variables) = ![<gen-condition(|variables)>]
-gen-conditions(|variables): Filter(stuff) -> <gen-conditions(|variables);map(!${Filter({<id>})})> stuff
-gen-conditions(|variables): True() -> []
-
-// Property - VarRef
-
-gen-str: Ref(ident) -> ${index-{ident}}
-
-// Flow
-// Flow - FlowRule
-gen-str: FlowRule(pattern, edge*) ->
-  ${flowspec--generate-cfg-constraint-rule:
-    this@{patternstring} -> <concat> [{constraintstring}]
-  with(index-this := <nabl2--get-ast-index> this)
-  {indicesgenerationstring}
-  with(constr := [{withclausestring}])
-  {subtermconstraintstring}
-}
-with patternstring := <gen-match-pattern> pattern
-   ; variables := <pattern-variables> pattern
-   ; withclausestring := <map(gen-constraints(|variables));separate-by(|",\n");concat-strings> edge*
-   ; constraintstring :=
-      <csv> [ "constr" | <map(!$[constr-[<id>]])> variables ]
-   ; indicesgenerationstring := <map(gen-index-rule);lines_> variables
-   ; subtermconstraintstring := <map(gen-subterm-constraints);lines_> variables
-
-// Flow - FlowExpr
-gen-constraints(|variables): ConditionalEdge(Entry(), to@Ref(_), cond*) ->
-  ${CFGEdge(index-this, {tostring}, [{condstring}])}
-with tostring := <gen-condition(|variables)> to
-   ; condstring := <map(gen-condition(|variables));!["Entry()"|<id>];csv> cond*
-   
-gen-constraints(|variables): ConditionalEdge(from@Ref(_), Exit(), cond*) ->
-  ${CFGEdge({fromstring}, index-this, [{condstring}])}
-with fromstring := <gen-condition(|variables)> from
-   ; condstring := <map(gen-condition(|variables));!["Exit()"|<id>];csv> cond*
-   
-gen-constraints(|variables): ConditionalEdge(from@Ref(_), to@Ref(_), cond*) ->
-  ${CFGEdge({fromstring}, {tostring}, [{condstring}])}
-with fromstring := <gen-condition(|variables)> from
-   ; tostring := <gen-condition(|variables)> to
-   ; condstring := <map(gen-condition(|variables));csv> cond*
-
-gen-condition(|variables): Ref(ident) -> $[index-[ident]]
-
-gen-condition(|variables): HasProp(ident, prop, pattern) ->
-  ${HasProp(index-{ident}, "{prop}", {patternstring}, [])}
-with patternstring := <gen-constraint-pattern> pattern
-
-gen-condition(|variables): HasPropContrib(ident, prop, pattern) ->
-  ${ContribsProp(index-{ident}, "{prop}", {patternstring}, [])}
-with patternstring := <gen-constraint-pattern> pattern
-
-gen-index-rule: var ->
-  ${with(index-{var} := <nabl2--get-ast-index> match-{var})}
-
-gen-var-rule: var ->
-  ${with(index-{var} := <flowspec--new-var> (index-this, {<nabl2--get-ast-index;write-to-string> var}))}
-
-gen-subterm-constraints: var ->
-  ${with(constr-{var} := <flowspec--generate-cfg-constraint> match-{var})}
-
-// Pattern
-// Pattern - Pattern, Wildcard
-gen-match-pattern: Var(ident) -> $[match-[ident]]
-gen-match-pattern: At(ident, pattern) -> $[match-[ident]@[patternstring]]
-with patternstring := <gen-match-pattern> pattern
-gen-match-pattern: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
-with subpatternsstring := <map(gen-match-pattern);csv> subpattern*
-gen-match-pattern: Wildcard() -> "_"
-
-gen-constraint-pattern: Var(ident) -> $[index-[ident]]
-gen-constraint-pattern: At(ident, pattern) -> $[index-[ident]@[patternstring]]
-with patternstring := <gen-constraint-pattern> pattern
-gen-constraint-pattern: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
-with subpatternsstring := <map(gen-constraint-pattern);csv> subpattern*
-gen-constraint-pattern: Wildcard() -> "_"
-
-pattern-variables: Var(ident) -> [ident]
-pattern-variables: At(ident, pattern) -> [ ident | <pattern-variables> pattern ]
-pattern-variables: Term(_, subpattern*) -> <mapconcat(pattern-variables)> subpattern*
-pattern-variables: Wildcard() -> []
-
-constraint-variables = pattern-variables
-constraint-variables: Ref(ident) -> [ident]
-constraint-variables: And(l, r) -> <mapconcat(constraint-variables)> [ l, r ]
-constraint-variables: ASTRelation(p, c) -> <mapconcat(constraint-variables)> [ p, c ]
-constraint-variables: CFGArrow(f, t) -> <mapconcat(constraint-variables)> [ f, t ]
-constraint-variables: Filter(b) -> <constraint-variables> b
-constraint-variables: True() -> []
-constraint-variables: HasProp(l, _, p) -> [ l | <constraint-variables> p ]
-constraint-variables: HasPropContrib(l, _, p) -> [ l | <constraint-variables> p ]
-constraint-variables: Mapping(l, r) -> <mapconcat(constraint-variables)> [ l, r ]
+//
+//// flowspec
+//// flowspec - Module
+//gen-str: FlowProgram(modulename, import*, type*, def*, flowrule*, proprule*) ->
+//  ${module {modulename}
+//
+//  imports
+//
+//  signatures/flowspec/-
+//  flowspec/extra-sig
+//  flowspec/shared
+//  nabl2/shared/-
+//
+//  signatures/-
+//  {importstring}
+//
+//  rules // TYPE DEFS
+//
+//  {typestring}
+//
+//  rules // PROP DEFS
+//
+//  {defstring}
+//
+//  rules // FLOW RULES
+//
+//  {flowrulestring}
+//
+//  rules // PROP RULES
+//
+//  flowspec--no-of-prop-rules = !{proprulenumber}
+//
+//  {proprulestring}
+//}
+//with importstring := <map(?Import(<id>));lines_> import*
+//   ; typestring := <if ?[_|_]
+//                      then !"[ERROR] Not generating code for type definitions yet!"
+//                         ; debug
+//                         ; ![] else id end
+//                   ; lines_> type*
+//   ; defstring := <gen-str> def*
+//   ; flowrulestring := <map(gen-str);lines_> flowrule*
+//   ; proprulestring := <map-with-index(gen-str);lines_> proprule*
+//   ; proprulenumber := <length;int-to-string> proprule*
+//
+//// Property
+//// Property - Property
+//
+//gen-str: def* ->
+//  ${flowspec--generate-prop-types =
+//  ![ {types} ]
+//}
+//where types := <map(\Def(name, type) -> ${("{name}", {<gen-str> type})}\);csv-lines> def*
+//
+//gen-str: Name() -> "Name()"
+//gen-str: Term() -> "Term()"
+//gen-str: UserType(typename, types) -> ${UserType("{typename}", {<map(gen-str);csv> types})}
+//gen-str: Sort(sortname) -> ${Sort("{sortname}")}
+//gen-str: Tuple(l,r) -> ${Tuple({<gen-str> l}, {<gen-str> r})}
+//gen-str: Map(l,r) -> ${Map({<gen-str> l}, {<gen-str> r})}
+//gen-str: Set(t) -> ${Set({<gen-str> t})}
+//
+//// Property - PropRule
+//
+//gen-str: (n, PropRule(pattern, name, expr, whereclause)) ->
+//  ${flowspec--generate-prop-rule(|n):
+//    this@{patternstring} -> [ prop ]
+//  where({n} := n)
+//  with(index-this := <nabl2--get-ast-index> this)
+//  {indicesgenerationstring}
+//  {variablesgenerationstring}
+//  with(prop := HasProp(index-this, "{name}", {varref-index}, [{condstring}]))
+//}
+//with patternstring := <gen-match-pattern> pattern
+//   ; variables := <pattern-variables;make-set_(where(strip-annos;eq))> pattern
+//   ; free-variables := <diff(where(strip-annos;eq))> (<constraint-variables;make-set_(where(strip-annos;eq))> whereclause, variables)
+//   ; varref-index := <gen-str> expr
+//   ; condstring := <gen-conditions(|variables);csv> whereclause
+//   ; indicesgenerationstring := <map(gen-index-rule);lines_> variables
+//   ; variablesgenerationstring := <map(gen-var-rule);lines_> free-variables
+//
+//gen-str: (n, PropContribRule(pattern, name, expr, whereclause)) ->
+//  ${flowspec--generate-prop-rule(|n):
+//    this@{patternstring} -> [ prop ]
+//  where({n} := n)
+//  with(index-this := <nabl2--get-ast-index> this)
+//  {indicesgenerationstring}
+//  {variablesgenerationstring}
+//  with(prop := ContribsProp(index-this, "{name}", {varref-index}, [{condstring}]))
+//}
+//with patternstring := <gen-match-pattern> pattern
+//   ; variables := <pattern-variables;make-set_(where(strip-annos;eq))> pattern
+//   ; free-variables := <diff(where(strip-annos;eq))> (<constraint-variables;make-set_(where(strip-annos;eq))> whereclause, variables)
+//   ; varref-index := <gen-str> expr
+//   ; condstring := <gen-conditions(|variables);csv> whereclause
+//   ; indicesgenerationstring := <map(gen-index-rule);lines_> variables
+//   ; variablesgenerationstring := <map(gen-var-rule);lines_> free-variables
+//
+//gen-conditions(|variables): And(l,r) ->
+//  <concat> [<gen-conditions(|variables)> l, <gen-conditions(|variables)> r]
+//gen-conditions(|variables): CFGArrow(from, to) -> 
+//  [${ContribsProp({<gen-constraint-pattern> from}, "successor", {<gen-constraint-pattern> to}, [])}]
+//gen-conditions(|variables): ASTRelation(parent, child) -> 
+//  [${ContribsProp({<gen-constraint-pattern> parent}, "child", {<gen-constraint-pattern> child}, [])}]
+//gen-conditions(|variables) = ![<gen-condition(|variables)>]
+//gen-conditions(|variables): Filter(stuff) -> <gen-conditions(|variables);map(!${Filter({<id>})})> stuff
+//gen-conditions(|variables): True() -> []
+//
+//// Property - VarRef
+//
+//gen-str: Ref(ident) -> ${index-{ident}}
+//
+//// Flow
+//// Flow - FlowRule
+//gen-str: FlowRule(pattern, edge*) ->
+//  ${flowspec--generate-cfg-constraint-rule:
+//    this@{patternstring} -> <concat> [{constraintstring}]
+//  with(index-this := <nabl2--get-ast-index> this)
+//  {indicesgenerationstring}
+//  with(constr := [{withclausestring}])
+//  {subtermconstraintstring}
+//}
+//with patternstring := <gen-match-pattern> pattern
+//   ; variables := <pattern-variables> pattern
+//   ; withclausestring := <map(gen-constraints(|variables));separate-by(|",\n");concat-strings> edge*
+//   ; constraintstring :=
+//      <csv> [ "constr" | <map(!$[constr-[<id>]])> variables ]
+//   ; indicesgenerationstring := <map(gen-index-rule);lines_> variables
+//   ; subtermconstraintstring := <map(gen-subterm-constraints);lines_> variables
+//
+//// Flow - FlowExpr
+//gen-constraints(|variables): ConditionalEdge(Entry(), to@Ref(_), cond*) ->
+//  ${CFGEdge(index-this, {tostring}, [{condstring}])}
+//with tostring := <gen-condition(|variables)> to
+//   ; condstring := <map(gen-condition(|variables));!["Entry()"|<id>];csv> cond*
+//   
+//gen-constraints(|variables): ConditionalEdge(from@Ref(_), Exit(), cond*) ->
+//  ${CFGEdge({fromstring}, index-this, [{condstring}])}
+//with fromstring := <gen-condition(|variables)> from
+//   ; condstring := <map(gen-condition(|variables));!["Exit()"|<id>];csv> cond*
+//   
+//gen-constraints(|variables): ConditionalEdge(from@Ref(_), to@Ref(_), cond*) ->
+//  ${CFGEdge({fromstring}, {tostring}, [{condstring}])}
+//with fromstring := <gen-condition(|variables)> from
+//   ; tostring := <gen-condition(|variables)> to
+//   ; condstring := <map(gen-condition(|variables));csv> cond*
+//
+//gen-condition(|variables): Ref(ident) -> $[index-[ident]]
+//
+//gen-condition(|variables): HasProp(ident, prop, pattern) ->
+//  ${HasProp(index-{ident}, "{prop}", {patternstring}, [])}
+//with patternstring := <gen-constraint-pattern> pattern
+//
+//gen-condition(|variables): HasPropContrib(ident, prop, pattern) ->
+//  ${ContribsProp(index-{ident}, "{prop}", {patternstring}, [])}
+//with patternstring := <gen-constraint-pattern> pattern
+//
+//gen-index-rule: var ->
+//  ${with(index-{var} := <nabl2--get-ast-index> match-{var})}
+//
+//gen-var-rule: var ->
+//  ${with(index-{var} := <flowspec--new-var> (index-this, {<nabl2--get-ast-index;write-to-string> var}))}
+//
+//gen-subterm-constraints: var ->
+//  ${with(constr-{var} := <flowspec--generate-cfg-constraint> match-{var})}
+//
+//// Pattern
+//// Pattern - Pattern, Wildcard
+//gen-match-pattern: Var(ident) -> $[match-[ident]]
+//gen-match-pattern: At(ident, pattern) -> $[match-[ident]@[patternstring]]
+//with patternstring := <gen-match-pattern> pattern
+//gen-match-pattern: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
+//with subpatternsstring := <map(gen-match-pattern);csv> subpattern*
+//gen-match-pattern: Wildcard() -> "_"
+//
+//gen-constraint-pattern: Var(ident) -> $[index-[ident]]
+//gen-constraint-pattern: At(ident, pattern) -> $[index-[ident]@[patternstring]]
+//with patternstring := <gen-constraint-pattern> pattern
+//gen-constraint-pattern: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
+//with subpatternsstring := <map(gen-constraint-pattern);csv> subpattern*
+//gen-constraint-pattern: Wildcard() -> "_"
+//
+//pattern-variables: Var(ident) -> [ident]
+//pattern-variables: At(ident, pattern) -> [ ident | <pattern-variables> pattern ]
+//pattern-variables: Term(_, subpattern*) -> <mapconcat(pattern-variables)> subpattern*
+//pattern-variables: Wildcard() -> []
+//
+//constraint-variables = pattern-variables
+//constraint-variables: Ref(ident) -> [ident]
+//constraint-variables: And(l, r) -> <mapconcat(constraint-variables)> [ l, r ]
+//constraint-variables: ASTRelation(p, c) -> <mapconcat(constraint-variables)> [ p, c ]
+//constraint-variables: CFGArrow(f, t) -> <mapconcat(constraint-variables)> [ f, t ]
+//constraint-variables: Filter(b) -> <constraint-variables> b
+//constraint-variables: True() -> []
+//constraint-variables: HasProp(l, _, p) -> [ l | <constraint-variables> p ]
+//constraint-variables: HasPropContrib(l, _, p) -> [ l | <constraint-variables> p ]
+//constraint-variables: Mapping(l, r) -> <mapconcat(constraint-variables)> [ l, r ]

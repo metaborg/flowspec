@@ -2,37 +2,19 @@ module flowspec/Flow
 
 imports
 
-  flowspec/Common
-  flowspec/Property
-  flowspec/Pattern
+flowspec/Common
+flowspec/Property
+flowspec/Pattern
 
 context-free syntax
 
-  FlowRule.MultiFlowRule = [[{TLRulePattern ", "}+]: [FlowRuleBody].] {prefer}
-  FlowRule.EmptyRule = [[{TLRulePattern ", "}+].]
-  // MultiFlowRules and EmptyRules get desugared to FlowRules later
-  FlowRule.FlowRule = [[TLRulePattern]: [FlowRuleBody].]
-
-  FlowRuleBody.Recurse = FlowRef
-  FlowRuleBody.SingleEdge = [[FlowRef] has a [Successor] [FlowRef]] {prefer}
-  FlowRuleBody.Multiple = {FlowExpr ",\n"}+
-
-  FlowRef = ID
-  FlowRef = [entry] {reject}
-  FlowRef = [exit] {reject}
-
-  FlowExpr.Edge = [[FlowNode] has a [Successor] [FlowNode]]
-  FlowExpr.ConditionalEdge = [[FlowNode] has a [Successor] [FlowNode] where [{FlowWhereClause ",\n"}+]]
-
-  FlowNode.Ref = ID {avoid}
-  FlowNode.Entry = [entry]
-  FlowNode.Exit = [exit]
-
-  FlowWhereClause = HasPropExpr
-
-lexical syntax
-
-Successor = "successor"
+CFGRule.CFGRule = [cfg [TermPattern] = [{CFGChain ", "}+]]
+CFGChain.Chain = {CFGChainElement "->"}+
+CFGChainElement.Entry = [entry]
+CFGChainElement.Exit = [exit]
+CFGChainElement.Recurse = [cfg [Var]]
+CFGChainElement.Prop = [[PropName] [Var]]
+CFGChainElement.Label = [[Var].label]
 
 template options
 

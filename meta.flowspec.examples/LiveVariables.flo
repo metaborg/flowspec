@@ -1,77 +1,31 @@
 module flow
 
-properties
+cfg Root(s) = entry -> cfg s -> exit
 
-  Value Value
+cfg this@Assign(n, e) =
+  entry -> cfg e -> this.label -> exit
 
-flow graph rules
+cfg Skip() = entry -> exit
 
-  Root(s):
-    entry has a successor s,
-    s has a successor exit.
+cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
 
-  Assign(x, e):
-    entry has a successor e,
-    e has a successor x,
-    x has a successor exit.
+cfg IfThenElse(c, t, e) =
+  entry -> c.label -> cfg t -> exit, 
+           c.label -> cfg e -> exit
 
-  Skip().
+cfg While(e, s) =
+  entry -> e.label -> cfg s -> e.label -> exit
 
-  Seq(s1, s2):
-    entry has a successor s1,
-    s1 has a successor s2,
-    s2 has a successor exit.
+prop Live = MaySet name
 
-  IfThenElse(e, s1, s2):
-    entry has a successor e,
-    e has a successor s1 where e has Value True(),
-    e has a successor s2 where e has Value False(),
-    s1 has a successor exit,
-    s2 has a successor exit.
+Live this@Ref(n) = Set.plus vars n
+for this.label -> successor
+where vars = Live successor.
 
-  While(e, s):
-    entry has a successor e,
-    e has a successor s where e has Value True(),
-    s has a successor e,
-    e has a successor exit where e has Value False().
+Live this@Assign(n, e) = Set.minus vars n
+for this.label -> successor
+where vars = Live successor.
 
-  Ref(_), Num(_), True(), False(), Var(_).
-
-  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2).
-
-  Not(e).
-
-properties
-
-  Write name
-  Read name
-
-property rules
-
-  Var(n) has Write n.
-
-  Ref(n) has Read n.
-
-properties
-
-  Live MaySet(name)
-
-property rules
-
-  st has a Live x
-  where st has Read x.
-
-  st has a Live x
-  where st has a successor st2,
-        st2 has a Live x,
-        not (st has Write x).
-
-/*
-  st.Live := setUnion(x1,x2)
-    where if let x = s.Read then x1 = singletonSet(x) else x1 = emptySet
-        ; st2 := st.successor
-        ; lives := maySet.LUB(setMap(st2, \x. x.Live))
-        ; x2 := lives - st.Write
-*/
-
+Live this = vars
+for this.label -> successor
+where vars = Live successor.

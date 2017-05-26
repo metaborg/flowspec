@@ -2,51 +2,30 @@ module flowspec/Property
 
 imports
 
-  flowspec/Common
-  flowspec/Pattern
-  flowspec/Type
-  flowspec/Expr
+flowspec/Common
+flowspec/Pattern
+flowspec/Type
+flowspec/Expr
+flowspec/Flow
 
 context-free syntax // Properties
 
-  Property.Def = [[PropName] [Type]]
+PropDef.PropDef = [prop [PropName] = [Type]]
 
 context-free syntax // Property Rules
 
-  PropRule.PropRule = [[{TLRulePattern ", "}+] has [PropName] [FunExpr] [PropWhere].]
-  PropRule.PropContribRule = [[{TLRulePattern ", "}+] has a [PropName] [PropExpr] [PropWhere].]
-  
-  // This is desugared later to not have the WhereClause wrapper and give True() if no
-  //  clause is given.
-  PropWhere.NoWhereClause =
-  PropWhere.WhereClause = [where [PropWhereClause]]
+PropRule.PropRule = [[PropName] [TermPattern] = [Expr] [PropFor] [PropWhere].]
 
-  PropPattern = FunPattern
-  PropPattern.Mapping = [[FunPattern] -> [FunPattern]]
-  
-  PropExpr = FunExpr
-  PropExpr.Mapping = [[FunExpr] -> [FunExpr]]
+PropFor.NoForClause =
+PropFor.ForClause = [for [ForChainElement] -> [ForChainElement]]
 
-  PropWhereClause.And = [[PropWhereClause], [PropWhereClause]] {right}
-  PropWhereClause.BuiltinRelation = [[TLRulePattern] has a [BuiltinRelation] [TLRulePattern]]
-  PropWhereClause = HasPropExpr
-  PropWhereClause.Filter = [not [PropBooleanExpr]]
-  PropWhereClause.True = [true]
+ForChainElement = CFGChainElement {prefer}
+ForChainElement.Var = Var
 
-//  PropWhereClauseDesugared.CFGArrow = [[TLRulePattern] has a successor [TLRulePattern]]
-//  PropWhereClauseDesugared.ASTRelation = [[TLRulePattern] has a child [TLRulePattern]]
+PropWhere.NoWhereClause =
+PropWhere.WhereClause = [where [{Binding "\n"}+]]
 
-  HasPropExpr.HasProp = [[ID] has [PropName] [FunPattern]]
-  HasPropExpr.HasPropContrib = [[ID] has a [PropName] [PropPattern]]
-
-  PropBooleanExpr = [([PropBooleanExpr])] {bracket}
-  PropBooleanExpr.And = [[PropBooleanExpr], [PropBooleanExpr]] {right}
-  PropBooleanExpr = HasPropExpr
-
-lexical syntax
-
-  BuiltinRelation = "successor" // For the CFG
-  BuiltinRelation = "child"     // For the AST
+Binding.Binding = [[Var] = [Expr]]
 
 template options
 

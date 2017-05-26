@@ -2,55 +2,47 @@ module flowspec/Type
 
 imports
 
-  flowspec/Common
-  flowspec/Pattern
-  flowspec/Expr
+flowspec/Common
+flowspec/Pattern
+flowspec/Expr
 
 context-free syntax // Type definitions
 
-  TypeDef.TypeDef = [[TypeName] [Var*] = [{ConsDef "\n|"}+]]
-  ConsDef.Cons0 = [[ConsName]]
-  ConsDef.Cons1 = [[ConsName] [TypeOrVar]]
-  
-  TypeOrVar = Type
-  TypeOrVar.Var = Var
+TypeDef.TypeDef =
+[type [TypeName] [Var*] =
+  [{ConsDef "\n"}+]]
+
+ConsDef.ConsDef = [| [ConsName] [{TypeOrVar " "}*]]
+
+TypeOrVar = Type
+TypeOrVar.Var = Var
 
 context-free syntax // Lattice definitions
 
-  TypeDef.JSLImpl = [join semi-lattice of [TypeName] [Var*] {
-    [LatticeImplDef*]
-  }]
-  TypeDef.MSLImpl = [meet semi-lattice of [TypeName] [Var*] {
-    [LatticeImplDef*]
-  }]
-  TypeDef.CLImpl  = [complete lattice of [TypeName] [Var*] {
-    [LatticeImplDef*]
-  }]
-  
-  LatticeImplDef.TopDef = [top = [LatExpr]]
-  LatticeImplDef.BottomDef = [bottom = [LatExpr]]
-  LatticeImplDef.LUBDef = [lub [Var] [Var] = [LatExpr]]
-  LatticeImplDef.GLBDef = [glb [Var] [Var] = [LatExpr]]
+LatticeDef.LatticeDef =
+[lattice [TypeName] [Var*] where
+  [LatticePart+]]
 
-context-free syntax // Functions
-
-  LatExpr = FunExpr
-  LatExpr.Match = [match [Var] {
-    [MatchArm+]
-  }]
-  MatchArm.MatchArm = [[ConsName] [FunPattern] => [LatExpr];]
+LatticePart.Type = [type = [Type]]
+LatticePart.Lub = [lub [Var] [Var] = [Expr]]
+LatticePart.Glb = [glb [Var] [Var] = [Expr]]
+LatticePart.Leq = [leq [Var] [Var] = [Expr]]
+LatticePart.Geq = [geq [Var] [Var] = [Expr]]
+LatticePart.NLeq = [nleq [Var] [Var] = [Expr]]
+LatticePart.Top = [top = [Expr]]
+LatticePart.Bottom = [bottom = [Expr]]
 
 context-free syntax // Type expressions
 
-  Type = SimpleType
-  SimpleType.Name = "name"
-  SimpleType.Term = "term"
-  SimpleType.UserType = [[TypeName]([Type*])] {avoid}
-  SimpleType.Sort = SortName
-  Type = [([Type])] {bracket}
-  Type.Tuple = [[Type] * [Type]] {right}
-  Type.Map = [map([Type], [Type])]
-  Type.Set = [set([Type])]
+Type = SimpleType
+SimpleType.Name = "name"
+SimpleType.Term = "term"
+SimpleType.UserType = [[TypeName] [Type*]] {avoid}
+Type = [([Type])] {bracket}
+Type.Tuple = [[Type] * [Type]] {right}
+Type.Map = [Map [Type] [Type]]
+Type.Set = [Set [Type]]
 
 context-free priorities
-  { Type.Set } > Type.Tuple
+
+{ Type.Set Type.Map SimpleType.UserType } > Type.Tuple

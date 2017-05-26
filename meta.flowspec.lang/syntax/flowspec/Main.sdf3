@@ -2,10 +2,12 @@ module flowspec/Main
 
 imports
   
-  flowspec/Common
-  flowspec/Flow
-  flowspec/Property
-  flowspec/Type
+flowspec/Common
+flowspec/Flow
+flowspec/Property
+flowspec/Type
+flowspec/Pattern
+flowspec/Expr
 
 context-free syntax
   
@@ -14,45 +16,20 @@ context-free syntax
 
 [{Import "\n"}*]
 
-[{Section "\n\n"}*]
+[{Definition "\n"}*]
 ]
 
 Import.Import = [imports [ModuleName]] {prefer}
-Import.ImportsList =
-[imports
 
-[{ListImport "\n"}*]
-]
+Definition = LatticeDef
+Definition = CFGRule
+Definition = PropDef
+Definition = PropRule
+Definition = TypeDef
+Definition = FunDef
 
-ListImport.Import = ModuleName
-ListImport = [rules] {reject}
-ListImport = [imports] {reject}
-ListImport = [properties] {reject}
-
-Section.Types =
-[types
-
-[{TypeDef "\n"}*]
-]
-
-Section.Flow =
-[flow graph rules
-
-[{FlowRule "\n"}*]
-]
-
-Section.Properties =
-[properties
-
-[{Property "\n"}*]
-]
-
-Section.Rules =
-[property rules
-
-[{PropRule "\n"}*]
-]
+FunDef.FunDef = [fun [Var] [Var*] = [Expr]]
 
 template options
 
-  keyword -/- [A-Za-z\-]
+keyword -/- [A-Za-z\-]

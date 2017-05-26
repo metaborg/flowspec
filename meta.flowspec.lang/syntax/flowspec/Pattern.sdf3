@@ -2,30 +2,32 @@ module flowspec/Pattern
 
 imports
 
-  flowspec/Common
-  flowspec/Expr
+flowspec/Common
+flowspec/Expr
 
 context-free syntax
 
-  TLRulePattern = RulePattern
-  TLRulePattern.Var = "where" {reject}
+//  TLTermPattern = TermPattern
+//  TLTermPattern.Var = "where" {reject}
+//  TLTermPattern.Var = "for" {reject}
 
-  RulePattern.Term = [[ConsName]([{RulePattern ", "}*])]
-  RulePattern = Wildcard
-  RulePattern.Var = Var
-  RulePattern.At = [[Var]@[RulePattern]]
-  
-  Wildcard.Wildcard = "_"
-  
-  FunPattern = Wildcard
-  FunPattern.Var = Var
-  FunPattern.Tuple = [([FunPattern], [FunPattern])]
-  FunPattern.Set = [set([{FunPattern ", "}+])]
-  FunPattern.Map = [map([{MappingPattern ", "}+])]
-  MappingPattern.Mapping = [[FunPattern] -> [FunPattern]]
-  FunPattern = FunLiteral
-  FunPattern.Term = [[ConsName]([{FunPattern ","}*])]
+TermPattern.Term = [[ConsName]([{TermPattern ", "}*])]
+TermPattern = Wildcard
+TermPattern.Var = Var
+TermPattern.At = [[Var]@[TermPattern]]
+TermPattern = Literal
+
+Wildcard.Wildcard = "_"
+
+FunPattern.ADT = [[ConsName] [{FunPattern " "}*]]
+FunPattern.Term = [[ConsName]([{FunPattern ", "}*])]
+FunPattern = Wildcard
+FunPattern.Var = Var
+FunPattern.At = [[Var]@[FunPattern]]
+FunPattern.Tuple = [([{FunPattern ", "}+])]
+FunPattern = Literal
+FunPattern = [([FunPattern])] {bracket}
 
 template options
 
-  keyword -/- [A-Za-z\-]
+keyword -/- [A-Za-z\-]

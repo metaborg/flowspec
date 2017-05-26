@@ -2,58 +2,63 @@ module flowspec/Common
 
 lexical syntax
 
-  ID             = [a-zA-Z] [a-zA-Z0-9]* 
-  INT            = "-"? [0-9]+ 
-  STRING         = "\"" StringChar* "\"" 
-  StringChar     = ~[\"\n] 
-  StringChar     = "\\\"" 
-  StringChar     = BackSlashChar 
-  BackSlashChar  = "\\" 
-  LAYOUT         = [\ \t\n\r] 
-  CommentChar    = [\*] 
-  LAYOUT         = "/*" InsideComment* "*/" 
-  InsideComment  = ~[\*] 
-  InsideComment  = CommentChar 
-  LAYOUT         = "//" ~[\n\r]* NewLineEOF 
-  NewLineEOF     = [\n\r] 
-  NewLineEOF     = EOF 
-  EOF            =  
-  
-  ModuleID       = [a-zA-Z] [a-zA-Z0-9\-]*
-  ModuleName     = {ModuleID "/"}+
-  TypeName       = [A-Z] [a-zA-Z0-9]*
-  Var            = [a-z] [a-zA-Z0-9]*
-  SortName       = [A-Z] [a-zA-Z0-9]*
-  ConsName       = [A-Z] [a-zA-Z0-9]*
-  PropName       = [A-Z] [a-zA-Z0-9]*
+ID             = [a-zA-Z] [a-zA-Z0-9]*
+INT            = "-"? [0-9]+
+STRING         = "\"" StringChar* "\""
+StringChar     = ~[\"\n]
+StringChar     = "\\\""
+StringChar     = BackSlashChar
+BackSlashChar  = "\\"
+LAYOUT         = [\ \t\n\r]
+CommentChar    = [\*]
+LAYOUT         = "/*" InsideComment* "*/"
+InsideComment  = ~[\*]
+InsideComment  = CommentChar
+LAYOUT         = "//" ~[\n\r]* NewLineEOF
+NewLineEOF     = [\n\r]
+NewLineEOF     = EOF
+EOF            =
+
+ModuleID       = [a-zA-Z] [a-zA-Z0-9\-]*
+ModuleName     = {ModuleID "/"}+
+TypeName       = [A-Z] [a-zA-Z0-9]*
+Var            = [a-z] [a-zA-Z0-9]*
+SortName       = [A-Z] [a-zA-Z0-9]*
+ConsName       = [A-Z] [a-zA-Z0-9]*
+PropName       = [A-Z] [a-zA-Z0-9]*
+
+// Keyword removal
+Var = "for" {reject}
 
 lexical restrictions
 
-  // Ensure greedy matching for lexicals
-  
-  CommentChar   -/- [\/]
-  INT           -/- [0-9]
-  ID            -/- [a-zA-Z0-9]
-  
-  ModuleID      -/- [a-zA-Z0-9\-]
-  TypeName      -/- [a-zA-Z0-9]
-  Var           -/- [a-zA-Z0-9]
-  SortName      -/- [a-zA-Z0-9]
-  PropName      -/- [a-zA-Z0-9]
-  ConsName      -/- [a-zA-Z0-9]
-  
-  // EOF may not be followed by any char
-  
-  EOF           -/- ~[]
-  
-  // Backslash chars in strings may not be followed by " 
-  
-  BackSlashChar -/- [\"]
+// Ensure greedy matching for lexicals
+
+CommentChar   -/- [\/]
+INT           -/- [0-9]
+ID            -/- [a-zA-Z0-9]
+
+ModuleID      -/- [a-zA-Z0-9\-]
+TypeName      -/- [a-zA-Z0-9]
+Var           -/- [a-zA-Z0-9]
+SortName      -/- [a-zA-Z0-9]
+PropName      -/- [a-zA-Z0-9]
+ConsName      -/- [a-zA-Z0-9]
+
+// EOF may not be followed by any char
+
+EOF           -/- ~[]
+
+// Backslash chars in strings may not be followed by "
+
+BackSlashChar -/- [\"]
 
 context-free restrictions
 
-  // Ensure greedy matching for comments
-  
-  LAYOUT? -/- [\ \t\n\r]
-  LAYOUT? -/- [\/].[\/]
-  LAYOUT? -/- [\/].[\*]
+// Ensure greedy matching for comments
+
+LAYOUT? -/- [\ \t\n\r]
+LAYOUT? -/- [\/].[\/]
+LAYOUT? -/- [\/].[\*]
+
+lexical syntax

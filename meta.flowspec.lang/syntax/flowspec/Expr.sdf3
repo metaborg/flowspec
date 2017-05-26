@@ -2,17 +2,31 @@ module flowspec/Expr
 
 imports
 
-  flowspec/Common
+flowspec/Common
+flowspec/Pattern
 
-context-free syntax // Fun(tional) expressions
+context-free syntax // expressions
 
-  FunExpr.Ref = Var
-  FunExpr.Tuple = [([FunExpr], [FunExpr])]
-  FunExpr.Set = [set([{FunExpr ", "}+])]
-  FunExpr.Map = [map([{MappingExpr ", "}+])]
-  MappingExpr.Mapping = [[FunExpr] -> [FunExpr]]
-  FunExpr = FunLiteral
-  FunExpr.Term = [[ConsName]([{FunExpr ","}*])]
-  
-  FunLiteral.Int = INT
-  FunLiteral.String = STRING
+Expr.Term = [[ConsName]([{Expr ","}*])]
+Expr.QualRef = [[ModuleName].[Var]]
+Expr.Ref = Var
+Expr.PropRef = PropName
+Expr.Tuple = [([Expr], [{Expr ", "}+])]
+Expr = Literal
+
+Expr = [([Expr])] {bracket}
+Expr.Label = [[Var].label]
+Expr.Type = [[Var].type]
+Expr.Abs = [\[FunPattern]. [Expr]]
+Expr.Appl = [[Expr] [Expr]] {left}
+Expr.If = [if [Expr] then [Expr] else [Expr]]
+Expr.Eq = [[Expr] == [Expr]] {non-assoc}
+Expr.Match = [match [Expr] with [MatchArm+]]
+
+MatchArm.MatchArm = [| [FunPattern] => [Expr]]
+
+Literal.Int = INT
+Literal.String = STRING
+
+context-free priorities
+  { Expr.Appl Expr.If Expr.Match } > Expr.Abs > Expr.Eq
