@@ -26,6 +26,9 @@ pardonedLanguages:
 - Stratego-Sugar
 - SDF
 language:
+  sdf:
+    # If set to java, set the table in editor/Syntax.esv to target/metaborg/sdf-new.tbl
+    sdf2table: java
   stratego:
     format: ctree
     args:

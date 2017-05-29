@@ -14,13 +14,10 @@ PropDef.PropDef = [prop [PropName] = [Type]]
 
 context-free syntax // Property Rules
 
-PropRule.PropRule = [[PropName] [TermPattern] = [Expr] [PropFor] [PropWhere].]
+PropRule.PropRule = [[PropName] [TermPattern] = [Expr] [PropFor] [PropWhere]]
 
 PropFor.NoForClause =
-PropFor.ForClause = [for [ForChainElement] -> [ForChainElement]]
-
-ForChainElement = CFGChainElement {prefer}
-ForChainElement.Var = Var
+PropFor.ForClause = [for [CFGChainElement] -> [CFGChainElement]]
 
 PropWhere.NoWhereClause =
 PropWhere.WhereClause = [where [{Binding "\n"}+]]

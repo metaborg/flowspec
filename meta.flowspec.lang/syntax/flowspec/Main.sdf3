@@ -28,7 +28,7 @@ Definition = PropRule
 Definition = TypeDef
 Definition = FunDef
 
-FunDef.FunDef = [fun [Var] [Var*] = [Expr]]
+FunDef.FunDef = [fun [Var] [FunPattern*] = [Expr]]
 
 template options
 

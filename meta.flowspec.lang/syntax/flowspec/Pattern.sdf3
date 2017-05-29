@@ -19,14 +19,17 @@ TermPattern = Literal
 
 Wildcard.Wildcard = "_"
 
-FunPattern.ADT = [[ConsName] [{FunPattern " "}*]]
+FunPatternAppl.ADTAppl = [[FunPatternAppl] [FunPattern]] {left}
+FunPatternAppl.ADTCons = [[ConsName]]
+
+FunPattern.ADTAppl = [([FunPatternAppl] [FunPattern])]
+FunPattern.ADTCons = [[ConsName]]
 FunPattern.Term = [[ConsName]([{FunPattern ", "}*])]
 FunPattern = Wildcard
 FunPattern.Var = Var
 FunPattern.At = [[Var]@[FunPattern]]
-FunPattern.Tuple = [([{FunPattern ", "}+])]
+FunPattern.Tuple = [([FunPattern], [{FunPattern ", "}+])]
 FunPattern = Literal
-FunPattern = [([FunPattern])] {bracket}
 
 template options
 

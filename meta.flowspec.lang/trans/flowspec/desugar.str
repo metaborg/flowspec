@@ -26,10 +26,10 @@ libspoofax/stratego/debug
 //where <s> (x, t) => (y, t')
 //    ; <thread-map_(s)> (xs, t') => (ys, t'')
 //    ; y' := <origin-track-forced(!y)> x
-//
-//rules
-//
-//desugar-all =
+
+rules
+
+desugar-all = id
 //  topdown(try(desugar-one));remove-object-sharing-in-strings;warning-on-missing-origin
 //
 //desugar-one = origin-track-forced(fail

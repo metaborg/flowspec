@@ -19,13 +19,13 @@ cfg While(e, s) =
 prop Live = MaySet name
 
 Live this@Ref(n) = Set.plus vars n
-for this.label -> successor
-where vars = Live successor.
+for this.label -> successor.label
+where vars = Live successor
 
 Live this@Assign(n, e) = Set.minus vars n
-for this.label -> successor
-where vars = Live successor.
+for this.label -> successor.label
+where vars = Live successor
 
 Live this = vars
-for this.label -> successor
-where vars = Live successor.
+for this.label -> successor.label
+where vars = Live successor

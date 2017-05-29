@@ -47,3 +47,15 @@ strategies
 //    ; prop-c*  := <flowspec--generate-prop> node
 //
 //flowspec--solve = flowspec--solver-input;flowspec-solver
+
+flowspec--remove-virtual-cfg-nodes: [] -> []
+flowspec--remove-virtual-cfg-nodes: pairs@[_|_] -> result
+with
+  virtual-nodes := <unzip;conc;retain-all(?Exit(_) + ?Entry(_));nub> pairs
+; result := <thread-map(flowspec-rm-vn);Snd> (virtual-nodes, pairs)
+
+flowspec-rm-vn: (vn, pairs) -> (vn, result)
+with
+  froms := <retain-all(?(<id>, vn))> pairs
+; tos := <retain-all(?(vn, <id>))> pairs
+; result := <conc> (<cart(id)> (froms, tos), <remove-all(?(vn, _) + ?(_, vn))> pairs)

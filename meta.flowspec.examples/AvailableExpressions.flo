@@ -1,86 +1,35 @@
 module AvailableExpressions
 
-properties
+cfg Root(s) = entry -> cfg s -> exit
 
-  Value Value
+cfg this@Assign(n, e) =
+  entry -> cfg e -> this.label -> exit
 
-flow graph rules
+cfg Skip() = entry -> exit
 
-  Root(s):
-    entry has successor s,
-    s has successor exit.
+cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
 
-  Assign(x, e):
-    entry has successor e,
-    e has successor x,
-    x has successor exit.
+cfg IfThenElse(c, t, e) =
+  entry -> c.label -> cfg t -> exit, 
+           c.label -> cfg e -> exit
 
-  Skip().
+cfg While(e, s) =
+  entry -> e.label -> cfg s -> e.label -> exit
 
-  Seq(s1, s2):
-    entry has successor s1,
-    s1 has successor s2,
-    s2 has successor exit.
+prop Reads = Set name
 
-  IfThenElse(e, s1, s2):
-    entry has successor e,
-    e has successor s1 where e has Value True(),
-    e has successor s2 where e has Value False(),
-    s1 has successor exit,
-    s2 has successor exit.
+Reads Ref(n) = Set.new n
 
-  While(e, s):
-    entry has successor e,
-    e has successor s where e has Value True(),
-    s has successor e,
-    e has successor exit where e has Value False().
+Reads BinOp(l, _, r) =
+  Set.union (Reads l) (Reads r)
 
-  Ref(_), Num(_), True(), False().
+prop Available = MustSet term
 
-  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2):
-    e1 has successor e2.
+Available this@Assign(n, e) = exprs3
+for predecessor.label -> this.label
+where exprs = Set.plus (Available predecessor) e
+      result = Set.filter exprs
+        (\expr. Set.contains n (Reads expr))
 
-  Not(e):
-    entry has successor e,
-    e has successor exit.
-
-properties
-
-  Write name
-  Read name
-  Expr Term
-
-property rules
-
-  term has Write n
-  where term has child c,
-        c has Write n.
-
-  term has Read n
-  where term has child c,
-        c has Read n.
-
-  Assign(x, e) has Write x.
-
-  Ref(n) has Read n.
-
-  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
-
-properties
-
-  Available MustSet(Expr)
-
-property rules
-
-  st has Available expr                        // st has Available expr
-  where st2 has successor st,                  // where (forall st2.
-                                               //          st2 has successor st
-                                               //            implies
-        st2 has Available expr,                //          st2 has Available expr),
-        not (st has Write x, expr has Read x). //       not (st has Write x, expr has Read x)
-
-  st has Available e
-  where st has Expr e,
-        not (st has Write x, e has Read x).
+Available this = Available predecessor
+for predecessor.label -> this.label
