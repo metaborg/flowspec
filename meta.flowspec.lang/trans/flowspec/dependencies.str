@@ -1,0 +1,19 @@
+module dependencies
+
+imports
+
+signatures/flowspec/-
+libspoofax/stratego/debug
+
+rules
+
+prop-dependency-graph: Module(modulename, import*, def*) -> <prop-dependency-graph> def*
+
+prop-dependency-graph: [] -> []
+prop-dependency-graph: def*@[_|_] ->
+  <retain-all(?PropRule(_, _, _, _, _));mapconcat(prop-dep-graph)> def*
+
+prop-dep-graph: PropRule(name, _, rhs, _, whereclause) -> result
+with
+  uses := <collect-all(?PropRef(<id>))> (rhs, whereclause)
+; result := <map(!(name, <id>))> uses

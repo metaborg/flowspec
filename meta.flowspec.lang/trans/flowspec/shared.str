@@ -10,43 +10,30 @@ nabl2/shared/-
 
 strategies
 
-//flowspec--new-var: (TermIndex(_,idx-file), TermIndex(_,idx-analysis)) -> Var(idx-file, idx-analysis)
-//
-//flowspec--generate-prop-types = fail
-//
-//flowspec--generate-cfg-constraint =
-//  flowspec--generate-cfg-constraint-rule
-//  <+ (debug(|"[WARNING] Rule missing for this constructor: ");![])
-//
-//flowspec--generate-cfg-constraint-rule = fail
-//
-//flowspec--no-of-prop-rules = fail
-//
-//flowspec--generate-prop-rule(|n) = fail
-//
-//flowspec--generate-prop: ast ->
-//  <topdown-fold(\(t,l) -> <concat> [<flowspec--generate-prop-1> t, l]\)> (ast, [])
-//
-//flowspec--generate-prop-1: term -> result
-//with numbers := <flowspec--no-of-prop-rules;dec;upto>
-//   ; result := <filter(\n -> <flowspec--generate-prop-rule(|n)> term\);concat> numbers
-//
-//flowspec--generate-tree-prop: ast ->
-//  <topdown-fold(\(t,l) -> <concat> [<flowspec--generate-tree-prop-1> t, l]\)> (ast, [])
-//
-//flowspec--generate-tree-prop-1: term -> <map(\child -> HasProp(parent, "child", child, [])\)> children
-//with parent := <nabl2--get-ast-index> term
-//   ; children := <get-arguments;map(nabl2--get-ast-index)> term
-//  
-//rules
-//
-//flowspec--solver-input: node -> (types, [tree-c*, prop-c*, cfg-c*])
-//where types    := <flowspec--generate-prop-types> node
-//    ; tree-c*  := <flowspec--generate-tree-prop> node
-//    ; cfg-c*   := <flowspec--generate-cfg-constraint> node
-//    ; prop-c*  := <flowspec--generate-prop> node
-//
-//flowspec--solve = flowspec--solver-input;flowspec-solver
+flowspec--provide-prop-deps = fail
+flowspec--provide-prop-dirs = fail
+flowspec--provide-prop-types = fail
+
+flowspec--generate-cfg =
+  flowspec--generate-cfg-rule
+  <+ (debug(|"[WARNING] CFG Rule missing for this constructor: ");![])
+
+flowspec--generate-cfg-rule = fail
+
+flowspec--generate-transfer = collect-all(flowspec--generate-transfer-rule)
+
+flowspec--generate-transfer-rule = fail
+
+rules
+
+flowspec--solver-input: node -> (types, dirs, deps, cfg, trans)
+where types := <flowspec--provide-prop-types> node
+    ; dirs  := <flowspec--provide-prop-dirs> node
+    ; deps  := <flowspec--provide-prop-deps> node
+    ; cfg  := <flowspec--generate-cfg> node
+    ; trans  := <flowspec--generate-transfer> node
+
+flowspec--solve = flowspec--solver-input;flowspec-solver
 
 flowspec--remove-virtual-cfg-nodes: [] -> []
 flowspec--remove-virtual-cfg-nodes: pairs@[_|_] -> result

@@ -1,94 +1,43 @@
 module flow
 
-properties
+cfg Root(s) = entry -> cfg s -> exit
 
-  Value Value
+cfg this@Assign(n, e) =
+  entry -> cfg e -> this.label -> exit
 
-flow graph rules
+cfg Skip() = entry -> exit
 
-  Root(s):
-    entry has successor s,
-    s has successor exit.
+cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
 
-  Assign(x, e):
-    entry has successor e,
-    e has successor x,
-    x has successor exit.
+cfg IfThenElse(c, t, e) =
+  entry -> c.label -> cfg t -> exit, 
+           c.label -> cfg e -> exit
 
-  Skip().
+cfg While(e, s) =
+  entry -> e.label -> cfg s -> e.label -> exit
 
-  Seq(s1, s2):
-    entry has successor s1,
-    s1 has successor s2,
-    s2 has successor exit.
+prop Definition = MaySet (name * Option Term)
 
-  IfThenElse(e, s1, s2):
-    entry has successor e,
-    e has successor s1 where e has Value True(),
-    e has successor s2 where e has Value False(),
-    s1 has successor exit,
-    s2 has successor exit.
+Definition this@Assign(n, e) = Set.plus (n, Some this.label) defs
+for pred.label -> this.label
+where defs = Set.filter (Definition pred)
+               (\(nm, _). n == nm)
 
-  While(e, s):
-    entry has successor e,
-    e has successor s where e has Value True(),
-    s has successor e,
-    e has successor exit where e has Value False().
+Definition this = Definitions defs
+for pred.label -> this.label
 
-  Ref(_), Num(_), True(), False().
+Definition this = Set.map reads (\n. (n, None))
+for entry -> this.label
+where reads = Live this
 
-  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2):
-    e1 has successor e2.
+prop UsesDef = Set Term
 
-  Not(e):
-    entry has successor e,
-    e has successor exit.
+UsesDef this@Ref(n) = d
+where Set.filter (Definition this) (\(nm, opt).
+  if n == m
+    then opt != None
+    else false)
 
-properties
-
-  Write name
-  Read name
-  Expr Term
-
-property rules
-
-  term has Write n
-  where term has child c,
-        c has Write n.
-
-  term has Read n
-  where term has child c,
-        c has Read n.
-
-  Assign(x, e) has Write x.
-
-  Ref(n) has Read n.
-
-  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
-
-properties
-
-  Definition MaySet(Tuple(name, Undef(Term)))
-
-property rules
-
-  term has a Definition (x, None)
-  where term has Declaration x.
-
-  st has a Definition (x, Some(this))
-  where st has a Write x.
-
-  st has Definition (x, Some(o))
-  where not st has a Write x,
-        st2 has a successor st,
-        st2 has a Definition (x, Some(o)).
-
-// properties
-// 
-//   UsesDef MaySet(Term)
-// 
 // property rules
 // 
 //   e@Ref(x) has a UsesDef d

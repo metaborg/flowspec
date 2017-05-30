@@ -36,6 +36,11 @@ gen-str: Module(modulename, import*, def*) ->
   flowspec--provide-prop-dirs =
     ![ {dirstring} ]
 
+  rules // Types of properties
+
+  flowspec--provide-prop-types =
+    ![ {propstring} ]
+
   rules // Transfer functions of properties
 
   {transferstring}
@@ -51,11 +56,15 @@ with
 ; depstring := <map(\(l,r) -> ${("{l}", "{r}")}\);csv-lines> dependencies
 ; directions := <prop-direction> def*
 ; dirstring := <map(\(n,d) -> ${("{n}", {<gen-str> d})}\);csv-lines> directions
+; propstring := <retain-all(?PropDef(_,_));map(gen-str);csv-lines> def*
 ; transferstring := <retain-all(?PropRule(_, _, _, _, _));map(gen-str);lines_> def*
+// TODO: custom type / lattice definitions
 
 gen-str: Fw() -> "Fw()"
 gen-str: Bw() -> "Bw()"
 gen-str: NA() -> "NA()"
+
+gen-str: PropDef(propname,type) -> ${("{propname}", {<gen-ast-str> type})}
 
 // Flow - CFGRule
 
@@ -85,7 +94,7 @@ with
 ; indicesstr* := <map(gen-index-str)> indices
 
 gen-recurse-str: Recurse(v) ->
-  ${; recurse-{v}* := <flowspec--generate-cfg-rule> match-{v}
+  ${; recurse-{v}* := <flowspec--generate-cfg> match-{v}
     ; entry-{v} := Entry(index-{v})
     ; exit-{v} := Exit(index-{v})}
 
@@ -93,67 +102,82 @@ gen-index-str: v -> ${; index-{v} := <nabl2--get-ast-index> match-{v}}
 
 gen-cfg-l-str: Recurse(v) -> ${exit-{v}}
 gen-cfg-l-str: Entry() -> ${Entry(index)}
-gen-cfg-l-str = gen-str
+gen-cfg-l-str = gen-cfg-str
 gen-cfg-r-str: Recurse(v) -> ${entry-{v}}
 gen-cfg-r-str: Exit() -> ${Exit(index)}
-gen-cfg-r-str = gen-str
-gen-str: Label(v) -> ${index-{v}}
-gen-str: Prop(p, v) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
+gen-cfg-r-str = gen-cfg-str
+gen-cfg-str: Label(v) -> ${index-{v}}
+gen-cfg-str: Prop(p, v) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
 
 // Property - PropRule
 
 gen-str: PropRule(propname, pattern, rhs, for, whereclause) ->
 ${flowspec--generate-transfer-rule:
   this@{patternstring} ->
-    ("{propname}", index, rhs, for, whereclause)
+    ("{propname}", index, pattern, rhs, for, whereclause)
   with
     index := <nabl2--get-ast-index> this
   {<lines_> indicesstr}
   ; rhs := {rhsstring}
   ; for := {forstring}
   ; whereclause := {whereclausestring}
+  ; pattern := {patternaststring}
 }
 with
   patternstring := <gen-match-pattern> pattern
-; rhsstring := <gen-str> rhs
-; forstring := <gen-str> for
-; whereclausestring := <gen-str> whereclause
+; this := <pattern-this;strip-annos> pattern
+; rhsstring := <gen-ast-str> rhs
+; forstring := <gen-ast-str> for
+; whereclausestring := <gen-ast-str> whereclause
+; patternaststring := <gen-ast-str> pattern
 ; indicesstr := <pattern-variables;map(gen-index-str)> pattern
 
-gen-str: Term(consname, exprs) -> ${Term("{consname}", [{<map(gen-str);csv> exprs}])}
-gen-str: QualRef(modname, var) -> ${QualRef("{modname}", "{var}")}
-gen-str: Ref(var) -> ${Ref("{var}")}
-gen-str: PropRef(propname) -> ${PropRef("{propname}")}
-gen-str: Tuple(expr, exprs) -> ${Tuple({<gen-str> expr}, [{<map(gen-str);csv> exprs}])}
-gen-str: Int(i) -> ${Int("{i}")}
-gen-str: String(s) -> ${String("{s}")}
-// We already covered Label
-gen-str: Type(var) -> ${Type("{var}")}
-gen-str: Abs(pattern, expr) -> ${Abs({<gen-str> pattern}, {<gen-str> expr})}
-gen-str: Appl(fun, arg) -> ${Appl({<gen-str> fun}, {<gen-str> arg})}
-gen-str: If(cond, then, else) ->
-  ${If({<gen-str> cond}, {<gen-str> then}, {<gen-str> else})}
-gen-str: Eq(a, b) -> ${Eq({<gen-str> a}, {<gen-str> b})}
-gen-str: Match(subj, arms) -> ${Match({<gen-str> subj}, [{<map(gen-str);csv> arms}])}
+gen-ast-str: Term(consname, exprs) -> ${Term("{consname}", [{<map(gen-ast-str);csv> exprs}])}
+gen-ast-str: QualRef(modname, var) -> ${QualRef("{modname}", "{var}")}
+gen-ast-str: Ref(var) -> ${Ref("{var}")}
+gen-ast-str: PropRef(propname) -> ${PropRef("{propname}")}
+gen-ast-str: Tuple(expr, exprs) -> ${Tuple({<gen-ast-str> expr}, [{<map(gen-ast-str);csv> exprs}])}
+gen-ast-str: Int(i) -> ${Int("{i}")}
+gen-ast-str: String(s) -> ${String("{s}")}
+gen-ast-str: Label(v) -> ${Label("{v}")}
+gen-ast-str: Type(var) -> ${Type("{var}")}
+gen-ast-str: Abs(pattern, expr) -> ${Abs({<gen-ast-str> pattern}, {<gen-ast-str> expr})}
+gen-ast-str: Appl(fun, arg) -> ${Appl({<gen-ast-str> fun}, {<gen-ast-str> arg})}
+gen-ast-str: If(cond, then, else) ->
+  ${If({<gen-ast-str> cond}, {<gen-ast-str> then}, {<gen-ast-str> else})}
+gen-ast-str: Eq(a, b) -> ${Eq({<gen-ast-str> a}, {<gen-ast-str> b})}
+gen-ast-str: NEq(a, b) -> ${NEq({<gen-ast-str> a}, {<gen-ast-str> b})}
+gen-ast-str: Match(subj, arms) -> ${Match({<gen-ast-str> subj}, [{<map(gen-ast-str);csv> arms}])}
 
-gen-str: MatchArm(pattern, expr) -> ${MatchArm({<gen-str> pattern}, {<gen-str> expr})}
+gen-ast-str: MatchArm(pattern, expr) -> ${MatchArm({<gen-ast-str> pattern}, {<gen-ast-str> expr})}
 
-gen-str: ADTAppl(appl, patt) -> ${ADTAppl({<gen-str> appl}, {<gen-str> patt})}
-gen-str: ADTCons(consname) -> ${ADTCons("{consname}")}
+gen-ast-str: ADTAppl(appl, patt) -> ${ADTAppl({<gen-ast-str> appl}, {<gen-ast-str> patt})}
+gen-ast-str: ADTCons(consname) -> ${ADTCons("{consname}")}
 // We already covered Term
-gen-str: Wildcard() -> ${Wildcard()}
-gen-str: Var(var) -> ${Var("{var}")}
-gen-str: At(var, patt) -> ${At("{var}", {<gen-str> patt})}
+gen-ast-str: Wildcard() -> ${Wildcard()}
+gen-ast-str: Var(var) -> ${Var("{var}")}
+gen-ast-str: At(var, patt) -> ${At("{var}", {<gen-ast-str> patt})}
 // We already covered Tuple
 
-gen-str: NoWhereClause() -> ${[]}
-gen-str: WhereClause(bindings) -> ${[{<map(gen-str);csv> bindings}]}
-gen-str: Binding(var, expr) -> ${Binding("{var}", expr)}
+gen-ast-str: NoWhereClause() -> ${[]}
+gen-ast-str: WhereClause(bindings) -> ${[{<map(gen-ast-str);csv> bindings}]}
+gen-ast-str: Binding(var, expr) -> ${Binding("{var}", {<gen-ast-str> expr})}
 
-gen-str: NoForClause() -> ${NoForClause()}
-gen-str: ForClause(el1, el2) -> ${ForClause({<gen-str> el1}, {<gen-str> el2})}
+gen-ast-str: NoForClause() -> ${NoForClause()}
+gen-ast-str: ForClause(el1, el2) -> ${ForClause({<gen-ast-str> el1}, {<gen-ast-str> el2})}
 
-//gen-str: Entry() -> 
+gen-ast-str: Entry() -> ${Entry()}
+gen-ast-str: Exit() -> ${Exit()}
+gen-ast-str: Recurse(v) -> <with(fail|"Uhm, recursive call in a for clause?")>
+gen-ast-str: Prop(propname, var) -> ${Prop("{propname}", "{var}")}
+// We already covered Label
+
+gen-ast-str: Name() -> ${Name()}
+gen-ast-str: Term() -> ${Term()}
+gen-ast-str: UserType(name, args) -> ${UserType("{name}", [{<map(gen-ast-str);csv> args}])}
+gen-ast-str: Tuple(ltype, rtype) -> ${Tuple({<gen-ast-str> ltype}, {<gen-ast-str> rtype})}
+gen-ast-str: Map(ktype, vtype) -> ${Map({<gen-ast-str> ktype}, {<gen-ast-str> vtype})}
+gen-ast-str: Set(type) -> ${Set({<gen-ast-str> type})}
 
 // Pattern - Pattern, Wildcard
 gen-match-pattern: Var(ident) -> $[match-[ident]]

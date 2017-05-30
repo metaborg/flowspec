@@ -29,6 +29,11 @@ PropName       = [A-Z] [a-zA-Z0-9]*
 
 // Keyword removal
 Var = "for" {reject}
+Var = "if" {reject}
+Var = "then" {reject}
+Var = "else" {reject}
+Var = "match" {reject}
+Var = "with" {reject}
 
 lexical restrictions
 

@@ -1,0 +1,37 @@
+module prop-direction
+
+imports
+
+signatures/flowspec/-
+libspoofax/stratego/debug
+
+signature
+  constructors
+    Fw : PropDir
+    Bw : PropDir
+    NA : PropDir
+
+rules
+
+prop-direction: Module(modulename, import*, def*) -> <prop-direction> def*
+
+prop-direction: [] -> []
+prop-direction: def*@[_|_] ->
+  <retain-all(?PropRule(_, _, _, _, _));map(prop-dir)> def*
+
+prop-dir: PropRule(name, patt, _, for, _) -> (name, Fw())
+where
+  this := <pattern-this;strip-annos> patt
+; ForClause(Label(this), _) := <strip-annos> for
+
+prop-dir: PropRule(name, patt, _, for, _) -> (name, Bw())
+where
+  this := <pattern-this;strip-annos> patt
+; ForClause(_, Label(this)) := <strip-annos> for
+
+prop-dir: PropRule(name, _, _, for, _) -> (name, NA())
+where
+  NoForClause() := <strip-annos> for
+
+pattern-this: Var(n) -> n
+pattern-this: At(n,_) -> n
