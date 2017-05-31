@@ -40,18 +40,16 @@ public class FS_solver extends AbstractPrimitive {
 
         try {
             IStrategoTuple tuple = MatchTerm.tuple(current).orElseThrow(() -> new TermMatchException("tuple", current.toString()));
-            if (tuple.getSubtermCount() != 2) {
-                throw new TermMatchException("tuple of 2", current.toString());
+            if (tuple.getSubtermCount() != 5) {
+                throw new TermMatchException("tuple of 5", tuple.toString());
             }
-            List<IStrategoTerm> typedefs = MatchTerm.list(tuple.getSubterm(0)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
-            @SuppressWarnings("rawtypes")
+            List<IStrategoTerm> typedefs = MatchTerm.list(tuple.getSubterm(0)).orElseThrow(() -> new TermMatchException("list", tuple.getSubterm(0).toString()));
             Map<String, Type> types = new HashMap<>();
             for (IStrategoTerm td: typedefs) {
-                @SuppressWarnings("rawtypes")
                 final Pair<String, Type> pair = MatchSolverTerms.typeDef(td);
                 types.put(pair.left(), pair.right());
             }
-            List<IStrategoTerm> conds = MatchTerm.list(current.getSubterm(1)).orElseThrow(() -> new TermMatchException("list", current.getSubterm(1).toString()));
+            List<IStrategoTerm> conds = MatchTerm.list(tuple.getSubterm(1)).orElseThrow(() -> new TermMatchException("list", tuple.getSubterm(1).toString()));
             List<Pair<Pair<String, TermIndex>, ConditionalRhs>> pairs = new ArrayList<>();
             for (IStrategoTerm cond : conds) {
                 pairs.add(MatchSolverTerms.propConstraint(cond));

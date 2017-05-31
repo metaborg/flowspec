@@ -6,10 +6,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoConstructor;
 
-import meta.flowspec.java.lattice.Lattice;
 import meta.flowspec.java.stratego.MatchTerm;
 
-public class UserType extends SimpleType<IStrategoTerm> {
+public class UserType extends SimpleType {
     public final String typeName;
 
     public UserType(String typeName) {
@@ -21,11 +20,6 @@ public class UserType extends SimpleType<IStrategoTerm> {
         return factory.makeAppl(factory.makeConstructor("UserType", 1), factory.makeString(typeName));
     }
     
-    public Lattice<IStrategoTerm> getLattice() {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
     public static class Utils {
         public static Optional<UserType> match(IStrategoTerm term) {
             return MatchTerm.applChildren(new StrategoConstructor("UserType", 1), term)
