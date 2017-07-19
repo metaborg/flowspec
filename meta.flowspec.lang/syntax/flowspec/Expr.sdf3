@@ -13,16 +13,16 @@ Expr.Ref = Var
 Expr.PropRef = PropName
 Expr.Tuple = [([Expr], [{Expr ", "}+])]
 Expr = Literal
+// TODO: add ADT application
 
 Expr = [([Expr])] {bracket}
-Expr.Label = [[Var].label]
 Expr.Type = [[Var].type]
 Expr.Abs = [\[FunPattern]. [Expr]]
 Expr.Appl = [[Expr] [Expr]] {left}
 Expr.If = [if [Expr] then [Expr] else [Expr]]
 Expr.Eq = [[Expr] == [Expr]] {non-assoc}
 Expr.NEq = [[Expr] != [Expr]] {non-assoc}
-Expr.Match = [match [Expr] with [MatchArm+]]
+Expr.Match = [match [Expr] with [MatchArm+]] {longest-match}
 
 MatchArm.MatchArm = [| [FunPattern] => [Expr]]
 

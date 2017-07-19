@@ -19,19 +19,11 @@ prop-direction: [] -> []
 prop-direction: def*@[_|_] ->
   <retain-all(?PropRule(_, _, _, _, _));map(prop-dir)> def*
 
-prop-dir: PropRule(name, patt, _, for, _) -> (name, Fw())
-where
-  this := <pattern-this;strip-annos> patt
-; ForClause(Label(this), _) := <strip-annos> for
+prop-dir: PropRule(name, patt, Forward(_), _, _) -> (name, Fw())
 
-prop-dir: PropRule(name, patt, _, for, _) -> (name, Bw())
-where
-  this := <pattern-this;strip-annos> patt
-; ForClause(_, Label(this)) := <strip-annos> for
+prop-dir: PropRule(name, patt, Backward(_), _, _) -> (name, Bw())
 
-prop-dir: PropRule(name, _, _, for, _) -> (name, NA())
-where
-  NoForClause() := <strip-annos> for
+prop-dir: PropRule(name, patt, FlowInsensitive(), _, _) -> (name, NA())
 
 pattern-this: Var(n) -> n
 pattern-this: At(n,_) -> n

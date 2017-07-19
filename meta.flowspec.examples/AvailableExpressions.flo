@@ -3,18 +3,18 @@ module AvailableExpressions
 cfg Root(s) = entry -> cfg s -> exit
 
 cfg this@Assign(n, e) =
-  entry -> cfg e -> this.label -> exit
+  entry -> cfg e -> this -> exit
 
 cfg Skip() = entry -> exit
 
 cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
 
 cfg IfThenElse(c, t, e) =
-  entry -> c.label -> cfg t -> exit, 
-           c.label -> cfg e -> exit
+  entry -> c -> cfg t -> exit, 
+           c -> cfg e -> exit
 
 cfg While(e, s) =
-  entry -> e.label -> cfg s -> e.label -> exit
+  entry -> e -> cfg s -> e -> exit
 
 prop Reads = Set name
 
@@ -25,11 +25,9 @@ Reads BinOp(l, _, r) =
 
 prop Available = MustSet term
 
-Available this@Assign(n, e) = exprs3
-for predecessor.label -> this.label
-where exprs = Set.plus (Available predecessor) e
+Available Assign(n, e) <- pred = exprs3
+where exprs = Set.plus (Available pred) e
       result = Set.filter exprs
         (\expr. Set.contains n (Reads expr))
 
-Available this = Available predecessor
-for predecessor.label -> this.label
+Available this <- pred = Available pred

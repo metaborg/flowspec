@@ -3,40 +3,39 @@ module flow
 cfg Root(s) = entry -> cfg s -> exit
 
 cfg this@Assign(n, e) =
-  entry -> cfg e -> this.label -> exit
+  entry -> cfg e -> this -> exit
 
 cfg Skip() = entry -> exit
 
 cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
 
 cfg IfThenElse(c, t, e) =
-  entry -> c.label -> cfg t -> exit, 
-           c.label -> cfg e -> exit
+  entry -> c -> cfg t -> exit, 
+           c -> cfg e -> exit
 
 cfg While(e, s) =
-  entry -> e.label -> cfg s -> e.label -> exit
+  entry -> e -> cfg s -> e -> exit
 
-prop Definition = MaySet (name * Option Term)
+prop Definition = MaySet (name * Option term)
 
-Definition this@Assign(n, e) = Set.plus (n, Some this.label) defs
-for pred.label -> this.label
+Definition this@Assign(n, e) <- pred = Set.plus (n, Some this.label) defs
 where defs = Set.filter (Definition pred)
                (\(nm, _). n == nm)
 
-Definition this = Definitions defs
-for pred.label -> this.label
+Definition this <- pred = Definitions pred
 
-Definition this = Set.map reads (\n. (n, None))
-for entry -> this.label
+Definition this <- entry = Set.map reads (\n. (n, None))
 where reads = Live this
 
-prop UsesDef = Set Term
+prop UsesDef = Set term
 
-UsesDef this@Ref(n) = d
-where Set.filter (Definition this) (\(nm, opt).
-  if n == m
-    then opt != None
-    else false)
+UsesDef this@Ref(n) =
+  Set.filter
+    (Definition this)
+    (\(nm, opt).
+      if n == m
+        then opt != None
+        else false)
 
 // property rules
 // 

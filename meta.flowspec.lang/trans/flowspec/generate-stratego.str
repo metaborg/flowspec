@@ -1,4 +1,4 @@
-module generate
+module generate-stratego
 
 imports
 
@@ -162,9 +162,6 @@ gen-ast-str: At(var, patt) -> ${At("{var}", {<gen-ast-str> patt})}
 gen-ast-str: NoWhereClause() -> ${[]}
 gen-ast-str: WhereClause(bindings) -> ${[{<map(gen-ast-str);csv> bindings}]}
 gen-ast-str: Binding(var, expr) -> ${Binding("{var}", {<gen-ast-str> expr})}
-
-gen-ast-str: NoForClause() -> ${NoForClause()}
-gen-ast-str: ForClause(el1, el2) -> ${ForClause({<gen-ast-str> el1}, {<gen-ast-str> el2})}
 
 gen-ast-str: Entry() -> ${Entry()}
 gen-ast-str: Exit() -> ${Exit()}

@@ -4,7 +4,6 @@ module flowspec/static-semantics
 imports
 
   signatures/flowspec/-
-  flowspec/desugar
 
 signature
   constraint generator
@@ -40,6 +39,13 @@ signature
     Set : Type -> Type
     Name : Type
     Origin : Type
+    Lub    : LatticeComponent
+    Glb    : LatticeComponent
+    Leq    : LatticeComponent
+    Geq    : LatticeComponent
+    NLeq   : LatticeComponent
+    Top    : LatticeComponent
+    Bottom : LatticeComponent
 
 rules
 
@@ -47,251 +53,261 @@ rules
 
   init ^ (global) :=
     new global.
-  
-  [[ _ ^ (_) ]].
 
-//  [[ FlowProgram(module, imports, types, defs, flowrules, proprules) ^ (global) ]] :=
-//    Module { module } <- global,
-//    moduleScope ---> global,
-//    Module { module } ===> moduleScope,
-////    Map1 [[ imports ^ (global, moduleScope) ]],
-////    Map1 [[ types ^ (moduleScope) ]],
-////    Map1 [[ defs ^ (moduleScope) ]],
-////    Map1 [[ flowrules ^ (moduleScope) ]],
-////    Map1 [[ proprules ^ (moduleScope) ]],
-//    distinct D(moduleScope)/Module,
-//    distinct D(moduleScope)/Property,
-//    distinct D(moduleScope)/Type,
-//    new moduleScope.
-//  
-//  [[ Import(mod) ^ (global, moduleScope) ]] :=
-//    Module { mod } -> global,
-//    Module { mod } |-> d,
-//    Module { mod } <=== moduleScope.
-//
-//// Expr
-//
-//  [[ Ref(v) ^ (ruleScope) ]] :=
-//    v -> ruleScope.
-//
-//  [[ Tuple(expr1, expr2) ^ (ruleScope) ]] :=
-//    [[ expr1 ^ (ruleScope) ]],
-//    [[ expr2 ^ (ruleScope) ]].
-//
-//  [[ Set(exprs) ^ (ruleScope) ]] :=
-//    Map1 [[ exprs ^ (ruleScope) ]].
-//
-//  [[ Map(mappings) ^ (ruleScope) ]] :=
-//    MappingMap1 [[ mappings ^ (ruleScope) ]].
-//
-//  MappingMap1 [[ [Mapping(expr1,expr2)|mappings] ^ (ruleScope) ]] :=
-//    [[ expr1 ^ (ruleScope) ]],
-//    [[ expr2 ^ (ruleScope) ]],
-//    MappingMap1 [[ mappings ^ (ruleScope) ]].
-//
-//  MappingMap1 [[ [] ^ (_) ]].
-//
-//  [[ Int(_) ^ (_) ]].
-//  [[ String(_) ^ (_) ]].
-//
-//// Pattern
-//
-//  RulePatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
-//    RulePattern [[ pattern ^ (ruleScope) ]],
-//    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
-//
-//  RulePatternMap1 [[ [] ^ (_) ]].
-//
-//  RulePattern [[ Match(_, patterns) ^ (ruleScope) ]] :=
-//    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
-//
-//  RulePattern [[ Wildcard() ^ (ruleScope) ]] := true.
-//
-//  RulePattern [[ Var(x) ^ (ruleScope) ]] :=
-//    Variable { x } <- ruleScope.
-//
-//  RulePattern [[ At(x, pattern) ^ (ruleScope) ]] :=
-//    Variable { x } <- ruleScope,
-//    RulePattern [[ pattern ^ (ruleScope) ]].
-//
-//  WhereClausePatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
-//    WhereClausePattern [[ pattern ^ (ruleScope) ]],
-//    WhereClausePatternMap1 [[ patterns ^ (ruleScope) ]].
-//
-//  WhereClausePatternMap1 [[ [] ^ (_) ]].
-//
-//  WhereClausePattern [[ Match(_, patterns) ^ (ruleScope) ]] :=
-//    Map1 [[ patterns ^ (ruleScope) ]].
-//
-//  WhereClausePattern [[ Wildcard() ^ (ruleScope) ]] := true.
-//
-//  WhereClausePattern [[ Var(x) ^ (ruleScope) ]] :=
-//    Variable { id } <- ruleScope.
-//
-//  WhereClausePattern [[ At(x, pattern) ^ (ruleScope) ]] :=
-//    Variable { id } <- ruleScope,
-//    WhereClausePattern [[ pattern ^ (ruleScope) ]].
-//
-//  FunPatternMap1 [[ [pattern|patterns] ^ (scope) ]] :=
-//    FunPattern [[ pattern ^ (scope) ]],
-//    FunPatternMap1 [[ patterns ^ (scope) ]].
-//
-//  FunPatternMap1 [[ [] ^ (_) ]].
-//
-//  FunPattern [[ Var(v) ^ (scope) ]] :=
-//    Variable { v } <- ruleScope.
-//
-//  FunPattern [[ Tuple(p1, p2) ^ (scope) ]] :=
-//    FunPattern [[ p1 ^ (scope) ]],
-//    FunPattern [[ p2 ^ (scope) ]].
-//
-//  FunPattern [[ Set(p1) ^ (scope) ]] :=
-//    FunPatternMap1 [[ p1 ^ (scope) ]].
-//
-//  FunPattern [[ Map(p1) ^ (scope) ]] :=
-//    FunPatternMappingMap1 [[ p1 ^ (scope) ]].
-//
-//  FunPatternMappingMap1 [[ [mapping|mappings] ^ (scope) ]] :=
-//    FunPatternMapping [[ mapping ^ (scope) ]],
-//    FunPatternMappingMap1 [[ mappings ^ (scope) ]].
-//
-//  FunPatternMappingMap1 [[ [] ^ (_) ]].
-//
-//  FunPatternMapping [[ Mapping(p1, p2) ^ (scope) ]] :=
-//    FunPattern [[ p1 ^ (scope) ]],
-//    FunPattern [[ p2 ^ (scope) ]].
-//
-//  FunPattern [[ Int(_) ^ (_) ]]. // FunLiteral
-//  FunPattern [[ String(_) ^ (_) ]]. // FunLiteral
-//
-//// Types
-//
-//  [[ TypeDef(name, vars, constrs) ^ (moduleScope) ]] :=
-//    Type { name } <- moduleScope,
-//    typeDefScope ---> moduleScope,
-//    Type { name } ===> typeDefScope,
-//    Vars [[ vars ^ (typeDefScope) ]],
-//    Map1 [[ constrs ^ (typeDefScope) ]],
-//    new typeDefScope.
-//
-//  Vars [[ [v|vs] ^ (typeDefScope) ]] :=
-//    Type { v } -> typeDefScope,
-//    Vars [[ vs ^ (typeDefScope) ]].
-//
-//  Vars [[ [] ^ (_) ]].
-//
-//  [[ Cons0(name) ^ (typeDefScope) ]] :=
-//    Constructor { name } <- typeDefScope.
-//
-//  [[ Cons1(name, tov) ^ (typeDefScope) ]] :=
-//    Constructor { name } <- typeDefScope,
-//    [[ tov ^ (typeDefScope) ]].
-//
-//  [[ Var(v) ^ (typeDefScope) ]] :=
-//    Type { v } -> typeDefScope.
-//
-//  [[ JSLImpl(_, _, _) ^ (_) ]]. // TODO
-//  [[ MSLImpl(_, _, _) ^ (_) ]]. // TODO
-//  [[ CLImpl(_, _, _) ^ (_) ]]. // TODO
-//
-//// Flow
-//
-//  [[ FlowRule(pattern, exprs) ^ (moduleScope) ]] :=
-//    ruleScope ---> moduleScope,
-//    RulePattern [[ pattern ^ (ruleScope) ]],
-//    Variable { Entry() } <- ruleScope,
-//    Variable { Exit() } <- ruleScope,
-//    Map1 [[ exprs ^ (ruleScope) ]],
-//    new ruleScope.
-//
-//  [[ Recurse(x) ^ (ruleScope) ]] :=
-//    Variable { x } <- ruleScope.
-//
-//  [[ ConditionalEdge(from, to, flowclauses) ^ (ruleScope) ]] :=
-//    [[ from ^ (ruleScope) ]],
-//    [[ to ^ (ruleScope) ]],
-//    Map1 [[ flowclauses ^ (ruleScope) ]].
-//
-//  [[ Ref(x) ^ (ruleScope) ]] :=
-//    Variable { x } <- ruleScope.
-//
-//  [[ e@Entry() ^ (ruleScope) ]] :=
-//    Variable { e } -> ruleScope.
-//
-//  [[ e@Exit() ^ (ruleScope) ]] :=
-//    Variable { e } -> ruleScope.
-//
-//  [[ HasProp(x, propname, pattern) ^ (ruleScope) ]] :=
-//    Variable { x } <- ruleScope,
-//    Property { propname } -> ruleScope,
-//    Property { propname } |-> dPropname,
-//    WhereClausePattern [[ pattern ^ (ruleScope) ]].
-//
-//  [[ HasPropContrib(x, propname, pattern) ^ (ruleScope) ]] :=
-//    Variable { x } <- ruleScope,
-//    Property { propname } -> ruleScope,
-//    Property { propname } |-> dPropname,
-//    WhereClausePattern [[ pattern1 ^ (ruleScope) ]],
-//    WhereClausePattern [[ pattern2 ^ (ruleScope) ]].
-//
-//// Properties
-//
-//  [[ Def(name, type) ^ (moduleScope) ]] :=
-//    Property { name } <- moduleScope,
-//    Type { type } -> moduleScope.
-//
-//// Property rules
-//
-//  [[ PropRule(pattern, prop, expr, whereclause) ^ (moduleScope) ]] :=
-//    ruleScope ---> moduleScope,
-//    RulePattern [[ pattern ^ (ruleScope) ]],
-//    Property { prop } -> ruleScope,
+  [[ Module(module, imports, definitions) ^ (global) ]] :=
+    Module { module } <- global,
+    moduleScope ---> global,
+    Module { module } ===> moduleScope,
+    Map1 [[ imports ^ (global, moduleScope) ]],
+    Map1 [[ definitions ^ (moduleScope) ]],
+    distinct D(moduleScope)/Module,
+    distinct D(moduleScope)/Property,
+    distinct D(moduleScope)/Type,
+    new moduleScope.
+  
+  [[ Import(mod) ^ (global, moduleScope) ]] :=
+    Module { mod } -> global,
+    Module { mod } |-> d,
+    Module { mod } <=== moduleScope.
+
+// Flow
+
+  [[ CFGRule(pattern, chains) ^ (moduleScope) ]] :=
+    ruleScope ---> moduleScope,
+    RulePattern [[ pattern ^ (ruleScope) ]],
+    Variable { Entry() } <- ruleScope,
+    Variable { Exit() } <- ruleScope,
+    Map1 [[ chains ^ (ruleScope) ]],
+    new ruleScope.
+  
+  // TODO: give errors on Entry() and Exit() that aren't on the beginning resp. end of a chain
+  [[ Chain(elements) ^ (ruleScope) ]] :=
+    Map1 [[ elements ^ (ruleScope) ]].
+
+  [[ Recurse(x) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope.
+
+  [[ Ref(x) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope.
+
+  [[ e@Entry() ^ (ruleScope) ]] :=
+    Variable { e } -> ruleScope.
+
+  [[ e@Exit() ^ (ruleScope) ]] :=
+    Variable { e } -> ruleScope.
+
+  [[ Prop(propname, x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> dX,
+    Property { propname } -> ruleScope,
+    Property { propname } |-> dPropname.
+
+// Pattern
+
+  RulePatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
+    RulePattern [[ pattern ^ (ruleScope) ]],
+    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
+
+  RulePatternMap1 [[ [] ^ (_) ]].
+
+  RulePattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
+    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
+
+  RulePattern [[ Wildcard() ^ (ruleScope) ]] := true.
+
+  RulePattern [[ Var(x) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope.
+
+  RulePattern [[ At(x, pattern) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope,
+    RulePattern [[ pattern ^ (ruleScope) ]].
+
+  RulePattern [[ Int(_) ^ (_) ]]. // Literal
+  RulePattern [[ String(_) ^ (_) ]]. // Literal
+
+  FunPatternMap1 [[ [pattern|patterns] ^ (scope) ]] :=
+    FunPattern [[ pattern ^ (scope) ]],
+    FunPatternMap1 [[ patterns ^ (scope) ]].
+
+  FunPatternMap1 [[ [] ^ (_) ]].
+
+  FunPattern [[ ADTAppl(appl, pattern) ^ (ruleScope) ]] :=
+    RulePattern [[ appl ^ (ruleScope) ]],
+    RulePattern [[ pattern ^ (ruleScope) ]].
+
+  FunPattern [[ ADTCons(_) ^ (ruleScope) ]] := true.
+
+  FunPattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
+    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
+
+  FunPattern [[ Wildcard() ^ (ruleScope) ]] := true.
+
+  FunPattern [[ Var(x) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope.
+
+  FunPattern [[ At(x, pattern) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope,
+    RulePattern [[ pattern ^ (ruleScope) ]].
+
+  FunPattern [[ Tuple(p1, p2) ^ (scope) ]] :=
+    FunPattern [[ p1 ^ (scope) ]],
+    FunPatternMap1 [[ p2 ^ (scope) ]].
+
+  FunPattern [[ Int(_) ^ (_) ]]. // FunLiteral
+  FunPattern [[ String(_) ^ (_) ]]. // FunLiteral
+
+// Properties
+
+  [[ PropDef(name, type) ^ (moduleScope) ]] :=
+    Property { name } <- moduleScope,
+    [[ type ^ (moduleScope) ]].
+
+// Types
+
+  [[ TypeDef(name, vars, constrs) ^ (moduleScope) ]] :=
+    Type { name } <- moduleScope,
+    typeDefScope ---> moduleScope,
+    Type { name } ===> typeDefScope,
+    Vars [[ vars ^ (typeDefScope) ]],
+    Map1 [[ constrs ^ (typeDefScope) ]],
+    new typeDefScope.
+
+  Vars [[ [v|vs] ^ (typeDefScope) ]] :=
+    Type { v } -> typeDefScope,
+    Vars [[ vs ^ (typeDefScope) ]].
+
+  Vars [[ [] ^ (_) ]].
+
+  [[ ConsDef(name, tovs) ^ (typeDefScope) ]] :=
+    Constructor { name } <- typeDefScope,
+    Map1 [[ tovs ^ (typeDefScope) ]].
+
+  [[ Var(v) ^ (typeDefScope) ]] :=
+    Type { v } -> typeDefScope.
+
+  [[ LatticeDef(name, vars, latticeparts) ^ (moduleScope) ]] :=
+    Type { name } <- moduleScope,
+    typeDefScope ---> moduleScope,
+    Type { name } ===> latticeDefScope,
+    Vars [[ vars ^ (latticeDefScope) ]],
+    Map1 [[ latticeparts ^ (latticeDefScope) ]],
+    new latticeDefScope.
+
+  [[ Type(type) ^ (latticeDefScope) ]] :=
+    Type { name } -> latticeDefScope,
+    Type { Type() } <- latticeDefScope.
+
+  [[ Lub(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { Lub() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+//    [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ Glb(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { Glb() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+//    [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ Leq(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { Leq() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+//    [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ Geq(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { Geq() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+//    [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ NLeq(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { NLeq() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+//    [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ Top(expr) ^ (latticeDefScope) ]] :=
+    Variable { Top() } <- latticeDefScope.
+//    [[ expr ^ (latticeDefScope) ]].
+
+  [[ Bottom(expr) ^ (latticeDefScope) ]] :=
+    Variable { Bottom() } <- latticeDefScope.
+//    [[ expr ^ (latticeDefScope) ]].
+
+  [[ Name() ^ (moduleScope) ]] := true.
+
+  [[ Term() ^ (moduleScope) ]] := true.
+
+  [[ UserType(name, types) ^ (moduleScope) ]] :=
+    Type { name } -> moduleScope,
+    Type { name } |-> dName,
+    Map1 [[ types ^ (moduleScope) ]].
+
+  [[ Tuple(type1, type2) ^ (moduleScope) ]] :=
+    [[ type1 ^ (moduleScope) ]],
+    [[ type2 ^ (moduleScope) ]].
+
+  [[ Map(type1, type2) ^ (moduleScope) ]] :=
+    [[ type1 ^ (moduleScope) ]],
+    [[ type2 ^ (moduleScope) ]].
+
+  [[ Set(type) ^ (moduleScope) ]] :=
+    [[ type ^ (moduleScope) ]].
+
+// Property rules
+
+  [[ PropRule(prop, pattern, dir, expr, whereclause) ^ (moduleScope) ]] :=
+    ruleScope ---> moduleScope,
+    RulePattern [[ pattern ^ (ruleScope) ]],
+    Property { prop } -> ruleScope,
+    [[ dir ^ (ruleScope) ]],
 //    [[ expr ^ (ruleScope) ]],
-//    [[ whereclause ^ (ruleScope) ]],
-//    new ruleScope.
-//
-//  [[ PropContribRule(pattern, prop, expr, whereclause) ^ (moduleScope) ]] :=
-//    ruleScope ---> moduleScope,
-//    RulePattern [[ pattern ^ (ruleScope) ]],
-//    Property { prop } -> ruleScope,
+    [[ whereclause ^ (ruleScope) ]],
+    new ruleScope.
+
+  [[ Backward(var) ^ (ruleScope) ]] :=
+    Variable { var } <- ruleScope.
+  [[ Forward(var) ^ (ruleScope) ]] :=
+    Variable { var } <- ruleScope.
+  [[ FlowInsensitive() ^ (ruleScope) ]] := true.
+
+  [[ NoWhereClause() ^ (ruleScope) ]] := true.
+  [[ WhereClause(bindings) ^ (ruleScope) ]] :=
+    Map1 [[ bindings ^ (ruleScope) ]].
+
+  [[ Binding(var, expr) ^ (ruleScope) ]] :=
 //    [[ expr ^ (ruleScope) ]],
-//    [[ whereclause ^ (ruleScope) ]],
-//    new ruleScope.
-//
-//  [[ Mapping(expr1, expr2) ^ (ruleScope) ]] :=
-//    [[ expr1 ^ (ruleScope) ]],
-//    [[ expr2 ^ (ruleScope) ]].
-//
-//  PropPattern [[ Mapping(expr1, expr2) ^ (ruleScope) ]] :=
-//    FunPattern [[ expr1 ^ (ruleScope) ]],
-//    FunPattern [[ expr2 ^ (ruleScope) ]].
-//
-//  [[ And(whereclause1, whereclause2) ^ (ruleScope) ]] :=
-//    [[ whereclause1 ^ (ruleScope) ]],
-//    [[ whereclause2 ^ (ruleScope) ]].
-//
-//  [[ CFGArrow(pattern1, pattern2) ^ (ruleScope) ]] :=
-//    WhereClausePattern [[ pattern1 ^ (ruleScope) ]],
-//    WhereClausePattern [[ pattern2 ^ (ruleScope) ]].
-//
-//  [[ HasProp(x, propname, pattern) ^ (ruleScope) ]] :=
-//    Variable { x } <- ruleScope,
-//    Property { propname } -> ruleScope,
-//    Property { propname } |-> dPropname,
-//    PropPattern [[ pattern ^ (ruleScope) ]].
-//
-//  [[ HasPropContrib(x, propname, pattern) ^ (ruleScope) ]] :=
-//    Variable { x } <- ruleScope,
-//    Property { propname } -> ruleScope,
-//    Property { propname } |-> dPropname,
-//    PropPattern [[ pattern ^ (ruleScope) ]].
-//
-//  [[ Filter(pbe) ^ (ruleScope) ]] :=
-//    [[ pbe ^ (ruleScope) ]].
-//
-//  [[ True() ^ (ruleScope) ]] :=
-//    true. // what else? :)
-//
-//// pbe : PropBooleanExpr uses a subset of constructors from PropWhereClause, so the
-////  untyped Stratego rules that this gets translated into will match them without explicit
-////  definition here.
+    Variable { var } <- ruleScope.
+
+// Main
+
+  [[ FunDef(var, funpatterns, expr) ^ (moduleScope) ]] :=
+    ruleScope ---> moduleScope,
+    Variable { var } <- ruleScope,
+    FunPatternMap1 [[ funpatterns ^ (ruleScope) ]],
+//    [[ expr ^ (ruleScope) ]],
+    new ruleScope.
+
+// Expr
+// TODO, update these:
+
+  [[ Term(cons, exprs) ^ (ruleScope) ]] :=
+    Map1 [[ exprs ^ (ruleScope) ]].
+
+  [[ Ref(v) ^ (ruleScope) ]] :=
+    Variable { v } -> ruleScope.
+
+  [[ Tuple(expr, exprs) ^ (ruleScope) ]] :=
+    [[ expr ^ (ruleScope) ]],
+    Map1 [[ exprs ^ (ruleScope) ]].

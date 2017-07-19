@@ -1,0 +1,90 @@
+module generate-nabl2
+
+imports
+
+signatures/flowspec/-
+libspoofax/stratego/debug
+flowspec/desugar
+flowspec/utils
+flowspec/prop-direction
+flowspec/dependencies
+nabl2/shared/-
+
+rules
+
+// flowspec
+// flowspec - Module
+gen-nabl2: Module(modulename, import*, def*) ->
+  ${module {modulename}
+
+  imports
+
+  signatures/flowspec/-
+  {importstring}
+  
+signature
+  name resolution
+    namespaces
+      AST
+
+  rules
+  
+  
+  init ^ (globalExit) :=
+    new globalExit.
+  
+  [[ rootNode ^ (globalExit) ]] :=
+    [[ rootNode ^ (entry, globalExit) ]].
+  
+  {cfgstring}
+}
+with
+  importstring := <map(?Import(<id>));lines_> import*
+; cfgstring := <retain-all(?CFGRule(_, _));map(gen-nabl2);lines_> def*
+
+// Flow - CFGRule
+
+gen-nabl2: CFGRule(pattern, chain*) ->
+${ [[ {patternstring} ^ (entry, exit) ]] :=
+     {<csv-lines> [pairstr*, recursesstr*, refsstr*]}.
+}
+with
+  patternstring := <gen-match-pattern> pattern
+  // handle recursive calls
+; recurses := <mapconcat(\Chain(l) -> <retain-all(?Recurse(_))> l\);strip-annos;nub> chain*
+; recursesstr* := <map(gen-recurse-nabl2)> recurses
+  // handle new nodes
+; refs := <mapconcat(\Chain(l) -> <retain-all(?Ref(_))> l\);strip-annos;nub> chain*
+; refsstr* := <map(gen-ref-nabl2)> refs
+  // generate pairs from chains
+; pairs := <mapconcat(\Chain(l) -> <zip> (<init> l, <Tl> l)\)> chain*
+  // build normal pairs from the chains
+; pairstr* := <map(gen-pair-to-edge)> pairs
+
+gen-recurse-nabl2: Recurse(v) ->
+  ${[[ match{v} ^ (entry{v}, exit{v}) ]]}
+
+gen-ref-nabl2: Ref(v) ->
+  $[new sc[v], AST { match[v] } <- sc[v]]
+
+gen-pair-to-edge: (Entry(), Recurse(v)) -> ${entry == entry{v}}
+gen-pair-to-edge: (Ref(v1), Recurse(v2)) -> ${sc{v1} == entry{v2}}
+gen-pair-to-edge: (Recurse(v1), Recurse(v2)) -> ${exit{v1} == entry{v2}}
+gen-pair-to-edge: (Entry(), rhs) -> ${entry == {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge: (Ref(v), rhs) -> ${sc{v} -> {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge: (Recurse(v), rhs) -> ${exit{v} -> {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge: (Prop(_, _), _) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
+gen-pair-to-edge: (Exit(), _) -> <with(fail|"Error: exit on lhs of arrow")>
+
+gen-cfg-rhs-nabl2: Exit() -> ${exit}
+gen-cfg-rhs-nabl2: Ref(v) -> ${sc{v}}
+gen-cfg-rhs-nabl2: Prop(p, v) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
+gen-cfg-rhs-nabl2: Entry() -> <with(fail|"Error: entry on rhs of arrow")>
+
+// Pattern - Pattern, Wildcard
+gen-match-pattern: Var(ident) -> $[match[ident]]
+gen-match-pattern: At(ident, pattern) -> $[match[ident]@[patternstring]]
+with patternstring := <gen-match-pattern> pattern
+gen-match-pattern: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
+with subpatternsstring := <map(gen-match-pattern);csv> subpattern*
+gen-match-pattern: Wildcard() -> "_"

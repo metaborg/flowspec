@@ -34,6 +34,7 @@ Var = "then" {reject}
 Var = "else" {reject}
 Var = "match" {reject}
 Var = "with" {reject}
+Var = "where" {reject}
 
 lexical restrictions
 

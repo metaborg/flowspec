@@ -1,83 +1,42 @@
 module flow
 
-properties
+cfg Root(s) = entry -> cfg s -> exit
 
-  Value Value
+cfg this@Assign(n, e) =
+  entry -> cfg e -> this -> exit
 
-flow graph rules
+cfg Skip() = entry -> exit
 
-  Root(s):
-    entry has successor s,
-    s has successor exit.
+cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
 
-  Assign(x, e):
-    entry has successor e,
-    e has successor x,
-    x has successor exit.
+cfg IfThenElse(c, t, e) =
+  entry -> c -> cfg t -> exit, 
+           c -> cfg e -> exit
 
-  Skip().
+cfg While(e, s) =
+  entry -> e -> cfg s -> e -> exit
+  
+prop Write = Set name
+prop Read = Set name
+prop Expr = Option term
 
-  Seq(s1, s2):
-    entry has successor s1,
-    s1 has successor s2,
-    s2 has successor exit.
-
-  IfThenElse(e, s1, s2):
-    entry has successor e,
-    e has successor s1 where e has Value True(),
-    e has successor s2 where e has Value False(),
-    s1 has successor exit,
-    s2 has successor exit.
-
-  While(e, s):
-    entry has successor e,
-    e has successor s where e has Value True(),
-    s has successor e,
-    e has successor exit where e has Value False().
-
-  Ref(_), Num(_), True(), False().
-
-  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2):
-    e1 has successor e2.
-
-  Not(e):
-    entry has successor e,
-    e has successor exit.
-
-properties
-
-  Write:  Set(name)
-  Read:  Set(name)
-  Expr:  Option(Term)
-
-property rules
-
-  term has Write n
-  where term has child c,
-        c has Write n.
-
-  term has Read n
-  where term has child c,
-        c has Read n.
-
-  Assign(x, e) has Write x.
-
-  Ref(n) has Read n.
-
-  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
-
-properties
-
-  VeryBusy:  MustSet(Expr)
-
-property rules
-
-  st has VeryBusy e
-  where st has Expr e.
-
-  st has VeryBusy e
-  where st has successor st2,
-        st2 has VeryBusy e,
-        not (e has Read x, st has Write x).
+//  Assign(x, e) has Write x.
+//
+//  Ref(n) has Read n.
+//
+//  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
+//  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
+//
+//properties
+//
+//  VeryBusy:  MustSet(Expr)
+//
+//property rules
+//
+//  st has VeryBusy e
+//  where st has Expr e.
+//
+//  st has VeryBusy e
+//  where st has successor st2,
+//        st2 has VeryBusy e,
+//        not (e has Read x, st has Write x).

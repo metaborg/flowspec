@@ -3,29 +3,26 @@ module flow
 cfg Root(s) = entry -> cfg s -> exit
 
 cfg this@Assign(n, e) =
-  entry -> cfg e -> this.label -> exit
+  entry -> cfg e -> this -> exit
 
 cfg Skip() = entry -> exit
 
 cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
 
 cfg IfThenElse(c, t, e) =
-  entry -> c.label -> cfg t -> exit, 
-           c.label -> cfg e -> exit
+  entry -> c -> cfg t -> exit, 
+           c -> cfg e -> exit
 
 cfg While(e, s) =
-  entry -> e.label -> cfg s -> e.label -> exit
+  entry -> e -> cfg s -> e -> exit
 
 prop Live = MaySet name
 
-Live this@Ref(n) = Set.plus vars n
-for this.label -> successor.label
+Live Ref(n) -> successor = Set.plus vars n
 where vars = Live successor
 
-Live this@Assign(n, e) = Set.minus vars n
-for this.label -> successor.label
+Live Assign(n, e) -> successor = Set.minus vars n
 where vars = Live successor
 
-Live this = vars
-for this.label -> successor.label
+Live this -> successor = vars
 where vars = Live successor

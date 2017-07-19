@@ -14,10 +14,12 @@ PropDef.PropDef = [prop [PropName] = [Type]]
 
 context-free syntax // Property Rules
 
-PropRule.PropRule = [[PropName] [TermPattern] = [Expr] [PropFor] [PropWhere]]
+PropRule.PropRule = [[PropName] [TermPattern] [PropDir] = [Expr] [PropWhere]]
 
-PropFor.NoForClause =
-PropFor.ForClause = [for [CFGChainElement] -> [CFGChainElement]]
+// Yes, this is confusing... But it's probably even worse when you let the TermPattern on both sides of the arrow
+PropDir.Backward = [-> [Var]]
+PropDir.Forward = [<- [Var]]
+PropDir.FlowInsensitive =
 
 PropWhere.NoWhereClause =
 PropWhere.WhereClause = [where [{Binding "\n"}+]]

@@ -5,134 +5,43 @@ imports
 signatures/flowspec/-
 libspoofax/term/origin
 libspoofax/stratego/debug
-//
-//signature constructors
-//
-//CFGArrow : TLPattern * TLPattern -> PropWhereClause
-//ASTRelation : TLPattern * TLPattern -> PropWhereClause
-//ConditionalEdge : FlowNode * FlowNode * List(FlowWhereClause) -> FlowExpr
-//FlowProgram : ModuleName
-//            * List(Import)
-//            * List(TypeDef)
-//            * List(Property)
-//            * List(FlowRule)
-//            * List(PropRule)
-//            -> Module
-//
-//rules
-//
-//thread-map_(s): ([], t) -> ([], t)
-//thread-map_(s): ([x | xs], t) -> ([y' | ys], t'')
-//where <s> (x, t) => (y, t')
-//    ; <thread-map_(s)> (xs, t') => (ys, t'')
-//    ; y' := <origin-track-forced(!y)> x
+
+rules
+
+thread-map_(s): ([], t) -> ([], t)
+thread-map_(s): ([x | xs], t) -> ([y' | ys], t'')
+where <s> (x, t) => (y, t')
+    ; <thread-map_(s)> (xs, t') => (ys, t'')
+    ; y' := <origin-track-forced(!y)> x
 
 rules
 
 desugar-all = id
 //  topdown(try(desugar-one));remove-object-sharing-in-strings;warning-on-missing-origin
-//
-//desugar-one = origin-track-forced(fail
-//  + desugar-PropWhereClause
-//  + desugar-FlowRuleBody
-//  + desugar-FlowExpr
-//  + desugar-in-list(desugar-FlowRule)
-//  + desugar-in-list(desugar-PropRule)
-//  + desugar-in-list(desugar-ImportsList)
-//  + desugar-Module
-//)
-//
-//desugar-PropWhereClause: BuiltinRelation(a, "successor", b) -> CFGArrow(a,b)
-//desugar-PropWhereClause: BuiltinRelation(a, "child", b) -> ASTRelation(a,b)
-//
-//desugar-FlowRuleBody: r@Recurse(identid) -> [ce1, ce2]
-//where ident := <origin-track-forced(!Ref(identid))> identid
-//    ; entry := <origin-track-forced(!Entry())> r
-//    ; ce1 := <origin-track-forced(!ConditionalEdge(entry, ident, []))> r
-//    ; exit := <origin-track-forced(!Exit())> r
-//    ; ce2 := <origin-track-forced(!ConditionalEdge(ident, exit, []))> r
-//
-//desugar-FlowRuleBody: s@SingleEdge(fromid, _, toid) -> [ce1, ce, ce2]
-//where from := <origin-track-forced(!Ref(fromid))> fromid
-//    ; to := <origin-track-forced(!Ref(toid))> toid
-//    ; ce := <origin-track-forced(!ConditionalEdge(from, to, []))> s
-//    ; entry := <origin-track-forced(!Entry())> s
-//    ; ce1 := <origin-track-forced(!ConditionalEdge(entry, from, []))> s
-//    ; exit := <origin-track-forced(!Exit())> s
-//    ; ce2 := <origin-track-forced(!ConditionalEdge(to, exit, []))> s
-//
-//desugar-FlowRuleBody: Multiple(l) -> l
-//
-//desugar-FlowExpr: Edge(from, _, to) -> ConditionalEdge(from, to, [])
-//desugar-FlowExpr: ConditionalEdge(from, _, to, cs) -> ConditionalEdge(from, to, cs)
-//
-//desugar-PropRule: pr@PropRule(pattern*, name, expr, w@NoWhereClause()) ->
-//  <map(origin-track-forced(\pattern ->
-//    PropRule(pattern, name, expr, <origin-track-forced(!True())> w)\))> pattern*
-//desugar-PropRule: PropRule(pattern*, name, expr, WhereClause(w)) ->
-//  <map(origin-track-forced(\pattern -> PropRule(pattern, name, expr, w)\))> pattern*
-//where <is-list> pattern*
-//
-//desugar-PropRule: pr@PropContribRule(pattern*, name, expr, w@NoWhereClause()) ->
-//  <map(origin-track-forced(\pattern ->
-//    PropContribRule(pattern, name, expr, <origin-track-forced(!True())> w)\))> pattern*
-//desugar-PropRule: PropContribRule(pattern*, name, expr, WhereClause(w)) ->
-//  <map(origin-track-forced(\pattern -> PropContribRule(pattern, name, expr, w)\))> pattern*
-//where <is-list> pattern*
-//
-//desugar-FlowRule: MultiFlowRule(pattern*, expr*) ->
-//  <map(origin-track-forced(\pattern -> FlowRule(pattern, expr*)\))> pattern*
-//desugar-FlowRule: EmptyRule(pattern*) ->
-//  <map(origin-track-forced(\pattern -> FlowRule(pattern, [])\))> pattern*
-//
-//desugar-ImportsList: ImportsList(l*) -> l*
-//
-//desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
-//where if map(not(s))
-//        then fail
-//        else mapconcat(origin-track-forced(s <+ ![<id>]))
-//      end//if
-//    ; ?obj
-//
-//desugar-Module: Module(modulename, import*, section*) ->
-//  FlowProgram(modulename, import*, types*, propdef*, flowrule*, proprule*)
-//with types*    := <retain-all(?Types(<id>));      concat> section*
-//   ; propdef*  := <retain-all(?Properties(<id>)); concat> section*
-//   ; flowrule* := <retain-all(?Flow(<id>));       concat> section*
-//   ; proprule* := <retain-all(?Rules(<id>));      concat> section*
-//
-//desugar-NoNamePattern(s|v) = 
-//    with(!(<id>, 0); desugar-NNP(|v); Fst)
-//  ; desugar-NNP-FlowRule(s|v)
-//
-//desugar-NNP(|v): (Wildcard(), c) -> (Var($[[v][c]]), <inc> c)
-//desugar-NNP(|v): (Match(n, l), c) -> (Match(n, l'), c')
-//with (l', c') := <thread-map_(desugar-NNP(|v))> (l, c)
-//
-//desugar-NNP-FlowRule(s|v): match -> FlowRule(match, body)
-//with v* := <postorder-collect(?Var(_));reverse> match
-//where body := <desugar-NNP-FR-Vars(s)> v*
-//
-//desugar-NNP-FR-Wildcard(|v): (wc, c) ->
-//  (<origin-track-forced(!Var($[[v][c]]))> wc, <add> c)
-//
-//desugar-NNP-FR-Vars(s): [ v | vs ] -> <s>(v, <desugar-NNP-FR-Vars(s)> vs)
-//desugar-NNP-FR-Vars(s): [ v1 ] -> v1
-//
-//rules // check AST whether every sub term has an origin
-//
-//warning-on-missing-origin: term -> <id>
-////with terms-missing-origin
-////   ; remove-all(?[])
-////   ; map(debug(|"[WARNING] Term missing origin: "))
-//
-//terms-missing-origin = collect-all(not(origin-offset))
-//
-//warning-on-origin-loss(s|str): original -> <s> original
-//where transformed := <s> original
-//    ; if <(origin-offset, not(origin-offset))> (original, transformed)
-//        then <debug(|${[WARNING] Origin just lost in {str}:{" "}})> transformed
-//      end//if
-//
-//remove-object-sharing-in-strings =
-//  topdown(try(is-string;origin-track-forced(explode-string;implode-string)))
+
+desugar-one = origin-track-forced(fail)
+
+desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
+where if map(not(s))
+        then fail
+        else mapconcat(origin-track-forced(s <+ ![<id>]))
+      end//if
+    ; ?obj
+
+rules // check AST whether every sub term has an origin
+
+warning-on-missing-origin: term -> <id>
+//with terms-missing-origin
+//   ; remove-all(?[])
+//   ; map(debug(|"[WARNING] Term missing origin: "))
+
+terms-missing-origin = collect-all(not(origin-offset))
+
+warning-on-origin-loss(s|str): original -> <s> original
+where transformed := <s> original
+    ; if <(origin-offset, not(origin-offset))> (original, transformed)
+        then <debug(|${[WARNING] Origin just lost in {str}:{" "}})> transformed
+      end//if
+
+remove-object-sharing-in-strings =
+  topdown(try(is-string;origin-track-forced(explode-string;implode-string)))

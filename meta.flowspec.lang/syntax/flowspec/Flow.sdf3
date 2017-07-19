@@ -14,7 +14,11 @@ CFGChainElement.Entry = [entry]
 CFGChainElement.Exit = [exit]
 CFGChainElement.Recurse = [cfg [Var]]
 CFGChainElement.Prop = [[PropName] [Var]]
-CFGChainElement.Label = [[Var].label]
+CFGChainElement.Ref = RefVar
+
+RefVar = Var
+RefVar = [entry] {reject}
+RefVar = [exit] {reject}
 
 template options
 
