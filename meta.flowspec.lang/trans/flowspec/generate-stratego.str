@@ -14,7 +14,7 @@ rules
 
 // flowspec
 // flowspec - Module
-gen-str: Module(modulename, import*, def*) ->
+gen-str: Module(modulename, import*, _, def*) ->
   ${module {modulename}
 
   imports
@@ -51,7 +51,7 @@ gen-str: Module(modulename, import*, def*) ->
 }
 with
   importstring := <map(?Import(<id>));lines_> import*
-; cfgstring := <retain-all(?CFGRule(_, _));map(gen-str);lines_> def*
+; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str);lines_> def*
 ; dependencies := <prop-dependency-graph> def*
 ; depstring := <map(\(l,r) -> ${("{l}", "{r}")}\);csv-lines> dependencies
 ; directions := <prop-direction> def*
@@ -68,7 +68,7 @@ gen-str: PropDef(propname,type) -> ${("{propname}", {<gen-ast-str> type})}
 
 // Flow - CFGRule
 
-gen-str: CFGRule(pattern, chain*) ->
+gen-str: CFGRule(_, pattern, chain*) ->
 ${flowspec--generate-cfg-rule:
     this@{patternstring} ->
       [ {pairstring} ]

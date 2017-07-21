@@ -7,7 +7,7 @@ libspoofax/stratego/debug
 
 rules
 
-prop-dependency-graph: Module(modulename, import*, def*) -> <prop-dependency-graph> def*
+prop-dependency-graph: Module(modulename, import*, _, def*) -> <prop-dependency-graph> def*
 
 prop-dependency-graph: [] -> []
 prop-dependency-graph: def*@[_|_] ->

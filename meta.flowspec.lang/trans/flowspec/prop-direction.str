@@ -13,7 +13,7 @@ signature
 
 rules
 
-prop-direction: Module(modulename, import*, def*) -> <prop-direction> def*
+prop-direction: Module(modulename, import*, _, def*) -> <prop-direction> def*
 
 prop-direction: [] -> []
 prop-direction: def*@[_|_] ->

@@ -14,12 +14,11 @@ rules
 
 // flowspec
 // flowspec - Module
-gen-nabl2: Module(modulename, import*, def*) ->
+gen-nabl2: Module(modulename, import*, astroot*, def*) ->
   ${module {modulename}
 
   imports
 
-  signatures/flowspec/-
   {importstring}
   
 signature
@@ -29,27 +28,37 @@ signature
 
   rules
   
-  
-  init ^ (globalExit) :=
-    new globalExit.
-  
-  [[ rootNode ^ (globalExit) ]] :=
-    [[ rootNode ^ (entry, globalExit) ]].
+  init ^ (projectScope) :=
+    new projectScope.
   
   {cfgstring}
 }
 with
   importstring := <map(?Import(<id>));lines_> import*
-; cfgstring := <retain-all(?CFGRule(_, _));map(gen-nabl2);lines_> def*
+; astroot' := <map(\AstRoot(cons, children) -> (<strip-annos> cons, <length> children)\)> astroot*
+; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-nabl2(|astroot'));lines_> def*
 
 // Flow - CFGRule
 
-gen-nabl2: CFGRule(pattern, chain*) ->
-${ [[ {patternstring} ^ (entry, exit) ]] :=
-     {<csv-lines> [pairstr*, recursesstr*, refsstr*]}.
+gen-nabl2(|astroot*): CFGRule(r, pattern, chain*) ->
+${{rulename} [[ {patternstr} ^ ({paramstr'}) ]] :=
+    {<csv-lines> [rootstr'*, pairstr*, recursesstr*, refsstr*]}.
 }
 with
-  patternstring := <gen-match-pattern> pattern
+  if <?Root()> r
+    then rootstr* := ["new t_start", "new t_end", "t_end == exit", "t_start ---> entry"]
+       ; paramstr := "_, _, _, _"
+    else rootstr* := []
+       ; paramstr := "entry, exit, t_start, t_end"
+  end
+; if <match-ast-root(|astroot*)> pattern
+    then rulename := ""
+       ; rootstr'* := ["new t_start", "new t_end"]
+    else rulename := "cfg"
+       ; rootstr'* := rootstr*
+  end
+; paramstr' := <match-ast-root(|astroot*) < !"_" + !paramstr> pattern
+; patternstr := <gen-match-pattern> pattern
   // handle recursive calls
 ; recurses := <mapconcat(\Chain(l) -> <retain-all(?Recurse(_))> l\);strip-annos;nub> chain*
 ; recursesstr* := <map(gen-recurse-nabl2)> recurses
@@ -61,25 +70,38 @@ with
   // build normal pairs from the chains
 ; pairstr* := <map(gen-pair-to-edge)> pairs
 
+match-ast-root(|astroot*): Term(cons, children) -> <id>
+where
+  cons' := <strip-annos> cons
+; count := <length> children
+; <getfirst(?(cons', count))> astroot*
+
+match-ast-root(|astroot*): At(_, pattern) -> <match-ast-root(|astroot*)> pattern
+
 gen-recurse-nabl2: Recurse(v) ->
-  ${[[ match{v} ^ (entry{v}, exit{v}) ]]}
+  ${cfg [[ match{v} ^ (entry{v}, exit{v}, t_start, t_end) ]]}
 
 gen-ref-nabl2: Ref(v) ->
   $[new sc[v], AST { match[v] } <- sc[v]]
 
-gen-pair-to-edge: (Entry(), Recurse(v)) -> ${entry == entry{v}}
-gen-pair-to-edge: (Ref(v1), Recurse(v2)) -> ${sc{v1} == entry{v2}}
-gen-pair-to-edge: (Recurse(v1), Recurse(v2)) -> ${exit{v1} == entry{v2}}
+//gen-pair-to-edge: (Entry(), Recurse(v)) -> ${entry == entry{v}}
+//gen-pair-to-edge: (Ref(v1), Recurse(v2)) -> ${sc{v1} ---> entry{v2}}
+//gen-pair-to-edge: (Recurse(v1), Recurse(v2)) -> ${exit{v1} == entry{v2}}
 gen-pair-to-edge: (Entry(), rhs) -> ${entry == {<gen-cfg-rhs-nabl2> rhs}}
-gen-pair-to-edge: (Ref(v), rhs) -> ${sc{v} -> {<gen-cfg-rhs-nabl2> rhs}}
-gen-pair-to-edge: (Recurse(v), rhs) -> ${exit{v} -> {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge: (Start(), rhs) -> ${t_start ---> {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge: (Ref(v), rhs) -> ${sc{v} ---> {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge: (Recurse(v), rhs) -> ${exit{v} == {<gen-cfg-rhs-nabl2> rhs}}
 gen-pair-to-edge: (Prop(_, _), _) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
 gen-pair-to-edge: (Exit(), _) -> <with(fail|"Error: exit on lhs of arrow")>
+gen-pair-to-edge: (End(), _) -> <with(fail|"Error: end on lhs of arrow")>
 
+gen-cfg-rhs-nabl2: Recurse(v) -> ${entry{v}}
 gen-cfg-rhs-nabl2: Exit() -> ${exit}
+gen-cfg-rhs-nabl2: End() -> ${t_end}
 gen-cfg-rhs-nabl2: Ref(v) -> ${sc{v}}
 gen-cfg-rhs-nabl2: Prop(p, v) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
 gen-cfg-rhs-nabl2: Entry() -> <with(fail|"Error: entry on rhs of arrow")>
+gen-cfg-rhs-nabl2: Start() -> <with(fail|"Error: start on rhs of arrow")>
 
 // Pattern - Pattern, Wildcard
 gen-match-pattern: Var(ident) -> $[match[ident]]

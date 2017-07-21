@@ -16,10 +16,14 @@ context-free syntax
 
 [{Import "\n"}*]
 
+[{AstRoot "\n"}*]
+
 [{Definition "\n"}*]
 ]
 
 Import.Import = [imports [ModuleName]] {prefer}
+
+AstRoot.AstRoot = [ast root [ConsName]([{Wildcard ", "}*])]
 
 Definition = LatticeDef
 Definition = CFGRule

@@ -6,28 +6,6 @@ imports
   signatures/flowspec/-
 
 signature
-  constraint generator
-//    [[ Module ^ (global) ]]
-//    [[ Import ^ (global, moduleScope) ]]
-//    [[ Section ^ (moduleScope) ]]
-//
-//    [[ RulePattern ^ (ruleScope) ]]
-//
-//    [[ FlowRule ^ (moduleScope) ]]
-//    [[ FlowExpr ^ (ruleScope) ]]
-//    [[ FlowNode ^ (ruleScope) ]]
-//    [[ FlowWhereClause ^ (ruleScope) ]]
-//
-//    [[ Property ^ (moduleScope) ]]
-//    [[ PropType ^ () : Type ]]
-//
-//    [[ PropRule ^ (moduleScope) ]]
-//    [[ PropRuleBody ^ (ruleScope) ]]
-//    [[ PropBooleanExpr ^ (ruleScope) ]]
-//    [[ HasPropExpr ^ (ruleScope) ]]
-//    [[ VarRef ^ (ruleScope) : Type ]]
-//    [[ PropWhereClause ^ (ruleScope) ]]
-
   name resolution
     namespaces
       Module Property Type Variable Constructor
@@ -54,7 +32,7 @@ rules
   init ^ (global) :=
     new global.
 
-  [[ Module(module, imports, definitions) ^ (global) ]] :=
+  [[ Module(module, imports, _, definitions) ^ (global) ]] :=
     Module { module } <- global,
     moduleScope ---> global,
     Module { module } ===> moduleScope,
@@ -72,15 +50,18 @@ rules
 
 // Flow
 
-  [[ CFGRule(pattern, chains) ^ (moduleScope) ]] :=
+  [[ CFGRule(_, pattern, chains) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
     RulePattern [[ pattern ^ (ruleScope) ]],
     Variable { Entry() } <- ruleScope,
     Variable { Exit() } <- ruleScope,
+    Variable { Start() } <- ruleScope,
+    Variable { End() } <- ruleScope,
     Map1 [[ chains ^ (ruleScope) ]],
     new ruleScope.
   
-  // TODO: give errors on Entry() and Exit() that aren't on the beginning resp. end of a chain
+  // TODO: give errors on Entry() and Exit() that aren't on the start resp. end of a chain
+  // TODO: give errors on Start() and End() that aren't on the start resp. end of a chain
   [[ Chain(elements) ^ (ruleScope) ]] :=
     Map1 [[ elements ^ (ruleScope) ]].
 
@@ -94,6 +75,12 @@ rules
     Variable { e } -> ruleScope.
 
   [[ e@Exit() ^ (ruleScope) ]] :=
+    Variable { e } -> ruleScope.
+
+  [[ e@Start() ^ (ruleScope) ]] :=
+    Variable { e } -> ruleScope.
+
+  [[ e@End() ^ (ruleScope) ]] :=
     Variable { e } -> ruleScope.
 
   [[ Prop(propname, x) ^ (ruleScope) ]] :=

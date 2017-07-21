@@ -7,10 +7,6 @@ flowspec/Expr
 
 context-free syntax
 
-//  TLTermPattern = TermPattern
-//  TLTermPattern.Var = "where" {reject}
-//  TLTermPattern.Var = "for" {reject}
-
 TermPattern.Term = [[ConsName]([{TermPattern ", "}*])]
 TermPattern = Wildcard
 TermPattern.Var = Var

@@ -35,6 +35,10 @@ Var = "else" {reject}
 Var = "match" {reject}
 Var = "with" {reject}
 Var = "where" {reject}
+Var = "entry" {reject}
+Var = "exit" {reject}
+Var = "start" {reject}
+Var = "end" {reject}
 
 lexical restrictions
 
