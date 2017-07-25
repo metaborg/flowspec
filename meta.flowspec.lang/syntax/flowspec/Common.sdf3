@@ -39,6 +39,7 @@ Var = "entry" {reject}
 Var = "exit" {reject}
 Var = "start" {reject}
 Var = "end" {reject}
+Var = "name" {reject}
 
 lexical restrictions
 
