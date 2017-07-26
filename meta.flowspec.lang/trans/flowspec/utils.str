@@ -13,4 +13,5 @@ strategies
 lines_ = separate-by(|"\n");concat-strings
 csv = separate-by(|", ");concat-strings
 csv-lines = separate-by(|",\n");concat-strings
+semi-lines = separate-by(|"\n; ");concat-strings
 make-set_(s) = foldr(![], union(s), ![<id>])

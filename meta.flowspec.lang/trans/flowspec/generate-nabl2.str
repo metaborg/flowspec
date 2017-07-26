@@ -50,7 +50,7 @@ ${{rulename} [[ {patternstr} ^ ({paramstr}) ]] :=
     {<csv-lines> [rootstr*, pairstr*, mergedrhsstr*, mergedlhsstr*, recursesstr*, refsstr*]}.
 }
 with
-  if <match-ast-root(|astroot*)> pattern
+  if <match-ast-root-nabl2(|astroot*)> pattern
     then rulename := ""
        ; rootstr* := ["new t_start", "new t_end", "t_end == exit", "t_start == entry"]
        ; paramstr := "_"
@@ -63,7 +63,7 @@ with
          end
   end
 ; chain'* := <strip-annos> chain*
-; patternstr := <gen-match-pattern> pattern
+; patternstr := <gen-match-pattern-nabl2> pattern
   // handle recursive calls
 ; recurses := <mapconcat(?Chain(<retain-all(?Recurse(_))>));nub> chain'*
 ; recursesstr* := <map(gen-recurse-nabl2)> recurses
@@ -75,23 +75,23 @@ with
 
 ; lhses := <map(Fst);nub> pairs
 ; rhsesmerged := <map(\lhs -> (lhs, <retain-all(?(lhs, <id>))> pairs)\)> lhses
-; mergedrhsstr* := <retain-all(gen-rhs-merged)> rhsesmerged
-; pairs2 := <mapconcat(use-merged-rhs)> rhsesmerged
+; mergedrhsstr* := <retain-all(gen-rhs-merged-nabl2)> rhsesmerged
+; pairs2 := <mapconcat(use-merged-rhs-nabl2)> rhsesmerged
 
 ; rhses := <map(Snd);nub> pairs2
 ; lhsesmerged := <map(\rhs -> (<retain-all(?(<id>, rhs))> pairs2, rhs)\)> rhses
-; mergedlhsstr* := <retain-all(gen-lhs-merged)> lhsesmerged
-; pairs3 := <mapconcat(use-merged-lhs)> lhsesmerged
+; mergedlhsstr* := <retain-all(gen-lhs-merged-nabl2)> lhsesmerged
+; pairs3 := <mapconcat(use-merged-lhs-nabl2)> lhsesmerged
   // build normal pairs from the chains
-; pairstr* := <map(gen-pair-to-edge)> pairs3
+; pairstr* := <map(gen-pair-to-edge-nabl2)> pairs3
 
-match-ast-root(|astroot*): Term(cons, children) -> <id>
+match-ast-root-nabl2(|astroot*): Term(cons, children) -> <id>
 where
   cons' := <strip-annos> cons
 ; count := <length> children
 ; <getfirst(?(cons', count))> astroot*
 
-match-ast-root(|astroot*): At(_, pattern) -> <match-ast-root(|astroot*)> pattern
+match-ast-root-nabl2(|astroot*): At(_, pattern) -> <match-ast-root-nabl2(|astroot*)> pattern
 
 gen-recurse-nabl2: Recurse(v) ->
   ${cfg [[ match{v} ^ (entry{v}, exit{v}, t_start, t_end) ]]}
@@ -99,36 +99,36 @@ gen-recurse-nabl2: Recurse(v) ->
 gen-ref-nabl2: Ref(v) ->
   $[new node[v], AST { match[v] } <- node[v]]
 
-gen-rhs-merged: (Entry(), rhses@[_,_|_]) -> ${new entrysplit, entry == entrysplit}
-gen-rhs-merged: (Start(), rhses@[_,_|_]) -> ${new startsplit, t_start ---> startsplit}
-gen-rhs-merged: (Ref(v), rhses@[_,_|_]) -> ${new node{v}split, node{v} ---> node{v}split}
-gen-rhs-merged: (Recurse(v), rhses@[_,_|_]) -> ${new split{v}, exit{v} == split{v}}
+gen-rhs-merged-nabl2: (Entry(), rhses@[_,_|_]) -> ${new entrysplit, entry == entrysplit}
+gen-rhs-merged-nabl2: (Start(), rhses@[_,_|_]) -> ${new startsplit, t_start ---> startsplit}
+gen-rhs-merged-nabl2: (Ref(v), rhses@[_,_|_]) -> ${new node{v}split, node{v} ---> node{v}split}
+gen-rhs-merged-nabl2: (Recurse(v), rhses@[_,_|_]) -> ${new split{v}, exit{v} == split{v}}
 
-use-merged-rhs = (id, ?[<id>]);MkSingleton
-use-merged-rhs: (Entry(), rhses@[_,_|_]) -> <map(!(Split("entrysplit"), <id>))> rhses
-use-merged-rhs: (Start(), rhses@[_,_|_]) -> <map(!(Split("startsplit"), <id>))> rhses
-use-merged-rhs: (Ref(v), rhses@[_,_|_]) -> <map(!(Split(${node{v}split}), <id>))> rhses
-use-merged-rhs: (Recurse(v), rhses@[_,_|_]) -> <map(!(Split(${split{v}}), <id>))> rhses
+use-merged-rhs-nabl2 = (id, ?[<id>]);MkSingleton
+use-merged-rhs-nabl2: (Entry(), rhses@[_,_|_]) -> <map(!(Split("entrysplit"), <id>))> rhses
+use-merged-rhs-nabl2: (Start(), rhses@[_,_|_]) -> <map(!(Split("startsplit"), <id>))> rhses
+use-merged-rhs-nabl2: (Ref(v), rhses@[_,_|_]) -> <map(!(Split(${node{v}split}), <id>))> rhses
+use-merged-rhs-nabl2: (Recurse(v), rhses@[_,_|_]) -> <map(!(Split(${split{v}}), <id>))> rhses
 
-gen-pair-to-edge: (Entry(), rhs) -> ${entry == {<gen-cfg-rhs-nabl2> rhs}}
-gen-pair-to-edge: (Start(), rhs) -> ${t_start ---> {<gen-cfg-rhs-nabl2> rhs}}
-gen-pair-to-edge: (Ref(v), rhs) -> ${node{v} ---> {<gen-cfg-rhs-nabl2> rhs}}
-gen-pair-to-edge: (Recurse(v), rhs) -> ${exit{v} == {<gen-cfg-rhs-nabl2> rhs}}
-gen-pair-to-edge: (Split(lhs), rhs) -> ${{lhs} ---> {<gen-cfg-rhs-nabl2> rhs}}
-gen-pair-to-edge: (Prop(_, _), _) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
-gen-pair-to-edge: (Exit(), _) -> <with(fail|"Error: exit on lhs of arrow")>
-gen-pair-to-edge: (End(), _) -> <with(fail|"Error: end on lhs of arrow")>
+gen-pair-to-edge-nabl2: (Entry(), rhs) -> ${entry == {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge-nabl2: (Start(), rhs) -> ${t_start ---> {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge-nabl2: (Ref(v), rhs) -> ${node{v} ---> {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge-nabl2: (Recurse(v), rhs) -> ${exit{v} == {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge-nabl2: (Split(lhs), rhs) -> ${{lhs} ---> {<gen-cfg-rhs-nabl2> rhs}}
+gen-pair-to-edge-nabl2: (Prop(_, _), _) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
+gen-pair-to-edge-nabl2: (Exit(), _) -> <with(fail|"Error: exit on lhs of arrow")>
+gen-pair-to-edge-nabl2: (End(), _) -> <with(fail|"Error: end on lhs of arrow")>
 
-gen-lhs-merged: (lhses@[_,_|_], r@Exit()) ->  ${new exitmerge, exitmerge ---> {<gen-cfg-rhs-nabl2> r}}
-gen-lhs-merged: (lhses@[_,_|_], r@End()) -> ${new endmerge, endmerge ---> {<gen-cfg-rhs-nabl2> r}}
-gen-lhs-merged: (lhses@[_,_|_], r@Ref(v)) -> ${new node{v}merge, node{v}merge ---> {<gen-cfg-rhs-nabl2> r}}
-gen-lhs-merged: (lhses@[_,_|_], r@Recurse(v)) -> ${new merge{v}, merge{v} ---> {<gen-cfg-rhs-nabl2> r}}
+gen-lhs-merged-nabl2: (lhses@[_,_|_], r@Exit()) ->  ${new exitmerge, exitmerge ---> {<gen-cfg-rhs-nabl2> r}}
+gen-lhs-merged-nabl2: (lhses@[_,_|_], r@End()) -> ${new endmerge, endmerge ---> {<gen-cfg-rhs-nabl2> r}}
+gen-lhs-merged-nabl2: (lhses@[_,_|_], r@Ref(v)) -> ${new node{v}merge, node{v}merge ---> {<gen-cfg-rhs-nabl2> r}}
+gen-lhs-merged-nabl2: (lhses@[_,_|_], r@Recurse(v)) -> ${new merge{v}, merge{v} ---> {<gen-cfg-rhs-nabl2> r}}
 
-use-merged-lhs = (?[<id>], id);MkSingleton
-use-merged-lhs: (lhses@[_,_|_], Exit()) ->  <map(!(<id>, Merge("exitmerge")))> lhses
-use-merged-lhs: (lhses@[_,_|_], End()) -> <map(!(<id>, Merge("endmerge")))> lhses
-use-merged-lhs: (lhses@[_,_|_], Ref(v)) -> <map(!(<id>, Merge(${node{v}merge})))> lhses
-use-merged-lhs: (lhses@[_,_|_], Recurse(v)) -> <map(!(<id>, Merge(${merge{v}})))> lhses
+use-merged-lhs-nabl2 = (?[<id>], id);MkSingleton
+use-merged-lhs-nabl2: (lhses@[_,_|_], Exit()) ->  <map(!(<id>, Merge("exitmerge")))> lhses
+use-merged-lhs-nabl2: (lhses@[_,_|_], End()) -> <map(!(<id>, Merge("endmerge")))> lhses
+use-merged-lhs-nabl2: (lhses@[_,_|_], Ref(v)) -> <map(!(<id>, Merge(${node{v}merge})))> lhses
+use-merged-lhs-nabl2: (lhses@[_,_|_], Recurse(v)) -> <map(!(<id>, Merge(${merge{v}})))> lhses
 
 gen-cfg-rhs-nabl2: Merge(v) -> v
 gen-cfg-rhs-nabl2: Recurse(v) -> ${entry{v}}
@@ -140,9 +140,9 @@ gen-cfg-rhs-nabl2: Entry() -> <with(fail|"Error: entry on rhs of arrow")>
 gen-cfg-rhs-nabl2: Start() -> <with(fail|"Error: start on rhs of arrow")>
 
 // Pattern - Pattern, Wildcard
-gen-match-pattern: Var(ident) -> $[match[ident]]
-gen-match-pattern: At(ident, pattern) -> $[match[ident]@[patternstring]]
-with patternstring := <gen-match-pattern> pattern
-gen-match-pattern: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
-with subpatternsstring := <map(gen-match-pattern);csv> subpattern*
-gen-match-pattern: Wildcard() -> "_"
+gen-match-pattern-nabl2: Var(ident) -> $[match[ident]]
+gen-match-pattern-nabl2: At(ident, pattern) -> $[match[ident]@[patternstring]]
+with patternstring := <gen-match-pattern-nabl2> pattern
+gen-match-pattern-nabl2: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
+with subpatternsstring := <map(gen-match-pattern-nabl2);csv> subpattern*
+gen-match-pattern-nabl2: Wildcard() -> "_"

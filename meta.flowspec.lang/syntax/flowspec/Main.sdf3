@@ -23,6 +23,8 @@ context-free syntax
 
 Import.Import = [imports [ModuleName]] {prefer}
 
+// TODO: add signatures and signature export, analyse those and remove ast root and need for rules
+//  above cfg root
 AstRoot.AstRoot = [ast root [ConsName]([{Wildcard ", "}*])]
 
 Definition = LatticeDef
