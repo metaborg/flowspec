@@ -5,5 +5,4 @@ menus
   menu: "Generate" (openeditor)
     
     action: "Generate Stratego" = generate-stratego
-    action: "Generate NaBL2" = generate-nabl2
     action: "Test Solver" = test-solver (meta)

@@ -8,7 +8,6 @@ imports
   flowspec/analysis
   flowspec/desugar
   flowspec/generate-stratego
-  flowspec/generate-nabl2
   signatures/flowspec-sig
 
 rules // Debugging
@@ -30,12 +29,6 @@ rules // Debugging
     with
       filename := <src-gen-file(|project-path, "flowspec", ".str")> name
     ; result   := <gen-str> node
-
-  generate-nabl2: 
-    (node@Module(name, _, _, _), _, _, path, project-path) -> (filename, result)
-    with
-      filename := <src-gen-file(|project-path, "flowspec", ".nabl2")> name
-    ; result   := <gen-nabl2> node
 
 // Copied from https://github.com/metaborg/nabl/blob/6f5630aef0179163e7c8eb29db9901586d064f78/org.metaborg.meta.nabl2.lang/trans/nabl2/lang/util/misc.str#L9-L14
   src-gen-file(|project-path, sub-dir, ext): name -> file-name
