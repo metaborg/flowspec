@@ -69,6 +69,23 @@
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.oracle.truffle</groupId>
+      <artifactId>truffle-api</artifactId>
+      <version>0.26</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle.truffle</groupId>
+      <artifactId>truffle-tck</artifactId>
+      <version>0.26</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle.truffle</groupId>
+      <artifactId>truffle-dsl-processor</artifactId>
+      <version>0.26</version>
+      <scope>provided</scope>
+    </dependency>
     <!-- <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
