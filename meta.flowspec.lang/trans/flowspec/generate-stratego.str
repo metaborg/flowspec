@@ -111,7 +111,7 @@ ${nabl2--generate-constraint-{rulename}-rule(|):
          end)
     with({<?[] < !"id" + semi-lines> recursevarsstr*})
     with(nabl2_index := <nabl2--get-ast-index> nabl2_term
-         ; nabl2_metadata := [CAstProperty(nabl2_index, Params(), nabl2_params)])
+         ; nabl2_metadata := [CAstProperty(nabl2_index, CFGParams(), nabl2_params)])
     with({<?[] < !"id" + semi-lines> [refvarsstr*, rootvarstr*, mergedrhsvarstr*, mergedlhsvarstr*]})
     with(nabl2_constraint := <conc ; nabl2--flatten-list>
       ( nabl2_metadata
@@ -122,13 +122,13 @@ ${nabl2--generate-constraint-{rulename}-rule(|):
 with
   if <match-ast-root-str(|astroot*)> pattern
     then rulename := "default"
-       ; rootvarstr* := <conc> (<map(gen-new-scope-str)> ["t_start", "t_end"], <map(gen-new-var-str)> ["entry", "exit"])
+       ; rootvarstr* := <conc> (<map(gen-new-cfg-node-str)> ["t_start", "t_end"], <map(gen-new-var-str)> ["entry", "exit"])
        ; rootstr* := <map(gen-directed-edge-str)> [("t_end", "exit"), ("t_start", "entry")]
        ; paramstr := "_"
     else rulename := "cfg"
        ; if <?Root()> r
            then rootstr* := [<gen-directed-edge-str> ("t_end", "exit"), <gen-equal-str> ("t_start", "entry")]
-              ; rootvarstr* := <map(gen-new-scope-str)> ["t_start", "t_end"]
+              ; rootvarstr* := <map(gen-new-cfg-node-str)> ["t_start", "t_end"]
               ; paramstr := "entry, exit, _, _"
            else rootstr* := []
               ; rootvarstr* := []
@@ -168,18 +168,17 @@ where
 
 match-ast-root-str(|astroot*): At(_, pattern) -> <match-ast-root-str(|astroot*)> pattern
 
-gen-new-scope-str: scopename ->
-  ${{scopename} := <nabl2--new-scope(|nabl2_source)
-                   ;try(nabl2--copy-origin(|nabl2_term))> "{scopename}"}
+gen-new-cfg-node-str: nodename ->
+  ${{nodename} := <nabl2--new-cfg-node(|nabl2_source)
+                   ;try(nabl2--copy-origin(|nabl2_term))> "{nodename}"}
 
 gen-new-var-str: v ->
   ${{v} := <nabl2--new-var(|nabl2_source)
                 ;try(nabl2--copy-origin(|nabl2_term))> "{v}"}
 
 gen-directed-edge-str: (lhs, rhs) ->
-  ${CGDirectEdge(
+  ${CFDirectEdge(
       {lhs}
-    , P()
     , {rhs}
     , <nabl2--get-ast-index> nabl2_term
     )}
@@ -202,10 +201,10 @@ gen-recurse-str: Recurse(v) ->
       )}
 
 gen-ref-var-str: Ref(v) ->
-  <gen-new-scope-str> ${node{v}}
+  <gen-new-cfg-node-str> ${node{v}}
 
 gen-ref-str: Ref(v) ->
-  ${CGDecl(
+  ${CFDecl(
       Occurrence(
         Namespace("AST")
       , match{v}
@@ -215,10 +214,10 @@ gen-ref-str: Ref(v) ->
     , <nabl2--get-ast-index> nabl2_term
     )}
 
-gen-rhs-merged-str: (Entry(), rhses@[_,_|_]) -> (<gen-new-scope-str> "entrysplit", <gen-equal-str> ("entry", "entrysplit"))
-gen-rhs-merged-str: (Start(), rhses@[_,_|_]) -> (<gen-new-scope-str> "startsplit", <gen-directed-edge-str> ("t_start", "startsplit"))
-gen-rhs-merged-str: (Ref(v), rhses@[_,_|_]) -> (<gen-new-scope-str> ${node{v}split}, <gen-directed-edge-str> (${node{v}}, ${node{v}split}))
-gen-rhs-merged-str: (Recurse(v), rhses@[_,_|_]) -> (<gen-new-scope-str> ${split{v}}, <gen-equal-str> (${exit{v}}, ${split{v}}))
+gen-rhs-merged-str: (Entry(), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> "entrysplit", <gen-equal-str> ("entry", "entrysplit"))
+gen-rhs-merged-str: (Start(), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> "startsplit", <gen-directed-edge-str> ("t_start", "startsplit"))
+gen-rhs-merged-str: (Ref(v), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> ${node{v}split}, <gen-directed-edge-str> (${node{v}}, ${node{v}split}))
+gen-rhs-merged-str: (Recurse(v), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> ${split{v}}, <gen-equal-str> (${exit{v}}, ${split{v}}))
 
 use-merged-rhs-str = (id, ?[<id>]);MkSingleton
 use-merged-rhs-str: (Entry(), rhses@[_,_|_]) -> <map(!(Split("entrysplit"), <id>))> rhses
@@ -235,10 +234,10 @@ gen-pair-to-edge-str: (Prop(_, _), _) -> <with(fail|"Sorry, stubbing out prop su
 gen-pair-to-edge-str: (Exit(), _) -> <with(fail|"Error: exit on lhs of arrow")>
 gen-pair-to-edge-str: (End(), _) -> <with(fail|"Error: end on lhs of arrow")>
 
-gen-lhs-merged-str: (lhses@[_,_|_], r@Exit()) -> (<gen-new-scope-str> "exitmerge", <gen-directed-edge-str> ("exitmerge", <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@End()) -> (<gen-new-scope-str> "endmerge", <gen-directed-edge-str> ("endmerge", <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@Ref(v)) -> (<gen-new-scope-str> ${node{v}merge}, <gen-directed-edge-str> (${node{v}merge}, <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@Recurse(v)) -> (<gen-new-scope-str> ${merge{v}}, <gen-directed-edge-str> (${merge{v}}, <gen-cfg-rhs-str> r))
+gen-lhs-merged-str: (lhses@[_,_|_], r@Exit()) -> (<gen-new-cfg-node-str> "exitmerge", <gen-directed-edge-str> ("exitmerge", <gen-cfg-rhs-str> r))
+gen-lhs-merged-str: (lhses@[_,_|_], r@End()) -> (<gen-new-cfg-node-str> "endmerge", <gen-directed-edge-str> ("endmerge", <gen-cfg-rhs-str> r))
+gen-lhs-merged-str: (lhses@[_,_|_], r@Ref(v)) -> (<gen-new-cfg-node-str> ${node{v}merge}, <gen-directed-edge-str> (${node{v}merge}, <gen-cfg-rhs-str> r))
+gen-lhs-merged-str: (lhses@[_,_|_], r@Recurse(v)) -> (<gen-new-cfg-node-str> ${merge{v}}, <gen-directed-edge-str> (${merge{v}}, <gen-cfg-rhs-str> r))
 
 use-merged-lhs-str = (?[<id>], id);MkSingleton
 use-merged-lhs-str: (lhses@[_,_|_], Exit()) ->  <map(!(<id>, Merge("exitmerge")))> lhses

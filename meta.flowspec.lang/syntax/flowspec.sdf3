@@ -3,6 +3,7 @@ module flowspec
 imports
 
   flowspec/Main
+  flowspec/Constraints
 
 context-free start-symbols
 
