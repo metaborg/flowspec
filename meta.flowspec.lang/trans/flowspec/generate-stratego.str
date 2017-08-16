@@ -9,7 +9,6 @@ libspoofax/core/language
 
 flowspec/desugar
 flowspec/utils
-flowspec/prop-direction
 flowspec/dependencies
 
 nabl2/shared/-
@@ -21,8 +20,7 @@ signature
 
 rules
 
-// flowspec
-// flowspec - Module
+// Module
 gen-str: Module(modulename, import*, astroot*, def*) ->
   ${module {modulename}
 
@@ -70,11 +68,32 @@ gen-str: Module(modulename, import*, astroot*, def*) ->
          end)
   
   {cfgstring}
+  
+  flowspec--proprule: term ->
+    [
+      {matchpropsstring}
+    ]
+  
+  {propstring}
 }
 with
   importstring := <map(?Import(<id>));lines_> import*
 ; astroot' := <map(\AstRoot(cons, children) -> (<strip-annos> cons, <length> children)\)> astroot*
 ; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str(|astroot'));lines_> def*
+; proprule* := <retain-all(?PropRule(_, _, _, _, _))> def*
+; propnames := <map(?PropRule(<id>, _, _, _, _)); strip-annos; nub> proprule*
+; matchpropsstring := <map(\n -> ${("{n}", <flowspec--proprule-{n}> term)}\);csv-lines> propnames
+; propstring := <number-prop-rules(|propnames);map(gen-str);lines_> proprule*
+
+number-prop-rules(|propnames): proprules -> numberedproprules
+with
+  named := <map(\p@PropRule(n,_,_,_,_) -> (<strip-annos> n,p)\)> proprules
+; numberedproprules := <thread-map(number-prop-rules-helper);Fst> (named, <map(!(<id>, 0))> propnames)
+
+number-prop-rules-helper: ((n,p),l) -> ((n',p),l')
+with
+  n' := <lookup> (n,l)
+; l' := [(n,<inc> n') | l]
 
 // Flow - CFGRule
 
@@ -144,7 +163,7 @@ with
   // handle new nodes
 ; refs := <mapconcat(?Chain(<retain-all(?Ref(_))>));nub> chain'*
 ; refvarsstr* := <map(gen-ref-var-str)> refs
-; refsstr* := <map(gen-ref-str)> refs
+; refsstr* := <mapconcat(gen-ref-str)> refs
   // generate pairs from chains
 ; pairs := <mapconcat(\Chain(l) -> <zip> (<init> l, <Tl> l)\)> chain'*
 
@@ -204,7 +223,7 @@ gen-ref-var-str: Ref(v) ->
   <gen-new-cfg-node-str> ${node{v}}
 
 gen-ref-str: Ref(v) ->
-  ${CFDecl(
+  [${CFDecl(
       Occurrence(
         Namespace("AST")
       , match{v}
@@ -213,6 +232,16 @@ gen-ref-str: Ref(v) ->
     , node{v}
     , <nabl2--get-ast-index> nabl2_term
     )}
+  , ${CFDecl(
+      Occurrence(
+        Namespace("TF")
+      , <flowspec--proprule> match{v}
+      , <nabl2--occurrence-index-of(|nabl2_index)> match{v}
+      )
+    , node{v}
+    , <nabl2--get-ast-index> nabl2_term
+    )}
+  ]
 
 gen-rhs-merged-str: (Entry(), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> "entrysplit", <gen-equal-str> ("entry", "entrysplit"))
 gen-rhs-merged-str: (Start(), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> "startsplit", <gen-directed-edge-str> ("t_start", "startsplit"))
@@ -261,3 +290,16 @@ with patternstring := <gen-match-pattern-str> pattern
 gen-match-pattern-str: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
 with subpatternsstring := <map(gen-match-pattern-str);csv> subpattern*
 gen-match-pattern-str: Wildcard() -> "_"
+
+pattern-vars: Var(ident) -> [$[match[ident]]]
+pattern-vars: At(ident, pattern) -> [$[match[ident]] | <pattern-vars> pattern]
+pattern-vars: Term(consname, subpattern*) -> <mapconcat(pattern-vars)> subpattern*
+pattern-vars: Wildcard() -> []
+
+// PropRule
+
+gen-str: (n, PropRule(name, pattern, dir, body, whereClause)) -> rulestring
+with
+  patternstring := <gen-match-pattern-str> pattern
+; vars := <pattern-vars> pattern
+; rulestring := ${flowspec--proprule-{name}: {patternstring} -> ({n}, [{<csv> vars}])}
