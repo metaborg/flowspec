@@ -1,6 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.flowspec.expressions.ApplicationNodeGen;
+import meta.flowspec.java.interpreter.expressions.ApplicationNodeGen;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.dsl.NodeChild;

@@ -1,6 +1,6 @@
 package meta.flowspec.java.interpreter.locals;
 
-import org.metaborg.meta.flowspec.locals.WriteVarNodeGen;
+import meta.flowspec.java.interpreter.locals.WriteVarNodeGen;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;

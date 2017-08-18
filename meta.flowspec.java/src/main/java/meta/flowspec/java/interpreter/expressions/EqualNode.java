@@ -5,7 +5,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
-import org.metaborg.meta.flowspec.expressions.EqualNodeGen;
+import meta.flowspec.java.interpreter.expressions.EqualNodeGen;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import java.util.Objects;

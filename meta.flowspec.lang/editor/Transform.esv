@@ -5,4 +5,5 @@ menus
   menu: "Generate" (openeditor)
     
     action: "Generate Stratego" = generate-stratego
+    action: "Generate TransferFunctions" = generate-transfers
     action: "Test Solver" = test-solver (meta)

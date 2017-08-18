@@ -12,4 +12,4 @@ language
 
   provider : target/metaborg/stratego.ctree
   
-  on save : generate-stratego
+  on save : generate-all

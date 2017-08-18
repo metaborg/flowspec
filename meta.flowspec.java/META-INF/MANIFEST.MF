@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1502808693775
+Bnd-LastModified: 1503051614724
 Build-Jdk: 1.8.0_144
 Built-By: jeff
 Bundle-Description: Maven parent POM for Java projects
@@ -11,6 +11,27 @@ Bundle-Version: 2.3.0.qualifier
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: registered
 Embed-Transitive: true
-Import-Package: org.apache.tools.ant
+Export-Package: meta.flowspec,meta.flowspec.java,meta.flowspec.java.inte
+ rpreter,meta.flowspec.java.interpreter.expressions,meta.flowspec.java.i
+ nterpreter.locals,meta.flowspec.java.interpreter.patterns,meta.flowspec
+ .java.interpreter.values,meta.flowspec.java.lattice,meta.flowspec.java.
+ pcollections,meta.flowspec.java.solver
+Import-Package: org.spoofax.interpreter.core,org.spoofax.interpreter.lib
+ rary,org.spoofax.interpreter.stratego,org.spoofax.interpreter.terms,org
+ .spoofax.terms,org.metaborg.core,org.metaborg.core.language,org.metabor
+ g.core.resource,org.metaborg.meta.nabl2.controlflow.impl,org.metaborg.m
+ eta.nabl2.controlflow.terms,org.metaborg.meta.nabl2.util.collections,or
+ g.metaborg.spoofax.core,org.metaborg.util.log,com.google.inject;provide
+ r=metaborg;mandatory:=provider;version=0,com.oracle.truffle.api;provide
+ r=metaborg;mandatory:=provider;version=0,com.oracle.truffle.api.dsl;pro
+ vider=metaborg;mandatory:=provider;version=0,com.oracle.truffle.api.fra
+ me;provider=metaborg;mandatory:=provider;version=0,com.oracle.truffle.a
+ pi.nodes;provider=metaborg;mandatory:=provider;version=0,com.oracle.tru
+ ffle.api.source;provider=metaborg;mandatory:=provider;version=0,com.ora
+ cle.truffle.api.vm;provider=metaborg;mandatory:=provider;version=0,org.
+ apache.commons.vfs2;provider=metaborg;mandatory:=provider;version=0,org
+ .pcollections;provider=metaborg;mandatory:=provider;version=0,org.apach
+ e.tools.ant
 Originally-Created-By: Apache Maven Bundle Plugin
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Tool: Bnd-2.4.1.201501161923

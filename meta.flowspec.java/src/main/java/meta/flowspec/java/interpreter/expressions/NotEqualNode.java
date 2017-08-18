@@ -7,7 +7,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import java.util.Objects;
 
-import org.metaborg.meta.flowspec.expressions.NotEqualNodeGen;
+import meta.flowspec.java.interpreter.expressions.NotEqualNodeGen;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})

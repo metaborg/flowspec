@@ -29,16 +29,16 @@
       <artifactId>org.spoofax.interpreter.core</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
-    <!-- <dependency>
+    <dependency>
       <groupId>org.metaborg</groupId>
       <artifactId>org.metaborg.meta.nabl2.java</artifactId>
       <version>${metaborg-version}</version>
-    </dependency> -->
-    <!-- <dependency>
+    </dependency>
+    <dependency>
       <groupId>org.metaborg</groupId>
-      <artifactId>org.strategoxt.strj</artifactId>
+      <artifactId>org.metaborg.spoofax.core</artifactId>
       <version>${metaborg-version}</version>
-    </dependency> -->
+    </dependency>
     <!-- <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>

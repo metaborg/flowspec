@@ -81,7 +81,7 @@ with
 ; astroot' := <map(\AstRoot(cons, children) -> (<strip-annos> cons, <length> children)\)> astroot*
 ; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str(|astroot'));lines_> def*
 ; proprule* := <retain-all(?PropRule(_, _, _, _, _))> def*
-; propnames := <map(?PropRule(<id>, _, _, _, _)); strip-annos; nub> proprule*
+; propnames := <retain-all(?PropDef(<id>, _)); strip-annos> def*
 ; matchpropsstring := <map(\n -> ${("{n}", <flowspec--proprule-{n}> term)}\);csv-lines> propnames
 ; propstring := <number-prop-rules(|propnames);map(gen-str);lines_> proprule*
 

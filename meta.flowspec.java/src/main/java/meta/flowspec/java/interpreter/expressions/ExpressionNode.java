@@ -1,7 +1,7 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.flowspec.TypesGen;
-import org.metaborg.meta.flowspec.locals.ReadVarNodeGen;
+import meta.flowspec.java.interpreter.TypesGen;
+import meta.flowspec.java.interpreter.locals.ReadVarNodeGen;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.IContext;
@@ -14,10 +15,6 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
-import meta.flowspec.java.ast.ConditionalRhs;
-import meta.flowspec.java.ast.TermIndex;
-import meta.flowspec.java.ast.Rhs;
-import meta.flowspec.java.ast.types.Type;
 import meta.flowspec.java.pcollections.MapSetPRelation;
 import meta.flowspec.java.pcollections.PRelation;
 import meta.flowspec.java.solver.MFP2;

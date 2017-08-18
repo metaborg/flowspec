@@ -1,0 +1,42 @@
+module generate-transfers
+
+imports
+
+signatures/flowspec/-
+
+libspoofax/stratego/debug
+libspoofax/core/language
+
+flowspec/desugar
+flowspec/utils
+flowspec/dependencies
+flowspec/generate-stratego
+
+nabl2/shared/-
+
+rules
+
+gen-tf: Module(_, _, _, def*) -> transfer-functions
+with
+  proprule* := <retain-all(?PropRule(_, _, _, _, _))> def*
+; propnames := <retain-all(?PropDef(<id>, _)); strip-annos> def*
+; numberedrules := <number-prop-rules(|propnames)> proprule*
+; transfer-functions := <map(gen-tf); bundle-tfs(|propnames)>
+
+gen-tf: (n, PropRule(name, pattern, dir, body, wherecl)) ->
+  <strip-annos> (name, d, n, TransferFunction([var*,dirvar*], Where(body, binding*)))
+with
+  dirvar* := <?Forward(<id>);![<id>] + ?Backward(<id>);![<id>] + \FlowInsensitive() -> []\> dir
+; d := <\Forward(_) -> Fw()\ + \Backward(_) -> Bw()\ + \FlowInsensitive() -> NA()\> dir
+; var* := <pattern-vars> pattern
+; binding* := <\NoWhereClause -> []\ + ?WhereClause(<id>)> wherecl
+
+bundle-tfs(|propnames): list -> result
+with
+  namesmap := <map(!(<id>, []))> propnames
+; result := <thread-map(bundle-tfs-helper1); Snd> (list, namesmap)
+
+bundle-tfs-helper1: ((nm, d, n, tf), map) -> ((), <map(try((?nm, bundle-tfs-helper2(|d, n, tf))))> map)
+
+bundle-tfs-helper2(|d, n, tf): [] -> (d, [(n, tf)])
+bundle-tfs-helper2(|d, n, tf): (d, l) -> (d, [(n, tf)|l])

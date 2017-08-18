@@ -2,16 +2,16 @@ module flowspec/IR
 
 imports
 
-flowspec/Flow
+flowspec/Expr
+flowspec/Property
 flowspec/Common
 
 context-free syntax
 
-CFGEdgeNode.Entry = [entry([CFGEdgeNode])]
-CFGEdgeNode.Exit = [exit([CFGEdgeNode])]
+TransferFunction.TransferFunction = [TF [{ID " "}+] = [Where]]
+Where.Where = [[Expr] where
+  [{Binding "\n"}+]] 
 
-CFGEdgeNode.TermIndex = [[STRING]@[INT]] // Nabl2 IndexTerm really
-
-PropDir.Fw = [forward]
-PropDir.Bw = [backward]
-PropDir.NA = [not-applicable]
+Dir.Fw = [fw]
+Dir.Bw = [bw]
+Dir.NA = [na]
