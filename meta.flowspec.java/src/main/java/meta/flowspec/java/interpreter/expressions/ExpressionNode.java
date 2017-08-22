@@ -40,7 +40,10 @@ public abstract class ExpressionNode extends Node {
                 assert appl.getSubtermCount() == 1 : "Expected Ref to have 1 child";
                 return ReadVarNodeGen.create(frameDescriptor.findFrameSlot(Tools.javaStringAt(appl, 0)));
             }
-            case "PropRef": throw new RuntimeException("Unimplemented");
+            case "PropRef": {
+                assert appl.getSubtermCount() == 1 : "Expected PropRef to have 1 child";
+                throw new RuntimeException("Unimplemented");
+            }
             case "Tuple": {
                 assert appl.getSubtermCount() == 2 : "Expected Tuple to have 2 children";
                 return TupleNode.fromIStrategoTerm(appl, frameDescriptor);
