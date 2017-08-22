@@ -1,0 +1,5 @@
+module flowspec/Constraints
+
+context-free syntax
+ 
+AstProperty.CFGParams   = "cfgparams"

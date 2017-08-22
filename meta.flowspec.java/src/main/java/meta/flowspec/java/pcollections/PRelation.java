@@ -3,10 +3,11 @@ package meta.flowspec.java.pcollections;
 import java.util.Map;
 import java.util.Set;
 
-import org.metaborg.meta.nabl2.util.collections.IRelation2;
-import org.metaborg.meta.nabl2.util.collections.ISet;
-import org.metaborg.meta.nabl2.util.collections.WrappedSet;
 import org.pcollections.PSet;
+
+import meta.flowspec.nabl2.util.collections.IRelation2;
+import meta.flowspec.nabl2.util.collections.ISet;
+import meta.flowspec.nabl2.util.collections.WrappedSet;
 
 public interface PRelation<L, R> extends IRelation2<L, R> {
     PRelation<L,R> plus(L lhs, R rhs);

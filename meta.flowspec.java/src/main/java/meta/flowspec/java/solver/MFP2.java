@@ -4,9 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.metaborg.meta.nabl2.controlflow.impl.ControlFlowGraph;
-import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.util.collections.IRelation2;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PMap;
 import org.pcollections.PSet;
@@ -14,9 +11,12 @@ import org.pcollections.PSet;
 import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.pcollections.MapSetPRelation;
 import meta.flowspec.java.pcollections.PRelation;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.impl.ControlFlowGraph;
+import meta.flowspec.nabl2.util.collections.IRelation2;
 
 public abstract class MFP2 {
-    public static void intraProcedural(
+    public static <CFGNode extends ICFGNode> void intraProcedural(
             ControlFlowGraph<CFGNode> cfg,
             PMap<String, Metadata> propMetadata,
             PRelation<String, String> propDependsOn,
@@ -86,7 +86,7 @@ public abstract class MFP2 {
 
     }
 
-    private static void solveFlowInsensitiveProperty(ControlFlowGraph<CFGNode> cfg, String prop) {
+    private static <CFGNode extends ICFGNode> void solveFlowInsensitiveProperty(ControlFlowGraph<CFGNode> cfg, String prop) {
         throw new RuntimeException("Unimplemented");
     }
 }
