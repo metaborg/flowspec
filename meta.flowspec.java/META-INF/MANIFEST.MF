@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1503481452546
+Bnd-LastModified: 1503930408301
 Build-Jdk: 1.8.0_144
 Built-By: jeff
 Bundle-Description: Maven parent POM for Java projects
@@ -11,13 +11,13 @@ Bundle-Version: 2.3.0.qualifier
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: registered
 Embed-Transitive: true
-Export-Package: meta.flowspec,meta.flowspec.java,meta.flowspec.java.inte
- rpreter,meta.flowspec.java.interpreter.expressions,meta.flowspec.java.i
- nterpreter.locals,meta.flowspec.java.interpreter.patterns,meta.flowspec
- .java.interpreter.values,meta.flowspec.java.lattice,meta.flowspec.java.
- pcollections,meta.flowspec.java.solver,meta.flowspec.nabl2.controlflow,
- meta.flowspec.nabl2.controlflow.impl,meta.flowspec.nabl2.util.collectio
- ns,meta.flowspec.nabl2.util.tuples
+Export-Package: meta.flowspec,meta.flowspec.java.interpreter,meta.flowsp
+ ec.java.interpreter.expressions,meta.flowspec.java.interpreter.locals,m
+ eta.flowspec.java.interpreter.patterns,meta.flowspec.java.interpreter.v
+ alues,meta.flowspec.java.lattice,meta.flowspec.java.pcollections,meta.f
+ lowspec.java.solver,meta.flowspec.nabl2.controlflow,meta.flowspec.nabl2
+ .controlflow.impl,meta.flowspec.nabl2.util.collections,meta.flowspec.na
+ bl2.util.tuples
 Import-Package: org.spoofax.interpreter.core,org.spoofax.interpreter.ter
  ms,org.spoofax.terms,com.google.common.collect;provider=metaborg;mandat
  ory:=provider;version=0,com.oracle.truffle.api;provider=metaborg;mandat
@@ -27,5 +27,6 @@ Import-Package: org.spoofax.interpreter.core,org.spoofax.interpreter.ter
  =metaborg;mandatory:=provider;version=0,com.oracle.truffle.api.source;p
  rovider=metaborg;mandatory:=provider;version=0,org.pcollections;provide
  r=metaborg;mandatory:=provider;version=0,org.apache.tools.ant
+Originally-Created-By: Apache Maven Bundle Plugin
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Tool: Bnd-2.4.1.201501161923

@@ -15,6 +15,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
 import meta.flowspec.java.interpreter.locals.ArgToVarNode;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 @TypeSystemReference(Types.class)
 public class TransferFunction extends RootNode {
@@ -39,7 +41,7 @@ public class TransferFunction extends RootNode {
         return body.execute(frame);
     }
     
-    public static TransferFunction fromIStrategoTerm(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor, IStrategoTerm term) {
+    public static TransferFunction fromIStrategoTerm(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor, IStrategoTerm term, IControlFlowGraph<ICFGNode> cfg) {
         assert term instanceof IStrategoAppl : "Expected a constructor application term";
         final IStrategoAppl appl = (IStrategoAppl) term;
         switch (appl.getConstructor().getName()) {
@@ -54,7 +56,7 @@ public class TransferFunction extends RootNode {
                     patternVariables[i] = new ArgToVarNode(i, slot);
                 }
                 
-                Where body = Where.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor);
+                Where body = Where.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg);
                 return new TransferFunction(language, frameDescriptor, patternVariables, body);
             }
             default : throw new IllegalArgumentException("Expected constructor TransferFunction");

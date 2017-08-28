@@ -6,6 +6,9 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import meta.flowspec.java.interpreter.expressions.EqualNodeGen;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import java.util.Objects;
@@ -46,10 +49,10 @@ public abstract class EqualNode extends ExpressionNode {
         return false;
     }
 
-    public static EqualNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor) {
+    public static EqualNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return
             EqualNodeGen.create(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor));
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg));
     }
 }

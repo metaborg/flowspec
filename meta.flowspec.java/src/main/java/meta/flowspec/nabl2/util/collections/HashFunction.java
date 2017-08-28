@@ -34,8 +34,6 @@ public class HashFunction<K, V> implements IFunction.Mutable<K, V>, Serializable
         if(fwd.containsKey(key)) {
             if(value.equals(fwd.get(key))) {
                 return false;
-            } else {
-                throw new IllegalArgumentException("Already in domain.");
             }
         }
         fwd.put(key, value);
@@ -82,6 +80,37 @@ public class HashFunction<K, V> implements IFunction.Mutable<K, V>, Serializable
 
     @Override public String toString() {
         return fwd.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((bwd == null) ? 0 : bwd.hashCode());
+        result = prime * result + ((fwd == null) ? 0 : fwd.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        HashFunction other = (HashFunction) obj;
+        if (bwd == null) {
+            if (other.bwd != null)
+                return false;
+        } else if (!bwd.equals(other.bwd))
+            return false;
+        if (fwd == null) {
+            if (other.fwd != null)
+                return false;
+        } else if (!fwd.equals(other.fwd))
+            return false;
+        return true;
     }
 
 }

@@ -12,6 +12,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import meta.flowspec.java.interpreter.values.Tuple;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 public class TupleNode extends ExpressionNode {
     @Children
@@ -28,11 +30,11 @@ public class TupleNode extends ExpressionNode {
         return new Tuple(childVals);
     }
 
-    public static TupleNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor) {
+    public static TupleNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         IStrategoTerm first = appl.getSubterm(0);
         IStrategoList others = Tools.listAt(appl, 1);
         IStrategoTerm[] children = new StrategoList(first, others, null, IStrategoTerm.SHARABLE).getAllSubterms();
         return new TupleNode(Arrays.stream(children).map(c ->
-            ExpressionNode.fromIStrategoTerm(c, frameDescriptor)).toArray(ExpressionNode[]::new));
+            ExpressionNode.fromIStrategoTerm(c, frameDescriptor, cfg)).toArray(ExpressionNode[]::new));
     }
 }

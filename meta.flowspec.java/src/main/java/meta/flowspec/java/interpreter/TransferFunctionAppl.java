@@ -2,6 +2,8 @@ package meta.flowspec.java.interpreter;
 
 import java.util.Arrays;
 
+import com.oracle.truffle.api.Truffle;
+
 
 public class TransferFunctionAppl {
     private final int tfOffset;
@@ -14,6 +16,6 @@ public class TransferFunctionAppl {
 
     public Object call(TransferFunction[] tfs, Object arg) {
         args[args.length-1] = arg;
-        return tfs[tfOffset].getCallTarget().call(args);
+        return Truffle.getRuntime().createCallTarget(tfs[tfOffset]).call(args);
     }
 }

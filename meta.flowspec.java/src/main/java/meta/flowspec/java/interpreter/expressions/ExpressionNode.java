@@ -2,6 +2,11 @@ package meta.flowspec.java.interpreter.expressions;
 
 import meta.flowspec.java.interpreter.TypesGen;
 import meta.flowspec.java.interpreter.locals.ReadVarNodeGen;
+import meta.flowspec.java.interpreter.values.Tuple;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
+
+import org.pcollections.PSet;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -29,8 +34,17 @@ public abstract class ExpressionNode extends Node {
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
         return TypesGen.expectBoolean(executeGeneric(frame));
     }
+    
+    public Tuple executeTuple(VirtualFrame frame) throws UnexpectedResultException {
+        return TypesGen.expectTuple(executeGeneric(frame));
+    }
+    
+    @SuppressWarnings("unchecked")
+    public PSet<?> executeSet(VirtualFrame frame) throws UnexpectedResultException {
+        return TypesGen.expectPSet(executeGeneric(frame));
+    }
 
-    public static ExpressionNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor) {
+    public static ExpressionNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         assert term instanceof IStrategoAppl : "Expected a constructor application term";
         final IStrategoAppl appl = (IStrategoAppl) term;
         switch (appl.getConstructor().getName()) {
@@ -41,12 +55,12 @@ public abstract class ExpressionNode extends Node {
                 return ReadVarNodeGen.create(frameDescriptor.findFrameSlot(Tools.javaStringAt(appl, 0)));
             }
             case "PropRef": {
-                assert appl.getSubtermCount() == 1 : "Expected PropRef to have 1 child";
-                throw new RuntimeException("Unimplemented");
+                assert appl.getSubtermCount() == 2 : "Expected PropRef to have 2 children";
+                return ReadPropNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "Tuple": {
                 assert appl.getSubtermCount() == 2 : "Expected Tuple to have 2 children";
-                return TupleNode.fromIStrategoTerm(appl, frameDescriptor);
+                return TupleNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "Int": {
                 assert appl.getSubtermCount() == 1 : "Expected Int to have 1 child";
@@ -64,19 +78,19 @@ public abstract class ExpressionNode extends Node {
             case "Appl": throw new RuntimeException("Unimplemented");
             case "If": {
                 assert appl.getSubtermCount() == 3 : "Expected If to have 3 children";
-                return IfNode.fromIStrategoAppl(appl, frameDescriptor);
+                return IfNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "Eq": {
                 assert appl.getSubtermCount() == 2 : "Expected Eq to have 2 children";
-                return EqualNode.fromIStrategoAppl(appl, frameDescriptor);
+                return EqualNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "NEq": {
                 assert appl.getSubtermCount() == 2 : "Expected NEq to have 2 children";
-                return NotEqualNode.fromIStrategoAppl(appl, frameDescriptor);
+                return NotEqualNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "Plus": {
                 assert appl.getSubtermCount() == 2 : "Expected Plus to have 2 children";
-                return PlusNode.fromIStrategoAppl(appl, frameDescriptor);
+                return PlusNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "Match": throw new RuntimeException("Unimplemented");
             default: throw new IllegalArgumentException("Unknown constructor for Expression: " + appl.getConstructor().getName());

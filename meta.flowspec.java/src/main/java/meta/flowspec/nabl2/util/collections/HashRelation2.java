@@ -74,4 +74,35 @@ public class HashRelation2<K, V> implements IRelation2.Mutable<K, V>, Serializab
         return fwd.toString();
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((bwd == null) ? 0 : bwd.hashCode());
+        result = prime * result + ((fwd == null) ? 0 : fwd.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        HashRelation2 other = (HashRelation2) obj;
+        if (bwd == null) {
+            if (other.bwd != null)
+                return false;
+        } else if (!bwd.equals(other.bwd))
+            return false;
+        if (fwd == null) {
+            if (other.fwd != null)
+                return false;
+        } else if (!fwd.equals(other.fwd))
+            return false;
+        return true;
+    }
+
 }

@@ -46,7 +46,7 @@ public final class FlowSpec extends TruffleLanguage<Context> {
         
         IStrategoTerm term = f.parseFromString(source.getCode());
         
-        TransferFunction rootNode = TransferFunction.fromIStrategoTerm(this, new FrameDescriptor(), term);
+        TransferFunction rootNode = TransferFunction.fromIStrategoTerm(this, new FrameDescriptor(), term, null);
         
         return Truffle.getRuntime().createCallTarget(rootNode);
     }

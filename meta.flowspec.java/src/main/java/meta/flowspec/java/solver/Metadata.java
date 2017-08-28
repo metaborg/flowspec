@@ -7,7 +7,7 @@ import meta.flowspec.java.lattice.CompleteLattice;
 
 @Immutable
 public abstract class Metadata {
-    enum Direction {
+    public enum Direction {
         Forward,
         Backward,
         FlowInsensitive

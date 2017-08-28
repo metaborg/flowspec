@@ -1,6 +1,5 @@
 package meta.flowspec.java.interpreter.locals;
 
-import meta.flowspec.java.interpreter.locals.WriteVarNodeGen;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -17,6 +16,9 @@ import com.oracle.truffle.api.nodes.Node;
 
 import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.expressions.ExpressionNode;
+import meta.flowspec.java.interpreter.locals.WriteVarNodeGen;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 @TypeSystemReference(Types.class)
 @NodeChild(value = "valNode", type = ExpressionNode.class)
@@ -90,7 +92,7 @@ public abstract class WriteVarNode extends Node {
         return getSlot().getKind() == FrameSlotKind.Boolean || getSlot().getKind() == FrameSlotKind.Illegal;
     }
 
-    public static WriteVarNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor) {
+    public static WriteVarNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         assert term instanceof IStrategoAppl : "Expected a constructor application term";
         final IStrategoAppl appl = (IStrategoAppl) term;
         switch (appl.getConstructor().getName()) {
@@ -98,7 +100,7 @@ public abstract class WriteVarNode extends Node {
                 assert appl.getSubtermCount() == 2 : "Expected Binding to have 2 children";
                 FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
                 FrameSlot slot = frameDescriptor.addFrameSlot(Tools.javaStringAt(appl, 0), slotKind);
-                return WriteVarNodeGen.create(ExpressionNode.fromIStrategoTerm(Tools.applAt(appl, 1), frameDescriptor), slot);
+                return WriteVarNodeGen.create(ExpressionNode.fromIStrategoTerm(Tools.applAt(appl, 1), frameDescriptor, cfg), slot);
             }
             default : throw new IllegalArgumentException("Expected constructor TransferFunction");
         }

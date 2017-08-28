@@ -5,6 +5,10 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 public class IfNode extends ExpressionNode {
@@ -36,11 +40,11 @@ public class IfNode extends ExpressionNode {
         }
     }
 
-    public static IfNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor) {
+    public static IfNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return
             new IfNode(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(2), frameDescriptor));
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg),
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(2), frameDescriptor, cfg));
     }
 }

@@ -1,6 +1,9 @@
 package meta.flowspec.java.interpreter.expressions;
 
 import meta.flowspec.java.interpreter.expressions.PlusNodeGen;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -15,10 +18,10 @@ public abstract class PlusNode extends ExpressionNode {
         return left + right;
     }
 
-    public static PlusNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor) {
+    public static PlusNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return
             PlusNodeGen.create(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor));
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg));
     }
 }

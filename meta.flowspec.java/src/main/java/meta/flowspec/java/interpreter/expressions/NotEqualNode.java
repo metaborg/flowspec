@@ -8,6 +8,9 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import java.util.Objects;
 
 import meta.flowspec.java.interpreter.expressions.NotEqualNodeGen;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
@@ -27,10 +30,10 @@ public abstract class NotEqualNode extends ExpressionNode {
         return !Objects.equals(left, right);
     }
 
-    public static NotEqualNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor) {
+    public static NotEqualNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return
             NotEqualNodeGen.create(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor));
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg));
     }
 }

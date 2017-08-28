@@ -8,6 +8,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import meta.flowspec.java.interpreter.patterns.FunPattern;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 public class AbstractionNode extends ExpressionNode {
     @CompilationFinal
@@ -27,11 +29,11 @@ public class AbstractionNode extends ExpressionNode {
         return null;
     }
 
-    public static AbstractionNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor) {
+    public static AbstractionNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         FrameDescriptor closureFrameDescriptor = frameDescriptor.copy();
         return
             new AbstractionNode(
                 FunPattern.fromIStrategoAppl(Tools.applAt(appl, 0), closureFrameDescriptor), 
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), closureFrameDescriptor));
+                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), closureFrameDescriptor, cfg));
     }
 }

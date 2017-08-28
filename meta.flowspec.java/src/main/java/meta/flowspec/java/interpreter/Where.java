@@ -13,6 +13,8 @@ import com.oracle.truffle.api.nodes.Node;
 
 import meta.flowspec.java.interpreter.expressions.ExpressionNode;
 import meta.flowspec.java.interpreter.locals.WriteVarNode;
+import meta.flowspec.nabl2.controlflow.ICFGNode;
+import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 @TypeSystemReference(Types.class)
 public class Where extends Node {
@@ -32,7 +34,7 @@ public class Where extends Node {
         return body.executeGeneric(frame);
     }
 
-    public static Where fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor) {
+    public static Where fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         assert term instanceof IStrategoAppl : "Expected a constructor application term";
         final IStrategoAppl appl = (IStrategoAppl) term;
         switch (appl.getConstructor().getName()) {
@@ -40,8 +42,8 @@ public class Where extends Node {
                 assert appl.getSubtermCount() == 2 : "Expected TransferFunction to have 2 children";
                 IStrategoTerm[] bindings = Tools.listAt(appl, 0).getAllSubterms();
                 WriteVarNode[] writeVars =
-                    Arrays.stream(bindings).map(t -> WriteVarNode.fromIStrategoTerm(t, frameDescriptor)).toArray(WriteVarNode[]::new);
-                ExpressionNode body = ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor);
+                    Arrays.stream(bindings).map(t -> WriteVarNode.fromIStrategoTerm(t, frameDescriptor, cfg)).toArray(WriteVarNode[]::new);
+                ExpressionNode body = ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg);
                 return new Where(writeVars, body);
             }
             default : throw new IllegalArgumentException("Expected constructor TransferFunction");

@@ -1,6 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import meta.flowspec.java.interpreter.expressions.ApplicationNodeGen;
+import org.pcollections.PSet;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -8,20 +8,20 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
-import meta.flowspec.java.interpreter.values.Function;
 import meta.flowspec.nabl2.controlflow.ICFGNode;
 import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
-@NodeChildren({@NodeChild("function"), @NodeChild("argument")})
-public abstract class ApplicationNode extends ExpressionNode {
+@NodeChildren({@NodeChild("left"), @NodeChild("right")})
+public abstract class SetUnionNode extends ExpressionNode {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
-    public Object execute(Function func, Object arg) {
-        return func.call(arg);
+    protected PSet<Object> union(PSet left, PSet right) {
+        return left.plusAll(right);
     }
-
-    public static ApplicationNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    
+    public static SetUnionNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return
-            ApplicationNodeGen.create(
+            SetUnionNodeGen.create(
                 ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
                 ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg));
     }
