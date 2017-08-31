@@ -11,17 +11,15 @@ import org.pcollections.HashTreePSet;
 import org.pcollections.PMap;
 import org.pcollections.PSet;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 
-import meta.flowspec.java.interpreter.IdentityTFAppl;
 import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.interpreter.TransferFunctionAppl;
 import meta.flowspec.java.interpreter.Where;
 import meta.flowspec.java.interpreter.expressions.ReadPropNode;
 import meta.flowspec.java.interpreter.expressions.SetLiteralNode;
-import meta.flowspec.java.interpreter.expressions.SetMinusNodeGen;
-import meta.flowspec.java.interpreter.expressions.SetUnionNodeGen;
 import meta.flowspec.java.interpreter.locals.ArgToVarNode;
 import meta.flowspec.java.interpreter.locals.ReadVarNodeGen;
 import meta.flowspec.java.interpreter.locals.WriteVarNode;
@@ -59,29 +57,29 @@ public class EndToEndTest {
 
         FrameDescriptor fdTransA = new FrameDescriptor();
         String successorNodeName = "succ";
-        TransferFunction transA = 
+        TransferFunction transA =
             new TransferFunction(
-                fdTransA, 
+                fdTransA,
                 new ArgToVarNode[] {
                     new ArgToVarNode(0, fdTransA.addFrameSlot(successorNodeName, FrameSlotKind.Object))
-                }, 
+                },
                 new Where(
-                    new WriteVarNode[] {}, 
+                    new WriteVarNode[] {},
                     new ReadPropNode(
-                        cfg, 
-                        propertyName, 
+                        cfg,
+                        propertyName,
                         ReadVarNodeGen.create(fdTransA.findFrameSlot(successorNodeName)))));
 
         FrameDescriptor fdTransB = new FrameDescriptor();
         fdTransB.addFrameSlot(successorNodeName, FrameSlotKind.Object);
         TransferFunction transB = 
             new TransferFunction(
-                fdTransB, 
+                fdTransB,
                 new ArgToVarNode[] {
                     new ArgToVarNode(0, fdTransB.addFrameSlot(successorNodeName, FrameSlotKind.Object))
-                }, 
+                },
                 new Where(
-                    new WriteVarNode[] {}, 
+                    new WriteVarNode[] {},
                     new SetLiteralNode(HashTreePSet.singleton(42))));
 
         cfg.addDirectEdge(start, nodeA);
