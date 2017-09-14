@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1504106968942
-Build-Jdk: 1.8.0_144
+Bnd-LastModified: 1505398412616
+Build-Jdk: 1.8.0_92
 Built-By: jeff
 Bundle-Description: Maven parent POM for Java projects
 Bundle-License: https://www.apache.org/licenses/LICENSE-2.0.txt
