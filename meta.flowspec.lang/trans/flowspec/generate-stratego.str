@@ -42,30 +42,6 @@ gen-str: Module(modulename, import*, astroot*, def*) ->
     {importstring}
 
   rules
-
-  prettyprint-{<language>}(|sort) =
-    prettyprint-NaBL2-api-term(|sort)
-
-  prettyprint-{<language>}-NaBL2Scope(|) =
-    prettyprint-NaBL2-api-term
-
-  prettyprint-{<language>}-NaBL2Occurrence(|) =
-    prettyprint-NaBL2-api-term
-
-  nabl2--generate-constraint-init-rule(|):
-    nabl2_term@nabl2_source -> (nabl2_args, nabl2_constraint)
-    with(id)
-    with(projectScope := <nabl2--new-scope(|nabl2_source)
-                          ; try(nabl2--copy-origin(|nabl2_term))> "projectScope"
-         ; id)
-    with(nabl2_args := Params((projectScope)))
-    with(nabl2_index := <nabl2--get-ast-index> nabl2_term)
-    with(nabl2_constraint := <nabl2--flatten-list> [])
-    with(if nabl2--is-debug-collection-enabled then
-           nabl2--collection-info-msg(
-           | <concat-strings> ["init ^ ", <pp-NaBL2-CTerm> (projectScope)]
-           )
-         end)
   
   {cfgstring}
   
@@ -102,7 +78,7 @@ ${nabl2--generate-constraint-{rulename}-rule(|):
     _ -> nabl2_constraint
     with(?(nabl2_source, nabl2_term, nabl2_args))
     where({patternstr} := nabl2_term)
-    with(Params(
+    with({paramcons}(
            nabl2_params@({paramstr})
          ) := nabl2_args
          <+ fatal-err(
@@ -140,18 +116,21 @@ ${nabl2--generate-constraint-{rulename}-rule(|):
 }
 with
   if <match-ast-root-str(|astroot*)> pattern
-    then rulename := "default"
+    then rulename := "default-cfg"
        ; rootvarstr* := <conc> (<map(gen-new-cfg-node-str)> ["t_start", "t_end"], <map(gen-new-var-str)> ["entry", "exit"])
        ; rootstr* := <map(gen-directed-edge-str)> [("t_end", "exit"), ("t_start", "entry")]
        ; paramstr := "_"
+       ; paramcons := "Params"
     else rulename := "cfg"
        ; if <?Root()> r
            then rootstr* := [<gen-directed-edge-str> ("t_end", "exit"), <gen-equal-str> ("t_start", "entry")]
               ; rootvarstr* := <map(gen-new-cfg-node-str)> ["t_start", "t_end"]
               ; paramstr := "entry, exit, _, _"
+              ; paramcons := "CFGParams"
            else rootstr* := []
               ; rootvarstr* := []
               ; paramstr := "entry, exit, t_start, t_end"
+              ; paramcons := "CFGParams"
          end
   end
 ; chain'* := <strip-annos> chain*
@@ -213,11 +192,12 @@ gen-recurse-var-str: Recurse(v) ->
   <map(gen-new-var-str);semi-lines> [${entry{v}}, ${exit{v}}]
 
 gen-recurse-str: Recurse(v) ->
-  ${<nabl2--generate-constraint(nabl2--generate-constraint-{"cfg"}-rule|"{"cfg"}")>
+  ${<nabl2--generate-constraint(nabl2--generate-constraint-{rulename}-rule|"{rulename}")>
       ( nabl2_source
       , match{v}
-      , Params((entry{v}, exit{v}, t_start, t_end))
+      , CFGParams((entry{v}, exit{v}, t_start, t_end))
       )}
+with rulename := "cfg"
 
 gen-ref-var-str: Ref(v) ->
   <gen-new-cfg-node-str> ${node{v}}
