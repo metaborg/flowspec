@@ -1,5 +1,0 @@
-module solver
-
-rules
-
-flowspec-solver = ?x; prim("FS_solver", x)
