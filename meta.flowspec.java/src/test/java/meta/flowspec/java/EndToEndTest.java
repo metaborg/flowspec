@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.pcollections.Empty;
 import org.pcollections.HashTreePSet;
@@ -71,7 +72,6 @@ public class EndToEndTest {
                         ReadVarNodeGen.create(fdTransA.findFrameSlot(successorNodeName)))));
 
         FrameDescriptor fdTransB = new FrameDescriptor();
-        fdTransB.addFrameSlot(successorNodeName, FrameSlotKind.Object);
         TransferFunction transB = 
             new TransferFunction(
                 fdTransB,
@@ -103,6 +103,7 @@ public class EndToEndTest {
         assertEquals(HashTreePSet.singleton(42), cfg.getProperty(nodeA, propertyName));
     }
 
+    @Ignore("incomplete")
     @Test
     public void reachingDefinitionsExample1() {
         ControlFlowGraph<ICFGNode> cfg = new ControlFlowGraph<>();
@@ -197,7 +198,7 @@ public class EndToEndTest {
         MFP2.<ICFGNode>intraProcedural(cfg, propMetadata, propDependsOn, transferFuns);
 
         assertEquals(startSet, cfg.getProperty(node1, propertyName));
-        assertEquals(startSet.plus(ImmutableTuple2.of("y", Optional.of(1))), cfg.getProperty(node2, propertyName));
+        assertEquals(startSet.minus(ImmutableTuple2.of("y", Optional.empty())).plus(ImmutableTuple2.of("y", Optional.of(1))), cfg.getProperty(node2, propertyName));
         assertEquals(startSet, cfg.getProperty(node3, propertyName));
         assertEquals(startSet, cfg.getProperty(node4, propertyName));
         assertEquals(startSet, cfg.getProperty(node5, propertyName));
