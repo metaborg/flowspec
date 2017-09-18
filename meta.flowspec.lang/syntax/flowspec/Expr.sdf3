@@ -24,6 +24,11 @@ Expr.Eq = [[Expr] == [Expr]] {non-assoc}
 Expr.NEq = [[Expr] != [Expr]] {non-assoc}
 Expr.Match = [match [Expr] with [MatchArm+]] {longest-match}
 
+Expr.SetComp = [{ [Expr] | [{SetCompExpr ", "}+] }]
+// TODO: expand from Var to Pattern, merge Patterns first
+SetCompExpr.Source = [[Var] in [Expr]]
+SetCompExpr.Predicate = Expr
+
 MatchArm.MatchArm = [| [FunPattern] => [Expr]]
 
 Literal.Int = INT
