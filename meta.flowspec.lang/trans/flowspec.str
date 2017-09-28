@@ -34,7 +34,7 @@ rules // Debugging
   generate-transfers: 
     (node, _, _, path, project-path) -> (filename, result)
     with
-      filename := <src-gen-file(|project-path, "flowspec", ".aterm")> "transfer-functions"
+      filename := <target-file(|project-path, ".aterm")> "transfer-functions"
     ; result   := <gen-tf> node
 
   generate-all = generate-stratego
@@ -46,3 +46,10 @@ rules // Debugging
 
   src-gen-dir(|project-path, sub-dir): _ -> dir
   with dir := $[[project-path]/src-gen/[sub-dir]]
+
+  target-file(|project-path, ext): name -> file-name
+  with target-dir := <target-dir(|project-path)>;
+       file-name := $[[target-dir]/[name][ext]]
+
+  target-dir(|project-path): _ -> dir
+  with dir := $[[project-path]/target/metaborg]
