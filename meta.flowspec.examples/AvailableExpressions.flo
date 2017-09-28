@@ -25,9 +25,9 @@ Reads BinOp(l, _, r) =
 
 prop Available = MustSet term
 
-Available Assign(n, e) <- pred = exprs3
-where exprs = Set.plus (Available pred) e
-      result = Set.filter exprs
-        (\expr. Set.contains n (Reads expr))
+Available Assign(n, e) <- pred =
+  { expr |
+    expr in Set.plus (Available pred) e,
+    Set.contains n (Reads expr) }
 
 Available this <- pred = Available pred
