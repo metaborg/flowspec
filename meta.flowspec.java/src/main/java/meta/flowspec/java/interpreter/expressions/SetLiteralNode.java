@@ -1,13 +1,13 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.pcollections.PSet;
+import io.usethesource.capsule.Set;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class SetLiteralNode extends ExpressionNode {
-    private final PSet<Object> value;
+    private final Set.Immutable<Object> value;
     
-    public SetLiteralNode(PSet<Object> value) {
+    public SetLiteralNode(Set.Immutable<Object> value) {
         this.value = value;
     }
     
@@ -17,7 +17,7 @@ public class SetLiteralNode extends ExpressionNode {
     }
 
     @Override
-    public PSet<Object> executeSet(VirtualFrame _frame) {
+    public Set.Immutable<Object> executeSet(VirtualFrame _frame) {
         return value;
     }
 

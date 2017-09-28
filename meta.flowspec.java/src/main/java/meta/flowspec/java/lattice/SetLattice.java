@@ -1,40 +1,39 @@
 package meta.flowspec.java.lattice;
 
-import org.pcollections.Empty;
-import org.pcollections.PSet;
+import io.usethesource.capsule.Set;
 
-public class SetLattice<E> implements CompleteLattice<PSet<E>> {
-    private final PSet<E> top;
+public class SetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
+    private final Set.Immutable<E> top;
 
     /**
      * @param set The set to consider the top of this lattice
      */
-    public SetLattice(PSet<E> set) {
+    public SetLattice(Set.Immutable<E> set) {
         this.top = set;
     }
 
     @Override
-    public PSet<E> top() {
+    public Set.Immutable<E> top() {
         return top;
     }
 
     @Override
-    public PSet<E> bottom() {
-        return Empty.set();
+    public Set.Immutable<E> bottom() {
+        return Set.Immutable.of();
     }
 
     @Override
-    public boolean lte(PSet<E> one, PSet<E> other) {
-        return other.containsAll(one); // one isSubsetOf other
+    public boolean lte(Set.Immutable<E> one, Set.Immutable<E> other) {
+        return other.containsAll(one); // one isSubSet.ImmutableOf other
     }
 
     @Override
-    public PSet<E> glb(PSet<E> one, PSet<E> other) {
-        return one.minusAll(one.minusAll(other));
+    public Set.Immutable<E> glb(Set.Immutable<E> one, Set.Immutable<E> other) {
+        return Set.Immutable.subtract(one, Set.Immutable.subtract(one, other));
     }
 
     @Override
-    public PSet<E> lub(PSet<E> one, PSet<E> other) {
-        return one.plusAll(other);
+    public Set.Immutable<E> lub(Set.Immutable<E> one, Set.Immutable<E> other) {
+        return Set.Immutable.union(one, other);
     }
 }

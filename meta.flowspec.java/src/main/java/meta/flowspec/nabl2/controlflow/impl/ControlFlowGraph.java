@@ -6,44 +6,43 @@ import meta.flowspec.java.interpreter.IdentityTFAppl;
 import meta.flowspec.java.interpreter.TransferFunctionAppl;
 import meta.flowspec.nabl2.controlflow.ICFGNode;
 import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
-import meta.flowspec.nabl2.util.collections.HashFunction;
-import meta.flowspec.nabl2.util.collections.HashRelation2;
-import meta.flowspec.nabl2.util.collections.HashSet;
+import meta.flowspec.nabl2.util.collections.HashTrieFunction;
+import meta.flowspec.nabl2.util.collections.HashTrieRelation2;
 import meta.flowspec.nabl2.util.collections.IFunction;
 import meta.flowspec.nabl2.util.collections.IRelation2;
-import meta.flowspec.nabl2.util.collections.ISet;
 import meta.flowspec.nabl2.util.tuples.ImmutableTuple2;
 import meta.flowspec.nabl2.util.tuples.Tuple2;
+import io.usethesource.capsule.Set;
 
 public class ControlFlowGraph<S extends ICFGNode>
     implements IControlFlowGraph<S>, Serializable {
 
-    private final ISet.Mutable<S> allCFGNodes;
+    private final Set.Transient<S> allCFGNodes;
 
-    private final IFunction.Mutable<Tuple2<S, String>, TransferFunctionAppl> tfAppls;
-    private final IFunction.Mutable<Tuple2<S, String>, Object> properties;
-    private final IRelation2.Mutable<S, S> directEdges;
+    private final IFunction.Transient<Tuple2<S, String>, TransferFunctionAppl> tfAppls;
+    private final IFunction.Transient<Tuple2<S, String>, Object> properties;
+    private final IRelation2.Transient<S, S> directEdges;
 
     public ControlFlowGraph() {
-        this.allCFGNodes = HashSet.create();
+        this.allCFGNodes = Set.Transient.of();
 
-        this.tfAppls = HashFunction.create();
-        this.properties = HashFunction.create();
-        this.directEdges = HashRelation2.create();
+        this.tfAppls = HashTrieFunction.Transient.of();
+        this.properties = HashTrieFunction.Transient.of();
+        this.directEdges = HashTrieRelation2.Transient.of();
     }
 
     @Override
-    public ISet<S> getAllCFGNodes() {
+    public Set<S> getAllCFGNodes() {
         return allCFGNodes;
     }
 
     @Override
-    public ISet<S> getAllStarts() {
+    public Set<S> getAllStarts() {
         throw new RuntimeException("unimplemented");
     }
 
     @Override
-    public ISet<S> getAllEnds() {
+    public Set<S> getAllEnds() {
         throw new RuntimeException("unimplemented");
     }
 

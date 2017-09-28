@@ -3,14 +3,15 @@ package meta.flowspec.java;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.pcollections.Empty;
-import org.pcollections.HashTreePSet;
-import org.pcollections.PMap;
-import org.pcollections.PSet;
+
+import io.usethesource.capsule.Set;
+import io.usethesource.capsule.Map;
+import io.usethesource.capsule.BinaryRelation;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -26,9 +27,8 @@ import meta.flowspec.java.interpreter.locals.ReadVarNodeGen;
 import meta.flowspec.java.interpreter.locals.WriteVarNode;
 import meta.flowspec.java.lattice.CompleteLattice;
 import meta.flowspec.java.lattice.FullSetLattice;
-import meta.flowspec.java.pcollections.MapSetPRelation;
 import meta.flowspec.java.solver.ImmutableMetadata;
-import meta.flowspec.java.solver.MFP2;
+import meta.flowspec.java.solver.MaximalFixedPoint;
 import meta.flowspec.java.solver.Metadata;
 import meta.flowspec.java.solver.Metadata.Direction;
 import meta.flowspec.java.solver.Type;
@@ -41,7 +41,7 @@ public class EndToEndTest {
     @Test
     public void emptyCFG() {
         ControlFlowGraph<ICFGNode> cfg = new ControlFlowGraph<>();
-        MFP2.<ICFGNode>intraProcedural(cfg, Empty.map(), new MapSetPRelation<>(), Empty.map());
+        MaximalFixedPoint.<ICFGNode>solve(cfg, Map.Immutable.of(), BinaryRelation.Immutable.of(), Map.Immutable.of());
         assertEquals(cfg, new ControlFlowGraph<>());
     }
 
@@ -80,7 +80,7 @@ public class EndToEndTest {
                 },
                 new Where(
                     new WriteVarNode[] {},
-                    new SetLiteralNode(HashTreePSet.singleton(42))));
+                    new SetLiteralNode(Set.Immutable.of(42))));
 
         cfg.addDirectEdge(start, nodeA);
         cfg.addDirectEdge(nodeA, nodeB);
@@ -89,18 +89,16 @@ public class EndToEndTest {
         cfg.addTFAppl(nodeA, propertyName, new TransferFunctionAppl(0, new Object[] {}));
         cfg.addTFAppl(nodeB, propertyName, new TransferFunctionAppl(1, new Object[] {}));
 
-        PMap<String, Metadata> propMetadata = Empty.map();
-        propMetadata = propMetadata.plus(propertyName, ImmutableMetadata.of(Direction.Backward, (CompleteLattice) new FullSetLattice<Integer>(), new Type()));
+        Map<String, Metadata> propMetadata = Map.Immutable.of(propertyName, ImmutableMetadata.of(Direction.Backward, (CompleteLattice) new FullSetLattice<Integer>(), new Type()));
 
-        MapSetPRelation<String, String> propDependsOn = new MapSetPRelation<>();
+        BinaryRelation.Immutable<String, String> propDependsOn = BinaryRelation.Immutable.of();
 
-        PMap<String, TransferFunction[]> transferFuns = Empty.map();
-        transferFuns = transferFuns.plus(propertyName, new TransferFunction[] {transA, transB});
+        Map<String, TransferFunction[]> transferFuns = Map.Immutable.of(propertyName, new TransferFunction[] {transA, transB});
 
-        MFP2.<ICFGNode>intraProcedural(cfg, propMetadata, propDependsOn, transferFuns);
+        MaximalFixedPoint.<ICFGNode>solve(cfg, propMetadata, propDependsOn, transferFuns);
 
-        assertEquals(HashTreePSet.singleton(42), cfg.getProperty(nodeB, propertyName));
-        assertEquals(HashTreePSet.singleton(42), cfg.getProperty(nodeA, propertyName));
+        assertEquals(Set.Immutable.of(42), cfg.getProperty(nodeB, propertyName));
+        assertEquals(Set.Immutable.of(42), cfg.getProperty(nodeA, propertyName));
     }
 
     @Ignore("incomplete")
@@ -123,10 +121,11 @@ public class EndToEndTest {
 
         FrameDescriptor fdTrans1 = new FrameDescriptor();
         Optional<Integer> unknown = Optional.empty();
-        PSet<Tuple2<String, Optional<Integer>>> startSet = HashTreePSet.from(Arrays.asList(
-                ImmutableTuple2.of("x", unknown),
-                ImmutableTuple2.of("y", unknown),
-                ImmutableTuple2.of("z", unknown)));
+        Set.Immutable<Tuple2<String, Optional<Integer>>> startSet = Set.Immutable.of();
+        startSet = startSet.__insert(ImmutableTuple2.of("x", unknown));
+        startSet = startSet.__insert(ImmutableTuple2.of("y", unknown));
+        startSet = startSet.__insert(ImmutableTuple2.of("z", unknown));
+        
         @SuppressWarnings({ "unchecked", "rawtypes" })
         TransferFunction trans1 = 
             new TransferFunction(
@@ -136,7 +135,7 @@ public class EndToEndTest {
                 }, 
                 new Where(
                     new WriteVarNode[] {}, 
-                    new SetLiteralNode((PSet) startSet)));
+                    new SetLiteralNode((Set.Immutable) startSet)));
 
         FrameDescriptor fdTrans2 = new FrameDescriptor();
         TransferFunction trans2 = 
@@ -187,18 +186,16 @@ public class EndToEndTest {
         cfg.addTFAppl(node5, propertyName, new TransferFunctionAppl(1, new Object[] {}));
         cfg.addTFAppl(node6, propertyName, new TransferFunctionAppl(1, new Object[] {}));
 
-        PMap<String, Metadata> propMetadata = Empty.map();
-        propMetadata = propMetadata.plus(propertyName, ImmutableMetadata.of(Direction.Forward, (CompleteLattice) new FullSetLattice<Optional<Integer>>(), new Type()));
+        Map<String, Metadata> propMetadata = Map.Immutable.of(propertyName, ImmutableMetadata.of(Direction.Forward, (CompleteLattice) new FullSetLattice<Optional<Integer>>(), new Type()));
 
-        MapSetPRelation<String, String> propDependsOn = new MapSetPRelation<>();
+        BinaryRelation.Immutable<String, String> propDependsOn = BinaryRelation.Immutable.of();
 
-        PMap<String, TransferFunction[]> transferFuns = Empty.map();
-        transferFuns = transferFuns.plus(propertyName, new TransferFunction[] {trans1, trans2});
+        Map<String, TransferFunction[]> transferFuns = Map.Immutable.of(propertyName, new TransferFunction[] {trans1, trans2});
 
-        MFP2.<ICFGNode>intraProcedural(cfg, propMetadata, propDependsOn, transferFuns);
+        MaximalFixedPoint.<ICFGNode>solve(cfg, propMetadata, propDependsOn, transferFuns);
 
         assertEquals(startSet, cfg.getProperty(node1, propertyName));
-        assertEquals(startSet.minus(ImmutableTuple2.of("y", Optional.empty())).plus(ImmutableTuple2.of("y", Optional.of(1))), cfg.getProperty(node2, propertyName));
+        assertEquals(startSet.__remove(ImmutableTuple2.of("y", Optional.empty())).__insert(ImmutableTuple2.of("y", Optional.of(1))), cfg.getProperty(node2, propertyName));
         assertEquals(startSet, cfg.getProperty(node3, propertyName));
         assertEquals(startSet, cfg.getProperty(node4, propertyName));
         assertEquals(startSet, cfg.getProperty(node5, propertyName));

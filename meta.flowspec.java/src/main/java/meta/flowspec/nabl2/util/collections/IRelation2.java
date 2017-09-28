@@ -1,7 +1,10 @@
 package meta.flowspec.nabl2.util.collections;
 
-import meta.flowspec.nabl2.util.collections.IRelation2;
-import meta.flowspec.nabl2.util.collections.ISet;
+import java.util.Map;
+
+import meta.flowspec.nabl2.util.tuples.Tuple2;
+
+import com.google.common.annotations.Beta;
 
 public interface IRelation2<K, V> {
 
@@ -13,17 +16,47 @@ public interface IRelation2<K, V> {
 
     boolean containsValue(V value);
 
-    ISet<K> keySet();
+    int size();
 
-    ISet<V> valueSet();
+    boolean isEmpty();
 
-    ISet<V> get(K key);
+    java.util.Set<V> get(K key);
 
-    interface Mutable<K, V> extends IRelation2<K, V> {
+    java.util.Set<K> keySet();
+
+    java.util.Set<V> valueSet();
+
+    java.util.Set<Map.Entry<K, V>> entrySet();
+
+    @Beta default java.util.stream.Stream<Tuple2<K, V>> stream() {
+        return this.entrySet().stream().map(Tuple2::of);
+    }
+
+    interface Immutable<K, V> extends IRelation2<K, V> {
+
+        IRelation2.Immutable<V, K> inverse();
+
+        IRelation2.Transient<K, V> melt();
+
+    }
+
+    interface Transient<K, V> extends IRelation2<K, V> {
+
+        IRelation2.Transient<V, K> inverse();
 
         boolean put(K key, V value);
 
-        boolean remove(K key, V value);
+        boolean putAll(K key, Iterable<? extends V> values);
+
+        boolean putAll(IRelation2<K, V> other);
+
+        java.util.Set<V> removeKey(K key);
+
+        java.util.Set<K> removeValue(V value);
+
+        boolean removeEntry(K key, V value);
+
+        IRelation2.Immutable<K, V> freeze();
 
     }
 

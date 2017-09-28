@@ -1,6 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.pcollections.PSet;
+import io.usethesource.capsule.Set;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -15,8 +15,8 @@ import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 public abstract class SetUnionNode extends ExpressionNode {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
-    protected PSet<Object> union(PSet left, PSet right) {
-        return left.plusAll(right);
+    protected Set.Immutable<Object> union(Set.Immutable left, Set.Immutable right) {
+        return Set.Immutable.union(left, right);
     }
     
     public static SetUnionNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {

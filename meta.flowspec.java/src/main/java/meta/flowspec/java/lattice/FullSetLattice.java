@@ -3,24 +3,24 @@ package meta.flowspec.java.lattice;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.pcollections.Empty;
-import org.pcollections.PSet;
+import io.usethesource.capsule.Set;
+import io.usethesource.capsule.util.EqualityComparator;
 
-public class FullSetLattice<E> implements CompleteLattice<PSet<E>> {
+public class FullSetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public PSet<E> top() {
+    public Set.Immutable<E> top() {
         return TOP;
     }
 
     @Override
-    public PSet<E> bottom() {
-        return Empty.set();
+    public Set.Immutable<E> bottom() {
+        return Set.Immutable.of();
     }
 
     @Override
-    public boolean lte(PSet<E> one, PSet<E> other) {
+    public boolean lte(Set.Immutable<E> one, Set.Immutable<E> other) {
         if (other == TOP) {
             return true;
         } else if (one == TOP) {
@@ -31,27 +31,27 @@ public class FullSetLattice<E> implements CompleteLattice<PSet<E>> {
     }
 
     @Override
-    public PSet<E> glb(PSet<E> one, PSet<E> other) {
+    public Set.Immutable<E> glb(Set.Immutable<E> one, Set.Immutable<E> other) {
         if (other == TOP) {
             return one;
         } else if (one == TOP) {
             return other;
         } else {
-            return one.minusAll(one.minusAll(other));
+            return Set.Immutable.subtract(one, Set.Immutable.subtract(one, other));
         }
     }
 
     @Override
-    public PSet<E> lub(PSet<E> one, PSet<E> other) {
+    public Set.Immutable<E> lub(Set.Immutable<E> one, Set.Immutable<E> other) {
         if (one == TOP || other == TOP) {
             return this.top();
         } else {
-            return one.plusAll(other);
+            return Set.Immutable.union(one, other);
         }
     }
 
     @SuppressWarnings("rawtypes")
-    public static final PSet TOP = new PSet() {
+    public static final Set.Immutable TOP = new Set.Immutable() {
 
         @Override
         public int size() {
@@ -89,30 +89,6 @@ public class FullSetLattice<E> implements CompleteLattice<PSet<E>> {
         }
 
         @Override
-        public PSet plus(Object e) {
-            return this;
-        }
-
-        @Override
-        public PSet plusAll(Collection list) {
-            return this;
-        }
-
-//        @SuppressWarnings("unchecked")
-        @Override
-        public PSet minus(Object e) {
-            throw new UnsupportedOperationException();
-//            return new Complement(OrderedPSet.singleton(e));
-        }
-
-//        @SuppressWarnings("unchecked")
-        @Override
-        public PSet<Object> minusAll(Collection list) {
-            throw new UnsupportedOperationException();
-//            return new Complement(OrderedPSet.from(list));
-        }
-
-        @Override
         public boolean add(Object o) {
             throw new UnsupportedOperationException();
         }
@@ -141,6 +117,56 @@ public class FullSetLattice<E> implements CompleteLattice<PSet<E>> {
         public void clear() {
             throw new UnsupportedOperationException();
         }
+
+		@Override
+		public Object get(Object o) {
+            throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Iterator keyIterator() {
+            throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean equivalent(Object o, EqualityComparator cmp) {
+            throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Set.Immutable __insert(Object key) {
+			return this;
+		}
+
+		@Override
+		public Set.Immutable __remove(Object key) {
+            throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Set.Immutable __insertAll(java.util.Set set) {
+			return this;
+		}
+
+		@Override
+		public Set.Immutable __removeAll(java.util.Set set) {
+            throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Set.Immutable __retainAll(java.util.Set set) {
+            throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isTransientSupported() {
+			return false;
+		}
+
+		@Override
+		public Set.Transient asTransient() {
+			return null;
+		}
 
     };
 }

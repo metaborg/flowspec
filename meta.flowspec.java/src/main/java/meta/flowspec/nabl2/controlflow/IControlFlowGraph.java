@@ -1,21 +1,20 @@
 package meta.flowspec.nabl2.controlflow;
 
 import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.util.tuples.ImmutableTuple2;
 import meta.flowspec.nabl2.util.tuples.Tuple2;
 
 import meta.flowspec.java.interpreter.TransferFunctionAppl;
 import meta.flowspec.nabl2.util.collections.IFunction;
 import meta.flowspec.nabl2.util.collections.IRelation2;
-import meta.flowspec.nabl2.util.collections.ISet;
+import io.usethesource.capsule.Set;
 
 public interface IControlFlowGraph<S extends ICFGNode> {
 
-    ISet<S> getAllCFGNodes();
+    Set<S> getAllCFGNodes();
 
-    ISet<S> getAllStarts();
+    Set<S> getAllStarts();
 
-    ISet<S> getAllEnds();
+    Set<S> getAllEnds();
 
 
     IFunction<Tuple2<S, String>, Object> getProperties();
