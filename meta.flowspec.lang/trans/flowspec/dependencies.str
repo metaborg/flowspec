@@ -11,9 +11,9 @@ prop-dependency-graph: Module(modulename, import*, _, def*) -> <prop-dependency-
 
 prop-dependency-graph: [] -> []
 prop-dependency-graph: def*@[_|_] ->
-  <retain-all(?PropRule(_, _, _, _, _));mapconcat(prop-dep-graph)> def*
+  <retain-all(?PropRule(_, _, _, _));mapconcat(prop-dep-graph)> def*
 
-prop-dep-graph: PropRule(name, _, rhs, _, whereclause) -> result
+prop-dep-graph: PropRule(name, _, rhs, whereclause) -> result
 with
-  uses := <collect-all(?PropRef(<id>))> (rhs, whereclause)
+  uses := <collect-all(?Prop(<id>,_))> (rhs, whereclause)
 ; result := <map(!(name, <id>))> uses

@@ -25,7 +25,7 @@ TypeName       = [A-Z] [a-zA-Z0-9]*
 Var            = [a-z] [a-zA-Z0-9]*
 SortName       = [A-Z] [a-zA-Z0-9]*
 ConsName       = [A-Z] [a-zA-Z0-9]*
-PropName       = [A-Z] [a-zA-Z0-9]*
+PropName       = [a-z] [a-zA-Z0-9]*
 
 // Keyword removal
 Var = "for" {reject}
@@ -40,6 +40,7 @@ Var = "exit" {reject}
 Var = "start" {reject}
 Var = "end" {reject}
 Var = "name" {reject}
+Var = "in" {reject}
 
 lexical restrictions
 

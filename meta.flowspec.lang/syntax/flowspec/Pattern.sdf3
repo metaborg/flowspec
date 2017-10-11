@@ -7,25 +7,16 @@ flowspec/Expr
 
 context-free syntax
 
-TermPattern.Term = [[ConsName]([{TermPattern ", "}*])]
-TermPattern = Wildcard
-TermPattern.Var = Var
-TermPattern.At = [[Var]@[TermPattern]]
-TermPattern = Literal
+Pattern.Term = [[ConsName]([{Pattern ", "}*])]
+Pattern.Tuple = [([Pattern], [{Pattern ", "}+])]
+Pattern = Wildcard
+Pattern.Var = Var
+Pattern.At = [[Var]@[Pattern]]
+Pattern = Literal
+Pattern.Start = [start]
+Pattern.End = [end]
 
 Wildcard.Wildcard = "_"
-
-FunPatternAppl.ADTAppl = [[FunPatternAppl] [FunPattern]] {left}
-FunPatternAppl.ADTCons = [[ConsName]]
-
-FunPattern.ADTAppl = [([FunPatternAppl] [FunPattern])]
-FunPattern.ADTCons = [[ConsName]]
-FunPattern.Term = [[ConsName]([{FunPattern ", "}*])]
-FunPattern = Wildcard
-FunPattern.Var = Var
-FunPattern.At = [[Var]@[FunPattern]]
-FunPattern.Tuple = [([FunPattern], [{FunPattern ", "}+])]
-FunPattern = Literal
 
 template options
 

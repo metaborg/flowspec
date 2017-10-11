@@ -10,16 +10,15 @@ flowspec/Flow
 
 context-free syntax // Properties
 
-PropDef.PropDef = [prop [PropName] = [Type]]
+PropDef.PropDef = [prop [PropName]: [Type]]
 
 context-free syntax // Property Rules
 
-PropRule.PropRule = [[PropName] [TermPattern] [PropDir] = [Expr] [PropWhere]]
+PropRule.PropRule = [[PropName]([PropPattern]) = [Expr] [PropWhere]]
 
-// Yes, this is confusing... But it's probably even worse when you let the TermPattern on both sides of the arrow
-PropDir.Backward = [-> [Var]]
-PropDir.Forward = [<- [Var]]
-PropDir.FlowInsensitive =
+PropPattern.Backward = [[Pattern] -> [Var]]
+PropPattern.Forward = [[Var] -> [Pattern]]
+PropPattern.FlowInsensitive = Pattern
 
 PropWhere.NoWhereClause =
 PropWhere.WhereClause = [where [{Binding "\n"}+]]

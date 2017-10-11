@@ -56,14 +56,14 @@ with
   importstring := <map(?Import(<id>));lines_> import*
 ; astroot' := <map(\AstRoot(cons, children) -> (<strip-annos> cons, <length> children)\)> astroot*
 ; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str(|astroot'));lines_> def*
-; proprule* := <retain-all(?PropRule(_, _, _, _, _))> def*
+; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _)); strip-annos> def*
 ; matchpropsstring := <map(\n -> ${("{n}", <flowspec--proprule-{n}> term)}\);csv-lines> propnames
 ; propstring := <number-prop-rules(|propnames);map(gen-str);lines_> proprule*
 
 number-prop-rules(|propnames): proprules -> numberedproprules
 with
-  named := <map(\p@PropRule(n,_,_,_,_) -> (<strip-annos> n,p)\)> proprules
+  named := <map(\p@PropRule(n,_,_,_) -> (<strip-annos> n,p)\)> proprules
 ; numberedproprules := <thread-map(number-prop-rules-helper);Fst> (named, <map(!(<id>, 0))> propnames)
 
 number-prop-rules-helper: ((n,p),l) -> ((n',p),l')
@@ -276,10 +276,15 @@ pattern-vars: At(ident, pattern) -> [$[match[ident]] | <pattern-vars> pattern]
 pattern-vars: Term(consname, subpattern*) -> <mapconcat(pattern-vars)> subpattern*
 pattern-vars: Wildcard() -> []
 
+pattern-in-dir: Forward(_, p) -> p
+pattern-in-dir: Backward(p,_) -> p
+pattern-in-dir: FlowInsensitive(p) -> p
+
 // PropRule
 
-gen-str: (n, PropRule(name, pattern, dir, body, whereClause)) -> rulestring
+gen-str: (n, PropRule(name, pattern, _, _)) -> rulestring
 with
-  patternstring := <gen-match-pattern-str> pattern
-; vars := <pattern-vars> pattern
+  pattern' := <pattern-in-dir> pattern
+; patternstring := <gen-match-pattern-str> pattern'
+; vars := <pattern-vars> pattern'
 ; rulestring := ${flowspec--proprule-{name}: {patternstring} -> ({n}, [{<csv> vars}])}

@@ -8,7 +8,7 @@ flowspec/Pattern
 
 context-free syntax
 
-CFGRule.CFGRule = [cfg [Root] [TermPattern] = [{CFGChain ", "}+]]
+CFGRule.CFGRule = [cfg [Root] [Pattern] = [{CFGChain ", "}+]]
 CFGChain.Chain = {CFGChainElement "->"}+
 CFGChainElement.Entry = [entry]
 CFGChainElement.Exit = [exit]

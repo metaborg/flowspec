@@ -1,6 +1,6 @@
 module AvailableExpressions
 
-cfg Root(s) = entry -> cfg s -> exit
+cfg root Root(s) = start -> cfg s -> end
 
 cfg this@Assign(n, e) =
   entry -> cfg e -> this -> exit
@@ -16,18 +16,15 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-prop Reads = Set name
+prop reads: Set name
 
-Reads Ref(n) = Set.new n
+reads(Ref(n)) = {n}
 
-Reads BinOp(l, _, r) =
-  Set.union (Reads l) (Reads r)
+reads(BinOp(l, _, r)) = reads(l) \/ reads(r)
 
-prop Available = MustSet term
+prop available: MustSet term
 
-Available Assign(n, e) <- pred =
-  { expr |
-    expr in Set.plus (Available pred) e,
-    Set.contains n (Reads expr) }
+available(prev -> Assign(n, e)) =
+  { expr | expr <- available(prev) \/ {e}, !(n in reads(expr)) }
 
-Available this <- pred = Available pred
+available(prev -> _) = available(prev)

@@ -52,7 +52,7 @@ rules
 
   [[ CFGRule(_, pattern, chains) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
-    RulePattern [[ pattern ^ (ruleScope) ]],
+    Pattern [[ pattern ^ (ruleScope) ]],
     Variable { Entry() } <- ruleScope,
     Variable { Exit() } <- ruleScope,
     Variable { Start() } <- ruleScope,
@@ -91,57 +91,35 @@ rules
 
 // Pattern
 
-  RulePatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
-    RulePattern [[ pattern ^ (ruleScope) ]],
-    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
+  PropPattern [[ Backward(patt, var) ^ (ruleScope) ]] :=
+    Variable { var } <- ruleScope,
+    Pattern [[ patt ^ (ruleScope) ]].
+  PropPattern [[ Forward(var, patt) ^ (ruleScope) ]] :=
+    Variable { var } <- ruleScope,
+    Pattern [[ patt ^ (ruleScope) ]].
+  PropPattern [[ FlowInsensitive(patt) ^ (ruleScope) ]] :=
+    Pattern [[ patt ^ (ruleScope) ]].
 
-  RulePatternMap1 [[ [] ^ (_) ]].
+  PatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
+    Pattern [[ pattern ^ (ruleScope) ]],
+    PatternMap1 [[ patterns ^ (ruleScope) ]].
 
-  RulePattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
-    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
+  PatternMap1 [[ [] ^ (_) ]].
 
-  RulePattern [[ Wildcard() ^ (ruleScope) ]] := true.
+  Pattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
+    PatternMap1 [[ patterns ^ (ruleScope) ]].
 
-  RulePattern [[ Var(x) ^ (ruleScope) ]] :=
+  Pattern [[ Wildcard() ^ (ruleScope) ]] := true.
+
+  Pattern [[ Var(x) ^ (ruleScope) ]] :=
     Variable { x } <- ruleScope.
 
-  RulePattern [[ At(x, pattern) ^ (ruleScope) ]] :=
+  Pattern [[ At(x, pattern) ^ (ruleScope) ]] :=
     Variable { x } <- ruleScope,
-    RulePattern [[ pattern ^ (ruleScope) ]].
+    Pattern [[ pattern ^ (ruleScope) ]].
 
-  RulePattern [[ Int(_) ^ (_) ]]. // Literal
-  RulePattern [[ String(_) ^ (_) ]]. // Literal
-
-  FunPatternMap1 [[ [pattern|patterns] ^ (scope) ]] :=
-    FunPattern [[ pattern ^ (scope) ]],
-    FunPatternMap1 [[ patterns ^ (scope) ]].
-
-  FunPatternMap1 [[ [] ^ (_) ]].
-
-  FunPattern [[ ADTAppl(appl, pattern) ^ (ruleScope) ]] :=
-    RulePattern [[ appl ^ (ruleScope) ]],
-    RulePattern [[ pattern ^ (ruleScope) ]].
-
-  FunPattern [[ ADTCons(_) ^ (ruleScope) ]] := true.
-
-  FunPattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
-    RulePatternMap1 [[ patterns ^ (ruleScope) ]].
-
-  FunPattern [[ Wildcard() ^ (ruleScope) ]] := true.
-
-  FunPattern [[ Var(x) ^ (ruleScope) ]] :=
-    Variable { x } <- ruleScope.
-
-  FunPattern [[ At(x, pattern) ^ (ruleScope) ]] :=
-    Variable { x } <- ruleScope,
-    RulePattern [[ pattern ^ (ruleScope) ]].
-
-  FunPattern [[ Tuple(p1, p2) ^ (scope) ]] :=
-    FunPattern [[ p1 ^ (scope) ]],
-    FunPatternMap1 [[ p2 ^ (scope) ]].
-
-  FunPattern [[ Int(_) ^ (_) ]]. // FunLiteral
-  FunPattern [[ String(_) ^ (_) ]]. // FunLiteral
+  Pattern [[ Int(_) ^ (_) ]]. // Literal
+  Pattern [[ String(_) ^ (_) ]]. // Literal
 
 // Properties
 
@@ -254,20 +232,13 @@ rules
 
 // Property rules
 
-  [[ PropRule(prop, pattern, dir, expr, whereclause) ^ (moduleScope) ]] :=
+  [[ PropRule(prop, pattern, expr, whereclause) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
-    RulePattern [[ pattern ^ (ruleScope) ]],
+    PropPattern [[ pattern ^ (ruleScope) ]],
     Property { prop } -> ruleScope,
-    [[ dir ^ (ruleScope) ]],
 //    [[ expr ^ (ruleScope) ]],
     [[ whereclause ^ (ruleScope) ]],
     new ruleScope.
-
-  [[ Backward(var) ^ (ruleScope) ]] :=
-    Variable { var } <- ruleScope.
-  [[ Forward(var) ^ (ruleScope) ]] :=
-    Variable { var } <- ruleScope.
-  [[ FlowInsensitive() ^ (ruleScope) ]] := true.
 
   [[ NoWhereClause() ^ (ruleScope) ]] := true.
   [[ WhereClause(bindings) ^ (ruleScope) ]] :=
@@ -282,7 +253,7 @@ rules
   [[ FunDef(var, funpatterns, expr) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
     Variable { var } <- ruleScope,
-    FunPatternMap1 [[ funpatterns ^ (ruleScope) ]],
+    PatternMap1 [[ funpatterns ^ (ruleScope) ]],
 //    [[ expr ^ (ruleScope) ]],
     new ruleScope.
 

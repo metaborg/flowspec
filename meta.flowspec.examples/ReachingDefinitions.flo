@@ -16,26 +16,20 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-prop Definition = MaySet (name * Option term)
+prop definition: MaySet (name * Option term)
 
-Definition this@Assign(n, e) <- pred = Set.plus (n, Some this.label) defs
-where defs = Set.filter (Definition pred)
-               (\(nm, _). n == nm)
+definition(prev -> this@Assign(n, e)) =
+  { (n, Some(this)) } \/
+  { (m, l) | (m, l) <- definition(pred), m != n }
 
-Definition this <- pred = Definitions pred
+definition(prev -> this) = definition(prev)
 
-Definition this <- entry = Set.map reads (\n. (n, None))
-where reads = Live this
+definition(start) = { (n, None()) | n <- live(start) }
 
-prop UsesDef = Set term
+prop usesDef: Set term
 
-UsesDef this@Ref(n) =
-  Set.filter
-    (Definition this)
-    (\(nm, opt).
-      if n == m
-        then opt != None
-        else false)
+usesDef(this@Ref(n)) =
+  { (nm, opt) | (nm, opt) <- definition(this), if n == m then opt != None() else false }
 
 // property rules
 // 

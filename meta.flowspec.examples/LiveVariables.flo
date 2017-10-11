@@ -16,13 +16,10 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-prop Live = MaySet name
+prop live: MaySet name
 
-Live Ref(n) -> successor = Set.plus vars n
-where vars = Live successor
+live(Ref(n) -> next) = live(next) \/ {n}
 
-Live Assign(n, e) -> successor = Set.minus vars n
-where vars = Live successor
+live(Assign(n, e) -> next) = { m | m <- live(next), n != m }
 
-Live this -> successor = vars
-where vars = Live successor
+live(_ -> next) = live(next)

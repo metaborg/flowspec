@@ -16,27 +16,30 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
   
-prop Write = Set name
-prop Read = Set name
-prop Expr = Option term
+prop write: Set name
+prop read: Set name
+prop expr: Option term
 
-//  Assign(x, e) has Write x.
-//
-//  Ref(n) has Read n.
-//
-//  Add(e1, e2), Sub(e1, e2), Mul(e1, e2), Or(e1, e2), And(e1, e2),
-//  Eq(e1, e2), Gt(e1, e2), Gte(e1, e2), Lt(e1, e2), Lte(e1, e2) has Expr this.
-//
-//properties
-//
-//  VeryBusy:  MustSet(Expr)
-//
-//property rules
-//
-//  st has VeryBusy e
-//  where st has Expr e.
-//
-//  st has VeryBusy e
-//  where st has successor st2,
-//        st2 has VeryBusy e,
-//        not (e has Read x, st has Write x).
+write(Assign(x, e)) = {x}
+
+read(Ref(n)) = {n}
+
+expr(this@Add(_,_)) = Some(this)
+expr(this@Sub(_,_)) = Some(this)
+expr(this@Mul(_,_)) = Some(this)
+expr(this@Or(_,_)) = Some(this)
+expr(this@Eq(_,_)) = Some(this)
+expr(this@Gt(_,_)) = Some(this)
+expr(this@Gte(_,_)) = Some(this)
+expr(this@Lt(_,_)) = Some(this)
+expr(this@Lte(_,_)) = Some(this)
+
+prop veryBusy: MustSet term
+
+veryBusy(Assign(n, rhs) -> next) =
+  { e |
+    e <- {rhs} \/ (veryBusy next),
+    !(n in (read e)),
+    !(n in (write e)) }
+
+veryBusy(_ -> next) = veryBusy next

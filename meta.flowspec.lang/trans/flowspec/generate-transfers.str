@@ -18,17 +18,17 @@ rules
 
 gen-tf: Module(_, _, _, def*) -> transfer-functions
 with
-  proprule* := <retain-all(?PropRule(_, _, _, _, _))> def*
+  proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _)); strip-annos> def*
 ; numberedrules := <number-prop-rules(|propnames)> proprule*
 ; transfer-functions := <map(gen-tf); bundle-tfs(|propnames)>
 
-gen-tf: (n, PropRule(name, pattern, dir, body, wherecl)) ->
+gen-tf: (n, PropRule(name, pattern, body, wherecl)) ->
   <strip-annos> (name, d, n, TransferFunction([var*,dirvar*], Where(body, binding*)))
 with
-  dirvar* := <?Forward(<id>);![<id>] + ?Backward(<id>);![<id>] + \FlowInsensitive() -> []\> dir
-; d := <\Forward(_) -> Fw()\ + \Backward(_) -> Bw()\ + \FlowInsensitive() -> NA()\> dir
-; var* := <pattern-vars> pattern
+  dirvar* := <?Forward(<id>,_);![<id>] + ?Backward(_,<id>);![<id>] + \FlowInsensitive(_) -> []\> pattern
+; d := <\Forward(_,_) -> Fw()\ + \Backward(_,_) -> Bw()\ + \FlowInsensitive(_) -> NA()\> pattern
+; var* := <pattern-in-dir;pattern-vars> pattern
 ; binding* := <\NoWhereClause -> []\ + ?WhereClause(<id>)> wherecl
 
 bundle-tfs(|propnames): list -> result

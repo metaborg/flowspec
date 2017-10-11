@@ -10,29 +10,36 @@ context-free syntax // expressions
 Expr.Term = [[ConsName]([{Expr ","}*])]
 Expr.QualRef = [[ModuleName].[Var]] {avoid}
 Expr.Ref = Var
-Expr.PropRef = PropName
+Expr.Prop = [[PropName]([Var])]
 Expr.Tuple = [([Expr], [{Expr ", "}+])]
 Expr = Literal
+Expr.Start = [start]
+Expr.End = [end]
 // TODO: add ADT application
 
 Expr = [([Expr])] {bracket}
 Expr.Type = [[Var].type]
-Expr.Abs = [\[FunPattern]. [Expr]]
 Expr.Appl = [[Expr] [Expr]] {left}
 Expr.If = [if [Expr] then [Expr] else [Expr]]
-Expr.Eq = [[Expr] == [Expr]] {non-assoc}
-Expr.NEq = [[Expr] != [Expr]] {non-assoc}
+Expr.Eq = [[Expr] == [Expr]] {left}
+Expr.NEq = [[Expr] != [Expr]] {left}
+Expr.Not = [![Expr]]
 Expr.Match = [match [Expr] with [MatchArm+]] {longest-match}
 
+Expr.SetLiteral = [{ [{Expr ","}+] }]
 Expr.SetComp = [{ [Expr] | [{SetCompExpr ", "}+] }]
-// TODO: expand from Var to Pattern, merge Patterns first
-SetCompExpr.Source = [[Var] in [Expr]]
+SetCompExpr.Source = [[Pattern] <- [Expr]]
 SetCompExpr.Predicate = Expr
 
-MatchArm.MatchArm = [| [FunPattern] => [Expr]]
+Expr.SetUnion = [[Expr] \/ [Expr]] {left}
+Expr.SetDifference = [[Expr] \ [Expr]] {left}
+Expr.SetContains = [[Expr] in [Expr]] {left}
+Expr.SetIntersection = [[Expr] /\ [Expr]] {left}
+
+MatchArm.MatchArm = [| [Pattern] => [Expr]]
 
 Literal.Int = INT
 Literal.String = STRING
 
 context-free priorities
-  { Expr.Appl Expr.If Expr.Match } > Expr.Abs > Expr.Eq
+  Expr.Not > { left: Expr.Appl Expr.If Expr.Match } > { non-assoc: Expr.SetUnion Expr.SetIntersection Expr.SetContains Expr.SetDifference } > { left: Expr.Eq Expr.NEq }
