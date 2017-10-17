@@ -41,6 +41,7 @@ Var = "start" {reject}
 Var = "end" {reject}
 Var = "name" {reject}
 Var = "in" {reject}
+PropName = "cfg" {reject}
 
 lexical restrictions
 

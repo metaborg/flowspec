@@ -10,36 +10,31 @@ cfg Skip() = entry -> exit
 cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
 
 cfg IfThenElse(c, t, e) =
-  entry -> c -> cfg t -> exit, 
+  entry -> c -> cfg t -> exit,
            c -> cfg e -> exit
 
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
-  
-prop write: Set name
-prop read: Set name
-prop expr: Option term
 
-write(Assign(x, e)) = {x}
+prop read: Set(name)
 
+read(this@BinOp(l,_,r)) = read(l) \/ read(r)
+read(this@UnOp(_,e)) = read(e)
 read(Ref(n)) = {n}
+read(Literal(_)) = {}
 
-expr(this@Add(_,_)) = Some(this)
-expr(this@Sub(_,_)) = Some(this)
-expr(this@Mul(_,_)) = Some(this)
-expr(this@Or(_,_)) = Some(this)
-expr(this@Eq(_,_)) = Some(this)
-expr(this@Gt(_,_)) = Some(this)
-expr(this@Gte(_,_)) = Some(this)
-expr(this@Lt(_,_)) = Some(this)
-expr(this@Lte(_,_)) = Some(this)
+prop expr: Set(term)
 
-prop veryBusy: MustSet term
+expr(this@BinOp(l,_,r)) = {this} \/ expr(l) \/ expr(r)
+expr(this@UnOp(_,e)) = {this} \/ expr(e)
+expr(Ref(_)) = {}
+expr(Literal(_)) = {}
 
-veryBusy(Assign(n, rhs) -> next) =
-  { e |
-    e <- {rhs} \/ (veryBusy next),
-    !(n in (read e)),
-    !(n in (write e)) }
+prop veryBusy: MustSet(term)
 
-veryBusy(_ -> next) = veryBusy next
+veryBusy(Assign(n, e) -> next) =
+  { expr |
+    expr <- veryBusy(next) \/ expr(e),
+    !(n in read(expr)) }
+
+veryBusy(_ -> next) = veryBusy(next)

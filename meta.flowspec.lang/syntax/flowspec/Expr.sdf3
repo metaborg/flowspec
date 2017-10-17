@@ -26,10 +26,11 @@ Expr.NEq = [[Expr] != [Expr]] {left}
 Expr.Not = [![Expr]]
 Expr.Match = [match [Expr] with [MatchArm+]] {longest-match}
 
-Expr.SetLiteral = [{ [{Expr ","}+] }]
+Expr.SetLiteral = [{ [{Expr ","}*] }]
 Expr.SetComp = [{ [Expr] | [{SetCompExpr ", "}+] }]
 SetCompExpr.Source = [[Pattern] <- [Expr]]
 SetCompExpr.Predicate = Expr
+SetCompExpr.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longest-match}
 
 Expr.SetUnion = [[Expr] \/ [Expr]] {left}
 Expr.SetDifference = [[Expr] \ [Expr]] {left}
@@ -37,6 +38,7 @@ Expr.SetContains = [[Expr] in [Expr]] {left}
 Expr.SetIntersection = [[Expr] /\ [Expr]] {left}
 
 MatchArm.MatchArm = [| [Pattern] => [Expr]]
+SetCompMatchArm.MatchArm = [| [Pattern]]
 
 Literal.Int = INT
 Literal.String = STRING
