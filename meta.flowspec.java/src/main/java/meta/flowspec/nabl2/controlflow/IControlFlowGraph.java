@@ -1,27 +1,25 @@
 package meta.flowspec.nabl2.controlflow;
 
-import meta.flowspec.nabl2.controlflow.ICFGNode;
+import io.usethesource.capsule.BinaryRelation;
+import io.usethesource.capsule.Map;
+import io.usethesource.capsule.Set;
+import meta.flowspec.java.interpreter.TransferFunctionAppl;
 import meta.flowspec.nabl2.util.tuples.Tuple2;
 
-import meta.flowspec.java.interpreter.TransferFunctionAppl;
-import meta.flowspec.nabl2.util.collections.IFunction;
-import meta.flowspec.nabl2.util.collections.IRelation2;
-import io.usethesource.capsule.Set;
+public interface IControlFlowGraph<N extends ICFGNode> {
 
-public interface IControlFlowGraph<S extends ICFGNode> {
+    Set<N> getAllCFGNodes();
 
-    Set<S> getAllCFGNodes();
+    Set<N> getAllStarts();
 
-    Set<S> getAllStarts();
-
-    Set<S> getAllEnds();
+    Set<N> getAllEnds();
 
 
-    IFunction<Tuple2<S, String>, Object> getProperties();
+    Map<Tuple2<N, String>, Object> getProperties();
 
-    IFunction<Tuple2<S, String>, TransferFunctionAppl> getTFAppls();
+    Map<Tuple2<N, String>, TransferFunctionAppl> getTFAppls();
 
-    IRelation2<S, S> getDirectEdges();
+    BinaryRelation<N, N> getDirectEdges();
 
-    Object getProperty(S node, String prop);
+    Object getProperty(N node, String prop);
 }

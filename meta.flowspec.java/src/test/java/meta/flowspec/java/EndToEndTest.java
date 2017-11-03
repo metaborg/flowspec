@@ -2,21 +2,17 @@ package meta.flowspec.java;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.usethesource.capsule.Set;
-import io.usethesource.capsule.Map;
-import io.usethesource.capsule.BinaryRelation;
-
-import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 
+import io.usethesource.capsule.BinaryRelation;
+import io.usethesource.capsule.Map;
+import io.usethesource.capsule.Set;
 import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.interpreter.TransferFunctionAppl;
 import meta.flowspec.java.interpreter.Where;

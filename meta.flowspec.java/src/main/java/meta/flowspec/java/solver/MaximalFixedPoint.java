@@ -64,7 +64,7 @@ public abstract class MaximalFixedPoint {
         }
 
         // Phase 2: Fixpoint iteration
-        final IRelation2<CFGNode, CFGNode> edges;
+        final BinaryRelation<CFGNode, CFGNode> edges;
         switch (metadata.dir()) {
             case Forward: {
                 edges = cfg.getDirectEdges();
