@@ -10,7 +10,7 @@ context-free syntax // expressions
 Expr.Term = [[ConsName]([{Expr ","}*])]
 Expr.QualRef = [[ModuleName].[Var]] {avoid}
 Expr.Ref = Var
-Expr.Prop = [[PropName]([Var])]
+Expr.Prop = [[PropName]([Var])] {prefer}
 Expr.Tuple = [([Expr], [{Expr ", "}+])]
 Expr = Literal
 Expr.Start = [start]
@@ -19,7 +19,7 @@ Expr.End = [end]
 
 Expr = [([Expr])] {bracket}
 Expr.Type = [[Var].type]
-Expr.Appl = [[Expr] [Expr]] {left}
+Expr.Appl = [[Expr]([{Expr ", "}+])] {left}
 Expr.If = [if [Expr] then [Expr] else [Expr]]
 Expr.Eq = [[Expr] == [Expr]] {left}
 Expr.NEq = [[Expr] != [Expr]] {left}

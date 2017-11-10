@@ -12,18 +12,18 @@ signature
 
   constructors
     Prop: Type -> Type
-//    Term : Type
+    Term : Type
     Map : Type * Type -> Type
     Set : Type -> Type
-//    Name : Type
-//    Origin : Type
-//    Lub    : LatticeComponent
-//    Glb    : LatticeComponent
-//    Leq    : LatticeComponent
-//    Geq    : LatticeComponent
-//    NLeq   : LatticeComponent
-//    Top    : LatticeComponent
-//    Bottom : LatticeComponent
+    Name : Type
+    Origin : Type
+    Lub    : LatticeComponent
+    Glb    : LatticeComponent
+    Leq    : LatticeComponent
+    Geq    : LatticeComponent
+    NLeq   : LatticeComponent
+    Top    : LatticeComponent
+    Bottom : LatticeComponent
 
 rules
 
@@ -167,7 +167,7 @@ rules
     Type { Type() } <- latticeDefScope.
 
   [[ Lub(var1, var2, expr) ^ (latticeDefScope) ]] :=
-//    Variable { Lub() } <- latticeDefScope,
+    Variable { Lub() } <- latticeDefScope,
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
@@ -175,7 +175,7 @@ rules
     new funScope.
 
   [[ Glb(var1, var2, expr) ^ (latticeDefScope) ]] :=
-//    Variable { Glb() } <- latticeDefScope,
+    Variable { Glb() } <- latticeDefScope,
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
@@ -183,7 +183,7 @@ rules
     new funScope.
 
   [[ Leq(var1, var2, expr) ^ (latticeDefScope) ]] :=
-//    Variable { Leq() } <- latticeDefScope,
+    Variable { Leq() } <- latticeDefScope,
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
@@ -191,7 +191,7 @@ rules
     new funScope.
 
   [[ Geq(var1, var2, expr) ^ (latticeDefScope) ]] :=
-//    Variable { Geq() } <- latticeDefScope,
+    Variable { Geq() } <- latticeDefScope,
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
@@ -199,19 +199,19 @@ rules
     new funScope.
 
   [[ NLeq(var1, var2, expr) ^ (latticeDefScope) ]] :=
-//    Variable { NLeq() } <- latticeDefScope,
+    Variable { NLeq() } <- latticeDefScope,
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
 //    [[ expr ^ (funScope) ]],
     new funScope.
 
-  [[ Top(expr) ^ (latticeDefScope) ]].
-//    Variable { Top() } <- latticeDefScope.
+  [[ Top(expr) ^ (latticeDefScope) ]] :=
+    Variable { Top() } <- latticeDefScope.
 //    [[ expr ^ (latticeDefScope) ]].
 
-  [[ Bottom(expr) ^ (latticeDefScope) ]].
-//    Variable { Bottom() } <- latticeDefScope.
+  [[ Bottom(expr) ^ (latticeDefScope) ]] :=
+    Variable { Bottom() } <- latticeDefScope.
 //    [[ expr ^ (latticeDefScope) ]].
 
   [[ Name() ^ (moduleScope) ]] := true.

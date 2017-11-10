@@ -12,7 +12,7 @@ TypeDef.TypeDef =
 [type [TypeName] [Var*] =
   [{ConsDef "\n"}+]]
 
-ConsDef.ConsDef = [| [ConsName] [{TypeOrVar " "}*]]
+ConsDef.ConsDef = [| [ConsName]([{TypeOrVar " "}*])]
 
 TypeOrVar = Type
 TypeOrVar.Var = Var
@@ -37,6 +37,7 @@ context-free syntax // Type expressions
 Type = SimpleType
 SimpleType.Name = "name"
 SimpleType.Term = "term"
+SimpleType.Int = "int"
 SimpleType.UserType = [[TypeName] [Type*]] {avoid}
 Type = [([Type])] {bracket}
 Type.Tuple = [[Type] * [Type]] {right}
