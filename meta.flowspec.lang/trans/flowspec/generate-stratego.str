@@ -75,7 +75,7 @@ with
 
 gen-str(|astroot*): CFGRule(r, pattern, chain*) ->
 ${nabl2--generate-constraint-{rulename}-rule(|):
-    _ -> nabl2_constraint
+    _ -> <foldl(!CConj(<Fst>, <Snd>))> nabl2_constraint
     with(?(nabl2_source, nabl2_term, nabl2_args))
     where({patternstr} := nabl2_term)
     with({paramcons}(
