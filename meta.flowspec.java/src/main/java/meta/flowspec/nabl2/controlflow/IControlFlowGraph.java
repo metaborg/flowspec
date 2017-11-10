@@ -22,4 +22,6 @@ public interface IControlFlowGraph<N extends ICFGNode> {
     BinaryRelation<N, N> getDirectEdges();
 
     Object getProperty(N node, String prop);
+
+    boolean isEmpty();
 }

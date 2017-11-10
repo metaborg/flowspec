@@ -62,4 +62,8 @@ public class TransferFunction extends RootNode {
             default : throw new IllegalArgumentException("Expected constructor TransferFunction");
         }
     }
+    
+    public static TransferFunction fromIStrategoTerm(IStrategoTerm term, IControlFlowGraph<ICFGNode> cfg) {
+        return fromIStrategoTerm(null, new FrameDescriptor(), term, cfg);
+    }
 }

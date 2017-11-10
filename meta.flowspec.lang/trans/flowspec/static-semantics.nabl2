@@ -33,14 +33,14 @@ rules
     new global.
 
   [[ Module(module, imports, _, definitions) ^ (global) ]] :=
-    Module { module } <- global,
-    moduleScope ---> global,
-    Module { module } ===> moduleScope,
-    Map1 [[ imports ^ (global, moduleScope) ]],
-    Map1 [[ definitions ^ (moduleScope) ]],
-    distinct D(moduleScope)/Module,
-    distinct D(moduleScope)/Property,
-    distinct D(moduleScope)/Type,
+//    Module { module } <- global,
+//    moduleScope ---> global,
+//    Module { module } ===> moduleScope,
+//    Map1 [[ imports ^ (global, moduleScope) ]],
+//    Map1 [[ definitions ^ (moduleScope) ]],
+//    distinct D(moduleScope)/Module,
+//    distinct D(moduleScope)/Property,
+//    distinct D(moduleScope)/Type,
     new moduleScope.
   
   [[ Import(mod) ^ (global, moduleScope) ]] :=

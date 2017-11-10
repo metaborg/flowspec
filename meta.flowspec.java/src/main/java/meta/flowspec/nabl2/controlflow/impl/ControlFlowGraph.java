@@ -124,6 +124,11 @@ public class ControlFlowGraph<N extends ICFGNode>
     }
 
     @Override
+    public boolean isEmpty() {
+        return directEdges.isEmpty();
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -168,6 +173,6 @@ public class ControlFlowGraph<N extends ICFGNode>
     }
     
     public static <T extends ICFGNode> ControlFlowGraph<T> of() {
-    	return new ControlFlowGraph<>();
+        return new ControlFlowGraph<>();
     }
 }
