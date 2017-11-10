@@ -28,9 +28,11 @@ Expr.Match = [match [Expr] with [MatchArm+]] {longest-match}
 
 Expr.SetLiteral = [{ [{Expr ","}*] }]
 Expr.SetComp = [{ [Expr] | [{SetCompExpr ", "}+] }]
-SetCompExpr.Source = [[Pattern] <- [Expr]]
-SetCompExpr.Predicate = Expr
-SetCompExpr.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longest-match}
+SetCompExpr = SetCompSource
+SetCompExpr = SetCompPredicate
+SetCompPredicate.Predicate = Expr
+SetCompPredicate.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longest-match}
+SetCompSource.Source = [[Pattern] <- [Expr]]
 
 Expr.SetUnion = [[Expr] \/ [Expr]] {left}
 Expr.SetDifference = [[Expr] \ [Expr]] {left}

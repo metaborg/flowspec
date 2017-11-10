@@ -1,0 +1,10 @@
+module flowspec/desugar/Expr
+
+imports
+
+flowspec/Pattern
+flowspec/Expr
+
+context-free syntax // expressions
+
+Expr.SetComp = [{ [Expr] | [{Pattern ", "}+] <<-- [{Expr ", "}+], [{SetCompPredicate ", "}+] }]

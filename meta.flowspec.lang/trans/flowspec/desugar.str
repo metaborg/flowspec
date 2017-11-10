@@ -3,6 +3,7 @@ module desugar
 imports
 
 signatures/flowspec/-
+signatures/flowspec/desugar/-
 libspoofax/term/origin
 libspoofax/stratego/debug
 
@@ -16,10 +17,10 @@ where <s> (x, t) => (y, t')
 
 rules
 
-desugar-all = id
-//  topdown(try(desugar-one));remove-object-sharing-in-strings;warning-on-missing-origin
+desugar-all = topdown(try(desugar-one))
+//;remove-object-sharing-in-strings;warning-on-missing-origin
 
-desugar-one = origin-track-forced(fail)
+desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm)
 
 desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
 where if map(not(s))
@@ -45,3 +46,11 @@ where transformed := <s> original
 
 remove-object-sharing-in-strings =
   topdown(try(is-string;origin-track-forced(explode-string;implode-string)))
+
+rules // FlowSpec specific
+
+desugar-setcomp: SetComp(expr, exprs) -> SetComp(expr, sourcepatterns, sources', exprs')
+with (sources, exprs') := <partition(?Source(_, _))> exprs
+   ; (sourcepatterns, sources') := <unzip(\Source(a,b) -> (a,b)\)> sources
+
+desugar-setcompmatcharm: MatchArm(pattern) -> pattern
