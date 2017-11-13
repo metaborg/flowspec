@@ -75,7 +75,7 @@ with
 
 gen-str(|astroot*): CFGRule(r, pattern, chain*) ->
 ${nabl2--generate-constraint-{rulename}-rule(|):
-    _ -> <foldl(!CConj(<Fst>, <Snd>))> nabl2_constraint
+    _ -> <\[] -> CTrue(<nabl2--get-ast-index> nabl2_term)\ <+ foldr1(?[<id>], !CConj(<Fst>, <Snd>))> nabl2_constraint
     with(?(nabl2_source, nabl2_term, nabl2_args))
     where({patternstr} := nabl2_term)
     with({paramcons}(
@@ -171,7 +171,7 @@ gen-new-cfg-node-str: nodename ->
                    ;try(nabl2--copy-origin(|nabl2_term))> "{nodename}"}
 
 gen-new-var-str: v ->
-  ${{v} := <nabl2--new-var(|nabl2_source)
+  ${{v} := <nabl2--fresh-var(|nabl2_source)
                 ;try(nabl2--copy-origin(|nabl2_term))> "{v}"}
 
 gen-directed-edge-str: (lhs, rhs) ->
@@ -207,7 +207,7 @@ gen-ref-str: Ref(v) ->
       Occurrence(
         Namespace("AST")
       , match{v}
-      , <nabl2--occurrence-index-of(|nabl2_index)> match{v}
+      , <nabl2--occurrence-index-of> match{v}
       )
     , node{v}
     , <nabl2--get-ast-index> nabl2_term
@@ -216,7 +216,7 @@ gen-ref-str: Ref(v) ->
       Occurrence(
         Namespace("TF")
       , <flowspec--proprule> match{v}
-      , <nabl2--occurrence-index-of(|nabl2_index)> match{v}
+      , <nabl2--occurrence-index-of> match{v}
       )
     , node{v}
     , <nabl2--get-ast-index> nabl2_term

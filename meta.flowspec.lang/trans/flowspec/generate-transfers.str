@@ -28,7 +28,7 @@ gen-tf: (n, PropRule(name, pattern, body, wherecl)) ->
 with
   dirvar* := <?Forward(<id>,_);![<id>] + ?Backward(_,<id>);![<id>] + \FlowInsensitive(_) -> []\> pattern
 ; d := <\Forward(_,_) -> Fw()\ + \Backward(_,_) -> Bw()\ + \FlowInsensitive(_) -> NA()\> pattern
-; var* := <pattern-in-dir/*;pattern-vars*/> pattern
+; var* := <pattern-in-dir> pattern
 ; binding* := <\NoWhereClause -> []\ + ?WhereClause(<id>)> wherecl
 
 bundle-tfs(|propnames): list -> result
