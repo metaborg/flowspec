@@ -9,9 +9,9 @@
   <artifactId>meta.flowspec.java</artifactId>
   <packaging>jar</packaging>
 
-  <properties>
+<!--   <properties>
     <immutables-version>2.5.3</immutables-version>
-  </properties>
+  </properties> -->
 
   <dependencies>
     <dependency>
@@ -36,13 +36,11 @@
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
-      <version>${immutables-version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>serial</artifactId>
-      <version>${immutables-version}</version>
       <scope>provided</scope>
     </dependency>
     <!-- NOTE: This is for javax.annotations.* -->

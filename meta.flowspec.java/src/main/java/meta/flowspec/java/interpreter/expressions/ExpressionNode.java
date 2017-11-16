@@ -9,6 +9,7 @@ import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 import io.usethesource.capsule.Set;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
@@ -92,7 +93,30 @@ public abstract class ExpressionNode extends Node {
                 return PlusNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "Match": throw new RuntimeException("Unimplemented");
+            case "SetLiteral": {
+                assert appl.getSubtermCount() == 1 : "Expected SetLiteral to have 1 child";
+                return SetLiteralNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
+            }
+            case "SetComp": {
+                assert appl.getSubtermCount() == 4 : "Expected SetLiteral to have 1 child";
+                return SetCompNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
+            }
             default: throw new IllegalArgumentException("Unknown constructor for Expression: " + appl.getConstructor().getName());
+        }
+    }
+
+    public static class Array {
+        public static ExpressionNode[] fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor,
+                IControlFlowGraph<ICFGNode> cfg) {
+            assert term instanceof IStrategoList : "Expected a list term";
+            final IStrategoList list = (IStrategoList) term;
+            ExpressionNode[] result = new ExpressionNode[term.getSubtermCount()];
+            int i = 0;
+            for (IStrategoTerm sourceTerm : list) {
+                result[i] = ExpressionNode.fromIStrategoTerm(sourceTerm, frameDescriptor, cfg);
+                i++;
+            }
+            return result;
         }
     }
 }
