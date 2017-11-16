@@ -14,8 +14,9 @@ imports
   libspoofax/stratego/debug
 
 rules // Analysis
-//!(<Fst>, [], [], [])
-  editor-analyze = nabl2-analyze(desugar-all)
+
+  editor-analyze = !(<Fst>, [], [], [])
+//  editor-analyze = nabl2-analyze(desugar-all)
 
   nabl2-debug-constraint-generation-hook = id
 
