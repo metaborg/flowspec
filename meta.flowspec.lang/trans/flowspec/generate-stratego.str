@@ -117,13 +117,13 @@ ${nabl2--generate-constraint-{rulename}-rule(|):
 with
   if <match-ast-root-str(|astroot*)> pattern
     then rulename := "default-cfg"
-       ; rootvarstr* := <conc> (<map(gen-new-cfg-node-str)> ["t_start", "t_end"], <map(gen-new-var-str)> ["entry", "exit"])
-       ; rootstr* := <map(gen-directed-edge-str)> [("t_end", "exit"), ("t_start", "entry")]
+       ; rootvarstr* := <map(gen-new-cfg-node-str)> ["t_start", "t_end"]//<conc> ( , <map(gen-new-var-str)> ["entry", "exit"])
+       ; rootstr* := [] //<map(gen-directed-edge-str)> [("exit", "t_end"), ("t_start", "entry")]
        ; paramstr := "_"
        ; paramcons := "Params"
     else rulename := "cfg"
        ; if <?Root()> r
-           then rootstr* := [<gen-directed-edge-str> ("t_end", "exit"), <gen-equal-str> ("t_start", "entry")]
+           then rootstr* := [<gen-directed-edge-str> ("exit", "t_end"), <gen-equal-str> ("t_start", "entry")]
               ; rootvarstr* := <map(gen-new-cfg-node-str)> ["t_start", "t_end"]
               ; paramstr := "entry, exit, _, _"
               ; paramcons := "CFGParams"
