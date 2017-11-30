@@ -3,6 +3,7 @@ package meta.flowspec.nabl2.controlflow;
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.Set;
+import io.usethesource.capsule.SetMultimap;
 import meta.flowspec.java.interpreter.TransferFunctionAppl;
 import meta.flowspec.nabl2.util.tuples.Tuple2;
 

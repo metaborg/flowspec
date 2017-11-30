@@ -26,7 +26,6 @@ public class ControlFlowGraph<N extends ICFGNode>
     private final Map.Transient<Tuple2<N, String>, TransferFunctionAppl> tfAppls;
     private final Map.Transient<Tuple2<N, String>, Object> properties;
     private final BinaryRelation.Transient<N, N> directEdges;
-    private final BinaryRelation.Transient<N, N> incompleteDirectEdges;
 
     public ControlFlowGraph() {
         this.allCFGNodes = Set.Transient.of();
@@ -34,7 +33,6 @@ public class ControlFlowGraph<N extends ICFGNode>
         this.tfAppls = Map.Transient.of();
         this.properties = Map.Transient.of();
         this.directEdges = BinaryRelation.Transient.of();
-        this.incompleteDirectEdges = BinaryRelation.Transient.of();
     }
 
     @Override
@@ -102,14 +100,6 @@ public class ControlFlowGraph<N extends ICFGNode>
         directEdges.__put(sourceNode, targetNode);
     }
 
-    public void addIncompleteDirectEdge(N sourceNode, N targetNode) {
-        incompleteDirectEdges.__put(sourceNode, targetNode);
-    }
-
-    public boolean reduce(PartialFunction1<N, N> fs) {
-        return reduce(incompleteDirectEdges, fs, this::addDirectEdge);
-    }
-
     private boolean reduce(BinaryRelation.Transient<N, N> relation, PartialFunction1<N, N> f,
             BiConsumer<N, N> add) {
         Iterable<Entry<N, N>> i = () -> relation.entryIterator();
@@ -126,6 +116,15 @@ public class ControlFlowGraph<N extends ICFGNode>
     @Override
     public boolean isEmpty() {
         return directEdges.isEmpty();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addAll(IControlFlowGraph<N> controlFlowGraph) {
+        this.allCFGNodes.__insertAll(controlFlowGraph.getAllCFGNodes());
+        this.tfAppls.__putAll(controlFlowGraph.getTFAppls());
+        controlFlowGraph.getDirectEdges().nativeEntryIterator().forEachRemaining(entry -> {
+            this.directEdges.__insert(entry.getKey(), (N) entry.getValue());
+        });
     }
 
     @Override
@@ -170,6 +169,12 @@ public class ControlFlowGraph<N extends ICFGNode>
         } else if (!tfAppls.equals(other.tfAppls))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ControlFlowGraph [allCFGNodes=" + allCFGNodes + ", tfAppls=" + tfAppls + ", properties=" + properties
+                + ", directEdges=" + directEdges + "]";
     }
     
     public static <T extends ICFGNode> ControlFlowGraph<T> of() {

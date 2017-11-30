@@ -54,7 +54,7 @@ public abstract class ExpressionNode extends Node {
                 assert appl.getSubtermCount() == 1 : "Expected Ref to have 1 child";
                 return ReadVarNodeGen.create(frameDescriptor.findFrameSlot(Tools.javaStringAt(appl, 0)));
             }
-            case "PropRef": {
+            case "Prop": {
                 assert appl.getSubtermCount() == 2 : "Expected PropRef to have 2 children";
                 return ReadPropNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
@@ -98,8 +98,24 @@ public abstract class ExpressionNode extends Node {
                 return SetLiteralNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "SetComp": {
-                assert appl.getSubtermCount() == 4 : "Expected SetLiteral to have 1 child";
+                assert appl.getSubtermCount() == 4 : "Expected SetComp to have 4 children";
                 return SetCompNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
+            }
+            case "SetUnion": {
+                assert appl.getSubtermCount() == 2 : "Expected SetUnion to have 2 children";
+                return SetUnionNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
+            }
+            case "SetDifference": {
+                assert appl.getSubtermCount() == 2 : "Expected SetDifference to have 2 children";
+                return SetSymmetricDifferenceNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
+            }
+            case "SetContains": {
+                assert appl.getSubtermCount() == 2 : "Expected SetContains to have 2 children";
+                return SetContainsNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
+            }
+            case "SetIntersection": {
+                assert appl.getSubtermCount() == 2 : "Expected SetIntersection to have 2 children";
+                return SetIntersectNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             default: throw new IllegalArgumentException("Unknown constructor for Expression: " + appl.getConstructor().getName());
         }

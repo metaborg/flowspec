@@ -40,10 +40,10 @@ public class Where extends Node {
         switch (appl.getConstructor().getName()) {
             case "Where" : {
                 assert appl.getSubtermCount() == 2 : "Expected TransferFunction to have 2 children";
-                IStrategoTerm[] bindings = Tools.listAt(appl, 0).getAllSubterms();
+                IStrategoTerm[] bindings = Tools.listAt(appl, 1).getAllSubterms();
                 WriteVarNode[] writeVars =
                     Arrays.stream(bindings).map(t -> WriteVarNode.fromIStrategoTerm(t, frameDescriptor, cfg)).toArray(WriteVarNode[]::new);
-                ExpressionNode body = ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg);
+                ExpressionNode body = ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg);
                 return new Where(writeVars, body);
             }
             default : throw new IllegalArgumentException("Expected constructor TransferFunction");

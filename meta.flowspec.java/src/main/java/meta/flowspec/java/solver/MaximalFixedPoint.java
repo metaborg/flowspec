@@ -101,6 +101,7 @@ public abstract class MaximalFixedPoint {
             IStrategoTerm transferFunction = Tools.termAt(transferTuple, 1);
             tfs[index] = TransferFunction.fromIStrategoTerm(transferFunction, cfg);
         }
+        transferFuns.__put(propName, tfs);
     }
 
     public static <CFGNode extends ICFGNode> void solve(IControlFlowGraph<CFGNode> cfg,
