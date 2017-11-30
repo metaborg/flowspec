@@ -24,12 +24,13 @@ with
 ; transfer-functions := <map(gen-tf); bundle-tfs(|propnames)>
 
 gen-tf: (n, PropRule(name, pattern, body, wherecl)) ->
-  <strip-annos> (name, d, n, TransferFunction([var*,dirvar*], Where(body, binding*)))
+  <strip-annos> (name, d, n, TransferFunction(vars, Where(body, binding*)))
 with
   dirvar* := <?Forward(<id>,_);![<id>] + ?Backward(_,<id>);![<id>] + \FlowInsensitive(_) -> []\> pattern
 ; d := <\Forward(_,_) -> Fw()\ + \Backward(_,_) -> Bw()\ + \FlowInsensitive(_) -> NA()\> pattern
-; var* := <pattern-in-dir> pattern
-; binding* := <\NoWhereClause -> []\ + ?WhereClause(<id>)> wherecl
+; pvar := <pattern-in-dir> pattern
+; vars := <thread-map(try(\(Wildcard(), c) -> ($[wld_[c]], <inc> c)\));Fst> ([pvar | dirvar*], 0)
+; binding* := <\NoWhereClause() -> []\ + ?WhereClause(<id>)> wherecl
 
 bundle-tfs(|propnames): list -> result
 with
