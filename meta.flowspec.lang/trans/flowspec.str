@@ -11,7 +11,7 @@ imports
   flowspec/generate-transfers
   signatures/flowspec-sig
 
-rules // Debugging 
+rules // Debugging
 
   debug-show-parsed:
     (node, _, _, path, project-path) -> (filename, result)

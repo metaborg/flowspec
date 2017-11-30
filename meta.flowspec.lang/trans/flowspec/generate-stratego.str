@@ -271,10 +271,10 @@ gen-match-pattern-str: Term(consname, subpattern*) -> $[[consname]([subpatternss
 with subpatternsstring := <map(gen-match-pattern-str);csv> subpattern*
 gen-match-pattern-str: Wildcard() -> "_"
 
-pattern-vars: Var(ident) -> [$[match[ident]]]
-pattern-vars: At(ident, pattern) -> [$[match[ident]] | <pattern-vars> pattern]
-pattern-vars: Term(consname, subpattern*) -> <mapconcat(pattern-vars)> subpattern*
-pattern-vars: Wildcard() -> []
+pattern-vars(|prefix): Var(ident) -> [$[[prefix][ident]]]
+pattern-vars(|prefix): At(ident, pattern) -> [$[[prefix][ident]] | <pattern-vars(|prefix)> pattern]
+pattern-vars(|prefix): Term(consname, subpattern*) -> <mapconcat(pattern-vars(|prefix))> subpattern*
+pattern-vars(|prefix): Wildcard() -> []
 
 pattern-in-dir: Forward(_, p) -> p
 pattern-in-dir: Backward(p,_) -> p
@@ -286,5 +286,5 @@ gen-str: (n, PropRule(name, pattern, _, _)) -> rulestring
 with
   pattern' := <pattern-in-dir> pattern
 ; patternstring := <gen-match-pattern-str> pattern'
-; vars := <pattern-vars> pattern'
+; vars := <pattern-vars(|"match")> pattern'
 ; rulestring := ${flowspec--proprule-{name}: {patternstring} -> ({n}, [{<csv> vars}])}

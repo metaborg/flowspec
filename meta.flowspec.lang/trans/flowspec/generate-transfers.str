@@ -28,8 +28,8 @@ gen-tf: (n, PropRule(name, pattern, body, wherecl)) ->
 with
   dirvar* := <?Forward(<id>,_);![<id>] + ?Backward(_,<id>);![<id>] + \FlowInsensitive(_) -> []\> pattern
 ; d := <\Forward(_,_) -> Fw()\ + \Backward(_,_) -> Bw()\ + \FlowInsensitive(_) -> NA()\> pattern
-; pvar := <pattern-in-dir> pattern
-; vars := <thread-map(try(\(Wildcard(), c) -> ($[wld_[c]], <inc> c)\));Fst> ([pvar | dirvar*], 0)
+; pvar* := <pattern-in-dir;pattern-vars(|"")> pattern
+; vars := <thread-map(try(\(Wildcard(), c) -> ($[wld_[c]], <inc> c)\));Fst> ([pvar*, dirvar*], 0)
 ; binding* := <\NoWhereClause() -> []\ + ?WhereClause(<id>)> wherecl
 
 bundle-tfs(|propnames): list -> result
