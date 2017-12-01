@@ -9,7 +9,7 @@ imports
   flowspec/desugar
   flowspec/generate-stratego
   flowspec/generate-transfers
-  signatures/flowspec-sig
+  signatures/flowspec/Main-sig
 
 rules // Debugging
 
@@ -37,7 +37,10 @@ rules // Debugging
       filename := <target-file(|project-path, ".aterm")> "transfer-functions"
     ; result   := <gen-tf> node
 
-  generate-all = generate-stratego
+  generate-all =
+    where(generate-stratego;write-string-to-file)
+  ; where(generate-transfers;write-string-to-file)
+  ; !()
 
 // Copied from https://github.com/metaborg/nabl/blob/6f5630aef0179163e7c8eb29db9901586d064f78/org.metaborg.meta.nabl2.lang/trans/nabl2/lang/util/misc.str#L9-L14
   src-gen-file(|project-path, sub-dir, ext): name -> file-name
@@ -53,3 +56,15 @@ rules // Debugging
 
   target-dir(|project-path): _ -> dir
   with dir := $[[project-path]/target/metaborg]
+
+// Copied from https://github.com/metaborg/sdf/blob/50018c3843b4717bd7baa7b16ae49781d91a3ce4/org.metaborg.meta.lang.template/trans/editor/build-utils.str#L55-L64
+  // When given a tuple (path, string) this writes string into path.
+  write-string-to-file =
+    ?(filename, string);
+    if <dirname; readdir> filename then
+      with(
+        handle := <fopen> (filename, "w");
+        <fputs> (string, handle);
+        <fclose> handle
+      )
+    end
