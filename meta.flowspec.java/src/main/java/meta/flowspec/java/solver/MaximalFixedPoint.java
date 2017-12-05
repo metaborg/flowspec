@@ -182,7 +182,7 @@ public abstract class MaximalFixedPoint {
         // Phase 3: Result calculation
         for (CFGNode n : cfg.getAllCFGNodes()) {
             // save pre-TF results
-            cfg.setProperty(n, "Pre-" + prop, cfg.getProperty(n, prop));
+            cfg.setProperty(n, "pre-" + prop, cfg.getProperty(n, prop));
             // put post-TF results in property name
             cfg.setProperty(n, prop, cfg.getTFAppl(n, prop).call(tf, n));
         }
