@@ -107,7 +107,7 @@ public abstract class ExpressionNode extends Node {
             }
             case "SetDifference": {
                 assert appl.getSubtermCount() == 2 : "Expected SetDifference to have 2 children";
-                return SetSymmetricDifferenceNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
+                return SetMinusNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
             }
             case "SetContains": {
                 assert appl.getSubtermCount() == 2 : "Expected SetContains to have 2 children";
