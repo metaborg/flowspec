@@ -1,12 +1,13 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import io.usethesource.capsule.Set;
+import meta.flowspec.java.interpreter.Set;
 import meta.flowspec.java.interpreter.UnreachableException;
 import meta.flowspec.nabl2.controlflow.ICFGNode;
 import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
@@ -43,10 +44,10 @@ public class SetCompNode extends ExpressionNode {
     }
 
     @Override
-    public Set.Immutable<?> executeSet(VirtualFrame frame) throws UnexpectedResultException {
+    public Set<ITerm> executeSet(VirtualFrame frame) throws UnexpectedResultException {
         // FIXME For now we're assuming exactly one source
-        Set.Immutable<?> set = sources[0].executeSet(frame);
-        Set.Transient<Object> result = Set.Transient.of();
+        io.usethesource.capsule.Set.Immutable<ITerm> set = sources[0].executeSet(frame).set;
+        io.usethesource.capsule.Set.Transient<ITerm> result = io.usethesource.capsule.Set.Transient.of();
         for(Object value : set) {
             this.sourcePatterns[0].executeGeneric(frame, value);
             boolean keep = true;
@@ -54,9 +55,9 @@ public class SetCompNode extends ExpressionNode {
                 keep |= pred.executeBoolean(frame);
             }
             if (keep) {
-                result.__insert(expression.executeGeneric(frame));
+                result.__insert((ITerm) expression.executeGeneric(frame));
             }
         }
-        return result.freeze();
+        return new Set<>(result.freeze());
     }
 }

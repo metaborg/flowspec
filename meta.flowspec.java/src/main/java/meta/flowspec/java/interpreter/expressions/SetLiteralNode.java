@@ -1,11 +1,12 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import io.usethesource.capsule.Set;
+import meta.flowspec.java.interpreter.Set;
 import meta.flowspec.nabl2.controlflow.ICFGNode;
 import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
@@ -22,12 +23,12 @@ public class SetLiteralNode extends ExpressionNode {
     }
 
     @Override
-    public Set.Immutable<Object> executeSet(VirtualFrame frame) {
-        Set.Transient<Object> set = Set.Transient.of();
+    public Set<ITerm> executeSet(VirtualFrame frame) {
+        io.usethesource.capsule.Set.Transient<ITerm> set = io.usethesource.capsule.Set.Transient.of();
         for (ExpressionNode expr : values) {
-            set.__insert(expr.executeGeneric(frame));
+            set.__insert((ITerm) expr.executeGeneric(frame));
         }
-        return set.freeze();
+        return new Set<>(set.freeze());
     }
 
     public static SetLiteralNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor,

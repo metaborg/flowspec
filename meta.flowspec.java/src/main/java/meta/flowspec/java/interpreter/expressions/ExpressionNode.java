@@ -7,6 +7,8 @@ import meta.flowspec.nabl2.controlflow.ICFGNode;
 import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 import io.usethesource.capsule.Set;
+
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -40,8 +42,9 @@ public abstract class ExpressionNode extends Node {
         return TypesGen.expectTuple(executeGeneric(frame));
     }
     
-    public Set.Immutable<?> executeSet(VirtualFrame frame) throws UnexpectedResultException {
-        return TypesGen.expectImmutable(executeGeneric(frame));
+    @SuppressWarnings("unchecked")
+    public meta.flowspec.java.interpreter.Set<ITerm> executeSet(VirtualFrame frame) throws UnexpectedResultException {
+        return TypesGen.expectSet(executeGeneric(frame));
     }
 
     public static ExpressionNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {

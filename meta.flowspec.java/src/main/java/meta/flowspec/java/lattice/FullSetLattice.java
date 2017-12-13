@@ -3,55 +3,57 @@ package meta.flowspec.java.lattice;
 import java.util.Collection;
 import java.util.Iterator;
 
-import io.usethesource.capsule.Set;
+import org.metaborg.meta.nabl2.terms.ITerm;
+
+import meta.flowspec.java.interpreter.Set;
 import io.usethesource.capsule.util.EqualityComparator;
 
-public class FullSetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
+public class FullSetLattice<E extends ITerm> implements CompleteLattice<Set<E>> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Set.Immutable<E> top() {
+    public Set<E> top() {
         return TOP;
     }
 
     @Override
-    public Set.Immutable<E> bottom() {
-        return Set.Immutable.of();
+    public Set<E> bottom() {
+        return new Set<>();
     }
 
     @Override
-    public boolean lte(Set.Immutable<E> one, Set.Immutable<E> other) {
+    public boolean lte(Set<E> one, Set<E> other) {
         if (other == TOP) {
             return true;
         } else if (one == TOP) {
             return false;
         } else {
-            return other.containsAll(one);
+            return other.set.containsAll(one.set);
         }
     }
 
     @Override
-    public Set.Immutable<E> glb(Set.Immutable<E> one, Set.Immutable<E> other) {
+    public Set<E> glb(Set<E> one, Set<E> other) {
         if (other == TOP) {
             return one;
         } else if (one == TOP) {
             return other;
         } else {
-            return Set.Immutable.subtract(one, Set.Immutable.subtract(one, other));
+            return new Set<>(io.usethesource.capsule.Set.Immutable.subtract(one.set, io.usethesource.capsule.Set.Immutable.subtract(one.set, other.set)));
         }
     }
 
     @Override
-    public Set.Immutable<E> lub(Set.Immutable<E> one, Set.Immutable<E> other) {
+    public Set<E> lub(Set<E> one, Set<E> other) {
         if (one == TOP || other == TOP) {
             return this.top();
         } else {
-            return Set.Immutable.union(one, other);
+            return new Set<>(io.usethesource.capsule.Set.Immutable.union(one.set, other.set));
         }
     }
 
-    @SuppressWarnings("rawtypes")
-    public static final Set.Immutable TOP = new Set.Immutable() {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static final Set TOP = new Set(new io.usethesource.capsule.Set.Immutable() {
 
         @Override
         public int size() {
@@ -134,27 +136,27 @@ public class FullSetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
 		}
 
 		@Override
-		public Set.Immutable __insert(Object key) {
+		public io.usethesource.capsule.Set.Immutable __insert(Object key) {
 			return this;
 		}
 
 		@Override
-		public Set.Immutable __remove(Object key) {
+		public io.usethesource.capsule.Set.Immutable __remove(Object key) {
             throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public Set.Immutable __insertAll(java.util.Set set) {
+		public io.usethesource.capsule.Set.Immutable __insertAll(java.util.Set set) {
 			return this;
 		}
 
 		@Override
-		public Set.Immutable __removeAll(java.util.Set set) {
+		public io.usethesource.capsule.Set.Immutable __removeAll(java.util.Set set) {
             throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public Set.Immutable __retainAll(java.util.Set set) {
+		public io.usethesource.capsule.Set.Immutable __retainAll(java.util.Set set) {
             throw new UnsupportedOperationException();
 		}
 
@@ -164,9 +166,9 @@ public class FullSetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
 		}
 
 		@Override
-		public Set.Transient asTransient() {
+		public io.usethesource.capsule.Set.Transient asTransient() {
 			return null;
 		}
 
-    };
+    });
 }

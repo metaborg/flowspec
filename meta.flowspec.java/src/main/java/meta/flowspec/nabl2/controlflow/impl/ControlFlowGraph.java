@@ -1,12 +1,8 @@
 package meta.flowspec.nabl2.controlflow.impl;
 
 import java.io.Serializable;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import org.metaborg.util.functions.PartialFunction1;
+import org.metaborg.meta.nabl2.terms.ITerm;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
@@ -24,7 +20,7 @@ public class ControlFlowGraph<N extends ICFGNode>
     private final Set.Transient<N> allCFGNodes;
 
     private final Map.Transient<Tuple2<N, String>, TransferFunctionAppl> tfAppls;
-    private final Map.Transient<Tuple2<N, String>, Object> properties;
+    private final Map.Transient<Tuple2<N, String>, ITerm> properties;
     private final BinaryRelation.Transient<N, N> directEdges;
 
     public ControlFlowGraph() {
@@ -56,7 +52,7 @@ public class ControlFlowGraph<N extends ICFGNode>
     }
 
     @Override
-    public Map<Tuple2<N, String>, Object> getProperties() {
+    public Map<Tuple2<N, String>, ITerm> getProperties() {
         return properties;
     }
 
@@ -70,7 +66,7 @@ public class ControlFlowGraph<N extends ICFGNode>
         tfAppls.__put(ImmutableTuple2.of(node, prop), tfAppl);
     }
 
-    public void setProperty(N node, String prop, Object value) {
+    public void setProperty(N node, String prop, ITerm value) {
         allCFGNodes.__insert(node);
         properties.__put(ImmutableTuple2.of(node, prop), value);
     }
@@ -98,19 +94,6 @@ public class ControlFlowGraph<N extends ICFGNode>
         allCFGNodes.__insert(sourceNode);
         allCFGNodes.__insert(targetNode);
         directEdges.__put(sourceNode, targetNode);
-    }
-
-    private boolean reduce(BinaryRelation.Transient<N, N> relation, PartialFunction1<N, N> f,
-            BiConsumer<N, N> add) {
-        Iterable<Entry<N, N>> i = () -> relation.entryIterator();
-        return StreamSupport.stream(i.spliterator(), false).flatMap(slv -> {
-            return f.apply(slv.getValue()).map(x -> {
-                add.accept(slv.getKey(), x);
-                return Stream.of(slv);
-            }).orElse(Stream.empty());
-        }).map(slv -> {
-            return relation.__remove(slv.getKey(), slv.getValue());
-        }).findAny().isPresent();
     }
 
     @Override

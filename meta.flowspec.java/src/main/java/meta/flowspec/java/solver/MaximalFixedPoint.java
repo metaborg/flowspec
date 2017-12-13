@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
+import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -74,7 +75,7 @@ public abstract class MaximalFixedPoint {
 
         Direction dir = Direction.fromIStrategoTerm(direction);
         Type type = new Type();
-        CompleteLattice lattice = (CompleteLattice) new FullSetLattice<io.usethesource.capsule.Set<String>>();
+        CompleteLattice lattice = (CompleteLattice) new FullSetLattice<IStringTerm>();
         switch (propName) {
             case "veryBusy":
             case "available":
@@ -140,7 +141,7 @@ public abstract class MaximalFixedPoint {
         TransferFunction[] tf = transferFuns.get(prop);
 
         for (CFGNode n : cfg.getAllCFGNodes()) {
-            cfg.setProperty(n, prop, metadata.lattice().bottom());
+            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) metadata.lattice().bottom());
             // No need to set a different value for the start node, since the
             // rule for the start node will result
             // in that value, which will be propagated Phase 2.
@@ -173,7 +174,7 @@ public abstract class MaximalFixedPoint {
                 Object beforeToTF = cfg.getProperty(to, prop);
                 // TODO: use nlte instead of !lte
                 if (!metadata.lattice().lte(afterFromTF, beforeToTF)) {
-                    cfg.setProperty(to, prop, metadata.lattice().lub(beforeToTF, afterFromTF));
+                    cfg.setProperty(to, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
                     workList.add(to);
                 }
             }
@@ -182,9 +183,9 @@ public abstract class MaximalFixedPoint {
         // Phase 3: Result calculation
         for (CFGNode n : cfg.getAllCFGNodes()) {
             // save pre-TF results
-            cfg.setProperty(n, "pre-" + prop, cfg.getProperty(n, prop));
+            cfg.setProperty(n, "pre-" + prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) cfg.getProperty(n, prop));
             // put post-TF results in property name
-            cfg.setProperty(n, prop, cfg.getTFAppl(n, prop).call(tf, n));
+            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) cfg.getTFAppl(n, prop).call(tf, n));
         }
 
     }

@@ -7,7 +7,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
-import io.usethesource.capsule.Set;
+import meta.flowspec.java.interpreter.Set;
 import meta.flowspec.nabl2.controlflow.ICFGNode;
 import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
@@ -15,8 +15,14 @@ import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 public abstract class SetContainsNode extends ExpressionNode {
     @SuppressWarnings("rawtypes")
     @Specialization
-    protected boolean contains(Set.Immutable left, Object right) {
-        return left.contains(right);
+    protected boolean contains(Set left, Object right) {
+        if (right == null) {
+            return left == null;
+        }
+        if (!(right instanceof Set)) {
+            return false;
+        }
+        return left.set.contains(((Set) right).set);
     }
 
     public static SetContainsNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor,

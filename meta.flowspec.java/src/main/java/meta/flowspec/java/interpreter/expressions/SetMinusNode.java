@@ -1,6 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import io.usethesource.capsule.Set;
+import meta.flowspec.java.interpreter.Set;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -15,8 +15,8 @@ import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 public abstract class SetMinusNode extends ExpressionNode {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
-    protected Set.Immutable<Object> minus(Set.Immutable left, Set.Immutable right) {
-        return Set.Immutable.subtract(left, right);
+    protected Set minus(Set left, Set right) {
+        return new Set(io.usethesource.capsule.Set.Immutable.subtract(left.set, right.set));
     }
     
     public static SetMinusNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {

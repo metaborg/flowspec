@@ -6,6 +6,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import meta.flowspec.nabl2.controlflow.ICFGNode;
 import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
@@ -51,8 +52,7 @@ class SetCompPredicateNode {
         }
     }
 
-    public boolean executeBoolean(VirtualFrame frame) {
-        // TODO Auto-generated method stub
-        return false;
+    public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
+        return this.expr.executeBoolean(frame);
     }
 }

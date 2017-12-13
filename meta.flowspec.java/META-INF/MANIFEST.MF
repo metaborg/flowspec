@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1512058523719
-Build-Jdk: 1.8.0_92
+Bnd-LastModified: 1513096444068
+Build-Jdk: 9.0.1
 Built-By: jeff
 Bundle-Description: Maven parent POM for Java projects
 Bundle-License: https://www.apache.org/licenses/LICENSE-2.0.txt
@@ -19,16 +19,15 @@ Export-Package: meta.flowspec,meta.flowspec.java,meta.flowspec.java.inte
  impl,meta.flowspec.nabl2.util.collections,meta.flowspec.nabl2.util.tupl
  es
 Import-Package: org.spoofax.interpreter.core,org.spoofax.interpreter.ter
- ms,org.spoofax.terms,org.metaborg.util.functions,com.google.common.coll
- ect;provider=metaborg;mandatory:=provider;version=0,com.oracle.truffle.
- api;provider=metaborg;mandatory:=provider;version=0,com.oracle.truffle.
- api.dsl;provider=metaborg;mandatory:=provider;version=0,com.oracle.truf
- fle.api.frame;provider=metaborg;mandatory:=provider;version=0,com.oracl
- e.truffle.api.nodes;provider=metaborg;mandatory:=provider;version=0,com
- .oracle.truffle.api.source;provider=metaborg;mandatory:=provider;versio
- n=0,io.usethesource.capsule;provider=metaborg;mandatory:=provider;versi
- on=0,io.usethesource.capsule.util;provider=metaborg;mandatory:=provider
- ;version=0
-Originally-Created-By: Apache Maven Bundle Plugin
+ ms,org.spoofax.terms,org.metaborg.meta.nabl2.terms,org.metaborg.util.fu
+ nctions,com.google.common.collect;provider=metaborg;mandatory:=provider
+ ;version=0,com.oracle.truffle.api;provider=metaborg;mandatory:=provider
+ ;version=0,com.oracle.truffle.api.dsl;provider=metaborg;mandatory:=prov
+ ider;version=0,com.oracle.truffle.api.frame;provider=metaborg;mandatory
+ :=provider;version=0,com.oracle.truffle.api.nodes;provider=metaborg;man
+ datory:=provider;version=0,com.oracle.truffle.api.source;provider=metab
+ org;mandatory:=provider;version=0,io.usethesource.capsule;provider=meta
+ borg;mandatory:=provider;version=0,io.usethesource.capsule.util;provide
+ r=metaborg;mandatory:=provider;version=0
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Tool: Bnd-2.4.1.201501161923
