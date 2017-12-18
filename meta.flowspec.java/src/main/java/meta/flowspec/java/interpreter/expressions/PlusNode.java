@@ -1,9 +1,9 @@
 package meta.flowspec.java.interpreter.expressions;
 
 import meta.flowspec.java.interpreter.expressions.PlusNodeGen;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.dsl.NodeChild;

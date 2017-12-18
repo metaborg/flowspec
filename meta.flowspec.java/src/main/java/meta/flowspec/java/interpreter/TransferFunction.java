@@ -2,6 +2,10 @@ package meta.flowspec.java.interpreter;
 
 import java.util.Arrays;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.IdentityTFAppl;
+import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -16,8 +20,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
 import meta.flowspec.java.interpreter.locals.ArgToVarNode;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 @TypeSystemReference(Types.class)
 public class TransferFunction extends RootNode {
@@ -68,9 +70,10 @@ public class TransferFunction extends RootNode {
         return fromIStrategoTerm(null, new FrameDescriptor(), term, cfg);
     }
 
-    public static Object call(TransferFunctionAppl appl, TransferFunction[] tfs, Object arg) {
+    public static <S extends ICFGNode> Object call(TransferFunctionAppl appl, TransferFunction[] tfs, Object arg) {
         if (appl instanceof IdentityTFAppl) {
-            return ((IdentityTFAppl<?>) appl).call(tfs, arg);
+            IdentityTFAppl<S> iappl = (IdentityTFAppl<S>) appl;
+            return iappl.cfg.getProperty((S) arg, iappl.prop);
         }
         appl.args[appl.args.length-1] = arg;
         return Truffle.getRuntime().createCallTarget(tfs[appl.tfOffset]).call(appl.args);

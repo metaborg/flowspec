@@ -35,6 +35,11 @@
       <version>${metaborg-version}</version>
     </dependency>
     <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.metaborg.meta.nabl2.java</artifactId>
+      <version>${metaborg-version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.usethesource</groupId>
       <artifactId>capsule</artifactId>
     </dependency>

@@ -2,6 +2,8 @@ package meta.flowspec.java.interpreter.expressions;
 
 import java.util.Arrays;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -12,8 +14,6 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import meta.flowspec.java.interpreter.values.Tuple;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 public class TupleNode extends ExpressionNode {
     @Children

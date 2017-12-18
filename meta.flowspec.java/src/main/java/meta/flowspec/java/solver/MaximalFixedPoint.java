@@ -21,9 +21,9 @@ import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.lattice.CompleteLattice;
 import meta.flowspec.java.lattice.FullSetLattice;
 import meta.flowspec.java.solver.Metadata.Direction;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
-import meta.flowspec.nabl2.controlflow.impl.ControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraph;
 
 public abstract class MaximalFixedPoint {
     @SuppressWarnings("unchecked")

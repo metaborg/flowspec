@@ -2,6 +2,8 @@ package meta.flowspec.java.interpreter.expressions;
 
 import java.util.Arrays;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -15,8 +17,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import meta.flowspec.java.interpreter.FlowSpecRootNode;
 import meta.flowspec.java.interpreter.locals.ArgToVarNode;
 import meta.flowspec.java.interpreter.values.Function;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 
 public class AbstractionNode extends ExpressionNode {

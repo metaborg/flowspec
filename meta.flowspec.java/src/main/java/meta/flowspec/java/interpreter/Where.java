@@ -2,6 +2,8 @@ package meta.flowspec.java.interpreter;
 
 import java.util.Arrays;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -13,8 +15,6 @@ import com.oracle.truffle.api.nodes.Node;
 
 import meta.flowspec.java.interpreter.expressions.ExpressionNode;
 import meta.flowspec.java.interpreter.locals.WriteVarNode;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 @TypeSystemReference(Types.class)
 public class Where extends Node {

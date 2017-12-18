@@ -1,5 +1,7 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -16,8 +18,6 @@ import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.TypesGen;
 import meta.flowspec.java.interpreter.locals.ReadVarNodeGen;
 import meta.flowspec.java.interpreter.values.Tuple;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 @TypeSystemReference(Types.class)
 public abstract class ExpressionNode extends Node {

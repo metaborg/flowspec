@@ -1,5 +1,7 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -8,8 +10,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import meta.flowspec.java.interpreter.Set;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
 @NodeChildren({ @NodeChild("left"), @NodeChild("right") })
 public abstract class SetContainsNode extends ExpressionNode {

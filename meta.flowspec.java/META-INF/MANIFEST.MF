@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1513598585581
+Bnd-LastModified: 1513605154486
 Build-Jdk: 9.0.1
 Built-By: jeff
 Bundle-Description: Maven parent POM for Java projects
@@ -11,23 +11,20 @@ Bundle-Version: 2.4.0.qualifier
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: registered
 Embed-Transitive: true
-Export-Package: meta.flowspec,meta.flowspec.java,meta.flowspec.java.inte
- rpreter,meta.flowspec.java.interpreter.expressions,meta.flowspec.java.i
- nterpreter.locals,meta.flowspec.java.interpreter.patterns,meta.flowspec
- .java.interpreter.values,meta.flowspec.java.lattice,meta.flowspec.java.
- solver,meta.flowspec.nabl2.controlflow,meta.flowspec.nabl2.controlflow.
- impl,meta.flowspec.nabl2.util.collections,meta.flowspec.nabl2.util.tupl
- es
+Export-Package: meta.flowspec,meta.flowspec.java.interpreter,meta.flowsp
+ ec.java.interpreter.expressions,meta.flowspec.java.interpreter.locals,m
+ eta.flowspec.java.interpreter.patterns,meta.flowspec.java.interpreter.v
+ alues,meta.flowspec.java.lattice,meta.flowspec.java.solver
 Import-Package: org.spoofax.interpreter.core,org.spoofax.interpreter.ter
- ms,org.spoofax.terms,org.metaborg.meta.nabl2.terms,org.metaborg.util.fu
- nctions,com.google.common.collect;provider=metaborg;mandatory:=provider
- ;version=0,com.oracle.truffle.api;provider=metaborg;mandatory:=provider
- ;version=0,com.oracle.truffle.api.dsl;provider=metaborg;mandatory:=prov
- ider;version=0,com.oracle.truffle.api.frame;provider=metaborg;mandatory
- :=provider;version=0,com.oracle.truffle.api.nodes;provider=metaborg;man
- datory:=provider;version=0,com.oracle.truffle.api.source;provider=metab
- org;mandatory:=provider;version=0,io.usethesource.capsule;provider=meta
- borg;mandatory:=provider;version=0,io.usethesource.capsule.util;provide
- r=metaborg;mandatory:=provider;version=0
+ ms,org.spoofax.terms,org.metaborg.meta.nabl2.controlflow.terms,org.meta
+ borg.meta.nabl2.terms,com.google.common.collect;provider=metaborg;manda
+ tory:=provider;version=0,com.oracle.truffle.api;provider=metaborg;manda
+ tory:=provider;version=0,com.oracle.truffle.api.dsl;provider=metaborg;m
+ andatory:=provider;version=0,com.oracle.truffle.api.frame;provider=meta
+ borg;mandatory:=provider;version=0,com.oracle.truffle.api.nodes;provide
+ r=metaborg;mandatory:=provider;version=0,com.oracle.truffle.api.source;
+ provider=metaborg;mandatory:=provider;version=0,io.usethesource.capsule
+ ;provider=metaborg;mandatory:=provider;version=0,io.usethesource.capsul
+ e.util;provider=metaborg;mandatory:=provider;version=0
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Tool: Bnd-2.4.1.201501161923

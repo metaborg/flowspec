@@ -8,9 +8,9 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import java.util.Objects;
 
 import meta.flowspec.java.interpreter.expressions.NotEqualNodeGen;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.IControlFlowGraph;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})

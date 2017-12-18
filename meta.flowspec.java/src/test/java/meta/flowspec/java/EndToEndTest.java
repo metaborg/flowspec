@@ -6,6 +6,9 @@ import java.util.Optional;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
 import org.metaborg.meta.nabl2.terms.IApplTerm;
 import org.metaborg.meta.nabl2.terms.IIntTerm;
 
@@ -16,7 +19,6 @@ import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.Set;
 import meta.flowspec.java.interpreter.TransferFunction;
-import meta.flowspec.java.interpreter.TransferFunctionAppl;
 import meta.flowspec.java.interpreter.Where;
 import meta.flowspec.java.interpreter.expressions.ExpressionNode;
 import meta.flowspec.java.interpreter.expressions.IntLiteralNode;
@@ -32,10 +34,6 @@ import meta.flowspec.java.solver.MaximalFixedPoint;
 import meta.flowspec.java.solver.Metadata;
 import meta.flowspec.java.solver.Metadata.Direction;
 import meta.flowspec.java.solver.Type;
-import meta.flowspec.nabl2.controlflow.ICFGNode;
-import meta.flowspec.nabl2.controlflow.impl.ControlFlowGraph;
-import meta.flowspec.nabl2.util.tuples.ImmutableTuple2;
-import meta.flowspec.nabl2.util.tuples.Tuple2;
 
 public class EndToEndTest {
     @Test
