@@ -93,7 +93,7 @@ public class ControlFlowGraph<N extends ICFGNode>
     public void addDirectEdge(N sourceNode, N targetNode) {
         allCFGNodes.__insert(sourceNode);
         allCFGNodes.__insert(targetNode);
-        directEdges.__put(sourceNode, targetNode);
+        directEdges.__insert(sourceNode, targetNode);
     }
 
     @Override
@@ -101,12 +101,11 @@ public class ControlFlowGraph<N extends ICFGNode>
         return directEdges.isEmpty();
     }
 
-    @SuppressWarnings("unchecked")
     public void addAll(IControlFlowGraph<N> controlFlowGraph) {
         this.allCFGNodes.__insertAll(controlFlowGraph.getAllCFGNodes());
         this.tfAppls.__putAll(controlFlowGraph.getTFAppls());
-        controlFlowGraph.getDirectEdges().nativeEntryIterator().forEachRemaining(entry -> {
-            this.directEdges.__insert(entry.getKey(), (N) entry.getValue());
+        controlFlowGraph.getDirectEdges().entryIterator().forEachRemaining(entry -> {
+            this.directEdges.__insert(entry.getKey(), entry.getValue());
         });
     }
 

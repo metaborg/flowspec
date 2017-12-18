@@ -6,6 +6,7 @@ import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -65,5 +66,13 @@ public class TransferFunction extends RootNode {
     
     public static TransferFunction fromIStrategoTerm(IStrategoTerm term, IControlFlowGraph<ICFGNode> cfg) {
         return fromIStrategoTerm(null, new FrameDescriptor(), term, cfg);
+    }
+
+    public static Object call(TransferFunctionAppl appl, TransferFunction[] tfs, Object arg) {
+        if (appl instanceof IdentityTFAppl) {
+            return ((IdentityTFAppl<?>) appl).call(tfs, arg);
+        }
+        appl.args[appl.args.length-1] = arg;
+        return Truffle.getRuntime().createCallTarget(tfs[appl.tfOffset]).call(appl.args);
     }
 }

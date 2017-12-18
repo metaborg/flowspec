@@ -170,7 +170,7 @@ public abstract class MaximalFixedPoint {
             final CFGNode from = workList.iterator().next();
             workList.remove(from);
             for (CFGNode to : edges.get(from)) {
-                Object afterFromTF = cfg.getTFAppl(from, prop).call(tf, from);
+                Object afterFromTF = TransferFunction.call(cfg.getTFAppl(from, prop), tf, from);
                 Object beforeToTF = cfg.getProperty(to, prop);
                 // TODO: use nlte instead of !lte
                 if (!metadata.lattice().lte(afterFromTF, beforeToTF)) {
@@ -185,7 +185,7 @@ public abstract class MaximalFixedPoint {
             // save pre-TF results
             cfg.setProperty(n, "pre-" + prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) cfg.getProperty(n, prop));
             // put post-TF results in property name
-            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) cfg.getTFAppl(n, prop).call(tf, n));
+            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), tf, n));
         }
 
     }

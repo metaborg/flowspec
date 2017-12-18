@@ -14,7 +14,6 @@ public class IdentityTFAppl<S extends ICFGNode> extends TransferFunctionAppl {
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public Object call(TransferFunction[] _tfs, Object arg) {
         return cfg.getProperty((S) arg, prop);
     }
