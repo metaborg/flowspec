@@ -22,7 +22,7 @@ definition(prev -> this@Assign(n, e)) =
   { (n, Some(this)) } \/
   { (m, l) | (m, l) <- definition(pred), m != n }
 
-definition(prev -> this) = definition(prev)
+definition(prev -> _) = definition(prev)
 
 definition(start) = { (n, None()) | n <- live(start) }
 

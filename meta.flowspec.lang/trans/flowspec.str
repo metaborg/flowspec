@@ -35,7 +35,7 @@ rules // Debugging
     (node, _, _, path, project-path) -> (filename, result)
     with
       filename := <target-file(|project-path, ".aterm")> "transfer-functions"
-    ; result   := <gen-tf> node
+    ; result   := <gen-tf;pp-aterm> node
 
   generate-all =
     where(generate-stratego;write-string-to-file)

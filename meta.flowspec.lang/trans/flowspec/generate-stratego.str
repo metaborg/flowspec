@@ -45,7 +45,7 @@ gen-str: Module(modulename, import*, astroot*, def*) ->
   
   {cfgstring}
   
-  flowspec--proprule: term ->
+  flowspec--proprule(|index): term ->
     [
       {matchpropsstring}
     ]
@@ -58,7 +58,7 @@ with
 ; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str(|astroot'));lines_> def*
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _)); strip-annos> def*
-; matchpropsstring := <map(\n -> ${("{n}", <flowspec--proprule-{n}> term)}\);csv-lines> propnames
+; matchpropsstring := <map(\n -> ${<flowspec--proprule-{n}(|index)> term}\);csv-lines> propnames
 ; propstring := <number-prop-rules(|propnames);map(gen-str);lines_> proprule*
 
 number-prop-rules(|propnames): proprules -> numberedproprules
@@ -108,23 +108,27 @@ ${nabl2--generate-constraint-{rulename}-rule(|):
     with(nabl2_index := <nabl2--get-ast-index> nabl2_term
          ; nabl2_metadata := [CAstProperty(nabl2_index, CFGParams(), nabl2_params)])
     with({<?[] < !"id" + semi-lines> [refvarsstr*, rootvarstr*, mergedrhsvarstr*, mergedlhsvarstr*]})
+    with(refsstr* :=
+           <concat>
+             [ {<csv-lines> refsstr*}
+             ])
     with(nabl2_constraint := <conc ; nabl2--flatten-list>
       ( nabl2_metadata
-      , [ {<csv-lines> [rootstr*, pairstr*, mergedrhsstr*, mergedlhsstr*, refsstr*, recursesstr*]}
+      , [ {<csv-lines> [rootstr*, pairstr*, mergedrhsstr*, mergedlhsstr*, "refsstr*", recursesstr*]}
         ]
       ))
 }
 with
   if <match-ast-root-str(|astroot*)> pattern
     then rulename := "default-cfg"
-       ; rootvarstr* := <map(gen-new-cfg-node-str)> ["t_start", "t_end"]//<conc> ( , <map(gen-new-var-str)> ["entry", "exit"])
+       ; rootvarstr* := <map(gen-new-synthetic-cfg-node-str)> ["t_start", "t_end"]//<conc> ( , <map(gen-new-var-str)> ["entry", "exit"])
        ; rootstr* := [] //<map(gen-directed-edge-str)> [("exit", "t_end"), ("t_start", "entry")]
        ; paramstr := "_"
        ; paramcons := "Params"
     else rulename := "cfg"
        ; if <?Root()> r
            then rootstr* := [<gen-directed-edge-str> ("exit", "t_end"), <gen-equal-str> ("t_start", "entry")]
-              ; rootvarstr* := <map(gen-new-cfg-node-str)> ["t_start", "t_end"]
+              ; rootvarstr* := <map(gen-new-synthetic-cfg-node-str)> ["t_start", "t_end"]
               ; paramstr := "entry, exit, _, _"
               ; paramcons := "CFGParams"
            else rootstr* := []
@@ -142,7 +146,7 @@ with
   // handle new nodes
 ; refs := <mapconcat(?Chain(<retain-all(?Ref(_))>));nub> chain'*
 ; refvarsstr* := <map(gen-ref-var-str)> refs
-; refsstr* := <mapconcat(gen-ref-str)> refs
+; refsstr* := <map(gen-ref-str)> refs
   // generate pairs from chains
 ; pairs := <mapconcat(\Chain(l) -> <zip> (<init> l, <Tl> l)\)> chain'*
 
@@ -166,13 +170,18 @@ where
 
 match-ast-root-str(|astroot*): At(_, pattern) -> <match-ast-root-str(|astroot*)> pattern
 
-gen-new-cfg-node-str: nodename ->
+gen-new-cfg-node-str: (termname, nodename) ->
+  ${{nodename} := <nabl2--new-cfg-node(|nabl2_source)
+                   ;try(nabl2--copy-origin(|nabl2_term))
+                   ;nabl2-copy-ast-index(|{termname})> "{nodename}"}
+
+gen-new-synthetic-cfg-node-str: nodename ->
   ${{nodename} := <nabl2--new-cfg-node(|nabl2_source)
                    ;try(nabl2--copy-origin(|nabl2_term))> "{nodename}"}
 
 gen-new-var-str: v ->
   ${{v} := <nabl2--fresh-var(|nabl2_source)
-                ;try(nabl2--copy-origin(|nabl2_term))> "{v}"}
+            ;try(nabl2--copy-origin(|nabl2_term))> "{v}"}
 
 gen-directed-edge-str: (lhs, rhs) ->
   ${CFDirectEdge(
@@ -200,33 +209,15 @@ gen-recurse-str: Recurse(v) ->
 with rulename := "cfg"
 
 gen-ref-var-str: Ref(v) ->
-  <gen-new-cfg-node-str> ${node{v}}
+  <gen-new-cfg-node-str> (${match{v}}, ${node{v}})
 
 gen-ref-str: Ref(v) ->
-  [${CFDecl(
-      Occurrence(
-        Namespace("AST")
-      , match{v}
-      , <nabl2--occurrence-index-of> match{v}
-      )
-    , node{v}
-    , <nabl2--get-ast-index> nabl2_term
-    )}
-  , ${CFDecl(
-      Occurrence(
-        Namespace("TF")
-      , <flowspec--proprule> match{v}
-      , <nabl2--occurrence-index-of> match{v}
-      )
-    , node{v}
-    , <nabl2--get-ast-index> nabl2_term
-    )}
-  ]
+  ${<flowspec--proprule(|<nabl2--get-ast-index> match{v})> match{v}}
 
-gen-rhs-merged-str: (Entry(), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> "entrysplit", <gen-equal-str> ("entry", "entrysplit"))
-gen-rhs-merged-str: (Start(), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> "startsplit", <gen-directed-edge-str> ("t_start", "startsplit"))
-gen-rhs-merged-str: (Ref(v), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> ${node{v}split}, <gen-directed-edge-str> (${node{v}}, ${node{v}split}))
-gen-rhs-merged-str: (Recurse(v), rhses@[_,_|_]) -> (<gen-new-cfg-node-str> ${split{v}}, <gen-equal-str> (${exit{v}}, ${split{v}}))
+gen-rhs-merged-str: (Entry(), rhses@[_,_|_]) -> (<gen-new-synthetic-cfg-node-str> "entrysplit", <gen-equal-str> ("entry", "entrysplit"))
+gen-rhs-merged-str: (Start(), rhses@[_,_|_]) -> (<gen-new-synthetic-cfg-node-str> "startsplit", <gen-directed-edge-str> ("t_start", "startsplit"))
+gen-rhs-merged-str: (Ref(v), rhses@[_,_|_]) -> (<gen-new-synthetic-cfg-node-str> ${node{v}split}, <gen-directed-edge-str> (${node{v}}, ${node{v}split}))
+gen-rhs-merged-str: (Recurse(v), rhses@[_,_|_]) -> (<gen-new-synthetic-cfg-node-str> ${split{v}}, <gen-equal-str> (${exit{v}}, ${split{v}}))
 
 use-merged-rhs-str = (id, ?[<id>]);MkSingleton
 use-merged-rhs-str: (Entry(), rhses@[_,_|_]) -> <map(!(Split("entrysplit"), <id>))> rhses
@@ -243,10 +234,10 @@ gen-pair-to-edge-str: (Prop(_, _), _) -> <with(fail|"Sorry, stubbing out prop su
 gen-pair-to-edge-str: (Exit(), _) -> <with(fail|"Error: exit on lhs of arrow")>
 gen-pair-to-edge-str: (End(), _) -> <with(fail|"Error: end on lhs of arrow")>
 
-gen-lhs-merged-str: (lhses@[_,_|_], r@Exit()) -> (<gen-new-cfg-node-str> "exitmerge", <gen-directed-edge-str> ("exitmerge", <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@End()) -> (<gen-new-cfg-node-str> "endmerge", <gen-directed-edge-str> ("endmerge", <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@Ref(v)) -> (<gen-new-cfg-node-str> ${node{v}merge}, <gen-directed-edge-str> (${node{v}merge}, <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@Recurse(v)) -> (<gen-new-cfg-node-str> ${merge{v}}, <gen-directed-edge-str> (${merge{v}}, <gen-cfg-rhs-str> r))
+gen-lhs-merged-str: (lhses@[_,_|_], r@Exit()) -> (<gen-new-synthetic-cfg-node-str> "exitmerge", <gen-directed-edge-str> ("exitmerge", <gen-cfg-rhs-str> r))
+gen-lhs-merged-str: (lhses@[_,_|_], r@End()) -> (<gen-new-synthetic-cfg-node-str> "endmerge", <gen-directed-edge-str> ("endmerge", <gen-cfg-rhs-str> r))
+gen-lhs-merged-str: (lhses@[_,_|_], r@Ref(v)) -> (<gen-new-synthetic-cfg-node-str> ${node{v}merge}, <gen-directed-edge-str> (${node{v}merge}, <gen-cfg-rhs-str> r))
+gen-lhs-merged-str: (lhses@[_,_|_], r@Recurse(v)) -> (<gen-new-synthetic-cfg-node-str> ${merge{v}}, <gen-directed-edge-str> (${merge{v}}, <gen-cfg-rhs-str> r))
 
 use-merged-lhs-str = (?[<id>], id);MkSingleton
 use-merged-lhs-str: (lhses@[_,_|_], Exit()) ->  <map(!(<id>, Merge("exitmerge")))> lhses
@@ -287,4 +278,4 @@ with
   pattern' := <pattern-in-dir> pattern
 ; patternstring := <gen-match-pattern-str> pattern'
 ; vars := <pattern-vars(|"match")> pattern'
-; rulestring := ${flowspec--proprule-{name}: {patternstring} -> ({n}, [{<csv> vars}])}
+; rulestring := ${flowspec--proprule-{name}(|index): {patternstring} -> CAstProperty(index, TF("{name}"), ({n}, [{<csv> vars}]))}
