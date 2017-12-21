@@ -2,6 +2,8 @@ package meta.flowspec.java;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Ignore;
@@ -9,9 +11,17 @@ import org.junit.Test;
 import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraph;
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
+import org.metaborg.meta.nabl2.stratego.ImmutableTermIndex;
+import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IApplTerm;
 import org.metaborg.meta.nabl2.terms.IIntTerm;
+import org.metaborg.meta.nabl2.terms.ITerm;
+import org.metaborg.meta.nabl2.terms.ITermVar;
+import org.metaborg.meta.nabl2.terms.generic.TB;
 
+import com.google.common.collect.ImmutableClassToInstanceMap;
+import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.Multiset;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 
@@ -107,7 +117,7 @@ public class EndToEndTest {
 
         String propertyName = "C";
 
-        CFGNode start = new CFGNode("", "start");
+        CFGNode start = (CFGNode) new CFGNode("", "start").withAttachments(ImmutableClassToInstanceMap.builder().put(TermIndex.class, ImmutableTermIndex.of("", 0)).build());
         CFGNode node1 = new CFGNode("", "y := x");
         CFGNode node2 = new CFGNode("", "z := 1");
         CFGNode node3 = new CFGNode("", "y > 1");
@@ -205,13 +215,23 @@ public class EndToEndTest {
     }
 }
 
-class CFGNode implements ICFGNode {
+class CFGNode implements ICFGNode, IApplTerm {
     private final String resource;
     private final String name;
+    private final ImmutableClassToInstanceMap<Object> attachments;
 
     public CFGNode(String resource, String name) {
+        this(resource, name, ImmutableClassToInstanceMap.builder().build());
+    }
+
+    public CFGNode(String resource, String name, TermIndex index) {
+        this(resource, name, ImmutableClassToInstanceMap.builder().put(TermIndex.class, index).build());
+    }
+
+    private CFGNode(String resource, String name, ImmutableClassToInstanceMap<Object> attachments) {
         this.resource = resource;
         this.name = name;
+        this.attachments = attachments;
     }
 
     @Override
@@ -253,5 +273,60 @@ class CFGNode implements ICFGNode {
         } else if (!resource.equals(other.resource))
             return false;
         return true;
+    }
+
+    @Override
+    public boolean isGround() {
+        return true;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return false;
+    }
+
+    @Override
+    public IApplTerm withLocked(boolean locked) {
+        return null;
+    }
+
+    @Override
+    public Multiset<ITermVar> getVars() {
+        return ImmutableMultiset.of();
+    }
+
+    @Override
+    public ImmutableClassToInstanceMap<Object> getAttachments() {
+        return this.attachments;
+    }
+
+    @Override
+    public IApplTerm withAttachments(ImmutableClassToInstanceMap<Object> value) {
+        return new CFGNode(this.resource, this.name, value);
+    }
+
+    @Override
+    public <T> T match(Cases<T> cases) {
+        return cases.caseAppl(this);
+    }
+
+    @Override
+    public <T, E extends Throwable> T matchOrThrow(CheckedCases<T, E> cases) throws E {
+        return cases.caseAppl(this);
+    }
+
+    @Override
+    public String getOp() {
+        return "CFGNode";
+    }
+
+    @Override
+    public int getArity() {
+        return 2;
+    }
+
+    @Override
+    public List<ITerm> getArgs() {
+        return Arrays.asList(TB.newString(resource), TB.newString(name));
     }
 }
