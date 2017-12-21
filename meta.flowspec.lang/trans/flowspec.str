@@ -9,6 +9,7 @@ imports
   flowspec/desugar
   flowspec/generate-stratego
   flowspec/generate-transfers
+  flowspec/editor-hover
   signatures/flowspec/Main-sig
 
 rules // Debugging

@@ -42,14 +42,18 @@ gen-str: Module(modulename, import*, astroot*, def*) ->
     {importstring}
 
   rules
-  
+
   {cfgstring}
-  
+
   flowspec--proprule(|index): term ->
     [
       {matchpropsstring}
     ]
-  
+
+  flowspec--prop-names =
+   ![ {propnamesstring}
+    ]
+
   {propstring}
 }
 with
@@ -60,6 +64,7 @@ with
 ; propnames := <retain-all(?PropDef(<id>, _)); strip-annos> def*
 ; matchpropsstring := <map(\n -> ${<flowspec--proprule-{n}(|index)> term}\);csv-lines> propnames
 ; propstring := <number-prop-rules(|propnames);map(gen-str);lines_> proprule*
+; propnamesstring := <map(!${"{<id>}"});csv-lines> propnames
 
 number-prop-rules(|propnames): proprules -> numberedproprules
 with
