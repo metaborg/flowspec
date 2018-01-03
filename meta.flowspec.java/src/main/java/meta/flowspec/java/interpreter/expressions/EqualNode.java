@@ -1,17 +1,16 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import java.util.Objects;
+
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
+
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-
-import meta.flowspec.java.interpreter.expressions.EqualNodeGen;
-
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-
-import java.util.Objects;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class EqualNode extends ExpressionNode {
@@ -48,11 +47,11 @@ public abstract class EqualNode extends ExpressionNode {
         assert !left.equals(right);
         return false;
     }
-
-    public static EqualNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return
-            EqualNodeGen.create(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg));
+    
+    public static IMatcher<EqualNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2("Eq", 
+                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                (appl, e1, e2) -> EqualNodeGen.create(e1, e2));
     }
 }

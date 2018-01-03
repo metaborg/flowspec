@@ -2,9 +2,8 @@ package meta.flowspec.java.interpreter.expressions;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
@@ -16,19 +15,12 @@ class SetCompMatchPredicateNode extends SetCompPredicateNode {
         this.arms = arms;
     }
 
-    public static SetCompMatchPredicateNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor,
-            IControlFlowGraph<ICFGNode> cfg) {
-        IStrategoTerm term = appl.getSubterm(1);
-        assert term instanceof IStrategoList : "Expected a list term";
-        final IStrategoList list = (IStrategoList) term;
-        PatternNode[] patterns = new PatternNode[term.getSubtermCount()];
-        int i = 0;
-        for (IStrategoTerm sourceTerm : list) {
-            // Note the extra unwrap, there is a MatchArm constructor we're getting rid of here
-            patterns[i] = PatternNode.fromIStrategoTerm(sourceTerm.getSubterm(0), frameDescriptor, cfg);
-            i++;
-        }
-        return new SetCompMatchPredicateNode(ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
-                patterns);
+    public static IMatcher<SetCompMatchPredicateNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2("MatchPredicate", 
+            ExpressionNode.matchExpr(frameDescriptor, cfg), 
+            M.listElems(PatternNode.matchPattern(frameDescriptor, cfg)), 
+            (appl, expr, patterns) -> {
+                return new SetCompMatchPredicateNode(expr, patterns.toArray(new PatternNode[patterns.size()]));
+            });
     }
 }

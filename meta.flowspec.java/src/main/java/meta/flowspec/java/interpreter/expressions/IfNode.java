@@ -1,14 +1,15 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
+
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.terms.IStrategoAppl;
 
 public class IfNode extends ExpressionNode {
     @Child
@@ -39,11 +40,11 @@ public class IfNode extends ExpressionNode {
         }
     }
 
-    public static IfNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return
-            new IfNode(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(2), frameDescriptor, cfg));
+    public static IMatcher<IfNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl3("If", 
+                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                (appl, i, t, e) -> new IfNode(i, t, e));
     }
 }

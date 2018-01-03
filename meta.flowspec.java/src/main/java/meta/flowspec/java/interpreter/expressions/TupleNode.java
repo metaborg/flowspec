@@ -4,11 +4,8 @@ import java.util.Arrays;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.StrategoList;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -30,11 +27,19 @@ public class TupleNode extends ExpressionNode {
         return new Tuple(childVals);
     }
 
-    public static TupleNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        IStrategoTerm first = appl.getSubterm(0);
-        IStrategoList others = Tools.listAt(appl, 1);
-        IStrategoTerm[] children = new StrategoList(first, others, null, IStrategoTerm.SHARABLE).getAllSubterms();
-        return new TupleNode(Arrays.stream(children).map(c ->
-            ExpressionNode.fromIStrategoTerm(c, frameDescriptor, cfg)).toArray(ExpressionNode[]::new));
+    public static IMatcher<TupleNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2("Tuple", 
+                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                M.listElems(ExpressionNode.matchExpr(frameDescriptor, cfg)), 
+                (appl, first, others) -> {
+                    ExpressionNode[] exprs = new ExpressionNode[others.size() + 1];
+                    int i = 0;
+                    exprs[i] = first;
+                    for(ExpressionNode expr : others) {
+                        i++;
+                        exprs[i] = expr;
+                    }
+                    return new TupleNode(exprs);
+                });
     }
 }

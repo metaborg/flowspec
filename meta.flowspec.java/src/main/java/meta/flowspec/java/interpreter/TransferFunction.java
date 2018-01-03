@@ -1,14 +1,12 @@
 package meta.flowspec.java.interpreter;
 
-import java.util.Arrays;
-
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.metaborg.meta.nabl2.controlflow.terms.IdentityTFAppl;
 import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
+import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -43,33 +41,38 @@ public class TransferFunction extends RootNode {
         }
         return body.execute(frame);
     }
-    
-    public static TransferFunction fromIStrategoTerm(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor, IStrategoTerm term, IControlFlowGraph<ICFGNode> cfg) {
-        assert term instanceof IStrategoAppl : "Expected a constructor application term";
-        final IStrategoAppl appl = (IStrategoAppl) term;
-        switch (appl.getConstructor().getName()) {
-            case "TransferFunction" : {
-                assert appl.getSubtermCount() == 2 : "Expected TransferFunction to have 2 children";
-                IStrategoTerm[] params = Tools.listAt(appl, 0).getAllSubterms();
-                String[] patternVars = Arrays.stream(params).map(Tools::javaString).toArray(String[]::new);
-                
-                ArgToVarNode[] patternVariables = new ArgToVarNode[patternVars.length];
-                for (int i = 0; i < patternVars.length; i++) {
-                    FrameSlot slot = frameDescriptor.addFrameSlot(patternVars[i], FrameSlotKind.Object);
-                    patternVariables[i] = new ArgToVarNode(i, slot);
-                }
-                
-                Where body = Where.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg);
-                return new TransferFunction(language, frameDescriptor, patternVariables, body);
+
+    public static IMatcher<TransferFunction> match(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2("TransferFunction", M.listElems(M.stringValue()), Where.match(frameDescriptor, cfg), (appl, patternVars, body) -> {
+            ArgToVarNode[] patternVariables = new ArgToVarNode[patternVars.size()];
+            for (int i = 0; i < patternVars.size(); i++) {
+                FrameSlot slot = frameDescriptor.addFrameSlot(patternVars.get(i), FrameSlotKind.Object);
+                patternVariables[i] = new ArgToVarNode(i, slot);
             }
-            default : throw new IllegalArgumentException("Expected constructor TransferFunction");
-        }
-    }
-    
-    public static TransferFunction fromIStrategoTerm(IStrategoTerm term, IControlFlowGraph<ICFGNode> cfg) {
-        return fromIStrategoTerm(null, new FrameDescriptor(), term, cfg);
+            return new TransferFunction(language, frameDescriptor, patternVariables, body);
+        });
     }
 
+    public static IMatcher<TransferFunction> match(IControlFlowGraph<ICFGNode> cfg) {
+        return match(null, new FrameDescriptor(), cfg);
+    }
+    
+    public static IMatcher<TransferFunction[]> matchList(IControlFlowGraph<ICFGNode> cfg) {
+        return M.listElems(
+                    M.tuple2(
+                        M.integerValue(), 
+                        TransferFunction.match(cfg), 
+                        (appl, i, tf) -> ImmutableTuple2.of(i,tf)))
+                .map(list -> {
+                    TransferFunction[] tfs = new TransferFunction[list.size()];
+                    for(ImmutableTuple2<Integer, TransferFunction> t2 : list) {
+                        tfs[t2._1()] = t2._2();
+                    }
+                    return tfs;
+                });
+    }
+
+    @SuppressWarnings("unchecked")
     public static <S extends ICFGNode> Object call(TransferFunctionAppl appl, TransferFunction[] tfs, Object arg) {
         if (appl instanceof IdentityTFAppl) {
             IdentityTFAppl<S> iappl = (IdentityTFAppl<S>) appl;

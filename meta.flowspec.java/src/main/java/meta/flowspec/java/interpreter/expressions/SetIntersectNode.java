@@ -2,7 +2,8 @@ package meta.flowspec.java.interpreter.expressions;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
@@ -18,11 +19,11 @@ public abstract class SetIntersectNode extends ExpressionNode {
     protected Set union(Set left, Set right) {
         return new Set(io.usethesource.capsule.Set.Immutable.intersect(left.set, right.set));
     }
-    
-    public static SetIntersectNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return
-            SetIntersectNodeGen.create(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg));
+
+    public static IMatcher<SetIntersectNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2("SetIntersect", 
+                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                (appl, e1, e2) -> SetIntersectNodeGen.create(e1, e2));
     }
 }

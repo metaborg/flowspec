@@ -1,17 +1,16 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import java.util.Objects;
+
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
+
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-
-import java.util.Objects;
-
-import meta.flowspec.java.interpreter.expressions.NotEqualNodeGen;
-
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.terms.IStrategoAppl;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class NotEqualNode extends ExpressionNode {
@@ -30,10 +29,10 @@ public abstract class NotEqualNode extends ExpressionNode {
         return !Objects.equals(left, right);
     }
 
-    public static NotEqualNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return
-            NotEqualNodeGen.create(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg));
+    public static IMatcher<NotEqualNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2("NEq", 
+                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                (appl, e1, e2) -> NotEqualNodeGen.create(e1, e2));
     }
 }

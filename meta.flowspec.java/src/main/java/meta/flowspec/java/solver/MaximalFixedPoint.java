@@ -8,11 +8,17 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.stratego.StrategoTerms;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
-import org.spoofax.interpreter.core.Tools;
+import org.metaborg.meta.nabl2.terms.ITerm;
+import org.metaborg.meta.nabl2.terms.Terms.M;
+import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
+import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple3;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.IStrategoTuple;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
@@ -21,9 +27,6 @@ import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.lattice.CompleteLattice;
 import meta.flowspec.java.lattice.FullSetLattice;
 import meta.flowspec.java.solver.Metadata.Direction;
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraph;
 
 public abstract class MaximalFixedPoint {
     @SuppressWarnings("unchecked")
@@ -51,29 +54,30 @@ public abstract class MaximalFixedPoint {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static void readPropDataTuple(IStrategoTerm term, Transient<String, Metadata> propMetadata,
+    private static void readPropDataTuple(IStrategoTerm sterm, Transient<String, Metadata> propMetadata,
             io.usethesource.capsule.BinaryRelation.Transient<String, String> propDependsOn,
             Transient<String, TransferFunction[]> transferFuns, IControlFlowGraph<ICFGNode> cfg) {
-        if (!(term instanceof IStrategoTuple)) {
-            throw new RuntimeException("Parse error on reading the transfer functions");
-        }
-        IStrategoTuple tuple = (IStrategoTuple) term;
-        if (tuple.getSubtermCount() != 2) {
-            throw new RuntimeException("Parse error on reading the transfer functions");
-        }
-        String propName = Tools.javaStringAt(tuple, 0);
-        IStrategoTerm propData = Tools.termAt(tuple, 1);
-        if (!(propData instanceof IStrategoTuple)) {
-            throw new RuntimeException("Parse error on reading the transfer functions");
-        }
-        IStrategoTuple propDataTuple = (IStrategoTuple) propData;
-        if (propDataTuple.getSubtermCount() != 2) {
-            throw new RuntimeException("Parse error on reading the transfer functions");
-        }
-        IStrategoTerm direction = Tools.termAt(propDataTuple, 0);
-        IStrategoTerm transfers = Tools.termAt(propDataTuple, 1);
+        ITerm term = StrategoTerms.fromStratego(sterm);
+        
+        ImmutableTuple3<String, Direction, TransferFunction[]> t3 = M.tuple2(
+                M.string(), 
+                M.tuple2(
+                        Direction.match(), 
+                        TransferFunction.matchList(cfg), 
+                        (appl, dir, tfs) -> ImmutableTuple2.of(dir, tfs)), 
+                (appl, string, t2) -> {
+                    String propName = string.getValue();
+                    Direction dir = t2._1();
+                    TransferFunction[] tfs = t2._2();
+                    return ImmutableTuple3.of(propName,  dir, tfs);
+                })
+            .match(term)
+            .get();
+        
+        String propName = t3._1();
+        Direction dir = t3._2();
+        TransferFunction[] tfs = t3._3();
 
-        Direction dir = Direction.fromIStrategoTerm(direction);
         Type type = new Type();
         CompleteLattice lattice = (CompleteLattice) new FullSetLattice<IStringTerm>();
         switch (propName) {
@@ -85,23 +89,6 @@ public abstract class MaximalFixedPoint {
                 propMetadata.__put(propName, ImmutableMetadata.of(dir, lattice, type));
         }
 
-        if (!(transfers instanceof IStrategoList)) {
-            throw new RuntimeException("Parse error on reading the transfer functions");
-        }
-        IStrategoList transfersList = (IStrategoList) transfers;
-        TransferFunction[] tfs = new TransferFunction[transfersList.getSubtermCount()];
-        for (IStrategoTerm transfer : transfersList) {
-            if (!(transfer instanceof IStrategoTuple)) {
-                throw new RuntimeException("Parse error on reading the transfer functions");
-            }
-            IStrategoTuple transferTuple = (IStrategoTuple) transfer;
-            if (transferTuple.getSubtermCount() != 2) {
-                throw new RuntimeException("Parse error on reading the transfer functions");
-            }
-            int index = Tools.javaIntAt(transferTuple, 0);
-            IStrategoTerm transferFunction = Tools.termAt(transferTuple, 1);
-            tfs[index] = TransferFunction.fromIStrategoTerm(transferFunction, cfg);
-        }
         transferFuns.__put(propName, tfs);
     }
 

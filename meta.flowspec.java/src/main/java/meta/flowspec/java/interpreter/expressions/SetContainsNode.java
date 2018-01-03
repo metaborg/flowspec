@@ -2,7 +2,8 @@ package meta.flowspec.java.interpreter.expressions;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
@@ -25,10 +26,10 @@ public abstract class SetContainsNode extends ExpressionNode {
         return left.set.contains(((Set) right).set);
     }
 
-    public static SetContainsNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor,
-            IControlFlowGraph<ICFGNode> cfg) {
-        return SetContainsNodeGen.create(
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
-                ExpressionNode.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg));
+    public static IMatcher<SetContainsNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2("SetContains", 
+                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                (appl, e1, e2) -> SetContainsNodeGen.create(e1, e2));
     }
 }

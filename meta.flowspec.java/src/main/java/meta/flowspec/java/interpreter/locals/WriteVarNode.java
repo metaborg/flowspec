@@ -2,9 +2,8 @@ package meta.flowspec.java.interpreter.locals;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
@@ -18,7 +17,6 @@ import com.oracle.truffle.api.nodes.Node;
 
 import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.expressions.ExpressionNode;
-import meta.flowspec.java.interpreter.locals.WriteVarNodeGen;
 
 @TypeSystemReference(Types.class)
 @NodeChild(value = "valNode", type = ExpressionNode.class)
@@ -92,18 +90,11 @@ public abstract class WriteVarNode extends Node {
         return getSlot().getKind() == FrameSlotKind.Boolean || getSlot().getKind() == FrameSlotKind.Illegal;
     }
 
-    public static WriteVarNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        assert term instanceof IStrategoAppl : "Expected a constructor application term";
-        final IStrategoAppl appl = (IStrategoAppl) term;
-        switch (appl.getConstructor().getName()) {
-            case "Binding" : {
-                assert appl.getSubtermCount() == 2 : "Expected Binding to have 2 children";
-                FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
-                FrameSlot slot = frameDescriptor.addFrameSlot(Tools.javaStringAt(appl, 0), slotKind);
-                return WriteVarNodeGen.create(ExpressionNode.fromIStrategoTerm(Tools.applAt(appl, 1), frameDescriptor, cfg), slot);
-            }
-            default : throw new IllegalArgumentException("Expected constructor TransferFunction");
-        }
+    public static IMatcher<WriteVarNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2("Binding", M.stringValue(), ExpressionNode.matchExpr(frameDescriptor, cfg), (appl, name, expr) -> {
+            FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
+            return WriteVarNodeGen.create(expr, frameDescriptor.addFrameSlot(name, slotKind));
+        });
     }
 
 }

@@ -3,7 +3,8 @@ package meta.flowspec.java.interpreter.expressions;
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -24,14 +25,6 @@ public class SetCompNode extends ExpressionNode {
         this.sourcePatterns = sourcePatterns;
         this.sources = sources;
         this.predicates = predicates;
-    }
-
-    public static SetCompNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor,
-            IControlFlowGraph<ICFGNode> cfg) {
-        return new SetCompNode(ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg),
-                PatternNode.Array.fromIStrategoTerm(appl.getSubterm(1), frameDescriptor, cfg),
-                ExpressionNode.Array.fromIStrategoTerm(appl.getSubterm(2), frameDescriptor, cfg),
-                SetCompPredicateNode.Array.fromIStrategoTerm(appl.getSubterm(3), frameDescriptor, cfg));
     }
 
     @Override
@@ -59,5 +52,18 @@ public class SetCompNode extends ExpressionNode {
             }
         }
         return new Set<>(result.freeze());
+    }
+
+    public static IMatcher<SetCompNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl4("SetComp", 
+                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                M.listElems(PatternNode.matchPattern(frameDescriptor, cfg)),
+                M.listElems(ExpressionNode.matchExpr(frameDescriptor, cfg)),
+                M.listElems(SetCompPredicateNode.matchPred(frameDescriptor, cfg)),
+                (appl, expr, patterns, exprs, preds) -> 
+                    new SetCompNode(expr, 
+                            patterns.toArray(new PatternNode[patterns.size()]), 
+                            exprs.toArray(new ExpressionNode[exprs.size()]), 
+                            preds.toArray(new SetCompPredicateNode[preds.size()])));
     }
 }

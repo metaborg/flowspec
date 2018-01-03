@@ -2,9 +2,8 @@ package meta.flowspec.java.interpreter.expressions;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -15,46 +14,19 @@ import meta.flowspec.java.interpreter.Types;
 
 @TypeSystemReference(Types.class)
 public abstract class PatternNode extends Node {
-    public static PatternNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        assert term instanceof IStrategoAppl : "Expected a constructor application term";
-        final IStrategoAppl appl = (IStrategoAppl) term;
-        switch (appl.getConstructor().getName()) {
-            case "Term": throw new RuntimeException("Unimplemented");
-            case "Tuple": throw new RuntimeException("Unimplemented");
-            case "Wildcard": throw new RuntimeException("Unimplemented");
-            case "Var": {
-                assert appl.getSubtermCount() == 1 : "Expected Ref to have 1 child";
-                return VarPatternNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "At": throw new RuntimeException("Unimplemented");
-            case "Int": {
-                assert appl.getSubtermCount() == 1 : "Expected Int to have 1 child";
-                return IntLiteralPatternNode.fromIStrategoAppl(appl);
-            }
-            case "String": {
-                assert appl.getSubtermCount() == 1 : "Expected String to have 1 child";
-                return StringLiteralPatternNode.fromIStrategoAppl(appl);
-            }
-            case "Start": throw new RuntimeException("Unimplemented");
-            case "End": throw new RuntimeException("Unimplemented");
-            default: throw new IllegalArgumentException("Unknown constructor for Expression: " + appl.getConstructor().getName());
-        }
-    }
-
-    public static class Array {
-        public static PatternNode[] fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor,
-                IControlFlowGraph<ICFGNode> cfg) {
-            assert term instanceof IStrategoList : "Expected a list term";
-            final IStrategoList list = (IStrategoList) term;
-            PatternNode[] result = new PatternNode[term.getSubtermCount()];
-            int i = 0;
-            for (IStrategoTerm sourceTerm : list) {
-                result[i] = PatternNode.fromIStrategoTerm(sourceTerm, frameDescriptor, cfg);
-                i++;
-            }
-            return result;
-        }
-    }
-
     public abstract boolean executeGeneric(VirtualFrame frame, Object value);
+
+    public static IMatcher<PatternNode> matchPattern(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.cases(
+            // TODO Term/0?
+            // TODO Tuple/2?
+            // TODO Wildcard/0
+            VarPatternNode.match(frameDescriptor, cfg),
+            // TODO At/2
+            IntLiteralPatternNode.match(frameDescriptor, cfg),
+            StringLiteralPatternNode.match(frameDescriptor, cfg)
+            // TODO Start/0
+            // TODO End/0
+        );
+    }
 }

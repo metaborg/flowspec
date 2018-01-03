@@ -3,10 +3,8 @@ package meta.flowspec.java.interpreter.expressions;
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -16,7 +14,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.TypesGen;
-import meta.flowspec.java.interpreter.locals.ReadVarNodeGen;
+import meta.flowspec.java.interpreter.locals.ReadVarNode;
 import meta.flowspec.java.interpreter.values.Tuple;
 
 @TypeSystemReference(Types.class)
@@ -44,95 +42,29 @@ public abstract class ExpressionNode extends Node {
         return TypesGen.expectSet(executeGeneric(frame));
     }
 
-    public static ExpressionNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        assert term instanceof IStrategoAppl : "Expected a constructor application term";
-        final IStrategoAppl appl = (IStrategoAppl) term;
-        switch (appl.getConstructor().getName()) {
-            case "Term": throw new RuntimeException("Unimplemented");
-            case "QualRef": throw new RuntimeException("Unimplemented");
-            case "Ref": {
-                assert appl.getSubtermCount() == 1 : "Expected Ref to have 1 child";
-                return ReadVarNodeGen.create(frameDescriptor.findFrameSlot(Tools.javaStringAt(appl, 0)));
-            }
-            case "Prop": {
-                assert appl.getSubtermCount() == 2 : "Expected PropRef to have 2 children";
-                return ReadPropNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "Tuple": {
-                assert appl.getSubtermCount() == 2 : "Expected Tuple to have 2 children";
-                return TupleNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "Int": {
-                assert appl.getSubtermCount() == 1 : "Expected Int to have 1 child";
-                return IntLiteralNode.fromIStrategoAppl(appl);
-            }
-            case "String": {
-                assert appl.getSubtermCount() == 1 : "Expected String to have 1 child";
-                return StringLiteralNode.fromIStrategoAppl(appl);
-            }
-            case "Type": {
-                assert appl.getSubtermCount() == 1 : "Expected Type to have 1 child";
-                return new TypeNode(ReadVarNodeGen.create(frameDescriptor.findFrameSlot(Tools.javaStringAt(appl, 0))));
-            }
-            case "Abs": throw new RuntimeException("Unimplemented");
-            case "Appl": throw new RuntimeException("Unimplemented");
-            case "If": {
-                assert appl.getSubtermCount() == 3 : "Expected If to have 3 children";
-                return IfNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "Eq": {
-                assert appl.getSubtermCount() == 2 : "Expected Eq to have 2 children";
-                return EqualNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "NEq": {
-                assert appl.getSubtermCount() == 2 : "Expected NEq to have 2 children";
-                return NotEqualNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "Plus": {
-                assert appl.getSubtermCount() == 2 : "Expected Plus to have 2 children";
-                return PlusNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "Match": throw new RuntimeException("Unimplemented");
-            case "SetLiteral": {
-                assert appl.getSubtermCount() == 1 : "Expected SetLiteral to have 1 child";
-                return SetLiteralNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "SetComp": {
-                assert appl.getSubtermCount() == 4 : "Expected SetComp to have 4 children";
-                return SetCompNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "SetUnion": {
-                assert appl.getSubtermCount() == 2 : "Expected SetUnion to have 2 children";
-                return SetUnionNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "SetDifference": {
-                assert appl.getSubtermCount() == 2 : "Expected SetDifference to have 2 children";
-                return SetMinusNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "SetContains": {
-                assert appl.getSubtermCount() == 2 : "Expected SetContains to have 2 children";
-                return SetContainsNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            case "SetIntersection": {
-                assert appl.getSubtermCount() == 2 : "Expected SetIntersection to have 2 children";
-                return SetIntersectNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-            }
-            default: throw new IllegalArgumentException("Unknown constructor for Expression: " + appl.getConstructor().getName());
-        }
-    }
-
-    public static class Array {
-        public static ExpressionNode[] fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor,
-                IControlFlowGraph<ICFGNode> cfg) {
-            assert term instanceof IStrategoList : "Expected a list term";
-            final IStrategoList list = (IStrategoList) term;
-            ExpressionNode[] result = new ExpressionNode[term.getSubtermCount()];
-            int i = 0;
-            for (IStrategoTerm sourceTerm : list) {
-                result[i] = ExpressionNode.fromIStrategoTerm(sourceTerm, frameDescriptor, cfg);
-                i++;
-            }
-            return result;
-        }
+    public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.cases(
+            // TODO Term/1?
+            // TODO QualRef/2
+            M.appl1("Ref", ReadVarNode.match(frameDescriptor), (appl, rvn) -> rvn),
+            ReadPropNode.match(frameDescriptor, cfg),
+            TupleNode.match(frameDescriptor, cfg),
+            IntLiteralNode.match(frameDescriptor, cfg),
+            StringLiteralNode.match(frameDescriptor, cfg),
+            TypeNode.match(frameDescriptor, cfg),
+            // TODO Abs/1
+            // TODO Appl/2
+            IfNode.match(frameDescriptor, cfg),
+            EqualNode.match(frameDescriptor, cfg),
+            NotEqualNode.match(frameDescriptor, cfg),
+            PlusNode.match(frameDescriptor, cfg),
+            // TODO Match/2?
+            SetLiteralNode.match(frameDescriptor, cfg),
+            SetCompNode.match(frameDescriptor, cfg),
+            SetUnionNode.match(frameDescriptor, cfg),
+            SetMinusNode.match(frameDescriptor, cfg),
+            SetContainsNode.match(frameDescriptor, cfg),
+            SetIntersectNode.match(frameDescriptor, cfg)
+        );
     }
 }

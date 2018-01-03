@@ -2,9 +2,8 @@ package meta.flowspec.java.interpreter.expressions;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -17,41 +16,16 @@ class SetCompPredicateNode {
         this.expr = expr;
     }
 
-    public static SetCompPredicateNode fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor,
-            IControlFlowGraph<ICFGNode> cfg) {
-        assert term instanceof IStrategoAppl : "Expected a constructor application term";
-        final IStrategoAppl appl = (IStrategoAppl) term;
-        switch (appl.getConstructor().getName()) {
-        case "Predicate": {
-            assert appl.getSubtermCount() == 1 : "Expected Predicate to have 1 child";
-            return new SetCompPredicateNode(ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg));
-        }
-        case "MatchPredicate": {
-            assert appl.getSubtermCount() == 2 : "Expected Predicate to have 1 child";
-            return SetCompMatchPredicateNode.fromIStrategoAppl(appl, frameDescriptor, cfg);
-        }
-        default:
-            throw new IllegalArgumentException(
-                    "Unknown constructor for SetCompSource: " + appl.getConstructor().getName());
-        }
-    }
-
-    public static class Array {
-        public static SetCompPredicateNode[] fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor,
-                IControlFlowGraph<ICFGNode> cfg) {
-            assert term instanceof IStrategoList : "Expected a list term";
-            final IStrategoList list = (IStrategoList) term;
-            SetCompPredicateNode[] result = new SetCompPredicateNode[term.getSubtermCount()];
-            int i = 0;
-            for (IStrategoTerm sourceTerm : list) {
-                result[i] = SetCompPredicateNode.fromIStrategoTerm(sourceTerm, frameDescriptor, cfg);
-                i++;
-            }
-            return result;
-        }
-    }
-
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
         return this.expr.executeBoolean(frame);
+    }
+
+    public static IMatcher<SetCompPredicateNode> matchPred(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.cases(
+            M.appl1("Predicate", 
+                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                (appl, expr) -> new SetCompPredicateNode(expr)),
+            SetCompMatchPredicateNode.match(frameDescriptor, cfg)
+        );
     }
 }

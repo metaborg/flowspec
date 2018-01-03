@@ -2,8 +2,8 @@ package meta.flowspec.java.solver;
 
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import meta.flowspec.java.lattice.CompleteLattice;
 
@@ -14,24 +14,12 @@ public abstract class Metadata {
         Backward,
         FlowInsensitive;
         
-        public static Direction fromIStrategoTerm(IStrategoTerm term) {
-            assert term instanceof IStrategoAppl;
-            IStrategoAppl appl = (IStrategoAppl) term;
-            assert appl.getSubtermCount() == 0;
-            switch (appl.getConstructor().getName()) {
-                case "Bw": {
-                    return Backward;
-                }
-                case "Fw": {
-                    return Forward;
-                }
-                case "NA": {
-                    return FlowInsensitive;
-                }
-                default: {
-                    throw new RuntimeException("Parse error while reading in direction of property");
-                }
-            }
+        public static IMatcher<Direction> match() {
+            return M.cases(
+                M.appl0("Bw", appl -> Backward),
+                M.appl0("Fw", appl -> Forward),
+                M.appl0("NA", appl -> FlowInsensitive)
+            );
         }
     }
 

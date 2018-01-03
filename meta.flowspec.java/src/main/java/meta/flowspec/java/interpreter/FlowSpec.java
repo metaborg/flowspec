@@ -1,5 +1,6 @@
 package meta.flowspec.java.interpreter;
 
+import org.metaborg.meta.nabl2.stratego.StrategoTerms;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
@@ -46,7 +47,7 @@ public final class FlowSpec extends TruffleLanguage<Context> {
         
         IStrategoTerm term = f.parseFromString(source.getCode());
         
-        TransferFunction rootNode = TransferFunction.fromIStrategoTerm(this, new FrameDescriptor(), term, null);
+        TransferFunction rootNode = TransferFunction.match(this, new FrameDescriptor(), null).match(StrategoTerms.fromStratego(term)).get();
         
         return Truffle.getRuntime().createCallTarget(rootNode);
     }

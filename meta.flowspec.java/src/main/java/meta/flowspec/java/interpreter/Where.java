@@ -1,12 +1,9 @@
 package meta.flowspec.java.interpreter;
 
-import java.util.Arrays;
-
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -34,19 +31,13 @@ public class Where extends Node {
         return body.executeGeneric(frame);
     }
 
-    public static Where fromIStrategoTerm(IStrategoTerm term, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        assert term instanceof IStrategoAppl : "Expected a constructor application term";
-        final IStrategoAppl appl = (IStrategoAppl) term;
-        switch (appl.getConstructor().getName()) {
-            case "Where" : {
-                assert appl.getSubtermCount() == 2 : "Expected TransferFunction to have 2 children";
-                IStrategoTerm[] bindings = Tools.listAt(appl, 1).getAllSubterms();
-                WriteVarNode[] writeVars =
-                    Arrays.stream(bindings).map(t -> WriteVarNode.fromIStrategoTerm(t, frameDescriptor, cfg)).toArray(WriteVarNode[]::new);
-                ExpressionNode body = ExpressionNode.fromIStrategoTerm(appl.getSubterm(0), frameDescriptor, cfg);
-                return new Where(writeVars, body);
-            }
-            default : throw new IllegalArgumentException("Expected constructor TransferFunction");
-        }
+    public static IMatcher<Where> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2(
+                "Where", 
+                M.listElems(WriteVarNode.match(frameDescriptor, cfg)), 
+                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                (appl, writeVars, body) -> {
+                    return new Where(writeVars.toArray(new WriteVarNode[writeVars.size()]), body);
+                });
     }
 }
