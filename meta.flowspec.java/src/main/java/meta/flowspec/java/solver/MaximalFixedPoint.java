@@ -120,14 +120,15 @@ public abstract class MaximalFixedPoint {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <CFGNode extends ICFGNode> void solveFlowSensitiveProperty(IControlFlowGraph<CFGNode> icfg,
             String prop, Metadata metadata, Map<String, TransferFunction[]> transferFuns) {
-        // TODO: this is an evil workaround, do better API design
+        // FIXME: this is an evil workaround, do better API design
         ControlFlowGraph<CFGNode> cfg = (ControlFlowGraph<CFGNode>) icfg;
         // Phase 1: initialisation
         TransferFunction[] tf = transferFuns.get(prop);
 
-        for (CFGNode n : cfg.getAllCFGNodes()) {
+        for (CFGNode n : cfg.getAllNodes()) {
             cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) metadata.lattice().bottom());
             // No need to set a different value for the start node, since the
             // rule for the start node will result
@@ -136,22 +137,21 @@ public abstract class MaximalFixedPoint {
 
         // Phase 2: Fixpoint iteration
         final BinaryRelation<CFGNode, CFGNode> edges;
+        final java.util.Set<CFGNode> workList;
         switch (metadata.dir()) {
-        case Forward: {
-            edges = cfg.getDirectEdges();
-            break;
+            case Forward: {
+                edges = cfg.getDirectEdges();
+                workList = cfg.getStartNodes();
+                break;
+            }
+            case Backward: {
+                edges = cfg.getDirectEdges().inverse();
+                workList = cfg.getEndNodes();
+                break;
+            }
+            default: 
+                throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
-        case Backward: {
-            edges = cfg.getDirectEdges().inverse();
-            break;
-        }
-        default: {
-            throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
-        }
-        }
-
-        // TODO: start at start node (or end node in case of Backward dir)
-        java.util.Set<CFGNode> workList = new java.util.HashSet<>(edges.keySet());
 
         while (!workList.isEmpty()) {
             final CFGNode from = workList.iterator().next();
@@ -168,7 +168,7 @@ public abstract class MaximalFixedPoint {
         }
 
         // Phase 3: Result calculation
-        for (CFGNode n : cfg.getAllCFGNodes()) {
+        for (CFGNode n : cfg.getAllNodes()) {
             // save pre-TF results
             cfg.setProperty(n, "pre-" + prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) cfg.getProperty(n, prop));
             // put post-TF results in property name
