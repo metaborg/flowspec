@@ -17,7 +17,7 @@ public abstract class PatternNode extends Node {
     public abstract boolean executeGeneric(VirtualFrame frame, Object value);
 
     public static IMatcher<PatternNode> matchPattern(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return M.cases(
+        return term -> M.cases(
             // TODO Term/0?
             // TODO Tuple/2?
             // TODO Wildcard/0
@@ -27,6 +27,6 @@ public abstract class PatternNode extends Node {
             StringLiteralPatternNode.match(frameDescriptor, cfg)
             // TODO Start/0
             // TODO End/0
-        );
+        ).match(term);
     }
 }
