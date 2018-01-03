@@ -175,15 +175,13 @@ where
 
 match-ast-root-str(|astroot*): At(_, pattern) -> <match-ast-root-str(|astroot*)> pattern
 
-gen-new-cfg-start-node-str: (termname, nodename) ->
+gen-new-cfg-start-node-str: nodename ->
   ${{nodename} := <nabl2--new-cfg-node(|nabl2_source,Start())
-                   ;try(nabl2--copy-origin(|nabl2_term))
-                   ;nabl2-copy-ast-index(|{termname})> "{nodename}"}
+                   ;try(nabl2--copy-origin(|nabl2_term))> "{nodename}"}
 
-gen-new-cfg-end-node-str: (termname, nodename) ->
-  ${{nodename} := <nabl2--new-cfg-node(|nabl2_source,Start())
-                   ;try(nabl2--copy-origin(|nabl2_term))
-                   ;nabl2-copy-ast-index(|{termname})> "{nodename}"}
+gen-new-cfg-end-node-str: nodename ->
+  ${{nodename} := <nabl2--new-cfg-node(|nabl2_source,End())
+                   ;try(nabl2--copy-origin(|nabl2_term))> "{nodename}"}
 
 gen-new-cfg-node-str: (termname, nodename) ->
   ${{nodename} := <nabl2--new-cfg-node(|nabl2_source,Normal())
