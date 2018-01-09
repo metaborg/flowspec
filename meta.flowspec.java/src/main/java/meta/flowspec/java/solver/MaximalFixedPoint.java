@@ -137,16 +137,16 @@ public abstract class MaximalFixedPoint {
 
         // Phase 2: Fixpoint iteration
         final BinaryRelation<CFGNode, CFGNode> edges;
-        final java.util.Set<CFGNode> workList;
+        final java.util.Set<CFGNode> workList = new HashSet<>();
         switch (metadata.dir()) {
             case Forward: {
                 edges = cfg.getDirectEdges();
-                workList = cfg.getStartNodes();
+                workList.addAll(cfg.getStartNodes());
                 break;
             }
             case Backward: {
                 edges = cfg.getDirectEdges().inverse();
-                workList = cfg.getEndNodes();
+                workList.addAll(cfg.getEndNodes());
                 break;
             }
             default: 

@@ -34,9 +34,9 @@ public class Where extends Node {
     public static IMatcher<Where> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return M.appl2(
                 "Where", 
-                M.listElems(WriteVarNode.match(frameDescriptor, cfg)), 
                 ExpressionNode.matchExpr(frameDescriptor, cfg),
-                (appl, writeVars, body) -> {
+                M.listElems(WriteVarNode.match(frameDescriptor, cfg)), 
+                (appl, body, writeVars) -> {
                     return new Where(writeVars.toArray(new WriteVarNode[writeVars.size()]), body);
                 });
     }

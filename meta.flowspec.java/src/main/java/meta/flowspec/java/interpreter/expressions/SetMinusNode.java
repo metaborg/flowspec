@@ -21,7 +21,7 @@ public abstract class SetMinusNode extends ExpressionNode {
     }
 
     public static IMatcher<SetMinusNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return M.appl2("SetMinus", 
+        return M.appl2("SetDifference", 
                 ExpressionNode.matchExpr(frameDescriptor, cfg), 
                 ExpressionNode.matchExpr(frameDescriptor, cfg),
                 (appl, e1, e2) -> SetMinusNodeGen.create(e1, e2));

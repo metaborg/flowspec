@@ -24,6 +24,8 @@ public abstract class SetUnionNode extends ExpressionNode {
         return M.appl2("SetUnion", 
                 ExpressionNode.matchExpr(frameDescriptor, cfg), 
                 ExpressionNode.matchExpr(frameDescriptor, cfg),
-                (appl, e1, e2) -> SetUnionNodeGen.create(e1, e2));
+                (appl, e1, e2) -> {
+                    return SetUnionNodeGen.create(e1, e2);
+                });
     }
 }

@@ -12,8 +12,6 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.FrameSlot;
-import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
@@ -43,12 +41,7 @@ public class TransferFunction extends RootNode {
     }
 
     public static IMatcher<TransferFunction> match(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return M.appl2("TransferFunction", M.listElems(M.stringValue()), Where.match(frameDescriptor, cfg), (appl, patternVars, body) -> {
-            ArgToVarNode[] patternVariables = new ArgToVarNode[patternVars.size()];
-            for (int i = 0; i < patternVars.size(); i++) {
-                FrameSlot slot = frameDescriptor.addFrameSlot(patternVars.get(i), FrameSlotKind.Object);
-                patternVariables[i] = new ArgToVarNode(i, slot);
-            }
+        return M.appl2("TransferFunction", ArgToVarNode.matchList(frameDescriptor), Where.match(frameDescriptor, cfg), (appl, patternVariables, body) -> {
             return new TransferFunction(language, frameDescriptor, patternVariables, body);
         });
     }
@@ -61,7 +54,7 @@ public class TransferFunction extends RootNode {
         return M.listElems(
                     M.tuple2(
                         M.integerValue(), 
-                        TransferFunction.match(cfg), 
+                        term -> TransferFunction.match(cfg).match(term), 
                         (appl, i, tf) -> ImmutableTuple2.of(i,tf)))
                 .map(list -> {
                     TransferFunction[] tfs = new TransferFunction[list.size()];
