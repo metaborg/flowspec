@@ -1,18 +1,19 @@
 package meta.flowspec.java.interpreter;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
-import org.metaborg.meta.nabl2.terms.IConsTerm;
-import org.metaborg.meta.nabl2.terms.IListTerm;
-import org.metaborg.meta.nabl2.terms.INilTerm;
+import org.metaborg.meta.nabl2.terms.IApplTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.ITermVar;
+import org.metaborg.meta.nabl2.terms.generic.TB;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
 
-public class Set<K extends ITerm> implements IListTerm, INilTerm, IConsTerm {
+public class Set<K extends ITerm> implements IApplTerm {
     public final io.usethesource.capsule.Set.Immutable<K> set;
     private final ImmutableClassToInstanceMap<Object> attachments;
 
@@ -40,11 +41,6 @@ public class Set<K extends ITerm> implements IListTerm, INilTerm, IConsTerm {
     }
 
     @Override
-    public IListTerm withLocked(boolean locked) {
-        return this;
-    }
-
-    @Override
     public Multiset<ITermVar> getVars() {
         return ImmutableMultiset.of();
     }
@@ -60,46 +56,38 @@ public class Set<K extends ITerm> implements IListTerm, INilTerm, IConsTerm {
     }
 
     @Override
-    public <T> T match(IListTerm.Cases<T> cases) {
-        if (this.set.isEmpty()) {
-            return cases.caseNil(this);
-        } else {
-            return cases.caseCons(this);
-        }
-    }
-
-    @Override
-    public <T, E extends Throwable> T matchOrThrow(IListTerm.CheckedCases<T, E> cases) throws E {
-        if (this.set.isEmpty()) {
-            return cases.caseNil(this);
-        } else {
-            return cases.caseCons(this);
-        }
-    }
-
-    @Override
     public <T> T match(ITerm.Cases<T> cases) {
-        return cases.caseList(this);
+        return cases.caseAppl(this);
     }
 
     @Override
     public <T, E extends Throwable> T matchOrThrow(ITerm.CheckedCases<T, E> cases)
             throws E {
-        return cases.caseList(this);
+        return cases.caseAppl(this);
     }
 
-    @Override
-    public K getHead() {
-        return (K) this.set.iterator().next();
-    }
-
-    @Override
-    public Set<K> getTail() {
-        return new Set<>(this.set.__remove(this.getHead()), this.attachments);
-    }
-    
     @Override
     public String toString() {
         return set.stream().collect(Collectors.toSet()).toString();
+    }
+
+    @Override
+    public String getOp() {
+        return "Set";
+    }
+
+    @Override
+    public int getArity() {
+        return 1;
+    }
+
+    @Override
+    public List<ITerm> getArgs() {
+        return new ImmutableList.Builder<ITerm>().add(TB.newList(this.set)).build();
+    }
+
+    @Override
+    public IApplTerm withLocked(boolean locked) {
+        return this;
     }
 }
