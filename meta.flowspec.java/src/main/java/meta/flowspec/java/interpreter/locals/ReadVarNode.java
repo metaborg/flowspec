@@ -11,10 +11,10 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import meta.flowspec.java.interpreter.expressions.ExpressionNode;
+import meta.flowspec.java.interpreter.expressions.RefNode;
 
 @NodeField(name = "slot", type = FrameSlot.class)
-public abstract class ReadVarNode extends ExpressionNode {
+public abstract class ReadVarNode extends RefNode {
 
     protected abstract FrameSlot getSlot();
 

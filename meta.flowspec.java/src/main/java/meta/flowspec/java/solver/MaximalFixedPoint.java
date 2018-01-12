@@ -35,6 +35,9 @@ public abstract class MaximalFixedPoint {
         final BinaryRelation.Transient<String, String> propDependsOn = BinaryRelation.Transient.of();
         final Map.Transient<String, TransferFunction[]> transferFuns = Map.Transient.of();
         
+        // remove artificial nodes from CFG
+        cfg.complete();
+        
         for (IStrategoTerm term : tfs) {
             readPropDataTuples(term, propMetadata, propDependsOn, transferFuns, (IControlFlowGraph<ICFGNode>) cfg);
         }
@@ -131,27 +134,25 @@ public abstract class MaximalFixedPoint {
         for (CFGNode n : cfg.getAllNodes()) {
             cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) metadata.lattice().bottom());
             // No need to set a different value for the start node, since the
-            // rule for the start node will result
-            // in that value, which will be propagated Phase 2.
+            //  rule for the start node will result in that value, which will be propagated Phase 2.
         }
 
         // Phase 2: Fixpoint iteration
         final BinaryRelation<CFGNode, CFGNode> edges;
-        final java.util.Set<CFGNode> workList = new HashSet<>();
         switch (metadata.dir()) {
             case Forward: {
                 edges = cfg.getDirectEdges();
-                workList.addAll(cfg.getStartNodes());
                 break;
             }
             case Backward: {
                 edges = cfg.getDirectEdges().inverse();
-                workList.addAll(cfg.getEndNodes());
                 break;
             }
             default: 
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
+        final java.util.Set<CFGNode> workList = new HashSet<>();
+        workList.addAll(cfg.getAllNodes());
 
         while (!workList.isEmpty()) {
             final CFGNode from = workList.iterator().next();
@@ -168,13 +169,28 @@ public abstract class MaximalFixedPoint {
         }
 
         // Phase 3: Result calculation
+        final String prePropName;
+        final String postPropName;
+        switch (metadata.dir()) {
+            case Forward: {
+                prePropName = "pre-" + prop;
+                postPropName = prop;
+                break;
+            }
+            case Backward: {
+                prePropName = prop;
+                postPropName = "pre-" + prop;
+                break;
+            }
+            default: 
+                throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
+        }
         for (CFGNode n : cfg.getAllNodes()) {
             // save pre-TF results
-            cfg.setProperty(n, "pre-" + prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) cfg.getProperty(n, prop));
+            cfg.setProperty(n, prePropName, (meta.flowspec.java.interpreter.Set<IStringTerm>) cfg.getProperty(n, prop));
             // put post-TF results in property name
-            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), tf, n));
+            cfg.setProperty(n, postPropName, (meta.flowspec.java.interpreter.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), tf, n));
         }
-
     }
 
     private static <CFGNode extends ICFGNode> void solveFlowInsensitiveProperty(IControlFlowGraph<CFGNode> cfg,

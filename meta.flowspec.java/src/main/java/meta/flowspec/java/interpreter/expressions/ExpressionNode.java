@@ -14,7 +14,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.TypesGen;
-import meta.flowspec.java.interpreter.locals.ReadVarNode;
 import meta.flowspec.java.interpreter.values.Tuple;
 
 @TypeSystemReference(Types.class)
@@ -45,15 +44,14 @@ public abstract class ExpressionNode extends Node {
     public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return term -> M.cases(
             // TODO Term/1?
-            // TODO QualRef/2
-            M.appl1("Ref", ReadVarNode.match(frameDescriptor), (appl, rvn) -> rvn),
+            RefNode.matchRef(frameDescriptor),
             ReadPropNode.match(frameDescriptor, cfg),
             TupleNode.match(frameDescriptor, cfg),
             IntLiteralNode.match(frameDescriptor, cfg),
             StringLiteralNode.match(frameDescriptor, cfg),
             TypeNode.match(frameDescriptor, cfg),
             // TODO Abs/1
-            // TODO Appl/2
+            ApplicationNode.match(frameDescriptor, cfg),
             IfNode.match(frameDescriptor, cfg),
             EqualNode.match(frameDescriptor, cfg),
             NotEqualNode.match(frameDescriptor, cfg),
