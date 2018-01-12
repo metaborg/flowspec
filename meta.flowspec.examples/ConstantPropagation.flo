@@ -1,0 +1,39 @@
+module flow
+
+cfg Root(s) = entry -> cfg s -> exit
+
+cfg this@Assign(n, e) =
+  entry -> cfg e -> this -> exit
+
+cfg Skip() = entry -> exit
+
+cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
+
+cfg IfThenElse(c, t, e) =
+  entry -> c -> cfg t -> exit, 
+           c -> cfg e -> exit
+
+cfg While(e, s) =
+  entry -> e -> cfg s -> e -> exit
+
+prop constProp: Map name Const
+
+constProp(prev -> Assign(n, e)) =
+
+type ConstProp =
+  | Top()
+  | Const(int)
+  | Bottom()
+
+lattice Const where
+  type = ConstProp
+
+  lub l r = match (l,r) with
+    | (Top(), _) => Top
+    | (_, Top()) => Top
+    | (Const(i), Const(j)) => if i == j
+        then Const i else Top
+    | (_, Bottom()) => l
+    | (Bottom(), _) => r
+
+  bottom = Bottom

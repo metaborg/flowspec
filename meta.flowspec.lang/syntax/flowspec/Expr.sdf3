@@ -8,8 +8,7 @@ flowspec/Pattern
 context-free syntax // expressions
 
 Expr.Term = [[ConsName]([{Expr ","}*])]
-Expr.QualRef = [[ModuleName].[Var]] {avoid}
-Expr.Ref = Var
+Expr = Ref
 Expr.Prop = [[PropName]([Var])] {prefer}
 Expr.Tuple = [([Expr], [{Expr ", "}+])]
 Expr = Literal
@@ -19,7 +18,7 @@ Expr.End = [end]
 
 Expr = [([Expr])] {bracket}
 Expr.Type = [[Var].type]
-Expr.Appl = [[Expr]([{Expr ", "}+])] {left}
+Expr.Appl = [[Ref]([{Expr ", "}+])] {left}
 Expr.If = [if [Expr] then [Expr] else [Expr]]
 Expr.Eq = [[Expr] == [Expr]] {left}
 Expr.NEq = [[Expr] != [Expr]] {left}
@@ -44,6 +43,9 @@ SetCompMatchArm.MatchArm = [| [Pattern]]
 
 Literal.Int = INT
 Literal.String = STRING
+
+Ref.QualRef = [[ModuleName].[Var]] {avoid}
+Ref.Ref = Var
 
 context-free priorities
   Expr.Not > { left: Expr.Appl Expr.If Expr.Match } > { non-assoc: Expr.SetUnion Expr.SetIntersection Expr.SetContains Expr.SetDifference } > { left: Expr.Eq Expr.NEq }

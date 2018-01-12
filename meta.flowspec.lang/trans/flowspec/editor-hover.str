@@ -8,6 +8,7 @@ imports
   nabl2/runtime/pp
   nabl2/runtime/prelude/-
   nabl2/runtime/analysis/-
+  flowspec/api
   
 rules // Derived from https://github.com/MetaBorgCube/IceDust/blob/c21e7c6974565ae96148782622b169d7ddb2bc42/icedust/trans/editor/services.str
 
@@ -31,8 +32,6 @@ with property-tuple* :=
    ;mapconcat(\n ->
     [ (${Prop pre-{n}}, <flowspec--get-property(|a, ${pre-{n}}) <+ !None()> t)
     , (${Prop {n}}, <flowspec--get-property(|a, n) <+ !None()> t) ]\)> []
-
-flowspec--prop-names = fail
 
 flowspec--get-type(|a) = nabl2-get-ast-type(|a)
 

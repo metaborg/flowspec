@@ -1,0 +1,13 @@
+module flowspec/api
+
+imports
+
+flowspec/editor-hover
+
+strategies
+
+flowspec-editor-hover(language-pp) = flowspec--editor-hover(language-pp)
+
+flowspec--prop-names = fail
+
+flowspec-get-property(|a, propname) = flowspec--get-property(|a, propname)
