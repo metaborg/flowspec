@@ -15,7 +15,7 @@ imports
 
 rules // Analysis
 
-  editor-analyze = !(<Fst>, [], [], [])
+  editor-analyze = !(<Fst;desugar-all>, [], [], [])
 //  editor-analyze = nabl2-analyze(desugar-all)
 
   nabl2-debug-constraint-generation-hook = id
