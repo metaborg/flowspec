@@ -1,0 +1,76 @@
+package meta.flowspec.java.interpreter.patterns;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
+import org.metaborg.meta.nabl2.terms.Terms.M;
+import org.metaborg.util.functions.Function2;
+
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.VirtualFrame;
+
+import meta.flowspec.java.interpreter.TypesGen;
+import meta.flowspec.java.interpreter.values.Tuple;
+
+public class TuplePatternNode extends PatternNode {
+    @Children
+    private final PatternNode[] children;
+
+    public TuplePatternNode(PatternNode[] children) {
+        super();
+        this.children = children;
+    }
+
+    @Override
+    public boolean matchGeneric(VirtualFrame frame, Object value) {
+        Tuple tuple = TypesGen.asTuple(value);
+        Object[] valueChildren = tuple.getChildren();
+        return zip(Arrays.stream(children), Arrays.stream(valueChildren), (c, vc) -> c.matchGeneric(frame, vc)).findAny().orElse(true);
+    }
+
+    public static IMatcher<TuplePatternNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+        return M.appl2(
+                "Tuple", 
+                PatternNode.matchPattern(frameDescriptor, cfg), 
+                M.listElems(PatternNode.matchPattern(frameDescriptor, cfg)),
+                (appl, first, others) -> {
+                    PatternNode[] exprs = new PatternNode[others.size() + 1];
+                    int i = 0;
+                    exprs[i] = first;
+                    for(PatternNode expr : others) {
+                        i++;
+                        exprs[i] = expr;
+                    }
+                    return new TuplePatternNode(exprs);
+                });
+    }
+
+    // from: https://gist.github.com/kjkrol/51a5a7612f0411849c62
+    public static <A, B, C> Stream<C> zip(Stream<A> streamA, Stream<B> streamB, Function2<A, B, C> zipper) {
+        final Iterator<A> iteratorA = streamA.iterator();
+        final Iterator<B> iteratorB = streamB.iterator();
+        final Iterator<C> iteratorC = new Iterator<C>() {
+            @Override
+            public boolean hasNext() {
+                return iteratorA.hasNext() && iteratorB.hasNext();
+            }
+
+            @Override
+            public C next() {
+                return zipper.apply(iteratorA.next(), iteratorB.next());
+            }
+        };
+        final boolean parallel = streamA.isParallel() || streamB.isParallel();
+        return iteratorToFiniteStream(iteratorC, parallel);
+    }
+
+    public static <T> Stream<T> iteratorToFiniteStream(Iterator<T> iterator, boolean parallel) {
+        final Iterable<T> iterable = () -> iterator;
+        return StreamSupport.stream(iterable.spliterator(), parallel);
+    }
+}

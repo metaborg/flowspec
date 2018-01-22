@@ -7,6 +7,8 @@ import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
+import meta.flowspec.java.interpreter.patterns.PatternNode;
+
 class SetCompMatchPredicateNode extends SetCompPredicateNode {
     public final PatternNode[] arms;
 

@@ -1,4 +1,4 @@
-package meta.flowspec.java.interpreter.expressions;
+package meta.flowspec.java.interpreter.patterns;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
@@ -18,7 +18,7 @@ public class StringLiteralPatternNode extends PatternNode {
     }
 
     @Override
-    public boolean executeGeneric(VirtualFrame frame, Object value) {
+    public boolean matchGeneric(VirtualFrame frame, Object value) {
         return value instanceof Integer && executeString(frame, (String) value);
     }
 

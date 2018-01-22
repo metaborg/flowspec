@@ -1,4 +1,4 @@
-package meta.flowspec.java.interpreter.expressions;
+package meta.flowspec.java.interpreter.patterns;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
@@ -14,15 +14,15 @@ import meta.flowspec.java.interpreter.Types;
 
 @TypeSystemReference(Types.class)
 public abstract class PatternNode extends Node {
-    public abstract boolean executeGeneric(VirtualFrame frame, Object value);
+    public abstract boolean matchGeneric(VirtualFrame frame, Object value);
 
     public static IMatcher<PatternNode> matchPattern(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return term -> M.cases(
-            // TODO Term/0?
-            // TODO Tuple/2?
-            // TODO Wildcard/0
+            // TODO Term/2
+            TuplePatternNode.match(frameDescriptor, cfg),
+            WildcardPatternNode.match(frameDescriptor, cfg),
             VarPatternNode.match(frameDescriptor, cfg),
-            // TODO At/2
+            AtPatternNode.match(frameDescriptor, cfg),
             IntLiteralPatternNode.match(frameDescriptor, cfg),
             StringLiteralPatternNode.match(frameDescriptor, cfg)
             // TODO Start/0

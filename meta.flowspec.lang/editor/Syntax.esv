@@ -17,11 +17,11 @@ language
 
 menus
   
-  menu: "Syntax" (openeditor)
+  menu: "Syntax" (source) (openeditor)
     
-    action: "Format"          = editor-format (source)
-    action: "Show parsed AST" = debug-show-parsed (source)
-    action: "Show desugared AST" = debug-show-desugared (source)
+    action: "Format"             = editor-format
+    action: "Show parsed AST"    = debug-show-parsed
+    action: "Show desugared AST" = debug-show-desugared
 
 views
   

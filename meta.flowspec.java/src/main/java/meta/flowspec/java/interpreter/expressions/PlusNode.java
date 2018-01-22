@@ -13,7 +13,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class PlusNode extends ExpressionNode {
     @Specialization
-    protected int equal(int left, int right) {
+    protected int plus(int left, int right) {
         return left + right;
     }
 

@@ -43,7 +43,7 @@ public abstract class ExpressionNode extends Node {
 
     public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
         return term -> M.cases(
-            // TODO Term/1?
+            TermNode.match(frameDescriptor, cfg),
             RefNode.matchRef(frameDescriptor),
             ReadPropNode.match(frameDescriptor, cfg),
             TupleNode.match(frameDescriptor, cfg),

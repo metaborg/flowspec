@@ -12,6 +12,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import meta.flowspec.java.interpreter.Set;
 import meta.flowspec.java.interpreter.UnreachableException;
+import meta.flowspec.java.interpreter.patterns.PatternNode;
 
 public class SetCompNode extends ExpressionNode {
     public final ExpressionNode expression;
@@ -42,7 +43,7 @@ public class SetCompNode extends ExpressionNode {
         io.usethesource.capsule.Set.Immutable<ITerm> set = sources[0].executeSet(frame).set;
         io.usethesource.capsule.Set.Transient<ITerm> result = io.usethesource.capsule.Set.Transient.of();
         for(Object value : set) {
-            this.sourcePatterns[0].executeGeneric(frame, value);
+            this.sourcePatterns[0].matchGeneric(frame, value);
             boolean keep = true;
             for (SetCompPredicateNode pred : predicates) {
                 keep |= pred.executeBoolean(frame);
