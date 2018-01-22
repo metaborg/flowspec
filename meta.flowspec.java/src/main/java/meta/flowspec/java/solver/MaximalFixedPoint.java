@@ -29,6 +29,8 @@ import meta.flowspec.java.lattice.FullSetLattice;
 import meta.flowspec.java.solver.Metadata.Direction;
 
 public abstract class MaximalFixedPoint {
+    private static final String START = "__START__";
+
     @SuppressWarnings("unchecked")
     public static <CFGNode extends ICFGNode> void entryPoint(IControlFlowGraph<CFGNode> cfg, List<IStrategoTerm> tfs) {
         final Map.Transient<String, Metadata> propMetadata = Map.Transient.of();
@@ -98,38 +100,44 @@ public abstract class MaximalFixedPoint {
     public static <CFGNode extends ICFGNode> void solve(IControlFlowGraph<CFGNode> cfg,
             Map<String, Metadata> propMetadata, BinaryRelation.Immutable<String, String> propDependsOn,
             Map<String, TransferFunction[]> transferFuns) {
-        if (propDependsOn.isEmpty() && propMetadata.size() == 1) {
+        { // Make sure every property is in the dependency graph at least once by adding an artificial edge.
+          // This way the later topoSort of the dependency graph will give all properties and you just need
+          //  to remove the artificial start node. 
+            BinaryRelation.Transient<String, String> propDep = propDependsOn.asTransient();
             for (Entry<String, Metadata> entry : propMetadata.entrySet()) {
-                solveProperty(cfg, entry.getKey(), entry.getValue(), transferFuns);
+                String prop = entry.getKey();
+                propDep.__insert(START, prop);
             }
-        } else {
-            // TODO: statically check for cycles in property dependencies in
-            // FlowSpec
-            List<String> propTopoOrder = topoSort(propDependsOn).get();
-            Collections.reverse(propTopoOrder);
+            propDependsOn = propDep.freeze();
+        }
+        // TODO: statically check for cycles in property dependencies in
+        // FlowSpec
+        List<String> propTopoOrder = topoSort(propDependsOn).get();
+        Collections.reverse(propTopoOrder);
 
-            for (String prop : propTopoOrder) {
-                solveProperty(cfg, prop, propMetadata.get(prop), transferFuns);
+        for (String prop : propTopoOrder) {
+            // remove artificial start used earlier to include all properties in the dependency graph
+            if(prop != START) {
+                solveProperty(cfg, prop, propMetadata.get(prop), transferFuns.get(prop));
             }
         }
     }
 
     private static <CFGNode extends ICFGNode> void solveProperty(IControlFlowGraph<CFGNode> cfg, String prop,
-            Metadata metadata, Map<String, TransferFunction[]> transferFuns) {
+            Metadata metadata, TransferFunction[] tf) {
         if (metadata.dir() == Metadata.Direction.FlowInsensitive) {
-            solveFlowInsensitiveProperty(cfg, prop);
+            solveFlowInsensitiveProperty(cfg, prop, tf);
         } else {
-            solveFlowSensitiveProperty(cfg, prop, metadata, transferFuns);
+            solveFlowSensitiveProperty(cfg, prop, metadata, tf);
         }
     }
 
     @SuppressWarnings("unchecked")
     private static <CFGNode extends ICFGNode> void solveFlowSensitiveProperty(IControlFlowGraph<CFGNode> icfg,
-            String prop, Metadata metadata, Map<String, TransferFunction[]> transferFuns) {
+            String prop, Metadata metadata, TransferFunction[] tf) {
         // FIXME: this is an evil workaround, do better API design
         ControlFlowGraph<CFGNode> cfg = (ControlFlowGraph<CFGNode>) icfg;
         // Phase 1: initialisation
-        TransferFunction[] tf = transferFuns.get(prop);
 
         for (CFGNode n : cfg.getAllNodes()) {
             cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) metadata.lattice().bottom());
@@ -194,7 +202,7 @@ public abstract class MaximalFixedPoint {
     }
 
     private static <CFGNode extends ICFGNode> void solveFlowInsensitiveProperty(IControlFlowGraph<CFGNode> cfg,
-            String prop) {
+            String prop, TransferFunction[] tf) {
         throw new RuntimeException("Unimplemented");
     }
 
