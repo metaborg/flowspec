@@ -4,13 +4,14 @@ import java.util.Arrays;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
+import org.metaborg.meta.nabl2.terms.generic.TB;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
-import meta.flowspec.java.interpreter.values.Tuple;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 public class TupleNode extends ExpressionNode {
     @Children
@@ -23,8 +24,19 @@ public class TupleNode extends ExpressionNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        Object[] childVals = Arrays.stream(children).map(c -> c.executeGeneric(frame)).toArray();
-        return new Tuple(childVals);
+        return executeITerm(frame);
+    }
+
+    @Override
+    public ITerm executeITerm(VirtualFrame frame) {
+        ITerm[] childVals = Arrays.stream(children).map(c -> { // Java streams and exceptions... smh
+            try {
+                return c.executeITerm(frame);
+            } catch (UnexpectedResultException e) {
+                throw new RuntimeException(e);
+            }
+        }).toArray(i -> new ITerm[i]);
+        return TB.newTuple(childVals);
     }
 
     public static IMatcher<TupleNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {

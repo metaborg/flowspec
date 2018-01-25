@@ -22,14 +22,13 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
-import io.usethesource.capsule.Map.Transient;
 import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.lattice.CompleteLattice;
 import meta.flowspec.java.lattice.FullSetLattice;
 import meta.flowspec.java.solver.Metadata.Direction;
 
 public abstract class MaximalFixedPoint {
-    private static final String START = "__START__";
+    private static final String ARTIFICIAL_PROPERTY = "__START__";
 
     @SuppressWarnings("unchecked")
     public static <CFGNode extends ICFGNode> void entryPoint(IControlFlowGraph<CFGNode> cfg, List<IStrategoTerm> tfs) {
@@ -46,9 +45,9 @@ public abstract class MaximalFixedPoint {
         solve(cfg, propMetadata, propDependsOn.freeze(), transferFuns);
     }
 
-    private static void readPropDataTuples(IStrategoTerm term, Transient<String, Metadata> propMetadata,
-            io.usethesource.capsule.BinaryRelation.Transient<String, String> propDependsOn,
-            Transient<String, TransferFunction[]> transferFuns, IControlFlowGraph<ICFGNode> cfg) {
+    private static void readPropDataTuples(IStrategoTerm term, Map.Transient<String, Metadata> propMetadata,
+            BinaryRelation.Transient<String, String> propDependsOn,
+            Map.Transient<String, TransferFunction[]> transferFuns, IControlFlowGraph<ICFGNode> cfg) {
         if (!(term instanceof IStrategoList)) {
             throw new RuntimeException("Parse error on reading the transfer functions");
         }
@@ -59,9 +58,9 @@ public abstract class MaximalFixedPoint {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static void readPropDataTuple(IStrategoTerm sterm, Transient<String, Metadata> propMetadata,
-            io.usethesource.capsule.BinaryRelation.Transient<String, String> propDependsOn,
-            Transient<String, TransferFunction[]> transferFuns, IControlFlowGraph<ICFGNode> cfg) {
+    private static void readPropDataTuple(IStrategoTerm sterm, Map.Transient<String, Metadata> propMetadata,
+            BinaryRelation.Transient<String, String> propDependsOn,
+            Map.Transient<String, TransferFunction[]> transferFuns, IControlFlowGraph<ICFGNode> cfg) {
         ITerm term = StrategoTerms.fromStratego(sterm);
         
         ImmutableTuple3<String, Direction, TransferFunction[]> t3 = M.tuple2(
@@ -106,18 +105,17 @@ public abstract class MaximalFixedPoint {
             BinaryRelation.Transient<String, String> propDep = propDependsOn.asTransient();
             for (Entry<String, Metadata> entry : propMetadata.entrySet()) {
                 String prop = entry.getKey();
-                propDep.__insert(START, prop);
+                propDep.__insert(ARTIFICIAL_PROPERTY, prop);
             }
             propDependsOn = propDep.freeze();
         }
-        // TODO: statically check for cycles in property dependencies in
-        // FlowSpec
+        // TODO: statically check for cycles in property dependencies in FlowSpec
         List<String> propTopoOrder = topoSort(propDependsOn).get();
         Collections.reverse(propTopoOrder);
 
         for (String prop : propTopoOrder) {
             // remove artificial start used earlier to include all properties in the dependency graph
-            if(prop != START) {
+            if(prop != ARTIFICIAL_PROPERTY) {
                 solveProperty(cfg, prop, propMetadata.get(prop), transferFuns.get(prop));
             }
         }
@@ -140,7 +138,7 @@ public abstract class MaximalFixedPoint {
         // Phase 1: initialisation
 
         for (CFGNode n : cfg.getAllNodes()) {
-            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) metadata.lattice().bottom());
+            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().bottom());
             // No need to set a different value for the start node, since the
             //  rule for the start node will result in that value, which will be propagated Phase 2.
         }
@@ -170,7 +168,7 @@ public abstract class MaximalFixedPoint {
                 Object beforeToTF = cfg.getProperty(to, prop);
                 // TODO: use nlte instead of !lte
                 if (!metadata.lattice().lte(afterFromTF, beforeToTF)) {
-                    cfg.setProperty(to, prop, (meta.flowspec.java.interpreter.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
+                    cfg.setProperty(to, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
                     workList.add(to);
                 }
             }
@@ -195,9 +193,9 @@ public abstract class MaximalFixedPoint {
         }
         for (CFGNode n : cfg.getAllNodes()) {
             // save pre-TF results
-            cfg.setProperty(n, prePropName, (meta.flowspec.java.interpreter.Set<IStringTerm>) cfg.getProperty(n, prop));
+            cfg.setProperty(n, prePropName, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) cfg.getProperty(n, prop));
             // put post-TF results in property name
-            cfg.setProperty(n, postPropName, (meta.flowspec.java.interpreter.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), tf, n));
+            cfg.setProperty(n, postPropName, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), tf, n));
         }
     }
 

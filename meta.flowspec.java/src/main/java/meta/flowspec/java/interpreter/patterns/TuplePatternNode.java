@@ -7,6 +7,7 @@ import java.util.stream.StreamSupport;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.metaborg.util.functions.Function2;
@@ -14,8 +15,7 @@ import org.metaborg.util.functions.Function2;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import meta.flowspec.java.interpreter.TypesGen;
-import meta.flowspec.java.interpreter.values.Tuple;
+import meta.flowspec.java.interpreter.Types;
 
 public class TuplePatternNode extends PatternNode {
     @Children
@@ -28,9 +28,12 @@ public class TuplePatternNode extends PatternNode {
 
     @Override
     public boolean matchGeneric(VirtualFrame frame, Object value) {
-        Tuple tuple = TypesGen.asTuple(value);
-        Object[] valueChildren = tuple.getChildren();
-        return zip(Arrays.stream(children), Arrays.stream(valueChildren), (c, vc) -> c.matchGeneric(frame, vc)).findAny().orElse(true);
+        ITerm term = Types.asITerm(value);
+        
+        return M.tuple(appl -> {
+            Object[] valueChildren = appl.getArgs().toArray();
+            return zip(Arrays.stream(children), Arrays.stream(valueChildren), (c, vc) -> c.matchGeneric(frame, vc)).allMatch(b -> b);
+        }).match(term).orElse(false);
     }
 
     public static IMatcher<TuplePatternNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {

@@ -17,7 +17,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import io.usethesource.capsule.Set.Immutable;
-import meta.flowspec.java.interpreter.Set;
+import meta.flowspec.java.interpreter.values.Set;
 
 public class ApplicationNode extends ExpressionNode {
     private static ILogger logger = LoggerUtils.logger(ApplicationNode.class);

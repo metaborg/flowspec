@@ -9,7 +9,7 @@ import org.metaborg.meta.nabl2.terms.Terms.M;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import meta.flowspec.java.interpreter.Set;
+import meta.flowspec.java.interpreter.values.Set;
 
 public class SetLiteralNode extends ExpressionNode {
     private final ExpressionNode[] values;

@@ -14,7 +14,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.TypesGen;
-import meta.flowspec.java.interpreter.values.Tuple;
 
 @TypeSystemReference(Types.class)
 public abstract class ExpressionNode extends Node {
@@ -25,19 +24,23 @@ public abstract class ExpressionNode extends Node {
     public abstract Object executeGeneric(VirtualFrame frame);
 
     public int executeInt(VirtualFrame frame) throws UnexpectedResultException {
-        return TypesGen.expectInteger(executeGeneric(frame));
+        return Types.expectInteger(executeGeneric(frame));
     }
 
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
         return TypesGen.expectBoolean(executeGeneric(frame));
     }
+
+    public String executeString(VirtualFrame frame) throws UnexpectedResultException {
+        return Types.expectString(executeGeneric(frame));
+    }
     
-    public Tuple executeTuple(VirtualFrame frame) throws UnexpectedResultException {
-        return TypesGen.expectTuple(executeGeneric(frame));
+    public ITerm executeITerm(VirtualFrame frame) throws UnexpectedResultException {
+        return Types.expectITerm(executeGeneric(frame));
     }
     
     @SuppressWarnings("unchecked")
-    public meta.flowspec.java.interpreter.Set<ITerm> executeSet(VirtualFrame frame) throws UnexpectedResultException {
+    public meta.flowspec.java.interpreter.values.Set<ITerm> executeSet(VirtualFrame frame) throws UnexpectedResultException {
         return TypesGen.expectSet(executeGeneric(frame));
     }
 

@@ -1,4 +1,4 @@
-package meta.flowspec.java.interpreter;
+package meta.flowspec.java.interpreter.values;
 
 import java.util.List;
 import java.util.stream.Collectors;

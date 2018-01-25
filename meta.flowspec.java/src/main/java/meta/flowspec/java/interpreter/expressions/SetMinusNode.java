@@ -10,7 +10,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
-import meta.flowspec.java.interpreter.Set;
+import meta.flowspec.java.interpreter.values.Set;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class SetMinusNode extends ExpressionNode {

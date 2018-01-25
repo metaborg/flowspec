@@ -5,8 +5,8 @@ import java.util.Iterator;
 
 import org.metaborg.meta.nabl2.terms.ITerm;
 
-import meta.flowspec.java.interpreter.Set;
 import io.usethesource.capsule.util.EqualityComparator;
+import meta.flowspec.java.interpreter.values.Set;
 
 public class FullSetLattice<E extends ITerm> implements CompleteLattice<Set<E>> {
 

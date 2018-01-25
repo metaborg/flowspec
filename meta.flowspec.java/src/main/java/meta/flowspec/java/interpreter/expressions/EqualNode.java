@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -26,6 +27,11 @@ public abstract class EqualNode extends ExpressionNode {
 
     @Specialization
     protected boolean equal(String left, String right) {
+        return Objects.equals(left, right);
+    }
+
+    @Specialization
+    protected boolean equal(ITerm left, ITerm right) {
         return Objects.equals(left, right);
     }
 
