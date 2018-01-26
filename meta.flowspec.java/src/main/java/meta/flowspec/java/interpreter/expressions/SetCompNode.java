@@ -56,7 +56,7 @@ public class SetCompNode extends ExpressionNode {
         for(Object value : set) {
             boolean keep = this.sourcePatterns[0].matchGeneric(frame, value);
             for (SetCompPredicateNode pred : predicates) {
-                keep |= pred.executeBoolean(frame);
+                keep &= pred.executeBoolean(frame);
             }
             if (keep) {
                 result.__insert((ITerm) expression.executeGeneric(frame));
