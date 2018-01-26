@@ -1,5 +1,9 @@
 module flowspec/utils
 
+imports
+
+nabl2/shared/-
+
 strategies
 
 /**
@@ -15,3 +19,6 @@ csv = separate-by(|", ");concat-strings
 csv-lines = separate-by(|",\n");concat-strings
 semi-lines = separate-by(|"\n; ");concat-strings
 make-set_(s) = foldr(![], union(s), ![<id>])
+
+constraint-list-to-cconj(index): [] -> CTrue(<index>)
+constraint-list-to-cconj(index) = foldr1(?[<id>], !CConj(<Fst>, <Snd>))
