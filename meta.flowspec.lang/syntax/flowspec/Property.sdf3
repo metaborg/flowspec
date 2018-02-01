@@ -11,6 +11,7 @@ flowspec/Flow
 context-free syntax // Properties
 
 PropDef.PropDef = [prop [PropName]: [Type]]
+PropDef.ExtPropDef = [external prop [PropName]: [Type]]
 
 context-free syntax // Property Rules
 

@@ -29,8 +29,7 @@ pardonedLanguages:
 - SDF
 language:
   sdf:
-    # If set to java, set the table in editor/Syntax.esv to target/metaborg/sdf-new.tbl
-    sdf2table: java
+    sdf2table: c
   stratego:
     format: ctree
     args:

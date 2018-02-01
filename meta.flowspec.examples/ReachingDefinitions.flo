@@ -16,22 +16,17 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-prop definition: MaySet (name * Option term)
+prop definition: MaySet(name * Option(index))
 
 definition(prev -> this@Assign(n, e)) =
-  { (n, Some(this)) } \/
+  { (n, Some(indexOf this)) } \/
   { (m, l) | (m, l) <- definition(pred), m != n }
 
 definition(prev -> _) = definition(prev)
 
-definition(start) = { (n, None()) | n <- live(start) }
+//definition(start) = { (n, None()) | n <- live(start) }
 
-prop usesDef: Set term
+prop usesDef: Set index
 
 usesDef(this@Ref(n)) =
-  { (nm, opt) | (nm, opt) <- definition(this), if n == m then opt != None() else false }
-
-// property rules
-// 
-//   e@Ref(x) has a UsesDef d
-//   where e has a Definition (x, Some(d)).
+  { opt | (m, opt) <- definition(this), n == m, opt != None() }

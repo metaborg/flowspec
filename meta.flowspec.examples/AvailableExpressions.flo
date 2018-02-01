@@ -16,18 +16,13 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-prop read: Set(name)
-
-read(this@BinOp(l,_,r)) = read(l) \/ read(r)
-read(this@UnOp(_,e)) = read(e)
-read(Ref(n)) = {n}
-read(Literal(_)) = {}
+external prop reads: Set(name)
 
 prop available: MustSet term
 
 available(prev -> Assign(n, e)) =
   { expr |
     expr <- available(prev) \/ {e},
-    !(n in reads(expr)) }
+    !(Var{n} in reads(e)) }
 
 available(prev -> _) = available(prev)

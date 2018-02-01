@@ -4,6 +4,8 @@ imports
 
 flowspec/Common
 flowspec/Pattern
+nabl2/shared/common/Names
+nabl2/shared/common/ScopeGraph
 
 context-free syntax // expressions
 
@@ -32,6 +34,10 @@ SetCompExpr = SetCompPredicate
 SetCompPredicate.Predicate = Expr
 SetCompPredicate.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longest-match}
 SetCompSource.Source = [[Pattern] <- [Expr]]
+
+Expr.TermIndex = [indexOf [Var]]
+Expr.NaBL2Occurrence = Occurrence
+CTerm.FSVar = Var
 
 Expr.SetUnion = [[Expr] \/ [Expr]] {left}
 Expr.SetDifference = [[Expr] \ [Expr]] {left}

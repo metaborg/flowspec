@@ -37,6 +37,7 @@ context-free syntax // Type expressions
 Type = SimpleType
 SimpleType.Name = "name"
 SimpleType.Term = "term"
+SimpleType.Index = "index"
 SimpleType.Int = "int"
 SimpleType.UserType = [[TypeName] [Type*]] {avoid}
 Type = [([Type])] {bracket}

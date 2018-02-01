@@ -16,12 +16,7 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-prop read: Set(name)
-
-read(this@BinOp(l,_,r)) = read(l) \/ read(r)
-read(this@UnOp(_,e)) = read(e)
-read(Ref(n)) = {n}
-read(Literal(_)) = {}
+external prop read: Set(name)
 
 prop expr: Set(term)
 
