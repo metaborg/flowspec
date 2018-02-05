@@ -1,7 +1,8 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
+import org.metaborg.meta.nabl2.solver.ISolution;
+import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -14,6 +15,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.TypesGen;
+import meta.flowspec.java.interpreter.values.Name;
 
 @TypeSystemReference(Types.class)
 public abstract class ExpressionNode extends Node {
@@ -35,6 +37,18 @@ public abstract class ExpressionNode extends Node {
         return Types.expectString(executeGeneric(frame));
     }
     
+    public TermIndex executeTermIndex(VirtualFrame frame) throws UnexpectedResultException {
+        return TypesGen.expectTermIndex(executeGeneric(frame));
+    }
+
+    public Name executeName(VirtualFrame frame) throws UnexpectedResultException {
+        return TypesGen.expectName(executeGeneric(frame));
+    }
+    
+    public CFGNode executeCFGNode(VirtualFrame frame) throws UnexpectedResultException {
+        return TypesGen.expectCFGNode(executeGeneric(frame));
+    }
+    
     public ITerm executeITerm(VirtualFrame frame) throws UnexpectedResultException {
         return Types.expectITerm(executeGeneric(frame));
     }
@@ -44,28 +58,30 @@ public abstract class ExpressionNode extends Node {
         return TypesGen.expectSet(executeGeneric(frame));
     }
 
-    public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor, ISolution solution) {
         return term -> M.cases(
-            TermNode.match(frameDescriptor, cfg),
+            TermNode.match(frameDescriptor, solution),
             RefNode.matchRef(frameDescriptor),
-            ReadPropNode.match(frameDescriptor, cfg),
-            TupleNode.match(frameDescriptor, cfg),
-            IntLiteralNode.match(frameDescriptor, cfg),
-            StringLiteralNode.match(frameDescriptor, cfg),
-            TypeNode.match(frameDescriptor, cfg),
+            ReadPropNode.match(frameDescriptor, solution),
+            TupleNode.match(frameDescriptor, solution),
+            IntLiteralNode.match(frameDescriptor, solution),
+            StringLiteralNode.match(frameDescriptor, solution),
+            TypeNode.match(frameDescriptor, solution),
             // TODO Abs/1
-            ApplicationNode.match(frameDescriptor, cfg),
-            IfNode.match(frameDescriptor, cfg),
-            EqualNode.match(frameDescriptor, cfg),
-            NotEqualNode.match(frameDescriptor, cfg),
-            PlusNode.match(frameDescriptor, cfg),
+            ApplicationNode.match(frameDescriptor, solution),
+            IfNode.match(frameDescriptor, solution),
+            EqualNode.match(frameDescriptor, solution),
+            NotEqualNode.match(frameDescriptor, solution),
+            PlusNode.match(frameDescriptor, solution),
             // TODO Match/2?
-            SetLiteralNode.match(frameDescriptor, cfg),
-            SetCompNode.match(frameDescriptor, cfg),
-            SetUnionNode.match(frameDescriptor, cfg),
-            SetMinusNode.match(frameDescriptor, cfg),
-            SetContainsNode.match(frameDescriptor, cfg),
-            SetIntersectNode.match(frameDescriptor, cfg)
+            SetLiteralNode.match(frameDescriptor, solution),
+            SetCompNode.match(frameDescriptor, solution),
+            TermIndexNode.match(frameDescriptor, solution),
+            NaBL2OccurrenceNode.match(frameDescriptor, solution),
+            SetUnionNode.match(frameDescriptor, solution),
+            SetMinusNode.match(frameDescriptor, solution),
+            SetContainsNode.match(frameDescriptor, solution),
+            SetIntersectNode.match(frameDescriptor, solution)
         ).match(term);
     }
 }

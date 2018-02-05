@@ -19,7 +19,7 @@ public class AbstractionNode extends ExpressionNode {
         return new Function(Truffle.getRuntime().createCallTarget(rootNode), frame.materialize());
     }
 
-//    public static AbstractionNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+//    public static AbstractionNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<CFGNode> cfg) {
 //        IStrategoTerm[] params = Tools.listAt(appl, 0).getAllSubterms();
 //        String[] patternVars = Arrays.stream(params).map(Tools::javaString).toArray(String[]::new);
 //        

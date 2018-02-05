@@ -1,5 +1,7 @@
 package meta.flowspec.java.interpreter;
 
+import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
+import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IIntTerm;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
@@ -9,9 +11,10 @@ import com.oracle.truffle.api.dsl.TypeSystem;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import meta.flowspec.java.interpreter.values.Function;
+import meta.flowspec.java.interpreter.values.Name;
 import meta.flowspec.java.interpreter.values.Set;
 
-@TypeSystem({boolean.class, Function.class, Set.class, ITerm.class})
+@TypeSystem({boolean.class, Function.class, Set.class, TermIndex.class, Name.class, CFGNode.class, ITerm.class})
 public abstract class Types {
     public static boolean isInteger(Object value) {
         return value instanceof Integer || value instanceof IIntTerm;
@@ -32,7 +35,7 @@ public abstract class Types {
         }
         throw new UnexpectedResultException(value);
     }
-    
+
     public static boolean isString(Object value) {
         return value instanceof String || value instanceof IStringTerm;
     }
@@ -52,7 +55,7 @@ public abstract class Types {
         }
         throw new UnexpectedResultException(value);
     }
-    
+
     public static boolean isITerm(Object value) {
         return value instanceof ITerm || value instanceof Integer || value instanceof String;
     }
@@ -67,7 +70,7 @@ public abstract class Types {
             return (ITerm) value;
         }
     }
-    
+
     public static ITerm expectITerm(Object value) throws UnexpectedResultException {
         if (value instanceof ITerm) {
             return (ITerm) value;

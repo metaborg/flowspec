@@ -8,9 +8,10 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
+import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraph;
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.StrategoTerms;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
@@ -27,47 +28,47 @@ import meta.flowspec.java.lattice.CompleteLattice;
 import meta.flowspec.java.lattice.FullSetLattice;
 import meta.flowspec.java.solver.Metadata.Direction;
 
-public abstract class MaximalFixedPoint {
+public abstract class FixedPoint {
     private static final String ARTIFICIAL_PROPERTY = "__START__";
 
-    @SuppressWarnings("unchecked")
-    public static <CFGNode extends ICFGNode> void entryPoint(IControlFlowGraph<CFGNode> cfg, List<IStrategoTerm> tfs) {
+    public static void entryPoint(ISolution nabl2solution, List<IStrategoTerm> tfs) {
         final Map.Transient<String, Metadata> propMetadata = Map.Transient.of();
         final BinaryRelation.Transient<String, String> propDependsOn = BinaryRelation.Transient.of();
         final Map.Transient<String, TransferFunction[]> transferFuns = Map.Transient.of();
+        final IControlFlowGraph<CFGNode> cfg = nabl2solution.controlFlowGraph();
         
         // remove artificial nodes from CFG
         cfg.complete();
         
         for (IStrategoTerm term : tfs) {
-            readPropDataTuples(term, propMetadata, propDependsOn, transferFuns, (IControlFlowGraph<ICFGNode>) cfg);
+            readPropDataTuples(term, propMetadata, propDependsOn, transferFuns, nabl2solution);
         }
         solve(cfg, propMetadata, propDependsOn.freeze(), transferFuns);
     }
 
     private static void readPropDataTuples(IStrategoTerm term, Map.Transient<String, Metadata> propMetadata,
             BinaryRelation.Transient<String, String> propDependsOn,
-            Map.Transient<String, TransferFunction[]> transferFuns, IControlFlowGraph<ICFGNode> cfg) {
+            Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) {
         if (!(term instanceof IStrategoList)) {
             throw new RuntimeException("Parse error on reading the transfer functions");
         }
         IStrategoList list = (IStrategoList) term;
         for (IStrategoTerm t : list) {
-            readPropDataTuple(t, propMetadata, propDependsOn, transferFuns, cfg);
+            readPropDataTuple(t, propMetadata, propDependsOn, transferFuns, solution);
         }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private static void readPropDataTuple(IStrategoTerm sterm, Map.Transient<String, Metadata> propMetadata,
             BinaryRelation.Transient<String, String> propDependsOn,
-            Map.Transient<String, TransferFunction[]> transferFuns, IControlFlowGraph<ICFGNode> cfg) {
+            Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) {
         ITerm term = StrategoTerms.fromStratego(sterm);
         
         ImmutableTuple3<String, Direction, TransferFunction[]> t3 = M.tuple2(
                 M.string(), 
                 M.tuple2(
                         Direction.match(), 
-                        TransferFunction.matchList(cfg), 
+                        TransferFunction.matchList(solution), 
                         (appl, dir, tfs) -> ImmutableTuple2.of(dir, tfs)), 
                 (appl, string, t2) -> {
                     String propName = string.getValue();
@@ -96,7 +97,7 @@ public abstract class MaximalFixedPoint {
         transferFuns.__put(propName, tfs);
     }
 
-    public static <CFGNode extends ICFGNode> void solve(IControlFlowGraph<CFGNode> cfg,
+    public static void solve(IControlFlowGraph<CFGNode> cfg,
             Map<String, Metadata> propMetadata, BinaryRelation.Immutable<String, String> propDependsOn,
             Map<String, TransferFunction[]> transferFuns) {
         { // Make sure every property is in the dependency graph at least once by adding an artificial edge.
@@ -121,7 +122,7 @@ public abstract class MaximalFixedPoint {
         }
     }
 
-    private static <CFGNode extends ICFGNode> void solveProperty(IControlFlowGraph<CFGNode> cfg, String prop,
+    private static void solveProperty(IControlFlowGraph<CFGNode> cfg, String prop,
             Metadata metadata, TransferFunction[] tf) {
         if (metadata.dir() == Metadata.Direction.FlowInsensitive) {
             solveFlowInsensitiveProperty(cfg, prop, tf);
@@ -131,7 +132,7 @@ public abstract class MaximalFixedPoint {
     }
 
     @SuppressWarnings("unchecked")
-    private static <CFGNode extends ICFGNode> void solveFlowSensitiveProperty(IControlFlowGraph<CFGNode> icfg,
+    private static void solveFlowSensitiveProperty(IControlFlowGraph<CFGNode> icfg,
             String prop, Metadata metadata, TransferFunction[] tf) {
         // FIXME: this is an evil workaround, do better API design
         ControlFlowGraph<CFGNode> cfg = (ControlFlowGraph<CFGNode>) icfg;
@@ -199,7 +200,7 @@ public abstract class MaximalFixedPoint {
         }
     }
 
-    private static <CFGNode extends ICFGNode> void solveFlowInsensitiveProperty(IControlFlowGraph<CFGNode> cfg,
+    private static void solveFlowInsensitiveProperty(IControlFlowGraph<CFGNode> cfg,
             String prop, TransferFunction[] tf) {
         throw new RuntimeException("Unimplemented");
     }

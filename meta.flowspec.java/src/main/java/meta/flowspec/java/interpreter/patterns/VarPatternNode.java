@@ -1,7 +1,8 @@
 package meta.flowspec.java.interpreter.patterns;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.spoofax.interpreter.core.Tools;
@@ -20,7 +21,7 @@ public class VarPatternNode extends PatternNode {
     }
 
     public static VarPatternNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor,
-            IControlFlowGraph<ICFGNode> cfg) {
+            IControlFlowGraph<CFGNode> cfg) {
         FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
         FrameSlot slot = frameDescriptor.addFrameSlot(Tools.javaStringAt(appl, 0), slotKind);
         return new VarPatternNode(slot);
@@ -33,7 +34,7 @@ public class VarPatternNode extends PatternNode {
         return true;
     }
 
-    public static IMatcher<VarPatternNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<VarPatternNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl1("Var", M.stringValue(), (appl, name) -> {
             FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
             return new VarPatternNode(frameDescriptor.addFrameSlot(name, slotKind));

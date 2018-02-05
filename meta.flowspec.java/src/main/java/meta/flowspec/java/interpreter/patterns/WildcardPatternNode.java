@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.patterns;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -23,7 +22,7 @@ public class WildcardPatternNode extends PatternNode {
         return true;
     }
 
-    public static IMatcher<WildcardPatternNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<WildcardPatternNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl0("Wildcard", (appl) -> WildcardPatternNode.of());
     }
 }

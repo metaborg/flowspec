@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -31,11 +30,11 @@ public class Where extends Node {
         return body.executeGeneric(frame);
     }
 
-    public static IMatcher<Where> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<Where> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl2(
                 "Where", 
-                ExpressionNode.matchExpr(frameDescriptor, cfg),
-                M.listElems(WriteVarNode.match(frameDescriptor, cfg)), 
+                ExpressionNode.matchExpr(frameDescriptor, solution),
+                M.listElems(WriteVarNode.match(frameDescriptor, solution)), 
                 (appl, body, writeVars) -> {
                     return new Where(writeVars.toArray(new WriteVarNode[writeVars.size()]), body);
                 });

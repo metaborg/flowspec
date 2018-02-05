@@ -1,9 +1,9 @@
 package meta.flowspec.java.interpreter;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
 import org.metaborg.meta.nabl2.controlflow.terms.IdentityTFAppl;
 import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
@@ -40,21 +40,21 @@ public class TransferFunction extends RootNode {
         return body.execute(frame);
     }
 
-    public static IMatcher<TransferFunction> match(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return M.appl2("TransferFunction", ArgToVarNode.matchList(frameDescriptor), Where.match(frameDescriptor, cfg), (appl, patternVariables, body) -> {
+    public static IMatcher<TransferFunction> match(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor, ISolution solution) {
+        return M.appl2("TransferFunction", ArgToVarNode.matchList(frameDescriptor), Where.match(frameDescriptor, solution), (appl, patternVariables, body) -> {
             return new TransferFunction(language, frameDescriptor, patternVariables, body);
         });
     }
 
-    public static IMatcher<TransferFunction> match(IControlFlowGraph<ICFGNode> cfg) {
-        return match(null, new FrameDescriptor(), cfg);
+    public static IMatcher<TransferFunction> match(ISolution solution) {
+        return match(null, new FrameDescriptor(), solution);
     }
     
-    public static IMatcher<TransferFunction[]> matchList(IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<TransferFunction[]> matchList(ISolution solution) {
         return M.listElems(
                     M.tuple2(
                         M.integerValue(), 
-                        term -> TransferFunction.match(cfg).match(term), 
+                        term -> TransferFunction.match(solution).match(term), 
                         (appl, i, tf) -> ImmutableTuple2.of(i,tf)))
                 .map(list -> {
                     TransferFunction[] tfs = new TransferFunction[list.size()];

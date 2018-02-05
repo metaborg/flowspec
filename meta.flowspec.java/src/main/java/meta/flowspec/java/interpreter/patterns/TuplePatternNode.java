@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -36,11 +35,11 @@ public class TuplePatternNode extends PatternNode {
         }).match(term).orElse(false);
     }
 
-    public static IMatcher<TuplePatternNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<TuplePatternNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl2(
                 "Tuple", 
-                PatternNode.matchPattern(frameDescriptor, cfg), 
-                M.listElems(PatternNode.matchPattern(frameDescriptor, cfg)),
+                PatternNode.matchPattern(frameDescriptor, solution), 
+                M.listElems(PatternNode.matchPattern(frameDescriptor, solution)),
                 (appl, first, others) -> {
                     PatternNode[] exprs = new PatternNode[others.size() + 1];
                     int i = 0;

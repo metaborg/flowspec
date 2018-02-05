@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -20,12 +19,12 @@ class SetCompPredicateNode {
         return this.expr.executeBoolean(frame);
     }
 
-    public static IMatcher<SetCompPredicateNode> matchPred(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<SetCompPredicateNode> matchPred(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.cases(
             M.appl1("Predicate", 
-                ExpressionNode.matchExpr(frameDescriptor, cfg), 
+                ExpressionNode.matchExpr(frameDescriptor, solution), 
                 (appl, expr) -> new SetCompPredicateNode(expr)),
-            SetCompMatchPredicateNode.match(frameDescriptor, cfg)
+            SetCompMatchPredicateNode.match(frameDescriptor, solution)
         );
     }
 }

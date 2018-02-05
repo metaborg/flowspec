@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -26,10 +25,10 @@ public abstract class SetContainsNode extends ExpressionNode {
         return left.set.contains(((Set) right).set);
     }
 
-    public static IMatcher<SetContainsNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<SetContainsNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl2("SetContains", 
-                ExpressionNode.matchExpr(frameDescriptor, cfg), 
-                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                ExpressionNode.matchExpr(frameDescriptor, solution), 
+                ExpressionNode.matchExpr(frameDescriptor, solution),
                 (appl, e1, e2) -> SetContainsNodeGen.create(e1, e2));
     }
 }

@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -32,9 +31,9 @@ public class SetLiteralNode extends ExpressionNode {
         return new Set<>(set.freeze());
     }
 
-    public static IMatcher<SetLiteralNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<SetLiteralNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl1("SetLiteral", 
-                M.listElems(ExpressionNode.matchExpr(frameDescriptor, cfg)),
+                M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)),
                 (appl, exprs) -> new SetLiteralNode(exprs.toArray(new ExpressionNode[exprs.size()])));
     }
 

@@ -2,8 +2,7 @@ package meta.flowspec.java.interpreter.expressions;
 
 import java.util.Arrays;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -39,10 +38,10 @@ public class TupleNode extends ExpressionNode {
         return TB.newTuple(childVals);
     }
 
-    public static IMatcher<TupleNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<TupleNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl2("Tuple", 
-                ExpressionNode.matchExpr(frameDescriptor, cfg),
-                M.listElems(ExpressionNode.matchExpr(frameDescriptor, cfg)), 
+                ExpressionNode.matchExpr(frameDescriptor, solution),
+                M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)), 
                 (appl, first, others) -> {
                     ExpressionNode[] exprs = new ExpressionNode[others.size() + 1];
                     int i = 0;

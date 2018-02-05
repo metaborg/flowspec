@@ -3,8 +3,7 @@ package meta.flowspec.java.interpreter.expressions;
  import java.util.Arrays;
 import java.util.HashSet;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.IListTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.ListTerms;
@@ -30,8 +29,8 @@ public class ApplicationNode extends ExpressionNode {
         this.arguments = arguments;
     }
 
-    public static IMatcher<ApplicationNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return M.appl2("Appl", RefNode.matchRef(frameDescriptor), M.listElems(ExpressionNode.matchExpr(frameDescriptor, cfg)), (appl, reference, expr) -> {
+    public static IMatcher<ApplicationNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+        return M.appl2("Appl", RefNode.matchRef(frameDescriptor), M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)), (appl, reference, expr) -> {
             return new ApplicationNode(reference, expr.toArray(new ExpressionNode[expr.size()]));
         });
     }

@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -17,10 +16,10 @@ public abstract class PlusNode extends ExpressionNode {
         return left + right;
     }
 
-    public static IMatcher<PlusNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<PlusNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl2("Plus", 
-                ExpressionNode.matchExpr(frameDescriptor, cfg), 
-                ExpressionNode.matchExpr(frameDescriptor, cfg),
+                ExpressionNode.matchExpr(frameDescriptor, solution), 
+                ExpressionNode.matchExpr(frameDescriptor, solution),
                 (appl, e1, e2) -> PlusNodeGen.create(e1, e2));
     }
 }

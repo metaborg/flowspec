@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.spoofax.interpreter.core.Tools;
@@ -26,7 +25,7 @@ public class StringLiteralNode extends ExpressionNode {
         return new StringLiteralNode(Tools.javaStringAt(appl, 0));
     }
 
-    public static IMatcher<StringLiteralNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<StringLiteralNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl1("String", M.stringValue(), (appl, string) -> new StringLiteralNode(string));
     }
 }

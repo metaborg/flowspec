@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.locals;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -90,8 +89,8 @@ public abstract class WriteVarNode extends Node {
         return getSlot().getKind() == FrameSlotKind.Boolean || getSlot().getKind() == FrameSlotKind.Illegal;
     }
 
-    public static IMatcher<WriteVarNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
-        return M.appl2("Binding", M.stringValue(), ExpressionNode.matchExpr(frameDescriptor, cfg), (appl, name, expr) -> {
+    public static IMatcher<WriteVarNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+        return M.appl2("Binding", M.stringValue(), ExpressionNode.matchExpr(frameDescriptor, solution), (appl, name, expr) -> {
             FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
             return WriteVarNodeGen.create(expr, frameDescriptor.addFrameSlot(name, slotKind));
         });

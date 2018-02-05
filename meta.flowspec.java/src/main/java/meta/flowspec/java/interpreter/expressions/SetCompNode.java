@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -65,14 +64,14 @@ public class SetCompNode extends ExpressionNode {
         return new Set<>(result.freeze());
     }
 
-    public static IMatcher<SetCompNode> match(FrameDescriptor frameDescriptor, IControlFlowGraph<ICFGNode> cfg) {
+    public static IMatcher<SetCompNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl4("SetComp", 
                 M.term(),
-                M.listElems(PatternNode.matchPattern(frameDescriptor, cfg)),
-                M.listElems(ExpressionNode.matchExpr(frameDescriptor, cfg)),
-                M.listElems(SetCompPredicateNode.matchPred(frameDescriptor, cfg)),
+                M.listElems(PatternNode.matchPattern(frameDescriptor, solution)),
+                M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)),
+                M.listElems(SetCompPredicateNode.matchPred(frameDescriptor, solution)),
                 (appl, term, patterns, exprs, preds) -> ImmutableTuple2.of(term, ImmutableTuple2.of(patterns, ImmutableTuple2.of(exprs, preds))))
-                .flatMap(tuple -> ExpressionNode.matchExpr(frameDescriptor, cfg).match(tuple._1()).map(expr -> {
+                .flatMap(tuple -> ExpressionNode.matchExpr(frameDescriptor, solution).match(tuple._1()).map(expr -> {
                     ImmutableList<PatternNode> patterns = tuple._2()._1();
                     ImmutableList<ExpressionNode> exprs = tuple._2()._2()._1();
                     ImmutableList<SetCompPredicateNode> preds = tuple._2()._2()._2();
