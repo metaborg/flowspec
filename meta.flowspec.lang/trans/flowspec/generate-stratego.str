@@ -153,10 +153,10 @@ gen-new-var-str: v ->
   ${{v} := <nabl2--fresh-var(|nabl2_source);try(nabl2--copy-origin(|fs_term))> "{v}"}
 
 gen-directed-edge-str: (lhs, rhs) ->
-  ${CFDirectEdge({lhs}, {rhs}, <nabl2--get-ast-index> fs_term)}
+  ${CFDirectEdge({lhs}, {rhs}, nabl2_index)}
 
 gen-equal-str: (lhs, rhs) ->
-  ${CEqual({lhs}, {rhs}, Message(Error(), Default(), <nabl2--get-ast-index> fs_term))}
+  ${CEqual({lhs}, {rhs}, Message(Error(), Default(), nabl2_index))}
 
 gen-recurse-var-str: Recurse(v) ->
   <map(gen-new-var-str);semi-lines> [${entry{v}}, ${exit{v}}]

@@ -18,7 +18,7 @@ cfg While(e, s) =
 
 external prop reads: Set(name)
 
-prop available: MustSet term
+prop available: MustSet(term)
 
 available(prev -> Assign(n, e)) =
   { expr |

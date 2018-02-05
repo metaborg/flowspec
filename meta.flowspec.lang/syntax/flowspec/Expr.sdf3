@@ -7,6 +7,9 @@ flowspec/Pattern
 nabl2/shared/common/Names
 nabl2/shared/common/ScopeGraph
 
+template options
+tokenize: "("
+
 context-free syntax // expressions
 
 Expr.Term = [[ConsName]([{Expr ","}*])]
@@ -35,9 +38,10 @@ SetCompPredicate.Predicate = Expr
 SetCompPredicate.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longest-match}
 SetCompSource.Source = [[Pattern] <- [Expr]]
 
-Expr.TermIndex = [indexOf [Var]]
-Expr.NaBL2Occurrence = Occurrence
-CTerm.FSVar = Var
+Expr.TermIndex = [indexOf([Var])]
+Expr.NaBL2Occurrence = Occurrence {avoid}
+CTerm.Ref = Var
+OccurrenceIndex.FSNoIndex = []
 
 Expr.SetUnion = [[Expr] \/ [Expr]] {left}
 Expr.SetDifference = [[Expr] \ [Expr]] {left}

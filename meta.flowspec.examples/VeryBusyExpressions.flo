@@ -16,20 +16,14 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-external prop read: Set(name)
-
-prop expr: Set(term)
-
-expr(this@BinOp(l,_,r)) = {this} \/ expr(l) \/ expr(r)
-expr(this@UnOp(_,e)) = {this} \/ expr(e)
-expr(Ref(_)) = {}
-expr(Literal(_)) = {}
+external prop reads: Set(name)
 
 prop veryBusy: MustSet(term)
 
 veryBusy(Assign(n, e) -> next) =
   { expr |
-    expr <- veryBusy(next) \/ expr(e),
-    !(n in read(expr)) }
+    expr <- veryBusy(next),
+    !(n in reads(expr)) }
+   \/ {e}
 
 veryBusy(_ -> next) = veryBusy(next)
