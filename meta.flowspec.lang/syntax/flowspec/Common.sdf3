@@ -42,11 +42,13 @@ Var = "end" {reject}
 Var = "name" {reject}
 Var = "in" {reject}
 Var = "external" {reject}
+Var = "indexOf" {reject}
 PropName = "cfg" {reject}
 PropName = "entry" {reject}
 PropName = "exit" {reject}
 PropName = "start" {reject}
 PropName = "end" {reject}
+PropName = "indexOf" {reject}
 
 lexical restrictions
 
