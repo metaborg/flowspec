@@ -23,6 +23,6 @@ prop available: MustSet(term)
 available(prev -> Assign(n, e)) =
   { expr |
     expr <- available(prev) \/ {e},
-    !(Var{n} in reads(e)) }
+    !(Var{n} in reads(expr)) }
 
 available(prev -> _) = available(prev)
