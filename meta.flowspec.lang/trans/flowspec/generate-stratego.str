@@ -239,4 +239,4 @@ with
 
 // utils
 
-constraint-str-list-to-cconj = ?Nil() < "CTrue(nabl2_index)" + foldr1(?[<id>], !$[CConj([<Fst>], [<Snd>])])
+constraint-str-list-to-cconj = ?[] < !"CTrue(nabl2_index)" + foldr1(?[<id>], !$[CConj([<Fst>], [<Snd>])])
