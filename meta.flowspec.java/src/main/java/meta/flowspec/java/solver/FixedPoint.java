@@ -123,17 +123,8 @@ public abstract class FixedPoint {
         for (String prop : propTopoOrder) {
             // remove artificial start used earlier to include all properties in the dependency graph
             if(prop != ARTIFICIAL_PROPERTY) {
-                solveProperty(cfg, prop, propMetadata.get(prop), transferFuns.get(prop));
+                solveFlowSensitiveProperty(cfg, prop, propMetadata.get(prop), transferFuns.get(prop));
             }
-        }
-    }
-
-    private static void solveProperty(IControlFlowGraph<CFGNode> cfg, String prop,
-            Metadata metadata, TransferFunction[] tf) {
-        if (metadata.dir() == Metadata.Direction.FlowInsensitive) {
-            solveFlowInsensitiveProperty(cfg, prop, tf);
-        } else {
-            solveFlowSensitiveProperty(cfg, prop, metadata, tf);
         }
     }
 
@@ -204,11 +195,6 @@ public abstract class FixedPoint {
             // put post-TF results in property name
             cfg.setProperty(n, postPropName, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), tf, n));
         }
-    }
-
-    private static void solveFlowInsensitiveProperty(IControlFlowGraph<CFGNode> cfg,
-            String prop, TransferFunction[] tf) {
-        throw new RuntimeException("Unimplemented");
     }
 
     /**
