@@ -7,7 +7,7 @@ cfg this@Assign(n, e) =
 
 cfg Skip() = entry -> exit
 
-cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
+cfg Seq(s1, s2) = entry -> cfg s1 -> cfg s2 -> exit
 
 cfg IfThenElse(c, t, e) =
   entry -> c -> cfg t -> exit,

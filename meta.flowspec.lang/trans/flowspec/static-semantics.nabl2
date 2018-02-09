@@ -11,11 +11,11 @@ signature
       Module Property Type Variable Constructor
 
   constructors
-    Prop: Type -> Type
-    Term : Type
-    Map : Type * Type -> Type
-    Set : Type -> Type
-    Name : Type
+    Prop   : Type -> Type
+    Term   : Type
+    Map    : Type * Type -> Type
+    Set    : Type -> Type
+    Name   : Type
     Origin : Type
     Lub    : LatticeComponent
     Glb    : LatticeComponent
@@ -24,71 +24,86 @@ signature
     NLeq   : LatticeComponent
     Top    : LatticeComponent
     Bottom : LatticeComponent
+    Normal   : PropKind
+    External : PropKind
 
 rules
 
 // flowspec
 
   init ^ (global) :=
+    Type { "MaySet" } <- global,
+    Type { "MustSet" } <- global,
     new global.
 
   [[ Module(module, imports, _, definitions) ^ (global) ]] :=
-//    Module { module } <- global,
-//    moduleScope ---> global,
-//    Module { module } ===> moduleScope,
-//    Map1 [[ imports ^ (global, moduleScope) ]],
-//    Map1 [[ definitions ^ (moduleScope) ]],
-//    distinct D(moduleScope)/Module,
-//    distinct D(moduleScope)/Property,
-//    distinct D(moduleScope)/Type,
+    Module { module } <- global,
+    moduleScope ---> global,
+    Module { module } ===> moduleScope,
+    Map1 [[ imports ^ (global, moduleScope) ]],
+    Map1 [[ definitions ^ (moduleScope) ]],
+    distinct D(global)/Module,
+    distinct D(moduleScope)/Property,
+    distinct D(moduleScope)/Type,
     new moduleScope.
   
   [[ Import(mod) ^ (global, moduleScope) ]] :=
     Module { mod } -> global,
-    Module { mod } |-> d,
+    Module { mod } |-> _,
     Module { mod } <=== moduleScope.
 
 // Flow
 rules
 
-  [[ CFGRule(_, pattern, chains) ^ (moduleScope) ]] :=
+  [[ CFGRule(root, pattern, chains) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
     Pattern [[ pattern ^ (ruleScope) ]],
-    Variable { Entry() } <- ruleScope,
-    Variable { Exit() } <- ruleScope,
+    [[ root ^ (ruleScope) ]],
     Variable { Start() } <- ruleScope,
     Variable { End() } <- ruleScope,
     Map1 [[ chains ^ (ruleScope) ]],
     new ruleScope.
-  
+
+  [[ NoRoot() ^ (ruleScope) ]] :=
+    Variable { Entry() } <- ruleScope,
+    Variable { Exit() } <- ruleScope.
+
+  [[ Root() ^ (ruleScope) ]].
+
   // TODO: give errors on Entry() and Exit() that aren't on the start resp. end of a chain
   // TODO: give errors on Start() and End() that aren't on the start resp. end of a chain
   [[ Chain(elements) ^ (ruleScope) ]] :=
     Map1 [[ elements ^ (ruleScope) ]].
 
   [[ Recurse(x) ^ (ruleScope) ]] :=
-    Variable { x } <- ruleScope.
+    Variable { x } -> ruleScope,
+    Variable { x } |-> _.
 
   [[ Ref(x) ^ (ruleScope) ]] :=
-    Variable { x } <- ruleScope.
+    Variable { x } -> ruleScope,
+    Variable { x } |-> _.
 
   [[ e@Entry() ^ (ruleScope) ]] :=
-    Variable { e } -> ruleScope.
+    Variable { e } -> ruleScope,
+    Variable { e } |-> _.
 
   [[ e@Exit() ^ (ruleScope) ]] :=
-    Variable { e } -> ruleScope.
+    Variable { e } -> ruleScope,
+    Variable { e } |-> _.
 
   [[ e@Start() ^ (ruleScope) ]] :=
-    Variable { e } -> ruleScope.
+    Variable { e } -> ruleScope,
+    Variable { e } |-> _.
 
   [[ e@End() ^ (ruleScope) ]] :=
-    Variable { e } -> ruleScope.
+    Variable { e } -> ruleScope,
+    Variable { e } |-> _.
 
   [[ Prop(propname, x) ^ (ruleScope) ]] :=
     Variable { x } -> ruleScope,
-    Variable { x } |-> dX,
+    Variable { x } |-> _,
     Property { propname } -> ruleScope,
-    Property { propname } |-> dPropname.
+    Property { propname } |-> _.
 
 // Pattern
 rules
@@ -126,8 +141,14 @@ rules
 // Properties
 rules
 
+  [[ ExtPropDef(name, type) ^ (moduleScope) ]] :=
+    Property { name } <- moduleScope,
+    Property { name }.kind := External(),
+    [[ type ^ (moduleScope) ]].
+
   [[ PropDef(name, type) ^ (moduleScope) ]] :=
     Property { name } <- moduleScope,
+    Property { name }.kind := Normal(),
     [[ type ^ (moduleScope) ]].
 
 // Types
@@ -143,6 +164,7 @@ rules
 
   Vars [[ [v|vs] ^ (typeDefScope) ]] :=
     Type { v } -> typeDefScope,
+    Type { v } |-> _,
     Vars [[ vs ^ (typeDefScope) ]].
 
   Vars [[ [] ^ (_) ]].
@@ -152,7 +174,8 @@ rules
     Map1 [[ tovs ^ (typeDefScope) ]].
 
   [[ Var(v) ^ (typeDefScope) ]] :=
-    Type { v } -> typeDefScope.
+    Type { v } -> typeDefScope,
+    Type { v } |-> _.
 
   [[ LatticeDef(name, vars, latticeparts) ^ (moduleScope) ]] :=
     Type { name } <- moduleScope,
@@ -164,6 +187,7 @@ rules
 
   [[ Type(type) ^ (latticeDefScope) ]] :=
     Type { name } -> latticeDefScope,
+    Type { v } |-> _,
     Type { Type() } <- latticeDefScope.
 
   [[ Lub(var1, var2, expr) ^ (latticeDefScope) ]] :=
@@ -171,7 +195,7 @@ rules
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
-//    [[ expr ^ (funScope) ]],
+    [[ expr ^ (funScope) ]],
     new funScope.
 
   [[ Glb(var1, var2, expr) ^ (latticeDefScope) ]] :=
@@ -179,7 +203,7 @@ rules
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
-//    [[ expr ^ (funScope) ]],
+    [[ expr ^ (funScope) ]],
     new funScope.
 
   [[ Leq(var1, var2, expr) ^ (latticeDefScope) ]] :=
@@ -187,7 +211,7 @@ rules
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
-//    [[ expr ^ (funScope) ]],
+    [[ expr ^ (funScope) ]],
     new funScope.
 
   [[ Geq(var1, var2, expr) ^ (latticeDefScope) ]] :=
@@ -195,7 +219,7 @@ rules
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
-//    [[ expr ^ (funScope) ]],
+    [[ expr ^ (funScope) ]],
     new funScope.
 
   [[ NLeq(var1, var2, expr) ^ (latticeDefScope) ]] :=
@@ -203,16 +227,16 @@ rules
     funScope ---> latticeDefScope,
     Variable { var1 } <- funScope,
     Variable { var2 } <- funScope,
-//    [[ expr ^ (funScope) ]],
+    [[ expr ^ (funScope) ]],
     new funScope.
 
   [[ Top(expr) ^ (latticeDefScope) ]] :=
-    Variable { Top() } <- latticeDefScope.
-//    [[ expr ^ (latticeDefScope) ]].
+    Variable { Top() } <- latticeDefScope,
+    [[ expr ^ (latticeDefScope) ]].
 
   [[ Bottom(expr) ^ (latticeDefScope) ]] :=
-    Variable { Bottom() } <- latticeDefScope.
-//    [[ expr ^ (latticeDefScope) ]].
+    Variable { Bottom() } <- latticeDefScope,
+    [[ expr ^ (latticeDefScope) ]].
 
   [[ Name() ^ (moduleScope) ]] := true.
 
@@ -220,7 +244,7 @@ rules
 
   [[ UserType(name, types) ^ (moduleScope) ]] :=
     Type { name } -> moduleScope,
-    Type { name } |-> dName,
+//    Type { name } |-> dName,
     Map1 [[ types ^ (moduleScope) ]].
 
   [[ Tuple(type1, type2) ^ (moduleScope) ]] :=
@@ -241,7 +265,9 @@ rules
     ruleScope ---> moduleScope,
     PropPattern [[ pattern ^ (ruleScope) ]],
     Property { prop } -> ruleScope,
-//    [[ expr ^ (ruleScope) ]],
+    Property { prop } |-> propDef,
+    propDef.kind := Normal() | error $[Cannot define rules of external property] @prop,
+    [[ expr ^ (ruleScope) ]],
     [[ whereclause ^ (ruleScope) ]],
     new ruleScope.
 
@@ -250,7 +276,7 @@ rules
     Map1 [[ bindings ^ (ruleScope) ]].
 
   [[ Binding(var, expr) ^ (ruleScope) ]] :=
-//    [[ expr ^ (ruleScope) ]],
+    [[ expr ^ (ruleScope) ]],
     Variable { var } <- ruleScope.
 
 // Main
@@ -260,19 +286,120 @@ rules
     ruleScope ---> moduleScope,
     Variable { var } <- ruleScope,
     PatternMap1 [[ funpatterns ^ (ruleScope) ]],
-//    [[ expr ^ (ruleScope) ]],
+    [[ expr ^ (ruleScope) ]],
     new ruleScope.
 
 // Expr
 rules
-// TODO, update these:
 
   [[ Term(cons, exprs) ^ (ruleScope) ]] :=
     Map1 [[ exprs ^ (ruleScope) ]].
 
-  [[ Ref(v) ^ (ruleScope) ]] :=
-    Variable { v } -> ruleScope.
+  [[ QualRef(mod, var) ^ (ruleScope) ]] :=
+    Module { mod } -> ruleScope,
+    Module { mod } |-> _,
+    new qualRefScope,
+    Module { mod } <=== qualRefScope,
+    Variable { var } -> qualRefScope,
+    Variable { var } |-> _.
+
+  [[ Ref(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+
+  [[ Prop(prop, var) ^ (ruleScope) ]] :=
+    Property { prop } -> ruleScope,
+    Property { prop } |-> _,
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
 
   [[ Tuple(expr, exprs) ^ (ruleScope) ]] :=
     [[ expr ^ (ruleScope) ]],
     Map1 [[ exprs ^ (ruleScope) ]].
+
+  [[ Int(_) ^ (ruleScope) ]].
+  [[ String(_) ^ (ruleScope) ]].
+  
+  [[ Start() ^ (ruleScope) ]].
+  [[ End() ^ (ruleScope) ]].
+  
+  [[ Type(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+  
+  [[ Appl(ref, exprs) ^ (ruleScope) ]] :=
+    [[ ref ^ (ruleScope) ]],
+    Map1 [[ exprs ^ (ruleScope) ]].
+  
+  [[ If(c, t, e) ^ (ruleScope) ]] :=
+    [[ c ^ (ruleScope) ]],
+    [[ t ^ (ruleScope) ]],
+    [[ e ^ (ruleScope) ]].
+  
+  [[ Eq(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ NEq(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Not(e) ^ (ruleScope) ]] :=
+    [[ e ^ (ruleScope) ]].
+  
+  [[ Match(e, arms) ^ (ruleScope) ]] :=
+    [[ e ^ (ruleScope) ]],
+    Map1 [[ arms ^ (ruleScope) ]].
+  
+  [[ MatchArm(pattern, expr) ^ (ruleScope) ]] :=
+    new armScope,
+    armScope ---> ruleScope,
+    Pattern [[ pattern ^ (armScope) ]],
+    [[ expr ^ (armScope) ]].
+  
+  [[ SetLiteral(exprs) ^ (ruleScope) ]] :=
+    Map1 [[ exprs ^ (ruleScope) ]].
+  
+  [[ SetComp(expr, setcompexprs) ^ (ruleScope) ]] :=
+    new setCompScope,
+    setCompScope ---> ruleScope,
+    [[ expr ^ (setCompScope) ]],
+    Map1 [[ setcompexprs ^ (setCompScope) ]].
+  
+  [[ Predicate(expr) ^ (setCompScope) ]] :=
+    [[ expr ^ (setCompScope) ]].
+  
+  [[ MatchPredicate(e, arms) ^ (setCompScope) ]] :=
+    [[ e ^ (ruleScope) ]],
+    Map1 [[ arms ^ (ruleScope) ]].
+  
+  [[ MatchArm(pattern) ^ (ruleScope) ]] :=
+    Pattern [[ pattern ^ (armScope) ]].
+  
+  [[ Source(pattern, expr) ^ (setCompScope) ]] :=
+    Pattern [[ pattern ^ (setCompScope) ]],
+    [[ expr ^ (setCompScope) ]].
+  
+  [[ TermIndex(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+  
+  [[ NaBL2Occurrence(Occurrence(namespace, Ref(var), FSNoIndex())) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+  
+  [[ SetUnion(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ SetDifference(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ SetContains(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ SetIntersection(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
