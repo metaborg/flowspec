@@ -11,14 +11,14 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 import meta.flowspec.java.interpreter.locals.ReadVarNode;
 
-public class ReadPropNode extends ExpressionNode {
+public class PropNode extends ExpressionNode {
     private IControlFlowGraph<CFGNode> cfg;
     private final String propName;
 
     @Child
     private ReadVarNode rhs;
 
-    public ReadPropNode(IControlFlowGraph<CFGNode> cfg, String propName, ReadVarNode rhs) {
+    public PropNode(IControlFlowGraph<CFGNode> cfg, String propName, ReadVarNode rhs) {
         this.cfg = cfg;
         this.propName = propName;
         this.rhs = rhs;
@@ -30,10 +30,10 @@ public class ReadPropNode extends ExpressionNode {
         return cfg.getProperty((CFGNode) rhs.executeGeneric(frame), propName);
     }
 
-    public static IMatcher<ReadPropNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<PropNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
         return M.appl2("Prop", 
                 M.stringValue(),
                 ReadVarNode.match(frameDescriptor), 
-                (appl, propName, rhs) -> new ReadPropNode(solution.controlFlowGraph(), propName, rhs));
+                (appl, propName, rhs) -> new PropNode(solution.controlFlowGraph(), propName, rhs));
     }
 }

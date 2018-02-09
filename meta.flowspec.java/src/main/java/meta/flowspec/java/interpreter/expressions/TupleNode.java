@@ -32,7 +32,7 @@ public class TupleNode extends ExpressionNode {
             try {
                 return c.executeITerm(frame);
             } catch (UnexpectedResultException e) {
-                throw new RuntimeException(e);
+                throw new TypeErrorException(e);
             }
         }).toArray(i -> new ITerm[i]);
         return TB.newTuple(childVals);

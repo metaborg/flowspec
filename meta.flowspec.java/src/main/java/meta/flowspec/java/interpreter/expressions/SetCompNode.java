@@ -34,7 +34,7 @@ public class SetCompNode extends ExpressionNode {
         try {
             return executeSet(frame);
         } catch (UnexpectedResultException e) {
-            throw new UnreachableException();
+            throw new UnreachableException(e);
         }
     }
 
@@ -43,7 +43,7 @@ public class SetCompNode extends ExpressionNode {
         try {
             return executeSet(frame);
         } catch (UnexpectedResultException e) {
-            throw new UnreachableException();
+            throw new UnreachableException(e);
         }
     }
 

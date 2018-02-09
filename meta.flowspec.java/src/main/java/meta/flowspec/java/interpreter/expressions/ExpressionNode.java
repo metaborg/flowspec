@@ -62,7 +62,8 @@ public abstract class ExpressionNode extends Node {
         return term -> M.cases(
             TermNode.match(frameDescriptor, solution),
             RefNode.matchRef(frameDescriptor),
-            ReadPropNode.match(frameDescriptor, solution),
+            PropNode.match(frameDescriptor, solution),
+            ExtPropNode.match(frameDescriptor, solution),
             TupleNode.match(frameDescriptor, solution),
             IntLiteralNode.match(frameDescriptor, solution),
             StringLiteralNode.match(frameDescriptor, solution),

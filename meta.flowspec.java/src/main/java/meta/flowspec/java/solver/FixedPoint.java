@@ -25,6 +25,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import meta.flowspec.java.interpreter.TransferFunction;
+import meta.flowspec.java.interpreter.UnreachableException;
 import meta.flowspec.java.lattice.CompleteLattice;
 import meta.flowspec.java.lattice.FullSetLattice;
 import meta.flowspec.java.solver.Metadata.Direction;
@@ -47,7 +48,7 @@ public abstract class FixedPoint {
                 readPropDataTuples(term, propMetadata, propDependsOn, transferFuns, nabl2solution);
             }
             solve(cfg, propMetadata, propDependsOn.freeze(), transferFuns);
-        } catch (UnimplementedException | ParseException | CyclicGraphException e) {
+        } catch (UnimplementedException | UnreachableException | ParseException | CyclicGraphException e) {
             logger.error(e.getMessage());
         }
     }
@@ -56,7 +57,7 @@ public abstract class FixedPoint {
             BinaryRelation.Transient<String, String> propDependsOn,
             Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) throws ParseException {
         if (!(term instanceof IStrategoList)) {
-            throw new ParseException("Parse error on reading the transfer functions");
+            throw new ParseException("Parse error on reading the transfer functions file");
         }
         IStrategoList list = (IStrategoList) term;
         for (IStrategoTerm t : list) {
@@ -83,7 +84,7 @@ public abstract class FixedPoint {
                     return ImmutableTuple3.of(propName,  dir, tfs);
                 })
             .match(term)
-            .orElseThrow(() -> new ParseException("Parse error on reading the tranfer functions"));
+            .orElseThrow(() -> new ParseException("Parse error on reading the transfer function tuple"));
         
         String propName = t3._1();
         Direction dir = t3._2();
@@ -105,7 +106,7 @@ public abstract class FixedPoint {
 
     public static void solve(IControlFlowGraph<CFGNode> cfg,
             Map<String, Metadata> propMetadata, BinaryRelation.Immutable<String, String> propDependsOn,
-            Map<String, TransferFunction[]> transferFuns) throws UnimplementedException, CyclicGraphException {
+            Map<String, TransferFunction[]> transferFuns) throws CyclicGraphException {
         { // Make sure every property is in the dependency graph at least once by adding an artificial edge.
           // This way the later topoSort of the dependency graph will give all properties and you just need
           //  to remove the artificial start node. 

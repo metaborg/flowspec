@@ -8,19 +8,20 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import meta.flowspec.java.interpreter.locals.ReadVarNode;
+import meta.flowspec.java.solver.UnimplementedException;
 
 public class TypeNode extends ExpressionNode {
     @SuppressWarnings("unused")
-    private final ReadVarNode occurence;
+    private final ReadVarNode occurrence;
 
-    public TypeNode(ReadVarNode occurence) {
+    public TypeNode(ReadVarNode occurrence) {
         super();
-        this.occurence = occurence;
+        this.occurrence = occurrence;
     }
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        throw new RuntimeException("Getting the type of an occurence is currently unimplemented");
+        throw new UnimplementedException("Getting the type of an occurence is currently unimplemented");
     }
 
     public static IMatcher<TypeNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
