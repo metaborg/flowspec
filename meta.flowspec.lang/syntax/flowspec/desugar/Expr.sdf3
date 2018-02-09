@@ -4,7 +4,9 @@ imports
 
 flowspec/Pattern
 flowspec/Expr
+flowspec/Common
 
 context-free syntax // expressions
 
 Expr.SetComp = [{ [Expr] | [{Pattern ", "}+] <<-- [{Expr ", "}+], [{SetCompPredicate ", "}+] }]
+Expr.ExtProp = [[PropName]([Var])]

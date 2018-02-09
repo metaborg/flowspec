@@ -13,6 +13,8 @@ flowspec/dependencies
 flowspec/generate-stratego
 
 nabl2/shared/-
+nabl2/runtime/-
+flowspec/static-semantics
 
 rules
 
@@ -24,13 +26,14 @@ with
 ; transfer-functions := <map(gen-tf); bundle-tfs(|propnames)>
 
 gen-tf: (n, PropRule(name, pattern, body, wherecl)) ->
-  <strip-annos> (name, d, n, TransferFunction(vars, Where(body, binding*)))
+  <strip-annos> (name, d, n, TransferFunction(vars, Where(body', binding*)))
 with
   dirvar* := <?Forward(<id>,_);![<id>] + ?Backward(_,<id>);![<id>]> pattern
 ; d := <\Forward(_,_) -> Fw()\ + \Backward(_,_) -> Bw()\> pattern
 ; pvar* := <pattern-in-dir;pattern-vars(|"")> pattern
 ; vars := <thread-map(try(\(Wildcard(), c) -> ($[wld_[c]], <inc> c)\));Fst> ([pvar*, dirvar*], 0)
 ; binding* := <\NoWhereClause() -> []\ + ?WhereClause(<id>)> wherecl
+; body' := <topdown(try(identify-ExtProp))> body
 
 bundle-tfs(|propnames): list -> result
 with
@@ -41,3 +44,10 @@ bundle-tfs-helper1: ((nm, d, n, tf), map) -> ((), <map(try((?nm, bundle-tfs-help
 
 bundle-tfs-helper2(|d, n, tf): [] -> (d, [(n, tf)])
 bundle-tfs-helper2(|d, n, tf): (d, l) -> (d, [(n, tf)|l])
+
+identify-ExtProp: Prop(name, var) -> ExtProp(name, var)
+with
+  a := <nabl2-get-ast-analysis>
+; (decl, _) := <nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a)> name
+where
+  External() := <nabl2-get-property(|a,"kind")> decl
