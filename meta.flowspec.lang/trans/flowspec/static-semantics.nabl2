@@ -115,16 +115,14 @@ rules
     Variable { var } <- ruleScope,
     Pattern [[ patt ^ (ruleScope) ]].
 
-  PatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
-    Pattern [[ pattern ^ (ruleScope) ]],
-    PatternMap1 [[ patterns ^ (ruleScope) ]].
-
-  PatternMap1 [[ [] ^ (_) ]].
-
   Pattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
-    PatternMap1 [[ patterns ^ (ruleScope) ]].
+    Map1(Pattern) [[ patterns ^ (ruleScope) ]].
+  
+  Pattern [[ Tuple(patt1, patts) ^ (ruleScope) ]] :=
+    Pattern [[ patt1 ^ (ruleScope) ]],
+    Map1(Pattern) [[ patts ^ (ruleScope) ]].
 
-  Pattern [[ Wildcard() ^ (ruleScope) ]] := true.
+  Pattern [[ Wildcard() ^ (ruleScope) ]].
 
   Pattern [[ Var(x) ^ (ruleScope) ]] :=
     Variable { x } <- ruleScope.
@@ -142,12 +140,12 @@ rules
   [[ ExtPropDef(name, type) ^ (moduleScope) ]] :=
     Property { name } <- moduleScope,
     Property { name }.kind := External(),
-    [[ type ^ (moduleScope) ]].
+    Type [[ type ^ (moduleScope) ]].
 
   [[ PropDef(name, type) ^ (moduleScope) ]] :=
     Property { name } <- moduleScope,
     Property { name }.kind := Normal(),
-    [[ type ^ (moduleScope) ]].
+    Type [[ type ^ (moduleScope) ]].
 
 // Types
 rules
@@ -169,9 +167,9 @@ rules
 
   [[ ConsDef(name, tovs) ^ (typeDefScope) ]] :=
     Constructor { name } <- typeDefScope,
-    Map1 [[ tovs ^ (typeDefScope) ]].
+    Map1(Type) [[ tovs ^ (typeDefScope) ]].
 
-  [[ Var(v) ^ (typeDefScope) ]] :=
+  Type [[ Var(v) ^ (typeDefScope) ]] :=
     Type { v } -> typeDefScope,
     Type { v } |-> _.
 
@@ -184,8 +182,7 @@ rules
     new latticeDefScope.
 
   [[ Type(type) ^ (latticeDefScope) ]] :=
-    Type { name } -> latticeDefScope,
-    Type { v } |-> _,
+    Type [[ type ^ (latticeDefScope) ]],
     Type { Type() } <- latticeDefScope.
 
   [[ Lub(var1, var2, expr) ^ (latticeDefScope) ]] :=
@@ -236,25 +233,29 @@ rules
     Variable { Bottom() } <- latticeDefScope,
     [[ expr ^ (latticeDefScope) ]].
 
-  [[ Name() ^ (moduleScope) ]] := true.
+  Type [[ Name() ^ (moduleScope) ]].
 
-  [[ Term() ^ (moduleScope) ]] := true.
+  Type [[ Term() ^ (moduleScope) ]].
 
-  [[ UserType(name, types) ^ (moduleScope) ]] :=
+  Type [[ Index() ^ (moduleScope) ]].
+
+  Type [[ Int() ^ (moduleScope) ]].
+
+  Type [[ UserType(name, types) ^ (moduleScope) ]] :=
     Type { name } -> moduleScope,
 //    Type { name } |-> dName,
-    Map1 [[ types ^ (moduleScope) ]].
+    Map1(Type) [[ types ^ (moduleScope) ]].
 
-  [[ Tuple(type1, type2) ^ (moduleScope) ]] :=
-    [[ type1 ^ (moduleScope) ]],
-    [[ type2 ^ (moduleScope) ]].
+  Type [[ Tuple(type1, type2) ^ (moduleScope) ]] :=
+    Type [[ type1 ^ (moduleScope) ]],
+    Type [[ type2 ^ (moduleScope) ]].
 
-  [[ Map(type1, type2) ^ (moduleScope) ]] :=
-    [[ type1 ^ (moduleScope) ]],
-    [[ type2 ^ (moduleScope) ]].
+  Type [[ Map(type1, type2) ^ (moduleScope) ]] :=
+    Type [[ type1 ^ (moduleScope) ]],
+    Type [[ type2 ^ (moduleScope) ]].
 
-  [[ Set(type) ^ (moduleScope) ]] :=
-    [[ type ^ (moduleScope) ]].
+  Type [[ Set(type) ^ (moduleScope) ]] :=
+    Type [[ type ^ (moduleScope) ]].
 
 // Property rules
 rules
@@ -269,7 +270,7 @@ rules
     [[ whereclause ^ (ruleScope) ]],
     new ruleScope.
 
-  [[ NoWhereClause() ^ (ruleScope) ]] := true.
+  [[ NoWhereClause() ^ (ruleScope) ]].
   [[ WhereClause(bindings) ^ (ruleScope) ]] :=
     Map1 [[ bindings ^ (ruleScope) ]].
 
@@ -283,7 +284,7 @@ rules
   [[ FunDef(var, funpatterns, expr) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
     Variable { var } <- ruleScope,
-    PatternMap1 [[ funpatterns ^ (ruleScope) ]],
+    Map1(Pattern) [[ funpatterns ^ (ruleScope) ]],
     [[ expr ^ (ruleScope) ]],
     new ruleScope.
 
@@ -372,7 +373,7 @@ rules
     Map1 [[ arms ^ (ruleScope) ]].
   
   [[ MatchArm(pattern) ^ (ruleScope) ]] :=
-    Pattern [[ pattern ^ (armScope) ]].
+    Pattern [[ pattern ^ (ruleScope) ]].
   
   [[ Source(pattern, expr) ^ (setCompScope) ]] :=
     Pattern [[ pattern ^ (setCompScope) ]],
