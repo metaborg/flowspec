@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
@@ -18,6 +17,8 @@ import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
 import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple3;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -29,6 +30,7 @@ import meta.flowspec.java.lattice.FullSetLattice;
 import meta.flowspec.java.solver.Metadata.Direction;
 
 public abstract class FixedPoint {
+    private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);
     private static final String ARTIFICIAL_PROPERTY = "__START__";
 
     public static void entryPoint(ISolution nabl2solution, List<IStrategoTerm> tfs) {
@@ -40,17 +42,21 @@ public abstract class FixedPoint {
         // remove artificial nodes from CFG
         cfg.complete();
         
-        for (IStrategoTerm term : tfs) {
-            readPropDataTuples(term, propMetadata, propDependsOn, transferFuns, nabl2solution);
+        try {
+            for (IStrategoTerm term : tfs) {
+                readPropDataTuples(term, propMetadata, propDependsOn, transferFuns, nabl2solution);
+            }
+            solve(cfg, propMetadata, propDependsOn.freeze(), transferFuns);
+        } catch (UnimplementedException | ParseException | CyclicGraphException e) {
+            logger.error(e.getMessage());
         }
-        solve(cfg, propMetadata, propDependsOn.freeze(), transferFuns);
     }
 
     private static void readPropDataTuples(IStrategoTerm term, Map.Transient<String, Metadata> propMetadata,
             BinaryRelation.Transient<String, String> propDependsOn,
-            Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) {
+            Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) throws ParseException {
         if (!(term instanceof IStrategoList)) {
-            throw new RuntimeException("Parse error on reading the transfer functions");
+            throw new ParseException("Parse error on reading the transfer functions");
         }
         IStrategoList list = (IStrategoList) term;
         for (IStrategoTerm t : list) {
@@ -61,7 +67,7 @@ public abstract class FixedPoint {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private static void readPropDataTuple(IStrategoTerm sterm, Map.Transient<String, Metadata> propMetadata,
             BinaryRelation.Transient<String, String> propDependsOn,
-            Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) {
+            Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) throws ParseException {
         ITerm term = StrategoTerms.fromStratego(sterm);
         
         ImmutableTuple3<String, Direction, TransferFunction[]> t3 = M.tuple2(
@@ -77,7 +83,7 @@ public abstract class FixedPoint {
                     return ImmutableTuple3.of(propName,  dir, tfs);
                 })
             .match(term)
-            .get();
+            .orElseThrow(() -> new ParseException("Parse error on reading the tranfer functions"));
         
         String propName = t3._1();
         Direction dir = t3._2();
@@ -99,7 +105,7 @@ public abstract class FixedPoint {
 
     public static void solve(IControlFlowGraph<CFGNode> cfg,
             Map<String, Metadata> propMetadata, BinaryRelation.Immutable<String, String> propDependsOn,
-            Map<String, TransferFunction[]> transferFuns) {
+            Map<String, TransferFunction[]> transferFuns) throws UnimplementedException, CyclicGraphException {
         { // Make sure every property is in the dependency graph at least once by adding an artificial edge.
           // This way the later topoSort of the dependency graph will give all properties and you just need
           //  to remove the artificial start node. 
@@ -110,8 +116,8 @@ public abstract class FixedPoint {
             }
             propDependsOn = propDep.freeze();
         }
-        // TODO: statically check for cycles in property dependencies in FlowSpec
-        List<String> propTopoOrder = topoSort(propDependsOn).get();
+
+        List<String> propTopoOrder = topoSort(propDependsOn);
         Collections.reverse(propTopoOrder);
 
         for (String prop : propTopoOrder) {
@@ -216,7 +222,7 @@ public abstract class FixedPoint {
      * @return A list of "vertices" in topological order, or an empty optional
      *         if there are cycles in the graph
      */
-    public static <E> Optional<List<E>> topoSort(BinaryRelation.Immutable<E, E> rel) {
+    public static <E> List<E> topoSort(BinaryRelation.Immutable<E, E> rel) throws CyclicGraphException {
         List<E> result = new ArrayList<>();
         // The frontier is initialised with nodes that have no incoming edges.
         Set<E> frontier = new HashSet<>(rel.keySet());
@@ -241,8 +247,8 @@ public abstract class FixedPoint {
         // If graph is not empty when the frontier became empty, there must be a
         // cycle in the graph
         if (!mutRel.isEmpty()) {
-            return Optional.empty();
+            throw new CyclicGraphException(mutRel.freeze());
         }
-        return Optional.of(result);
+        return result;
     }
 }

@@ -1,5 +1,7 @@
 package meta.flowspec.java.interpreter.locals;
 
+import java.util.Objects;
+
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -15,7 +17,6 @@ import meta.flowspec.java.interpreter.expressions.RefNode;
 
 @NodeField(name = "slot", type = FrameSlot.class)
 public abstract class ReadVarNode extends RefNode {
-
     protected abstract FrameSlot getSlot();
 
     @Specialization(guards = "isInt(frame)")
@@ -42,6 +43,6 @@ public abstract class ReadVarNode extends RefNode {
     }
     
     public static IMatcher<ReadVarNode> match(FrameDescriptor frameDescriptor) {
-        return M.stringValue().map(string -> ReadVarNodeGen.create(frameDescriptor.findFrameSlot(string)));
+        return M.stringValue().map(string -> ReadVarNodeGen.create(Objects.requireNonNull(frameDescriptor.findFrameSlot(string))));
     }
 }

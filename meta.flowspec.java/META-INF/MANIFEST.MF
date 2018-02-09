@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1517834483452
+Bnd-LastModified: 1518183471705
 Build-Jdk: 9.0.1
 Built-By: jeff
 Bundle-Description: Maven parent POM for Java projects
@@ -7,7 +7,8 @@ Bundle-License: https://www.apache.org/licenses/LICENSE-2.0.txt
 Bundle-ManifestVersion: 2
 Bundle-Name: meta.flowspec.java
 Bundle-SymbolicName: meta.flowspec.java
-Bundle-Version: 2.4.0.qualifier
+Bundle-Vendor: org.metaborg
+Bundle-Version: 2.5.0.qualifier
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: registered
 Embed-Transitive: true
