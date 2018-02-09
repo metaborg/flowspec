@@ -114,8 +114,6 @@ rules
   PropPattern [[ Forward(var, patt) ^ (ruleScope) ]] :=
     Variable { var } <- ruleScope,
     Pattern [[ patt ^ (ruleScope) ]].
-  PropPattern [[ FlowInsensitive(patt) ^ (ruleScope) ]] :=
-    Pattern [[ patt ^ (ruleScope) ]].
 
   PatternMap1 [[ [pattern|patterns] ^ (ruleScope) ]] :=
     Pattern [[ pattern ^ (ruleScope) ]],

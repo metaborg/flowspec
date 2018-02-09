@@ -227,7 +227,6 @@ pattern-vars(|prefix): Wildcard() -> []
 
 pattern-in-dir: Forward(_, p) -> p
 pattern-in-dir: Backward(p,_) -> p
-pattern-in-dir: FlowInsensitive(p) -> p
 
 // PropRule
 
