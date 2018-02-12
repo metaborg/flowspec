@@ -71,7 +71,7 @@ public class TransferFunction extends RootNode {
             IdentityTFAppl<S> iappl = (IdentityTFAppl<S>) appl;
             return iappl.cfg.getProperty((S) arg, iappl.prop);
         }
-        appl.args[appl.args.length-1] = arg;
+        appl.args[0] = arg;
         return Truffle.getRuntime().createCallTarget(tfs[appl.tfOffset]).call(appl.args);
     }
 }
