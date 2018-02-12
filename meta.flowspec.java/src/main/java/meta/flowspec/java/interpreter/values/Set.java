@@ -68,7 +68,7 @@ public class Set<K extends ITerm> implements IApplTerm {
 
     @Override
     public String toString() {
-        return set.stream().collect(Collectors.toSet()).toString();
+        return set.toString();
     }
 
     @Override

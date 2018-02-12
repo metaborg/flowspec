@@ -32,6 +32,10 @@ public interface CompleteLattice<E> extends Lattice<E> {
         return lub(one, other).equals(other);
     }
 
+    default public boolean nlte(E one, E other) {
+        return !lte(one, other);
+    }
+
     default public boolean gte(E one, E other) {
         return lte(other, one);
     }
