@@ -1,5 +1,7 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import java.util.Optional;
+
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
@@ -16,6 +18,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.TypesGen;
 import meta.flowspec.java.interpreter.values.Name;
+import meta.flowspec.java.solver.ParseException;
 
 @TypeSystemReference(Types.class)
 public abstract class ExpressionNode extends Node {
@@ -59,7 +62,7 @@ public abstract class ExpressionNode extends Node {
     }
 
     public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor, ISolution solution) {
-        return term -> M.cases(
+        return term -> Optional.of(M.cases(
             TermNode.match(frameDescriptor, solution),
             RefNode.matchRef(frameDescriptor),
             PropNode.match(frameDescriptor, solution),
@@ -73,6 +76,7 @@ public abstract class ExpressionNode extends Node {
             IfNode.match(frameDescriptor, solution),
             EqualNode.match(frameDescriptor, solution),
             NotEqualNode.match(frameDescriptor, solution),
+            NotNode.match(frameDescriptor, solution),
             PlusNode.match(frameDescriptor, solution),
             // TODO Match/2?
             SetLiteralNode.match(frameDescriptor, solution),
@@ -83,6 +87,7 @@ public abstract class ExpressionNode extends Node {
             SetMinusNode.match(frameDescriptor, solution),
             SetContainsNode.match(frameDescriptor, solution),
             SetIntersectNode.match(frameDescriptor, solution)
-        ).match(term);
+        ).match(term)
+         .orElseThrow(() -> new ParseException("Parse error on reading expression " + term)));
     }
 }
