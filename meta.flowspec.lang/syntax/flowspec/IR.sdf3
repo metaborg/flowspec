@@ -15,4 +15,3 @@ Expr.ExtProp = [[PropName]([Var])]
 
 Dir.Fw = [fw]
 Dir.Bw = [bw]
-Dir.NA = [na]

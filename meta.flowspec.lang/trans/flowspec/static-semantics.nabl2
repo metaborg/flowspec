@@ -108,11 +108,13 @@ rules
 // Pattern
 rules
 
-  PropPattern [[ Backward(patt, var) ^ (ruleScope) ]] :=
+  PropPattern [[ Backward(patt, var) ^ (propDef, ruleScope) ]] :=
     Variable { var } <- ruleScope,
+    propDef.direction := Bw(),
     Pattern [[ patt ^ (ruleScope) ]].
-  PropPattern [[ Forward(var, patt) ^ (ruleScope) ]] :=
+  PropPattern [[ Forward(var, patt) ^ (propDef, ruleScope) ]] :=
     Variable { var } <- ruleScope,
+    propDef.direction := Fw(),
     Pattern [[ patt ^ (ruleScope) ]].
 
   Pattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
@@ -262,7 +264,7 @@ rules
 
   [[ PropRule(prop, pattern, expr, whereclause) ^ (moduleScope) ]] :=
     ruleScope ---> moduleScope,
-    PropPattern [[ pattern ^ (ruleScope) ]],
+    PropPattern [[ pattern ^ (propDef, ruleScope) ]],
     Property { prop } -> ruleScope,
     Property { prop } |-> propDef,
     propDef.kind := Normal() | error $[Cannot define rules of external property] @prop,

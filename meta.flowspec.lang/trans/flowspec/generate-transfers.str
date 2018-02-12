@@ -18,36 +18,50 @@ flowspec/static-semantics
 
 rules
 
-gen-tf: Module(_, _, _, def*) -> transfer-functions
-with
-  proprule* := <retain-all(?PropRule(_, _, _, _))> def*
-; propnames := <retain-all(?PropDef(<id>, _)); strip-annos> def*
-; numberedrules := <number-prop-rules(|propnames)> proprule*
-; transfer-functions := <map(gen-tf); bundle-tfs(|propnames)>
-
-gen-tf: (n, PropRule(name, pattern, body, wherecl)) ->
-  <strip-annos> (name, d, n, TransferFunction(vars, Where(body', binding*)))
-with
-  dirvar* := <?Forward(<id>,_);![<id>] + ?Backward(_,<id>);![<id>]> pattern
-; d := <\Forward(_,_) -> Fw()\ + \Backward(_,_) -> Bw()\> pattern
-; pvar* := <pattern-in-dir;pattern-vars(|"")> pattern
-; vars := <thread-map(try(\(Wildcard(), c) -> ($[wld_[c]], <inc> c)\));Fst> ([pvar*, dirvar*], 0)
-; binding* := <\NoWhereClause() -> []\ + ?WhereClause(<id>)> wherecl
-; body' := <topdown(try(identify-ExtProp))> body
-
-bundle-tfs(|propnames): list -> result
-with
-  namesmap := <map(!(<id>, []))> propnames
-; result := <thread-map(bundle-tfs-helper1); Snd> (list, namesmap)
-
-bundle-tfs-helper1: ((nm, d, n, tf), map) -> ((), <map(try((?nm, bundle-tfs-helper2(|d, n, tf))))> map)
-
-bundle-tfs-helper2(|d, n, tf): [] -> (d, [(n, tf)])
-bundle-tfs-helper2(|d, n, tf): (d, l) -> (d, [(n, tf)|l])
-
-identify-ExtProp: Prop(name, var) -> ExtProp(name, var)
+gen-tf: m@Module(_, _, _, def*) -> transfer-functions
 with
   a := <nabl2-get-ast-analysis>
-; (decl, _) := <nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a)> name
+; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
+; propnames := <retain-all(?PropDef(<nabl2-mk-occurrence(|"Property")>, _))> def*
+; numberedrules := <number-prop-rules(|a, propnames)> proprule*
+; transfer-functions := <map(gen-tf(|a)); bundle-tfs(|a, propnames)> numberedrules
+
+gen-tf(|a): (n, PropRule(name, pattern, body, wherecl)) ->
+  (name', n, TransferFunction(vars, Where(body', binding*)))
+with
+  dirvar := <dir-var> pattern
+; pvar* := <pattern-in-dir;pattern-vars(|"")> pattern
+; vars := <wildcards-to-numbered-vars> [dirvar | pvar*]
+; binding* := <where-clause-bindings> wherecl
+; body' := <topdown(try(identify-ExtProp(|a)))> body
+; name' := <nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a); Fst> name
+
+dir-var: Forward(v, _) -> v
+dir-var: Backward(_, v) -> v
+
+where-clause-bindings: NoWhereClause() -> []
+where-clause-bindings: WhereClause(l) -> l
+
+wildcards-to-numbered-vars: vars -> vars'
+with vars' := <thread-map(try(\(Wildcard(), c) -> ($[wld_[c]], <inc> c)\));Fst> (vars, 0)
+
+bundle-tfs(|a, propnames): list -> result'
+with
+  namesmap := <map(bundle-tfs-helper3(|a))> propnames
+; result := <thread-map(bundle-tfs-helper1); Snd> (list, namesmap)
+; result' := <map((nabl2-get-occurrence-name, id))> result
+
+// TODO: should be a fold above, not a thread-map;Snd with return here of ((), thing_to_fold)
+bundle-tfs-helper1: ((nm, n, tf), map) -> ((), map')
+with
+  map' := <map(try((?nm, (id, ![(n,tf)|<id>]))))> map
+
+bundle-tfs-helper3(|a): n -> (n, (d, []))
+with
+  d := <nabl2-get-property(|a, "direction")> n
+
+identify-ExtProp(|a): Prop(name, var) -> ExtProp(name, var)
+with
+  (decl, _) := <nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a)> name
 where
   External() := <nabl2-get-property(|a,"kind")> decl

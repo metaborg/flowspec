@@ -12,6 +12,7 @@ flowspec/utils
 flowspec/dependencies
 
 nabl2/shared/-
+nabl2/runtime/-
 
 signature
   constructors
@@ -63,17 +64,18 @@ flowspec--prop-names =
 {propstring}
 }
 with
-  importstring := <map(?Import(<id>));lines_> import*
+  a := <nabl2-get-ast-analysis>
+; importstring := <map(?Import(<id>));lines_> import*
 ; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str);lines_> def*
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
-; propnames := <retain-all(?PropDef(<id>, _)); strip-annos> def*
+; propnames := <retain-all(?PropDef(<id>, _))> def*
 ; matchpropsstring := <map(\n -> ${<flowspec--proprule-{n}(|index)> term}\);constraint-str-list-to-cconj> propnames
-; propstring := <number-prop-rules(|propnames);map(gen-str);lines_> proprule*
+; propstring := <number-prop-rules(|a, <map(nabl2-mk-occurrence(|"Property"))> propnames);map(gen-str);lines_> proprule*
 ; propnamesstring := <map(!${"{<id>}"});csv-lines> propnames
 
-number-prop-rules(|propnames): proprules -> numberedproprules
+number-prop-rules(|a, propnames): proprules -> numberedproprules
 with
-  named := <map(\p@PropRule(n,_,_,_) -> (<strip-annos> n,p)\)> proprules
+  named := <map(\p@PropRule(n,_,_,_) -> (<nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a); Fst> n,p)\)> proprules
 ; numberedproprules := <thread-map(number-prop-rules-helper);Fst> (named, <map(!(<id>, 0))> propnames)
 
 number-prop-rules-helper: ((n,p),l) -> ((n',p),l')

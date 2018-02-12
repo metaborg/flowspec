@@ -36,10 +36,16 @@ rules // Debugging
     (node, _, _, path, project-path) -> (filename, result)
     with
       filename := <target-file(|project-path, ".aterm")> "transfer-functions"
-    ; result   := <gen-tf;pp-aterm> node
+    where
+      result   := <gen-tf;pp-aterm> node
 
   generate-all =
-    where(generate-stratego;write-string-to-file)
+    where(
+      ?(m, _, _, _, _)
+    ; not(<nabl2-get-ast-analysis;nabl2-analysis-has-errors> m
+         ; !"NaBL2 errors keep transfer function file from updating. "
+         ; debug))
+  ; where(generate-stratego;write-string-to-file)
   ; where(generate-transfers;write-string-to-file)
   ; !()
 
