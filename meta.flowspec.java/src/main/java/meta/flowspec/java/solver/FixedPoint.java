@@ -17,6 +17,7 @@ import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
 import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple3;
+import org.metaborg.meta.nabl2.util.tuples.Tuple2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -137,9 +138,10 @@ public abstract class FixedPoint {
         // Phase 1: initialisation
 
         for (CFGNode n : cfg.getAllNodes()) {
-            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().bottom());
-            // No need to set a different value for the start node, since the
-            //  rule for the start node will result in that value, which will be propagated Phase 2.
+            cfg.setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
+            /* No need to set a different value for the start node, since the transfer function for the
+             * start node will (unconditionally) result in that value, which will be propagated Phase 2.
+             */
         }
 
         // Phase 2: Fixpoint iteration
@@ -156,19 +158,29 @@ public abstract class FixedPoint {
             default: 
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
-        final java.util.Set<CFGNode> workList = new HashSet<>();
-        workList.addAll(cfg.getAllNodes());
-
-        while (!workList.isEmpty()) {
-            final CFGNode from = workList.iterator().next();
-            workList.remove(from);
-            for (CFGNode to : edges.get(from)) {
-                Object afterFromTF = TransferFunction.call(cfg.getTFAppl(from, prop), tf, from);
-                Object beforeToTF = cfg.getProperty(to, prop);
-                // TODO: use nlte instead of !lte
-                if (!metadata.lattice().lte(afterFromTF, beforeToTF)) {
-                    cfg.setProperty(to, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
-                    workList.add(to);
+        
+        Tuple2<Iterable<Set<CFGNode>>, List<CFGNode>> sccsTuple = cfg.topoSCCs();
+        Iterable<Set<CFGNode>> nodes = sccsTuple._1();
+        
+        // TODO: do something sensible with these nodes
+        @SuppressWarnings("unused")
+        List<CFGNode> unreachable = sccsTuple._2();
+        
+        for(Set<CFGNode> scc : nodes) {
+            final Set<CFGNode> workList = new HashSet<>(scc);
+    
+            while (!workList.isEmpty()) {
+                final CFGNode from = workList.iterator().next();
+                workList.remove(from);
+                for (CFGNode to : edges.get(from)) {
+                    Object afterFromTF = TransferFunction.call(cfg.getTFAppl(from, prop), tf, from);
+                    Object beforeToTF = cfg.getProperty(to, prop);
+                    if (metadata.lattice().nlte(afterFromTF, beforeToTF)) {
+                        cfg.setProperty(to, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
+                        if (scc.contains(to)) {
+                            workList.add(to);
+                        }
+                    }
                 }
             }
         }
