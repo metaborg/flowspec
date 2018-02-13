@@ -28,11 +28,18 @@ public class TermNode extends ExpressionNode {
                                         .collect(Collectors.toList()));
     }
 
-    public static IMatcher<TermNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
-        return M.appl2("Term", M.stringValue(), M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)),
+    public static IMatcher<TermNode> match(FrameDescriptor frameDescriptor) {
+        return M.appl2("Term", M.stringValue(), M.listElems(ExpressionNode.matchExpr(frameDescriptor)),
                 (appl, consName, children) -> {
                     ExpressionNode[] c = children.toArray(new ExpressionNode[children.size()]);
                     return new TermNode(consName, c);
                 });
+    }
+
+    @Override
+    public void init(ISolution solution) {
+        for (ExpressionNode child : children) {
+            child.init(solution);
+        }
     }
 }

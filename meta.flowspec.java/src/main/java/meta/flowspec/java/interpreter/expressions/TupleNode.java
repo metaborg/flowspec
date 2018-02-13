@@ -38,10 +38,10 @@ public class TupleNode extends ExpressionNode {
         return TB.newTuple(childVals);
     }
 
-    public static IMatcher<TupleNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<TupleNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("Tuple", 
-                ExpressionNode.matchExpr(frameDescriptor, solution),
-                M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)), 
+                ExpressionNode.matchExpr(frameDescriptor),
+                M.listElems(ExpressionNode.matchExpr(frameDescriptor)), 
                 (appl, first, others) -> {
                     ExpressionNode[] exprs = new ExpressionNode[others.size() + 1];
                     int i = 0;
@@ -52,5 +52,12 @@ public class TupleNode extends ExpressionNode {
                     }
                     return new TupleNode(exprs);
                 });
+    }
+
+    @Override
+    public void init(ISolution solution) {
+        for (ExpressionNode child : children) {
+            child.init(solution);
+        }
     }
 }

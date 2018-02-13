@@ -1,8 +1,10 @@
 package meta.flowspec.java.solver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -10,109 +12,82 @@ import java.util.Set;
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraph;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
 import org.metaborg.meta.nabl2.solver.ISolution;
-import org.metaborg.meta.nabl2.stratego.StrategoTerms;
+import org.metaborg.meta.nabl2.solver.ImmutableSolution;
+import org.metaborg.meta.nabl2.stratego.ImmutableTermIndex;
+import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.M;
-import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
-import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple3;
+import org.metaborg.meta.nabl2.terms.generic.TB;
+import org.metaborg.meta.nabl2.util.collections.IProperties;
 import org.metaborg.meta.nabl2.util.tuples.Tuple2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.interpreter.UnreachableException;
-import meta.flowspec.java.lattice.CompleteLattice;
-import meta.flowspec.java.lattice.FullSetLattice;
-import meta.flowspec.java.solver.Metadata.Direction;
 
 public abstract class FixedPoint {
     private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);
     private static final String ARTIFICIAL_PROPERTY = "__START__";
+    private static FixedPoint.TimingInfo timingInfo;
+    // TODO: Make a config variable
+    private static final int FIXPOINT_LIMIT = 10_000;
 
-    public static void entryPoint(ISolution nabl2solution, List<IStrategoTerm> tfs) {
-        final Map.Transient<String, Metadata> propMetadata = Map.Transient.of();
-        final BinaryRelation.Transient<String, String> propDependsOn = BinaryRelation.Transient.of();
-        final Map.Transient<String, TransferFunction[]> transferFuns = Map.Transient.of();
-        final IControlFlowGraph<CFGNode> cfg = nabl2solution.controlFlowGraph();
-        
-        // remove artificial nodes from CFG
+    public static ISolution entryPoint(ISolution nabl2solution, TFFileInfo tfFileInfo) {
+        // FIXME: this is an evil workaround, do better API design for CFG
+        final ControlFlowGraph<CFGNode> cfg = (ControlFlowGraph<CFGNode>) nabl2solution.controlFlowGraph();
+
+        FixedPoint.flowspecCopyTFAppls(cfg, nabl2solution.astProperties());
+        timingInfo = new FixedPoint.TimingInfo();
+
+        /* Pass the NaBL2 solution to the interpreter AST so it can save references to the CFG and the
+         * resolution result in certain places
+         */
+        tfFileInfo.init(nabl2solution);
+
+        // remove artificial nodes from CFG & compute the SCCs
         cfg.complete();
-        
+
+        timingInfo.recordCfgProcessing();
+
+        List<CFGNode> unreachable = cfg.getUnreachableNodes();
+        if (!unreachable.isEmpty()) {
+            logger.warn("Found unreachable CFG nodes: " + unreachable);
+        }
+
+        logger.debug("SCCs:" + cfg.getTopoSCCs());
+
         try {
-            for (IStrategoTerm term : tfs) {
-                readPropDataTuples(term, propMetadata, propDependsOn, transferFuns, nabl2solution);
+            solve(cfg, tfFileInfo);
+
+            timingInfo.recordEnd();
+
+            // TODO: add config to turn on timing info
+            if (true) {
+                timingInfo.logReport(logger);
             }
-            solve(cfg, propMetadata, propDependsOn.freeze(), transferFuns);
-        } catch (UnimplementedException | UnreachableException | ParseException | CyclicGraphException e) {
+
+            return FixedPoint.flowspecCopyProperties(nabl2solution);
+        } catch (UnimplementedException | UnreachableException | ParseException | CyclicGraphException | FixedPointLimitException e) {
             logger.error(e.getMessage());
+
+            return nabl2solution;
         }
     }
 
-    private static void readPropDataTuples(IStrategoTerm term, Map.Transient<String, Metadata> propMetadata,
-            BinaryRelation.Transient<String, String> propDependsOn,
-            Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) throws ParseException {
-        if (!(term instanceof IStrategoList)) {
-            throw new ParseException("Parse error on reading the transfer functions file");
-        }
-        IStrategoList list = (IStrategoList) term;
-        for (IStrategoTerm t : list) {
-            readPropDataTuple(t, propMetadata, propDependsOn, transferFuns, solution);
-        }
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static void readPropDataTuple(IStrategoTerm sterm, Map.Transient<String, Metadata> propMetadata,
-            BinaryRelation.Transient<String, String> propDependsOn,
-            Map.Transient<String, TransferFunction[]> transferFuns, ISolution solution) throws ParseException {
-        ITerm term = StrategoTerms.fromStratego(sterm);
-        
-        ImmutableTuple3<String, Direction, TransferFunction[]> t3 = M.tuple2(
-                M.string(), 
-                M.tuple2(
-                        Direction.match(), 
-                        TransferFunction.matchList(solution), 
-                        (appl, dir, tfs) -> ImmutableTuple2.of(dir, tfs)), 
-                (appl, string, t2) -> {
-                    String propName = string.getValue();
-                    Direction dir = t2._1();
-                    TransferFunction[] tfs = t2._2();
-                    return ImmutableTuple3.of(propName,  dir, tfs);
-                })
-            .match(term)
-            .orElseThrow(() -> new ParseException("Parse error on reading the transfer function tuple"));
-        
-        String propName = t3._1();
-        Direction dir = t3._2();
-        TransferFunction[] tfs = t3._3();
-
-        Type type = new Type();
-        CompleteLattice lattice = (CompleteLattice) new FullSetLattice<IStringTerm>();
-        switch (propName) {
-            case "veryBusy":
-            case "available":
-                propMetadata.__put(propName, ImmutableMetadata.of(dir, lattice.flip(), type));
-                break;
-            default:
-                propMetadata.__put(propName, ImmutableMetadata.of(dir, lattice, type));
-        }
-
-        transferFuns.__put(propName, tfs);
-    }
-
-    public static void solve(IControlFlowGraph<CFGNode> cfg,
-            Map<String, Metadata> propMetadata, BinaryRelation.Immutable<String, String> propDependsOn,
-            Map<String, TransferFunction[]> transferFuns) throws CyclicGraphException {
-        { // Make sure every property is in the dependency graph at least once by adding an artificial edge.
-          // This way the later topoSort of the dependency graph will give all properties and you just need
+    public static void solve(ControlFlowGraph<CFGNode> cfg, TFFileInfo tfFileInfo)
+            throws CyclicGraphException, FixedPointLimitException {
+        BinaryRelation.Immutable<String, String> propDependsOn;
+        { // Make sure every property is in the dependency graph's edges by adding an artificial edge.
+          // This way the later topoSort of the edges will give all properties and you just need
           //  to remove the artificial start node. 
-            BinaryRelation.Transient<String, String> propDep = propDependsOn.asTransient();
-            for (Entry<String, Metadata> entry : propMetadata.entrySet()) {
+            BinaryRelation.Transient<String, String> propDep = tfFileInfo.dependsOn().asTransient();
+            for (Entry<String, String> entry : tfFileInfo.dependsOn().entrySet()) {
                 String prop = entry.getKey();
                 propDep.__insert(ARTIFICIAL_PROPERTY, prop);
             }
@@ -122,19 +97,20 @@ public abstract class FixedPoint {
         List<String> propTopoOrder = topoSort(propDependsOn);
         Collections.reverse(propTopoOrder);
 
+        timingInfo.recordReverseTopo();
+
         for (String prop : propTopoOrder) {
             // remove artificial start used earlier to include all properties in the dependency graph
             if(prop != ARTIFICIAL_PROPERTY) {
-                solveFlowSensitiveProperty(cfg, prop, propMetadata.get(prop), transferFuns.get(prop));
+                solveFlowSensitiveProperty(cfg, prop, tfFileInfo.metadata().get(prop));
+                timingInfo.recordProperty(prop);
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static void solveFlowSensitiveProperty(IControlFlowGraph<CFGNode> icfg,
-            String prop, Metadata metadata, TransferFunction[] tf) {
-        // FIXME: this is an evil workaround, do better API design
-        ControlFlowGraph<CFGNode> cfg = (ControlFlowGraph<CFGNode>) icfg;
+    private static void solveFlowSensitiveProperty(ControlFlowGraph<CFGNode> cfg,
+            String prop, Metadata metadata) throws FixedPointLimitException {
         // Phase 1: initialisation
 
         for (CFGNode n : cfg.getAllNodes()) {
@@ -158,30 +134,33 @@ public abstract class FixedPoint {
             default: 
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
-        
-        Tuple2<Iterable<Set<CFGNode>>, List<CFGNode>> sccsTuple = cfg.topoSCCs();
-        Iterable<Set<CFGNode>> nodes = sccsTuple._1();
-        
-        // TODO: do something sensible with these nodes
-        @SuppressWarnings("unused")
-        List<CFGNode> unreachable = sccsTuple._2();
-        
+
+        Collection<Set<CFGNode>> nodes = cfg.getTopoSCCs();
+
         for(Set<CFGNode> scc : nodes) {
-            final Set<CFGNode> workList = new HashSet<>(scc);
-    
-            while (!workList.isEmpty()) {
-                final CFGNode from = workList.iterator().next();
-                workList.remove(from);
-                for (CFGNode to : edges.get(from)) {
-                    Object afterFromTF = TransferFunction.call(cfg.getTFAppl(from, prop), tf, from);
-                    Object beforeToTF = cfg.getProperty(to, prop);
-                    if (metadata.lattice().nlte(afterFromTF, beforeToTF)) {
-                        cfg.setProperty(to, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
-                        if (scc.contains(to)) {
-                            workList.add(to);
+            boolean done = false;
+            int fixpointCount = 0;
+            while (!done) {
+                if (fixpointCount >= FIXPOINT_LIMIT) {
+                    throw new FixedPointLimitException(prop, FIXPOINT_LIMIT);
+                }
+                done = true;
+                fixpointCount++;
+                for (CFGNode from : scc) {
+                    for (CFGNode to : edges.get(from)) {
+                        Object afterFromTF = TransferFunction.call(cfg.getTFAppl(from, prop), metadata.transferFunctions(), from);
+                        Object beforeToTF = cfg.getProperty(to, prop);
+                        if (metadata.lattice().nlte(afterFromTF, beforeToTF)) {
+                            cfg.setProperty(to, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
+                            if (scc.contains(to)) {
+                                done = false;
+                            }
                         }
                     }
                 }
+            }
+            if (fixpointCount > 1) {
+                logger.debug("Property '" + prop + "' took " + fixpointCount + " runs through an SCC to solve it. ");
             }
         }
 
@@ -190,7 +169,7 @@ public abstract class FixedPoint {
         final String postPropName;
         switch (metadata.dir()) {
             case Forward: {
-                prePropName = "pre-" + prop;
+                 prePropName = "pre-" + prop;
                 postPropName = prop;
                 break;
             }
@@ -206,7 +185,7 @@ public abstract class FixedPoint {
             // save pre-TF results
             cfg.setProperty(n, prePropName, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) cfg.getProperty(n, prop));
             // put post-TF results in property name
-            cfg.setProperty(n, postPropName, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), tf, n));
+            cfg.setProperty(n, postPropName, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), metadata.transferFunctions(), n));
         }
     }
 
@@ -250,4 +229,103 @@ public abstract class FixedPoint {
         }
         return result;
     }
+    
+    static class TimingInfo {
+        private LinkedHashMap<String, Long> property;
+        public final long start;
+        private long cfgProcessing;
+        private long reverseTopo;
+        private long end;
+        
+        public TimingInfo() {
+            this.property = new LinkedHashMap<>();
+            this.start = System.nanoTime();
+        }
+        
+        public void logReport(ILogger logger) {
+            long total = millisecondBetween(this.start, this.end);
+            long cfgProcessing = millisecondBetween(this.start, this.cfgProcessing);
+            long reverseTopo = millisecondBetween(this.cfgProcessing, this.reverseTopo);
+            long properties = millisecondBetween(this.reverseTopo, this.end);
+            String[] propertyNames = new String[property.size()];
+            long[] propertyTimes = new long[property.size()];
+            long current = this.reverseTopo;
+            {
+                int i = 0;
+                for (Entry<String, Long> e : this.property.entrySet()) {
+                    propertyNames[i] = e.getKey();
+                    propertyTimes[i] = millisecondBetween(current, e.getValue());
+                    current = e.getValue();
+                    i++;
+                }
+            }
+
+            StringBuilder message = new StringBuilder();
+            message.append("FlowSpec dataflow solver timing report, time in milliseconds.\n");
+            message.append("Total time: " + total + "\n");
+            message.append("|- CFG artificial node removal & SCC computation: " + cfgProcessing + "\n");
+            message.append("|- Reverse topo order of properties: " + reverseTopo + "\n");
+            message.append("|- Total dataflow property computation: " + properties + "\n");
+            for (int i = 0; i < propertyNames.length; i++) {
+                message.append("  |- Compute property '" + propertyNames[i] + "': " + propertyTimes[i] + "\n");
+            }
+
+            logger.info(message.toString());
+        }
+
+        public void recordCfgProcessing() {
+            this.cfgProcessing = System.nanoTime();
+        }
+
+        public void recordReverseTopo() {
+            this.reverseTopo = System.nanoTime();
+        }
+
+        public void recordProperty(String name) {
+            this.property.put(name, System.nanoTime());
+        }
+
+        public void recordEnd() {
+            this.end = System.nanoTime();
+        }
+
+        private static long millisecondBetween(long start, long end) {
+            return (end - start) / 1_000_000;
+        }
+    }
+
+    static void flowspecCopyTFAppls(ControlFlowGraph<CFGNode> cfg, IProperties.Immutable<TermIndex, ITerm, ITerm> astProperties) {
+        astProperties.stream().forEach(tuple -> {
+            ITerm key = tuple._2();
+            M.appl1("TF", M.string(), (keyAppl, propName) -> {
+                return propName.getValue();
+            }).match(key).ifPresent(propName -> {
+                TermIndex index = tuple._1();
+                ITerm tfApplTerm = tuple._3();
+                TransferFunctionAppl.match().match(tfApplTerm).ifPresent(tfAppl -> {
+                    cfg.addTFAppl(index, propName, tfAppl);
+                });
+            });
+        });
+    }
+
+    static ISolution flowspecCopyProperties(ISolution solution) {
+            logger.debug("Copying FlowSpec properties to NaBL2 ast properties in solution");
+            IProperties.Transient<TermIndex, ITerm, ITerm> astProperties = solution.astProperties().melt();
+            IControlFlowGraph<CFGNode> controlFlowGraph = solution.controlFlowGraph();
+
+            for (Map.Entry<Tuple2<CFGNode, String>, ITerm> property : controlFlowGraph.getProperties().entrySet()) {
+                CFGNode node = property.getKey()._1();
+                String propName = property.getKey()._2();
+                ITerm value = property.getValue();
+
+                TermIndex ti = TermIndex.get(node).orElse(ImmutableTermIndex.of(node.getResource(), 0));
+
+                astProperties.putValue(ti, TB.newAppl("DFProperty", TB.newString(propName)), value);
+            }
+
+            return ImmutableSolution.of(solution.config(), astProperties.freeze(), solution.scopeGraph(),
+                    solution.nameResolution(), solution.declProperties(), solution.relations(), solution.unifier(),
+                    solution.symbolic(), solution.controlFlowGraph(), solution.messages(), solution.constraints());
+        }
 }

@@ -16,12 +16,19 @@ class SetCompMatchPredicateNode extends SetCompPredicateNode {
         this.arms = arms;
     }
 
-    public static IMatcher<SetCompMatchPredicateNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<SetCompMatchPredicateNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("MatchPredicate", 
-            ExpressionNode.matchExpr(frameDescriptor, solution), 
-            M.listElems(PatternNode.matchPattern(frameDescriptor, solution)), 
+            ExpressionNode.matchExpr(frameDescriptor), 
+            M.listElems(PatternNode.matchPattern(frameDescriptor)), 
             (appl, expr, patterns) -> {
                 return new SetCompMatchPredicateNode(expr, patterns.toArray(new PatternNode[patterns.size()]));
             });
+    }
+
+    public void init(ISolution solution) {
+        super.init(solution);
+        for (PatternNode arm : arms) {
+            arm.init(solution);
+        }
     }
 }

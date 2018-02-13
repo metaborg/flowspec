@@ -29,10 +29,16 @@ public class ApplicationNode extends ExpressionNode {
         this.arguments = arguments;
     }
 
-    public static IMatcher<ApplicationNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
-        return M.appl2("Appl", RefNode.matchRef(frameDescriptor), M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)), (appl, reference, expr) -> {
+    public static IMatcher<ApplicationNode> match(FrameDescriptor frameDescriptor) {
+        return M.appl2("Appl", RefNode.matchRef(frameDescriptor), M.listElems(ExpressionNode.matchExpr(frameDescriptor)), (appl, reference, expr) -> {
             return new ApplicationNode(reference, expr.toArray(new ExpressionNode[expr.size()]));
         });
+    }
+
+    public void init(ISolution solution) {
+        for (ExpressionNode argument : arguments) {
+            argument.init(solution);
+        }
     }
 
     @Override

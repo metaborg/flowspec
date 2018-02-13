@@ -39,11 +39,17 @@ public class IfNode extends ExpressionNode {
         }
     }
 
-    public static IMatcher<IfNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<IfNode> match(FrameDescriptor frameDescriptor) {
         return M.appl3("If", 
-                ExpressionNode.matchExpr(frameDescriptor, solution), 
-                ExpressionNode.matchExpr(frameDescriptor, solution), 
-                ExpressionNode.matchExpr(frameDescriptor, solution),
+                ExpressionNode.matchExpr(frameDescriptor), 
+                ExpressionNode.matchExpr(frameDescriptor), 
+                ExpressionNode.matchExpr(frameDescriptor),
                 (appl, i, t, e) -> new IfNode(i, t, e));
+    }
+
+    public void init(ISolution solution) {
+        condition.init(solution);
+        thenBranch.init(solution);
+        elseBranch.init(solution);
     }
 }

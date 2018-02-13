@@ -1,7 +1,6 @@
 package meta.flowspec.java.interpreter.values;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.metaborg.meta.nabl2.terms.IApplTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;

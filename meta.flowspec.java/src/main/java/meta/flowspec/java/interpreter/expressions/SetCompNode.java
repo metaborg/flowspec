@@ -64,14 +64,14 @@ public class SetCompNode extends ExpressionNode {
         return new Set<>(result.freeze());
     }
 
-    public static IMatcher<SetCompNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<SetCompNode> match(FrameDescriptor frameDescriptor) {
         return M.appl4("SetComp", 
                 M.term(),
-                M.listElems(PatternNode.matchPattern(frameDescriptor, solution)),
-                M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)),
-                M.listElems(SetCompPredicateNode.matchPred(frameDescriptor, solution)),
+                M.listElems(PatternNode.matchPattern(frameDescriptor)),
+                M.listElems(ExpressionNode.matchExpr(frameDescriptor)),
+                M.listElems(SetCompPredicateNode.matchPred(frameDescriptor)),
                 (appl, term, patterns, exprs, preds) -> ImmutableTuple2.of(term, ImmutableTuple2.of(patterns, ImmutableTuple2.of(exprs, preds))))
-                .flatMap(tuple -> ExpressionNode.matchExpr(frameDescriptor, solution).match(tuple._1()).map(expr -> {
+                .flatMap(tuple -> ExpressionNode.matchExpr(frameDescriptor).match(tuple._1()).map(expr -> {
                     ImmutableList<PatternNode> patterns = tuple._2()._1();
                     ImmutableList<ExpressionNode> exprs = tuple._2()._2()._1();
                     ImmutableList<SetCompPredicateNode> preds = tuple._2()._2()._2();
@@ -80,5 +80,18 @@ public class SetCompNode extends ExpressionNode {
                         exprs.toArray(new ExpressionNode[exprs.size()]), 
                         preds.toArray(new SetCompPredicateNode[preds.size()]));
                 }));
+    }
+
+    public void init(ISolution solution) {
+        expression.init(solution);
+        for (PatternNode sourcePattern : sourcePatterns) {
+            sourcePattern.init(solution);
+        }
+        for (ExpressionNode source : sources) {
+            source.init(solution);
+        }
+        for (SetCompPredicateNode predicate : predicates) {
+            predicate.init(solution);
+        }
     }
 }

@@ -61,32 +61,36 @@ public abstract class ExpressionNode extends Node {
         return TypesGen.expectSet(executeGeneric(frame));
     }
 
-    public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor, ISolution solution) {
+    public void init(ISolution solution) {
+        // Do nothing
+    }
+
+    public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor) {
         return term -> Optional.of(M.cases(
-            TermNode.match(frameDescriptor, solution),
+            TermNode.match(frameDescriptor),
             RefNode.matchRef(frameDescriptor),
-            PropNode.match(frameDescriptor, solution),
-            ExtPropNode.match(frameDescriptor, solution),
-            TupleNode.match(frameDescriptor, solution),
-            IntLiteralNode.match(frameDescriptor, solution),
-            StringLiteralNode.match(frameDescriptor, solution),
-            TypeNode.match(frameDescriptor, solution),
+            PropNode.match(frameDescriptor),
+            ExtPropNode.match(frameDescriptor),
+            TupleNode.match(frameDescriptor),
+            IntLiteralNode.match(frameDescriptor),
+            StringLiteralNode.match(frameDescriptor),
+            TypeNode.match(frameDescriptor),
             // TODO Abs/1
-            ApplicationNode.match(frameDescriptor, solution),
-            IfNode.match(frameDescriptor, solution),
-            EqualNode.match(frameDescriptor, solution),
-            NotEqualNode.match(frameDescriptor, solution),
-            NotNode.match(frameDescriptor, solution),
-            PlusNode.match(frameDescriptor, solution),
+            ApplicationNode.match(frameDescriptor),
+            IfNode.match(frameDescriptor),
+            EqualNode.match(frameDescriptor),
+            NotEqualNode.match(frameDescriptor),
+            NotNode.match(frameDescriptor),
+            PlusNode.match(frameDescriptor),
             // TODO Match/2?
-            SetLiteralNode.match(frameDescriptor, solution),
-            SetCompNode.match(frameDescriptor, solution),
-            TermIndexNode.match(frameDescriptor, solution),
-            NaBL2OccurrenceNode.match(frameDescriptor, solution),
-            SetUnionNode.match(frameDescriptor, solution),
-            SetMinusNode.match(frameDescriptor, solution),
-            SetContainsNode.match(frameDescriptor, solution),
-            SetIntersectNode.match(frameDescriptor, solution)
+            SetLiteralNode.match(frameDescriptor),
+            SetCompNode.match(frameDescriptor),
+            TermIndexNode.match(frameDescriptor),
+            NaBL2OccurrenceNode.match(frameDescriptor),
+            SetUnionNode.match(frameDescriptor),
+            SetMinusNode.match(frameDescriptor),
+            SetContainsNode.match(frameDescriptor),
+            SetIntersectNode.match(frameDescriptor)
         ).match(term)
          .orElseThrow(() -> new ParseException("Parse error on reading expression " + term)));
     }

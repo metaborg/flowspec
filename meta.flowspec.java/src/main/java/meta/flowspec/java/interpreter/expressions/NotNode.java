@@ -11,14 +11,24 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 
 @NodeChildren({@NodeChild("expr")})
 public abstract class NotNode extends ExpressionNode {
+    protected ExpressionNode _expr;
+    
     @Specialization
     protected boolean plus(boolean expr) {
         return !expr;
     }
 
-    public static IMatcher<NotNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<NotNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("Not",  
-                ExpressionNode.matchExpr(frameDescriptor, solution),
-                (appl, e) -> NotNodeGen.create(e));
+                ExpressionNode.matchExpr(frameDescriptor),
+                (appl, e) -> {
+                    NotNode result = NotNodeGen.create(e);
+                    result._expr = e;
+                    return result;
+                });
+    }
+
+    public void init(ISolution solution) {
+        this._expr.init(solution);
     }
 }

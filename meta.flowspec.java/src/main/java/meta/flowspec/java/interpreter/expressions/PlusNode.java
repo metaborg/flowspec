@@ -11,15 +11,27 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class PlusNode extends ExpressionNode {
+    protected ExpressionNode[] children;
+    
     @Specialization
     protected int plus(int left, int right) {
         return left + right;
     }
 
-    public static IMatcher<PlusNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<PlusNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("Plus", 
-                ExpressionNode.matchExpr(frameDescriptor, solution), 
-                ExpressionNode.matchExpr(frameDescriptor, solution),
-                (appl, e1, e2) -> PlusNodeGen.create(e1, e2));
+                ExpressionNode.matchExpr(frameDescriptor), 
+                ExpressionNode.matchExpr(frameDescriptor),
+                (appl, e1, e2) -> {
+                    PlusNode result = PlusNodeGen.create(e1, e2);
+                    result.children = new ExpressionNode[] {e1, e2};
+                    return result;
+                });
+    }
+
+    public void init(ISolution solution) {
+        for (ExpressionNode child : children) {
+            child.init(solution);
+        }
     }
 }

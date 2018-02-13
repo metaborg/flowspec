@@ -25,7 +25,9 @@ public abstract class WriteVarNode extends Node {
     protected abstract FrameSlot getSlot();
 
     public abstract void execute(VirtualFrame frame);
-    
+
+    protected ExpressionNode expr;
+
     @Specialization(guards = "isInt(frame)")
     protected void writeInt(VirtualFrame frame, int value) {
         getSlot().setKind(FrameSlotKind.Int);
@@ -89,10 +91,17 @@ public abstract class WriteVarNode extends Node {
         return getSlot().getKind() == FrameSlotKind.Boolean || getSlot().getKind() == FrameSlotKind.Illegal;
     }
 
-    public static IMatcher<WriteVarNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
-        return M.appl2("Binding", M.stringValue(), ExpressionNode.matchExpr(frameDescriptor, solution), (appl, name, expr) -> {
-            FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
-            return WriteVarNodeGen.create(expr, frameDescriptor.addFrameSlot(name, slotKind));
+    public void init(ISolution solution) {
+        this.expr.init(solution);
+    }
+
+    public static IMatcher<WriteVarNode> match(FrameDescriptor frameDescriptor) {
+        return M.appl2("Binding", M.stringValue(), ExpressionNode.matchExpr(frameDescriptor), (appl, name, expr) -> {
+            // TODO: getType(appl)
+            FrameSlotKind slotKind = FrameSlotKind.Illegal;
+            WriteVarNode result = WriteVarNodeGen.create(expr, frameDescriptor.addFrameSlot(name, slotKind));
+            result.expr = expr;
+            return result;
         });
     }
 

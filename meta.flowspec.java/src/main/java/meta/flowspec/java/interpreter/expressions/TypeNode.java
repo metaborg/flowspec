@@ -1,6 +1,5 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -24,7 +23,7 @@ public class TypeNode extends ExpressionNode {
         throw new UnimplementedException("Getting the type of an occurence is currently unimplemented");
     }
 
-    public static IMatcher<TypeNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<TypeNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("Type", ReadVarNode.match(frameDescriptor), (appl, rvn) -> new TypeNode(rvn));
     }
 }

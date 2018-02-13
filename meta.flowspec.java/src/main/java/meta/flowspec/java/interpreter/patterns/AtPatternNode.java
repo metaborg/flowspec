@@ -23,11 +23,15 @@ public class AtPatternNode extends PatternNode {
         return pattern.matchGeneric(frame, value);
     }
 
-    public static IMatcher<AtPatternNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<AtPatternNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2(
                 "At", 
-                VarPatternNode.match(frameDescriptor, solution), 
-                PatternNode.matchPattern(frameDescriptor, solution), 
+                VarPatternNode.match(frameDescriptor), 
+                PatternNode.matchPattern(frameDescriptor), 
                 (appl, var, pattern) -> new AtPatternNode(var, pattern));
+    }
+    
+    public void init(ISolution solution) {
+        pattern.init(solution);
     }
 }

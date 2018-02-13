@@ -15,17 +15,21 @@ import meta.flowspec.java.interpreter.Types;
 public abstract class PatternNode extends Node {
     public abstract boolean matchGeneric(VirtualFrame frame, Object value);
 
-    public static IMatcher<PatternNode> matchPattern(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<PatternNode> matchPattern(FrameDescriptor frameDescriptor) {
         return term -> M.cases(
             // TODO Term/2
-            TuplePatternNode.match(frameDescriptor, solution),
-            WildcardPatternNode.match(frameDescriptor, solution),
-            VarPatternNode.match(frameDescriptor, solution),
-            AtPatternNode.match(frameDescriptor, solution),
-            IntLiteralPatternNode.match(frameDescriptor, solution),
-            StringLiteralPatternNode.match(frameDescriptor, solution)
+            TuplePatternNode.match(frameDescriptor),
+            WildcardPatternNode.match(frameDescriptor),
+            VarPatternNode.match(frameDescriptor),
+            AtPatternNode.match(frameDescriptor),
+            IntLiteralPatternNode.match(frameDescriptor),
+            StringLiteralPatternNode.match(frameDescriptor)
             // TODO Start/0
             // TODO End/0
         ).match(term);
+    }
+
+    public void init(ISolution solution) {
+        // Do nothing
     }
 }

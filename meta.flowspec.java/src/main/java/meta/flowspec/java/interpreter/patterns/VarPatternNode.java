@@ -2,7 +2,6 @@ package meta.flowspec.java.interpreter.patterns;
 
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.spoofax.interpreter.core.Tools;
@@ -34,7 +33,7 @@ public class VarPatternNode extends PatternNode {
         return true;
     }
 
-    public static IMatcher<VarPatternNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<VarPatternNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("Var", M.stringValue(), (appl, name) -> {
             FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
             return new VarPatternNode(frameDescriptor.addFrameSlot(name, slotKind));

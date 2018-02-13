@@ -13,18 +13,28 @@ import meta.flowspec.java.interpreter.values.Set;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class SetUnionNode extends ExpressionNode {
+    protected ExpressionNode[] children;
+    
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
     protected Set union(Set left, Set right) {
         return new Set(io.usethesource.capsule.Set.Immutable.union(left.set, right.set));
     }
 
-    public static IMatcher<SetUnionNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<SetUnionNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("SetUnion", 
-                ExpressionNode.matchExpr(frameDescriptor, solution), 
-                ExpressionNode.matchExpr(frameDescriptor, solution),
+                ExpressionNode.matchExpr(frameDescriptor), 
+                ExpressionNode.matchExpr(frameDescriptor),
                 (appl, e1, e2) -> {
-                    return SetUnionNodeGen.create(e1, e2);
+                    SetUnionNode result = SetUnionNodeGen.create(e1, e2);
+                    result.children = new ExpressionNode[] {e1,e2};
+                    return result;
                 });
+    }
+
+    public void init(ISolution solution) {
+        for (ExpressionNode child : children) {
+            child.init(solution);
+        }
     }
 }

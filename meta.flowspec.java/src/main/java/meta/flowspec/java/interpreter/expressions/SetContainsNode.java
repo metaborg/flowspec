@@ -13,6 +13,8 @@ import meta.flowspec.java.interpreter.values.Set;
 
 @NodeChildren({ @NodeChild("left"), @NodeChild("right") })
 public abstract class SetContainsNode extends ExpressionNode {
+    protected ExpressionNode[] children;
+    
     @SuppressWarnings("rawtypes")
     @Specialization
     protected boolean contains(Set left, Object right) {
@@ -25,10 +27,20 @@ public abstract class SetContainsNode extends ExpressionNode {
         return left.set.contains(((Set) right).set);
     }
 
-    public static IMatcher<SetContainsNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<SetContainsNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("SetContains", 
-                ExpressionNode.matchExpr(frameDescriptor, solution), 
-                ExpressionNode.matchExpr(frameDescriptor, solution),
-                (appl, e1, e2) -> SetContainsNodeGen.create(e1, e2));
+                ExpressionNode.matchExpr(frameDescriptor), 
+                ExpressionNode.matchExpr(frameDescriptor),
+                (appl, e1, e2) -> {
+                    SetContainsNode result = SetContainsNodeGen.create(e1, e2);
+                    result.children = new ExpressionNode[] {e1,e2};
+                    return result;
+                });
+    }
+    
+    public void init(ISolution solution) {
+        for (ExpressionNode child : children) {
+            child.init(solution);
+        }
     }
 }

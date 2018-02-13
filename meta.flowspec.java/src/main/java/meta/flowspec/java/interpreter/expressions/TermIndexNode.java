@@ -1,6 +1,5 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
@@ -20,7 +19,7 @@ public abstract class TermIndexNode extends ExpressionNode {
         return TermIndex.get(term).get();
     }
 
-    public static IMatcher<TermIndexNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<TermIndexNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1(
                 "TermIndex", 
                 ReadVarNode.match(frameDescriptor), 

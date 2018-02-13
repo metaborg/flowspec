@@ -14,6 +14,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class EqualNode extends ExpressionNode {
+    protected ExpressionNode[] children;
+    
     @Specialization
     protected boolean equal(int left, int right) {
         return left == right;
@@ -53,10 +55,20 @@ public abstract class EqualNode extends ExpressionNode {
         return false;
     }
     
-    public static IMatcher<EqualNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<EqualNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("Eq", 
-                ExpressionNode.matchExpr(frameDescriptor, solution), 
-                ExpressionNode.matchExpr(frameDescriptor, solution), 
-                (appl, e1, e2) -> EqualNodeGen.create(e1, e2));
+                ExpressionNode.matchExpr(frameDescriptor), 
+                ExpressionNode.matchExpr(frameDescriptor), 
+                (appl, e1, e2) -> {
+                    EqualNode result = EqualNodeGen.create(e1, e2);
+                    result.children = new ExpressionNode[] {e1, e2};
+                    return result;
+                });
+    }
+
+    public void init(ISolution solution) {
+        for (ExpressionNode child : children) {
+            child.init(solution);
+        }
     }
 }

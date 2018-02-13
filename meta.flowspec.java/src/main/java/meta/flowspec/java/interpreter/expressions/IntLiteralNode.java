@@ -1,6 +1,5 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.spoofax.interpreter.core.Tools;
@@ -30,7 +29,7 @@ public class IntLiteralNode extends ExpressionNode {
         return new IntLiteralNode(Integer.valueOf(Tools.javaStringAt(appl, 0)));
     }
 
-    public static IMatcher<IntLiteralNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<IntLiteralNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("Int", M.integerValue(), (appl, i) -> new IntLiteralNode(i));
     }
 }

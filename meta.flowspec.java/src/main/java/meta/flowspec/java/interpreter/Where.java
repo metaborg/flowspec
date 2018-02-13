@@ -29,12 +29,19 @@ public class Where extends Node {
         }
         return body.executeGeneric(frame);
     }
+    
+    public void init(ISolution solution) {
+        body.init(solution);
+        for(WriteVarNode binding : bindings) {
+            binding.init(solution);
+        }
+    }
 
-    public static IMatcher<Where> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<Where> match(FrameDescriptor frameDescriptor) {
         return M.appl2(
                 "Where", 
-                ExpressionNode.matchExpr(frameDescriptor, solution),
-                M.listElems(WriteVarNode.match(frameDescriptor, solution)), 
+                ExpressionNode.matchExpr(frameDescriptor),
+                M.listElems(WriteVarNode.match(frameDescriptor)), 
                 (appl, body, writeVars) -> {
                     return new Where(writeVars.toArray(new WriteVarNode[writeVars.size()]), body);
                 });

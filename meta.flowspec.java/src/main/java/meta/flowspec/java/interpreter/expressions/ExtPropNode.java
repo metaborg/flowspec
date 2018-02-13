@@ -21,8 +21,7 @@ public class ExtPropNode extends ExpressionNode {
     @Child
     private ReadVarNode rhs;
 
-    public ExtPropNode(IProperties.Immutable<TermIndex, ITerm, ITerm> props, String propName, ReadVarNode rhs) {
-        this.props = props;
+    public ExtPropNode(String propName, ReadVarNode rhs) {
         this.propName = propName;
         this.rhs = rhs;
     }
@@ -37,10 +36,15 @@ public class ExtPropNode extends ExpressionNode {
         }
     }
 
-    public static IMatcher<ExtPropNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<ExtPropNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("ExtProp", 
                 M.stringValue(),
                 ReadVarNode.match(frameDescriptor), 
-                (appl, propName, rhs) -> new ExtPropNode(solution.astProperties(), propName, rhs));
+                (appl, propName, rhs) -> new ExtPropNode(propName, rhs));
+    }
+
+    @Override
+    public void init(ISolution solution) {
+        this.props = solution.astProperties();
     }
 }

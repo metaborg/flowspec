@@ -35,11 +35,11 @@ public class TuplePatternNode extends PatternNode {
         }).match(term).orElse(false);
     }
 
-    public static IMatcher<TuplePatternNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<TuplePatternNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2(
                 "Tuple", 
-                PatternNode.matchPattern(frameDescriptor, solution), 
-                M.listElems(PatternNode.matchPattern(frameDescriptor, solution)),
+                PatternNode.matchPattern(frameDescriptor), 
+                M.listElems(PatternNode.matchPattern(frameDescriptor)),
                 (appl, first, others) -> {
                     PatternNode[] exprs = new PatternNode[others.size() + 1];
                     int i = 0;
@@ -50,6 +50,12 @@ public class TuplePatternNode extends PatternNode {
                     }
                     return new TuplePatternNode(exprs);
                 });
+    }
+    
+    public void init(ISolution solution) {
+        for (PatternNode child : children) {
+            child.init(solution);
+        }
     }
 
     // from: https://gist.github.com/kjkrol/51a5a7612f0411849c62

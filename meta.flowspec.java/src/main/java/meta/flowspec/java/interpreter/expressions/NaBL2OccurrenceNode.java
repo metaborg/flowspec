@@ -28,12 +28,11 @@ import meta.flowspec.java.interpreter.values.Name;
 public class NaBL2OccurrenceNode extends ExpressionNode {
     private final Namespace namespace;
     private final ReadVarNode ref;
-    private final ISolution solution;
+    private ISolution solution;
 
-    public NaBL2OccurrenceNode(Namespace ns, ReadVarNode rvn, ISolution solution) {
+    public NaBL2OccurrenceNode(Namespace ns, ReadVarNode rvn) {
         this.namespace = ns;
         this.ref = rvn;
-        this.solution = solution;
     }
 
     @Override
@@ -66,7 +65,7 @@ public class NaBL2OccurrenceNode extends ExpressionNode {
         return paths.iterator().next();
     }
 
-    public static IMatcher<NaBL2OccurrenceNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<NaBL2OccurrenceNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1(
                 "NaBL2Occurrence", 
                 M.appl3("Occurrence", 
@@ -74,6 +73,10 @@ public class NaBL2OccurrenceNode extends ExpressionNode {
                         M.appl1("Ref", ReadVarNode.match(frameDescriptor), (appl, rvn) -> rvn), 
                         M.appl0("FSNoIndex"), 
                         (appl, ns, rvn, a2) -> ImmutableTuple2.of(ns,  rvn)), 
-                (appl, nsrvn) -> new NaBL2OccurrenceNode(nsrvn._1(), nsrvn._2(), solution));
+                (appl, nsrvn) -> new NaBL2OccurrenceNode(nsrvn._1(), nsrvn._2()));
+    }
+    
+    public void init(ISolution solution) {
+        this.solution = solution;
     }
 }

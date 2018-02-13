@@ -18,8 +18,7 @@ public class PropNode extends ExpressionNode {
     @Child
     private ReadVarNode rhs;
 
-    public PropNode(IControlFlowGraph<CFGNode> cfg, String propName, ReadVarNode rhs) {
-        this.cfg = cfg;
+    public PropNode(String propName, ReadVarNode rhs) {
         this.propName = propName;
         this.rhs = rhs;
     }
@@ -30,10 +29,15 @@ public class PropNode extends ExpressionNode {
         return cfg.getProperty((CFGNode) rhs.executeGeneric(frame), propName);
     }
 
-    public static IMatcher<PropNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<PropNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("Prop", 
                 M.stringValue(),
                 ReadVarNode.match(frameDescriptor), 
-                (appl, propName, rhs) -> new PropNode(solution.controlFlowGraph(), propName, rhs));
+                (appl, propName, rhs) -> new PropNode(propName, rhs));
+    }
+
+    @Override
+    public void init(ISolution solution) {
+        this.cfg = solution.controlFlowGraph();
     }
 }

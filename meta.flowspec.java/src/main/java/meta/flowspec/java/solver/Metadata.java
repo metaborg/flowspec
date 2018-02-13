@@ -5,6 +5,7 @@ import org.immutables.value.Value.Parameter;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
+import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.lattice.CompleteLattice;
 
 @Immutable
@@ -24,4 +25,5 @@ public abstract class Metadata {
     @Parameter public abstract Direction dir();
     @Parameter public abstract CompleteLattice<Object> lattice();
     @Parameter public abstract Type type();
+    @Parameter public abstract TransferFunction[] transferFunctions();
 }

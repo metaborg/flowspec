@@ -19,12 +19,16 @@ class SetCompPredicateNode {
         return this.expr.executeBoolean(frame);
     }
 
-    public static IMatcher<SetCompPredicateNode> matchPred(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<SetCompPredicateNode> matchPred(FrameDescriptor frameDescriptor) {
         return M.cases(
             M.appl1("Predicate", 
-                ExpressionNode.matchExpr(frameDescriptor, solution), 
+                ExpressionNode.matchExpr(frameDescriptor), 
                 (appl, expr) -> new SetCompPredicateNode(expr)),
-            SetCompMatchPredicateNode.match(frameDescriptor, solution)
+            SetCompMatchPredicateNode.match(frameDescriptor)
         );
+    }
+
+    public void init(ISolution solution) {
+        expr.init(solution);
     }
 }

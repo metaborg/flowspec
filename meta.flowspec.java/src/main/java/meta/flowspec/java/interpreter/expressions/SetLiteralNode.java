@@ -31,10 +31,15 @@ public class SetLiteralNode extends ExpressionNode {
         return new Set<>(set.freeze());
     }
 
-    public static IMatcher<SetLiteralNode> match(FrameDescriptor frameDescriptor, ISolution solution) {
+    public static IMatcher<SetLiteralNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("SetLiteral", 
-                M.listElems(ExpressionNode.matchExpr(frameDescriptor, solution)),
+                M.listElems(ExpressionNode.matchExpr(frameDescriptor)),
                 (appl, exprs) -> new SetLiteralNode(exprs.toArray(new ExpressionNode[exprs.size()])));
     }
 
+    public void init(ISolution solution) {
+        for (ExpressionNode value : values) {
+            value.init(solution);
+        }
+    }
 }
