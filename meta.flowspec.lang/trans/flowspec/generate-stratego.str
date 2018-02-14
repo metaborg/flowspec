@@ -70,7 +70,7 @@ with
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _))> def*
 ; matchpropsstring := <map(\n -> ${<flowspec--proprule-{n}(|index)> term}\);constraint-str-list-to-cconj> propnames
-; propstring := <number-prop-rules(|a, <map(nabl2-mk-occurrence(|"Property"))> propnames);map(gen-str);lines_> proprule*
+; propstring := <number-prop-rules(|a, <map(nabl2-mk-occurrence(|"Property"))> propnames);gen-prop-str(|propnames);lines_> proprule*
 ; propnamesstring := <map(!${"{<id>}"});csv-lines> propnames
 
 number-prop-rules(|a, propnames): proprules -> numberedproprules
@@ -231,6 +231,13 @@ pattern-in-dir: Forward(_, p) -> p
 pattern-in-dir: Backward(p,_) -> p
 
 // PropRule
+
+gen-prop-str(|propnames): list -> [def*, rule*]
+with
+  def* := <map(gen-prop-fail-str)> propnames
+; rule* := <map(gen-str)> list
+
+gen-prop-fail-str: name -> ${flowspec--proprule-{name}(|index) = fail}
 
 gen-str: (n, PropRule(name, pattern, _, _)) -> rulestring
 with
