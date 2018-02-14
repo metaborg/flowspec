@@ -9,12 +9,17 @@ import org.metaborg.meta.nabl2.scopegraph.terms.Namespace;
 import org.metaborg.meta.nabl2.scopegraph.terms.Occurrence;
 import org.metaborg.meta.nabl2.scopegraph.terms.OccurrenceIndex;
 import org.metaborg.meta.nabl2.scopegraph.terms.Scope;
+import org.metaborg.meta.nabl2.scopegraph.terms.path.ImmutableEmptyScopePath;
+import org.metaborg.meta.nabl2.scopegraph.terms.path.ImmutableResolutionPath;
+import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.IApplTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
+import org.metaborg.meta.nabl2.util.collections.IFunction;
 import org.metaborg.meta.nabl2.util.collections.PSequence;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
+import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Set.Immutable;
 
 public class Name extends Occurrence implements IResolutionPath<Scope, Label, Occurrence> {
@@ -23,6 +28,18 @@ public class Name extends Occurrence implements IResolutionPath<Scope, Label, Oc
     public Name(IResolutionPath<Scope, Label, Occurrence> resolutionPath) {
         Objects.requireNonNull(resolutionPath);
         this.resolutionPath = resolutionPath;
+    }
+
+    public static Name fromOccurrence(ISolution solution, Occurrence occurrence) {
+        Set.Immutable<IResolutionPath<Scope, Label, Occurrence>> paths = solution.nameResolution().resolve(occurrence).orElse(Set.Immutable.of());
+        if(paths.isEmpty()) {
+            final IFunction.Immutable<Occurrence, Scope> decls = solution.scopeGraph().getDecls();
+            final Scope declScope = decls.get(occurrence).orElseThrow(() -> new RuntimeException("Name " + occurrence + " cannot be resolved"));
+            return new Name(ImmutableResolutionPath.of(occurrence, ImmutableEmptyScopePath.of(declScope), occurrence));
+        } else if(paths.size() > 1) {
+            throw new RuntimeException("Name " + occurrence + " does not resolve to a unique declaration");
+        }
+        return new Name(paths.iterator().next());
     }
 
     @Override
