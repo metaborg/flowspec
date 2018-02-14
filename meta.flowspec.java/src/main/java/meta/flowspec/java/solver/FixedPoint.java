@@ -115,29 +115,33 @@ public abstract class FixedPoint {
 
         for (CFGNode n : cfg.getAllNodes()) {
             cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().bottom());
-            /* No need to set a different value for the start node, since the transfer function for the
-             * start node will (unconditionally) result in that value, which will be propagated Phase 2.
-             */
         }
 
-        // Phase 2: Fixpoint iteration
         final BinaryRelation<CFGNode, CFGNode> edges;
+        final Collection<Set<CFGNode>> sccs;
         switch (metadata.dir()) {
             case Forward: {
+                for (CFGNode n : cfg.getStartNodes()) {
+                    cfg.setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
+                }
                 edges = cfg.getDirectEdges();
+                sccs = cfg.getTopoSCCs();
                 break;
             }
             case Backward: {
+                for (CFGNode n : cfg.getEndNodes()) {
+                    cfg.setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
+                }
                 edges = cfg.getDirectEdges().inverse();
+                sccs = cfg.getRevTopoSCCs();
                 break;
             }
             default: 
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
 
-        Collection<Set<CFGNode>> nodes = cfg.getTopoSCCs();
-
-        for(Set<CFGNode> scc : nodes) {
+        // Phase 2: Fixpoint iteration
+        for(Set<CFGNode> scc : sccs) {
             boolean done = false;
             int fixpointCount = 0;
             while (!done) {
