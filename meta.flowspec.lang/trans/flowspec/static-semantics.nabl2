@@ -34,6 +34,11 @@ rules
   init ^ (global) :=
     Type { "MaySet" } <- global,
     Type { "MustSet" } <- global,
+    Module { "Set" } <- global,
+    Module { "Set" } ===> setScope,
+    Variable { "fromList" } <- setScope,
+    new setScope,
+    setScope ---> global,
     new global.
 
   [[ Module(module, imports, _, definitions) ^ (global) ]] :=
@@ -177,7 +182,7 @@ rules
 
   [[ LatticeDef(name, vars, latticeparts) ^ (moduleScope) ]] :=
     Type { name } <- moduleScope,
-    typeDefScope ---> moduleScope,
+    latticeDefScope ---> moduleScope,
     Type { name } ===> latticeDefScope,
     Vars [[ vars ^ (latticeDefScope) ]],
     Map1 [[ latticeparts ^ (latticeDefScope) ]],
@@ -298,11 +303,10 @@ rules
 
   [[ QualRef(mod, var) ^ (ruleScope) ]] :=
     Module { mod } -> ruleScope,
-    Module { mod } |-> _,
-    new qualRefScope,
+//    Module { mod } |-> _,
     Module { mod } <=== qualRefScope,
-    Variable { var } -> qualRefScope,
-    Variable { var } |-> _.
+    Variable { var } -> qualRefScope.
+//    Variable { var } |-> _.
 
   [[ Ref(var) ^ (ruleScope) ]] :=
     Variable { var } -> ruleScope,
