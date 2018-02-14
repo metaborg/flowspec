@@ -87,7 +87,7 @@ public abstract class FixedPoint {
           // This way the later topoSort of the edges will give all properties and you just need
           //  to remove the artificial start node. 
             BinaryRelation.Transient<String, String> propDep = tfFileInfo.dependsOn().asTransient();
-            for (Entry<String, String> entry : tfFileInfo.dependsOn().entrySet()) {
+            for (Entry<String, Metadata> entry : tfFileInfo.metadata().entrySet()) {
                 String prop = entry.getKey();
                 propDep.__insert(ARTIFICIAL_PROPERTY, prop);
             }
