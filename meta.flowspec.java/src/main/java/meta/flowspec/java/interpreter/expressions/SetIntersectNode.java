@@ -17,7 +17,13 @@ public abstract class SetIntersectNode extends ExpressionNode {
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
-    protected Set union(Set left, Set right) {
+    protected Set intersect(Set left, Set right) {
+        if (left.set == null) { // handle symbolic value of set with everything in it
+            return right;
+        }
+        if (right.set == null) { // handle symbolic value of set with everything in it
+            return left;
+        }
         return new Set(io.usethesource.capsule.Set.Immutable.intersect(left.set, right.set));
     }
 

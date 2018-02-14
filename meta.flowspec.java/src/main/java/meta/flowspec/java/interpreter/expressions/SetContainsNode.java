@@ -1,6 +1,7 @@
 package meta.flowspec.java.interpreter.expressions;
 
 import org.metaborg.meta.nabl2.solver.ISolution;
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -14,17 +15,13 @@ import meta.flowspec.java.interpreter.values.Set;
 @NodeChildren({ @NodeChild("left"), @NodeChild("right") })
 public abstract class SetContainsNode extends ExpressionNode {
     protected ExpressionNode[] children;
-    
-    @SuppressWarnings("rawtypes")
+
     @Specialization
-    protected boolean contains(Set left, Object right) {
-        if (right == null) {
-            return left == null;
+    protected boolean contains(ITerm left, Set<?> right) {
+        if (right.set == null) { // handle symbolic value of set with everything in it
+            return true;
         }
-        if (!(right instanceof Set)) {
-            return false;
-        }
-        return left.set.contains(((Set) right).set);
+        return right.set.contains(left);
     }
 
     public static IMatcher<SetContainsNode> match(FrameDescriptor frameDescriptor) {

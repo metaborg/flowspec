@@ -67,7 +67,11 @@ public class Set<K extends ITerm> implements IApplTerm {
 
     @Override
     public String toString() {
-        return set.toString();
+        if (set == null) {
+            return "null";
+        } else {
+            return set.toString();
+        }
     }
 
     @Override

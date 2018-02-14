@@ -18,6 +18,12 @@ public abstract class SetUnionNode extends ExpressionNode {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
     protected Set union(Set left, Set right) {
+        if (left.set == null) { // handle symbolic value of set with everything in it
+            return left;
+        }
+        if (right.set == null) { // handle symbolic value of set with everything in it
+            return right;
+        }
         return new Set(io.usethesource.capsule.Set.Immutable.union(left.set, right.set));
     }
 

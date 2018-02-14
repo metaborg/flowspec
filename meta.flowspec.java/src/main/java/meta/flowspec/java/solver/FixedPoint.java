@@ -114,7 +114,7 @@ public abstract class FixedPoint {
         // Phase 1: initialisation
 
         for (CFGNode n : cfg.getAllNodes()) {
-            cfg.setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
+            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().bottom());
             /* No need to set a different value for the start node, since the transfer function for the
              * start node will (unconditionally) result in that value, which will be propagated Phase 2.
              */

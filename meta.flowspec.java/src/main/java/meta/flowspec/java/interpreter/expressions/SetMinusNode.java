@@ -9,6 +9,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
+import meta.flowspec.java.interpreter.SymbolicLargestSetException;
 import meta.flowspec.java.interpreter.values.Set;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
@@ -17,6 +18,12 @@ public abstract class SetMinusNode extends ExpressionNode {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
     protected Set minus(Set left, Set right) {
+        if (left.set == null) { // handle symbolic value of set with everything in it
+            throw new SymbolicLargestSetException();
+        }
+        if (right.set == null) { // handle symbolic value of set with everything in it
+            return new Set(io.usethesource.capsule.Set.Immutable.of());
+        }
         return new Set(io.usethesource.capsule.Set.Immutable.subtract(left.set, right.set));
     }
 
