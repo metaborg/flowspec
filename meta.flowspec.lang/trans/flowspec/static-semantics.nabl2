@@ -52,10 +52,12 @@ rules
     distinct D(moduleScope)/Type,
     new moduleScope.
   
-  [[ Import(mod) ^ (global, moduleScope) ]] :=
-    Module { mod } -> global,
+  [[ Import(mod) ^ (moduleScope) ]] :=
+    Module { mod } -> moduleScope,
     Module { mod } |-> _,
     Module { mod } <=== moduleScope.
+  
+  [[ ExtImport(mod) ^ (moduleScope) ]].
 
 // Flow
 rules

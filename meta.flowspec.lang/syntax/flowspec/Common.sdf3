@@ -82,3 +82,10 @@ LAYOUT? -/- [\/].[\/]
 LAYOUT? -/- [\/].[\*]
 
 lexical syntax
+
+StrategoModName = {StrategoModNamePart "/"}+ "/-"?
+StrategoModNamePart = [a-zA-Z\.\_] [a-zA-Z0-9\'\.\-\_]*
+
+lexical restrictions
+
+StrategoModName -/- [a-zA-Z0-9\'\.\-\_]

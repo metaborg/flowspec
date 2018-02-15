@@ -22,6 +22,7 @@ context-free syntax
 ]
 
 Import.Import = [imports [ModuleName]] {prefer}
+Import.ExtImport = [imports external [StrategoModName]] {prefer}
 
 // TODO: remove, already ignored
 AstRoot.AstRoot = [ast root [ConsName]([{Wildcard ", "}*])]

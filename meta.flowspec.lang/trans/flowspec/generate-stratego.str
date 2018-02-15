@@ -23,7 +23,7 @@ rules
 
 // Module
 gen-str: Module(modulename, import*, _, def*) ->
-${module {modulename}
+${module flowspec/{modulename}
 
 imports
   signatures/nabl2/shared/-
@@ -65,7 +65,7 @@ flowspec--prop-names =
 }
 with
   a := <nabl2-get-ast-analysis>
-; importstring := <map(?Import(<id>));lines_> import*
+; importstring := <map(?Import(<!("flowspec/", <id>);conc-strings>) + ?ExtImport(<id>));lines_> import*
 ; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str);lines_> def*
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _))> def*
