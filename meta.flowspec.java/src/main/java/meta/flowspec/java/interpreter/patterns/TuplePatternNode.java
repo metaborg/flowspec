@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -14,6 +13,7 @@ import org.metaborg.util.functions.Function2;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.Types;
 
 public class TuplePatternNode extends PatternNode {
@@ -52,9 +52,9 @@ public class TuplePatternNode extends PatternNode {
                 });
     }
     
-    public void init(ISolution solution) {
+    public void init(InitValues initValues) {
         for (PatternNode child : children) {
-            child.init(solution);
+            child.init(initValues);
         }
     }
 

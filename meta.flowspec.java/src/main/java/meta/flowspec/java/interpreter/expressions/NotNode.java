@@ -1,6 +1,5 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -8,6 +7,8 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
+
+import meta.flowspec.java.interpreter.InitValues;
 
 @NodeChildren({@NodeChild("expr")})
 public abstract class NotNode extends ExpressionNode {
@@ -28,7 +29,7 @@ public abstract class NotNode extends ExpressionNode {
                 });
     }
 
-    public void init(ISolution solution) {
-        this._expr.init(solution);
+    public void init(InitValues initValues) {
+        this._expr.init(initValues);
     }
 }

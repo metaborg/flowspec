@@ -5,6 +5,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.patterns.PatternNode;
 
 public class MatchNode extends ExpressionNode {
@@ -36,5 +37,11 @@ public class MatchNode extends ExpressionNode {
     public MatchNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor) {
      // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void init(InitValues initValues) {
+        // TODO Auto-generated method stub
+        
     }
 }

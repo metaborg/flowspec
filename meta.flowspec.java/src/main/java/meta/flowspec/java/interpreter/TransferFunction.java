@@ -3,7 +3,6 @@ package meta.flowspec.java.interpreter;
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IdentityTFAppl;
 import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
@@ -40,8 +39,8 @@ public class TransferFunction extends RootNode {
         return body.execute(frame);
     }
     
-    public void init(ISolution solution) {
-        body.init(solution);
+    public void init(InitValues initValues) {
+        body.init(initValues);
     }
 
     public static IMatcher<TransferFunction> match(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor) {
@@ -70,10 +69,10 @@ public class TransferFunction extends RootNode {
     }
 
     @SuppressWarnings("unchecked")
-    public static <S extends ICFGNode> Object call(TransferFunctionAppl appl, TransferFunction[] tfs, Object arg) {
+    public static <N extends ICFGNode> Object call(TransferFunctionAppl appl, TransferFunction[] tfs, Object arg) {
         if (appl instanceof IdentityTFAppl) {
-            IdentityTFAppl<S> iappl = (IdentityTFAppl<S>) appl;
-            return iappl.cfg.getProperty((S) arg, iappl.prop);
+            IdentityTFAppl<N> iappl = (IdentityTFAppl<N>) appl;
+            return iappl.properties.get(ImmutableTuple2.of((N) arg, iappl.prop));
         }
         appl.args[0] = arg;
         return Truffle.getRuntime().createCallTarget(tfs[appl.tfOffset]).call(appl.args);

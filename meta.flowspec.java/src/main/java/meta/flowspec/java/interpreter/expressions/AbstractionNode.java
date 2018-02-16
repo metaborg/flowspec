@@ -4,6 +4,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import meta.flowspec.java.interpreter.FlowSpecRootNode;
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.values.Function;
 
 
@@ -17,6 +18,12 @@ public class AbstractionNode extends ExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return new Function(Truffle.getRuntime().createCallTarget(rootNode), frame.materialize());
+    }
+
+    @Override
+    public void init(InitValues initValues) {
+        // TODO Auto-generated method stub
+        
     }
 
 //    public static AbstractionNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor, IControlFlowGraph<CFGNode> cfg) {

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -14,6 +13,7 @@ import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple3;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.lattice.CompleteLattice;
 import meta.flowspec.java.lattice.FullSetLattice;
@@ -34,10 +34,10 @@ public abstract class TFFileInfo {
         return ImmutableTFFileInfo.of(dependsOn.freeze(), propMetadata.freeze());
     }
     
-    public void init(ISolution solution) {
+    public void init(InitValues initValues) {
         for (Entry<String, Metadata> e : metadata().entrySet()) {
             for (TransferFunction tf : e.getValue().transferFunctions()) {
-                tf.init(solution);
+                tf.init(initValues);
             }
         }
     }

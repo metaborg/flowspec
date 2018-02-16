@@ -1,6 +1,5 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
@@ -9,6 +8,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.SymbolicLargestSetException;
 import meta.flowspec.java.interpreter.values.Set;
 
@@ -38,9 +38,9 @@ public abstract class SetMinusNode extends ExpressionNode {
                 });
     }
     
-    public void init(ISolution solution) {
+    public void init(InitValues initValues) {
         for (ExpressionNode child : children) {
-            child.init(solution);
+            child.init(initValues);
         }
     }
 }

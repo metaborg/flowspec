@@ -3,7 +3,6 @@ package meta.flowspec.java.interpreter.expressions;
  import java.util.Arrays;
 import java.util.HashSet;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.IListTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.ListTerms;
@@ -16,6 +15,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import io.usethesource.capsule.Set.Immutable;
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.values.Set;
 
 public class ApplicationNode extends ExpressionNode {
@@ -35,9 +35,9 @@ public class ApplicationNode extends ExpressionNode {
         });
     }
 
-    public void init(ISolution solution) {
+    public void init(InitValues initValues) {
         for (ExpressionNode argument : arguments) {
-            argument.init(solution);
+            argument.init(initValues);
         }
     }
 

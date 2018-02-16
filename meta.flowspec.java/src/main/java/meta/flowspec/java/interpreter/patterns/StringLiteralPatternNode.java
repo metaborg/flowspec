@@ -8,6 +8,8 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import meta.flowspec.java.interpreter.InitValues;
+
 public class StringLiteralPatternNode extends PatternNode {
     private final String value;
 
@@ -30,5 +32,10 @@ public class StringLiteralPatternNode extends PatternNode {
 
     public static IMatcher<StringLiteralPatternNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("String", M.stringValue(), (appl, string) -> new StringLiteralPatternNode(string));
+    }
+
+    @Override
+    public void init(InitValues initValues) {
+        // Do nothing
     }
 }

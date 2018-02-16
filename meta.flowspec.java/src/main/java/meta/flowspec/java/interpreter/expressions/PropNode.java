@@ -1,43 +1,44 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.metaborg.meta.nabl2.solver.ISolution;
+import org.metaborg.meta.nabl2.stratego.TermIndex;
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
+import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
+import org.metaborg.meta.nabl2.util.tuples.Tuple2;
 
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.NodeChildren;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.VirtualFrame;
 
+import io.usethesource.capsule.Map;
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.locals.ReadVarNode;
 
-public class PropNode extends ExpressionNode {
-    private IControlFlowGraph<CFGNode> cfg;
-    private final String propName;
+@NodeChildren({@NodeChild("rhs")})
+public abstract class PropNode extends ExpressionNode {
+    private Map<Tuple2<TermIndex, String>, ITerm> properties;
+    protected final String propName;
 
-    @Child
-    private ReadVarNode rhs;
-
-    public PropNode(String propName, ReadVarNode rhs) {
+    public PropNode(String propName) {
         this.propName = propName;
-        this.rhs = rhs;
     }
 
-    // TODO: write a specialisation instead based on the rhs @Child field?
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return cfg.getProperty((CFGNode) rhs.executeGeneric(frame), propName);
+    @Specialization
+    protected ITerm lookup(ITerm rhs) {
+        return properties.get(ImmutableTuple2.of(TermIndex.get(rhs).get(), propName));
     }
 
     public static IMatcher<PropNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("Prop", 
                 M.stringValue(),
                 ReadVarNode.match(frameDescriptor), 
-                (appl, propName, rhs) -> new PropNode(propName, rhs));
+                (appl, propName, rhs) -> PropNodeGen.create(propName, rhs));
     }
 
     @Override
-    public void init(ISolution solution) {
-        this.cfg = solution.controlFlowGraph();
+    public void init(InitValues initValues) {
+        this.properties = initValues.properties();
     }
 }

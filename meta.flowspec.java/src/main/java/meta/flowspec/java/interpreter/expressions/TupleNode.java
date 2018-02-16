@@ -2,7 +2,6 @@ package meta.flowspec.java.interpreter.expressions;
 
 import java.util.Arrays;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -11,6 +10,8 @@ import org.metaborg.meta.nabl2.terms.generic.TB;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+
+import meta.flowspec.java.interpreter.InitValues;
 
 public class TupleNode extends ExpressionNode {
     @Children
@@ -55,9 +56,9 @@ public class TupleNode extends ExpressionNode {
     }
 
     @Override
-    public void init(ISolution solution) {
+    public void init(InitValues initValues) {
         for (ExpressionNode child : children) {
-            child.init(solution);
+            child.init(initValues);
         }
     }
 }

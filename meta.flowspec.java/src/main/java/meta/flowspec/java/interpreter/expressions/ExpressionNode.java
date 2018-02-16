@@ -3,7 +3,6 @@ package meta.flowspec.java.interpreter.expressions;
 import java.util.Optional;
 
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
@@ -15,6 +14,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.Types;
 import meta.flowspec.java.interpreter.TypesGen;
 import meta.flowspec.java.interpreter.values.Name;
@@ -61,9 +61,7 @@ public abstract class ExpressionNode extends Node {
         return TypesGen.expectSet(executeGeneric(frame));
     }
 
-    public void init(ISolution solution) {
-        // Do nothing
-    }
+    public abstract void init(InitValues initValues);
 
     public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor) {
         return term -> Optional.of(M.cases(

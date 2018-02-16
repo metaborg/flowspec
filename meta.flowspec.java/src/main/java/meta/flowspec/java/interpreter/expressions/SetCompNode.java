@@ -1,6 +1,5 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
@@ -11,6 +10,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.UnreachableException;
 import meta.flowspec.java.interpreter.patterns.PatternNode;
 import meta.flowspec.java.interpreter.values.Set;
@@ -82,16 +82,16 @@ public class SetCompNode extends ExpressionNode {
                 }));
     }
 
-    public void init(ISolution solution) {
-        expression.init(solution);
+    public void init(InitValues initValues) {
+        expression.init(initValues);
         for (PatternNode sourcePattern : sourcePatterns) {
-            sourcePattern.init(solution);
+            sourcePattern.init(initValues);
         }
         for (ExpressionNode source : sources) {
-            source.init(solution);
+            source.init(initValues);
         }
         for (SetCompPredicateNode predicate : predicates) {
-            predicate.init(solution);
+            predicate.init(initValues);
         }
     }
 }

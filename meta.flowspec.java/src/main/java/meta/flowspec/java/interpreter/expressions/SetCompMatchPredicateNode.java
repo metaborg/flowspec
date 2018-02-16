@@ -1,11 +1,11 @@
 package meta.flowspec.java.interpreter.expressions;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
 import org.metaborg.meta.nabl2.terms.Terms.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.patterns.PatternNode;
 
 class SetCompMatchPredicateNode extends SetCompPredicateNode {
@@ -25,10 +25,10 @@ class SetCompMatchPredicateNode extends SetCompPredicateNode {
             });
     }
 
-    public void init(ISolution solution) {
-        super.init(solution);
+    public void init(InitValues initValues) {
+        super.init(initValues);
         for (PatternNode arm : arms) {
-            arm.init(solution);
+            arm.init(initValues);
         }
     }
 }
