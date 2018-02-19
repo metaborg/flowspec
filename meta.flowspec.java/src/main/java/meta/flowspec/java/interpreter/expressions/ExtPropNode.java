@@ -1,5 +1,7 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,9 +11,8 @@ import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IListTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
-import org.metaborg.meta.nabl2.terms.Terms.M;
-import org.metaborg.meta.nabl2.terms.generic.TB;
+import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
+import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.google.common.collect.ImmutableList;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -37,9 +38,9 @@ public class ExtPropNode extends ExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         try {
-            Optional<ITerm> nabl2value = solution.astProperties().getValue(TermIndex.get(rhs.executeITerm(frame)).get(), TB.newAppl("Property", TB.newString(propName))).map(solution.unifier()::find);
+            Optional<ITerm> nabl2value = solution.astProperties().getValue(TermIndex.get(rhs.executeITerm(frame)).get(), B.newAppl("Property", B.newString(propName))).map(solution.unifier()::findRecursive);
             List<Occurrence> value = nabl2value.flatMap(term -> M.listElems(Occurrence.matcher(), (t, list) -> list).match(term)).orElseGet(() -> ImmutableList.<Occurrence>builder().build());
-            IListTerm list = TB.newList(value.stream().map(occ -> Name.fromOccurrence(solution, occ)).collect(Collectors.toList()));
+            IListTerm list = B.newList(value.stream().map(occ -> Name.fromOccurrence(solution, occ)).collect(Collectors.toList()));
             return list;
         } catch (UnexpectedResultException e) {
             throw new TypeErrorException(e);

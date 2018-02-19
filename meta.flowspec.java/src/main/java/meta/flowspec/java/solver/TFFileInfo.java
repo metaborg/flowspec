@@ -1,5 +1,7 @@
 package meta.flowspec.java.solver;
 
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -7,10 +9,9 @@ import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
-import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
-import org.metaborg.meta.nabl2.terms.Terms.M;
-import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
-import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple3;
+import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import org.metaborg.meta.nabl2.util.ImmutableTuple2;
+import org.metaborg.meta.nabl2.util.ImmutableTuple3;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
@@ -68,7 +69,7 @@ public abstract class TFFileInfo {
     }
 
     protected static IMatcher<ImmutableTuple3<String, Direction, TransferFunction[]>> tupleMatcher() {
-        return term -> 
+        return (term, unifier) -> 
             Optional.of(
                 M.tuple2(
                         M.string(), 
@@ -82,7 +83,7 @@ public abstract class TFFileInfo {
                             TransferFunction[] tfs = t2._2();
                             return ImmutableTuple3.of(propName,  dir, tfs);
                         })
-                    .match(term)
+                    .match(term, unifier)
                     .orElseThrow(() -> 
                             new ParseException("Parse error on reading the transfer function tuple")));
     }

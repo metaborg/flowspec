@@ -5,7 +5,7 @@ import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IIntTerm;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.generic.TB;
+import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
 
 import com.oracle.truffle.api.dsl.TypeSystem;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -63,9 +63,9 @@ public abstract class Types {
     public static ITerm asITerm(Object value) {
         assert isITerm(value) : "Types.asInt: int or IIntTerm expected";
         if (isInteger(value)) {
-            return TB.newInt(asInteger(value));
+            return B.newInt(asInteger(value));
         } else if (isString(value)) {
-            return TB.newString(asString(value));
+            return B.newString(asString(value));
         } else {
             return (ITerm) value;
         }
@@ -76,10 +76,10 @@ public abstract class Types {
             return (ITerm) value;
         }
         if (isInteger(value)) {
-            return TB.newInt(asInteger(value));
+            return B.newInt(asInteger(value));
         }
         if (isString(value)) {
-            return TB.newString(asString(value));
+            return B.newString(asString(value));
         }
         throw new UnexpectedResultException(value);
     }

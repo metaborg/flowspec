@@ -1,13 +1,14 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
 import java.util.Optional;
 
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
-import org.metaborg.meta.nabl2.terms.Terms.M;
+import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -66,7 +67,7 @@ public abstract class ExpressionNode extends Node {
     }
 
     public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor) {
-        return term -> Optional.of(M.cases(
+        return (term, unifier) -> Optional.of(M.cases(
             TermNode.match(frameDescriptor),
             RefNode.matchRef(frameDescriptor),
             PropNode.match(frameDescriptor),
@@ -91,7 +92,7 @@ public abstract class ExpressionNode extends Node {
             SetMinusNode.match(frameDescriptor),
             SetContainsNode.match(frameDescriptor),
             SetIntersectNode.match(frameDescriptor)
-        ).match(term)
+        ).match(term, unifier)
          .orElseThrow(() -> new ParseException("Parse error on reading expression " + term)));
     }
 }

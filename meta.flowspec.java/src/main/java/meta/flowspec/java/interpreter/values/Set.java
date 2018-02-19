@@ -5,7 +5,7 @@ import java.util.List;
 import org.metaborg.meta.nabl2.terms.IApplTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.ITermVar;
-import org.metaborg.meta.nabl2.terms.generic.TB;
+import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableList;
@@ -86,7 +86,7 @@ public class Set<K extends ITerm> implements IApplTerm {
 
     @Override
     public List<ITerm> getArgs() {
-        return new ImmutableList.Builder<ITerm>().add(TB.newList(this.set)).build();
+        return new ImmutableList.Builder<ITerm>().add(B.newList(this.set)).build();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package meta.flowspec.java.interpreter.values;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import org.metaborg.meta.nabl2.scopegraph.path.IResolutionPath;
@@ -20,7 +21,6 @@ import org.metaborg.meta.nabl2.util.collections.PSequence;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import io.usethesource.capsule.Set;
-import io.usethesource.capsule.Set.Immutable;
 
 public class Name extends Occurrence implements IResolutionPath<Scope, Label, Occurrence> {
     private final IResolutionPath<Scope, Label, Occurrence> resolutionPath;
@@ -31,7 +31,7 @@ public class Name extends Occurrence implements IResolutionPath<Scope, Label, Oc
     }
 
     public static Name fromOccurrence(ISolution solution, Occurrence occurrence) {
-        Set.Immutable<IResolutionPath<Scope, Label, Occurrence>> paths = solution.nameResolution().resolve(occurrence).orElse(Set.Immutable.of());
+        java.util.Set<IResolutionPath<Scope, Label, Occurrence>> paths = solution.nameResolution().resolve(occurrence).orElse(Collections.emptySet());
         if(paths.isEmpty()) {
             final IFunction.Immutable<Occurrence, Scope> decls = solution.scopeGraph().getDecls();
             final Scope declScope = decls.get(occurrence).orElseThrow(() -> new RuntimeException("Name " + occurrence + " cannot be resolved"));
@@ -58,12 +58,12 @@ public class Name extends Occurrence implements IResolutionPath<Scope, Label, Oc
     }
 
     @Override
-    public Immutable<Occurrence> getImports() {
+    public Set.Immutable<Occurrence> getImports() {
         return resolutionPath.getImports();
     }
 
     @Override
-    public Immutable<Scope> getScopes() {
+    public Set.Immutable<Scope> getScopes() {
         return resolutionPath.getScopes();
     }
 

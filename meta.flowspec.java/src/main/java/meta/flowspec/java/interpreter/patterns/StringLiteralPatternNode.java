@@ -1,7 +1,8 @@
 package meta.flowspec.java.interpreter.patterns;
 
-import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
-import org.metaborg.meta.nabl2.terms.Terms.M;
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
+import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 

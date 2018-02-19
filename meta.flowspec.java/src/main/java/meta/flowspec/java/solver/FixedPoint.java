@@ -1,5 +1,8 @@
 package meta.flowspec.java.solver;
 
+import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,10 +22,8 @@ import org.metaborg.meta.nabl2.stratego.ImmutableTermIndex;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.Terms.M;
-import org.metaborg.meta.nabl2.terms.generic.TB;
+import org.metaborg.meta.nabl2.util.Tuple2;
 import org.metaborg.meta.nabl2.util.collections.IProperties;
-import org.metaborg.meta.nabl2.util.tuples.Tuple2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
@@ -325,11 +326,12 @@ public abstract class FixedPoint {
 
                 TermIndex ti = TermIndex.get(node).orElse(ImmutableTermIndex.of(node.getResource(), 0));
 
-                astProperties.putValue(ti, TB.newAppl("DFProperty", TB.newString(propName)), value);
+                astProperties.putValue(ti, B.newAppl("DFProperty", B.newString(propName)), value);
             }
 
             return ImmutableSolution.of(solution.config(), astProperties.freeze(), solution.scopeGraph(),
-                    solution.nameResolution(), solution.declProperties(), solution.relations(), solution.unifier(),
-                    solution.symbolic(), solution.controlFlowGraph(), solution.messages(), solution.constraints());
+                    solution.declProperties(), solution.relations(), solution.unifier(),
+                    solution.symbolic(), solution.controlFlowGraph(), solution.messages(), solution.constraints())
+                .withNameResolutionCache(solution.nameResolutionCache());
         }
 }

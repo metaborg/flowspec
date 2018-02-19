@@ -1,12 +1,13 @@
 package meta.flowspec.java.interpreter;
 
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.IdentityTFAppl;
 import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
 import org.metaborg.meta.nabl2.solver.ISolution;
-import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
-import org.metaborg.meta.nabl2.terms.Terms.M;
-import org.metaborg.meta.nabl2.util.tuples.ImmutableTuple2;
+import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import org.metaborg.meta.nabl2.util.ImmutableTuple2;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -58,7 +59,7 @@ public class TransferFunction extends RootNode {
         return M.listElems(
                     M.tuple2(
                         M.integerValue(), 
-                        term -> TransferFunction.match().match(term), 
+                        (term, unifier) -> TransferFunction.match().match(term, unifier), 
                         (appl, i, tf) -> ImmutableTuple2.of(i,tf)))
                 .map(list -> {
                     TransferFunction[] tfs = new TransferFunction[list.size()];

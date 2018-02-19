@@ -1,9 +1,10 @@
 package meta.flowspec.java.solver;
 
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
-import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
-import org.metaborg.meta.nabl2.terms.Terms.M;
+import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.lattice.CompleteLattice;

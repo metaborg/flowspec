@@ -1,12 +1,13 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
 import java.util.Arrays;
 
 import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
-import org.metaborg.meta.nabl2.terms.Terms.M;
-import org.metaborg.meta.nabl2.terms.generic.TB;
+import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
+import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -35,7 +36,7 @@ public class TupleNode extends ExpressionNode {
                 throw new TypeErrorException(e);
             }
         }).toArray(i -> new ITerm[i]);
-        return TB.newTuple(childVals);
+        return B.newTuple(childVals);
     }
 
     public static IMatcher<TupleNode> match(FrameDescriptor frameDescriptor) {

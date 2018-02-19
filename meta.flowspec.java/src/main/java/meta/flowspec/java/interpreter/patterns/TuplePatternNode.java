@@ -1,5 +1,7 @@
 package meta.flowspec.java.interpreter.patterns;
 
+import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.Stream;
@@ -7,8 +9,7 @@ import java.util.stream.StreamSupport;
 
 import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.Terms.IMatcher;
-import org.metaborg.meta.nabl2.terms.Terms.M;
+import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 import org.metaborg.util.functions.Function2;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
