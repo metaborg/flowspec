@@ -10,7 +10,6 @@ dependencies:
   - org.metaborg:org.metaborg.meta.nabl2.lang:${metaborgVersion}
   source:
   - org.metaborg:meta.lib.spoofax:${metaborgVersion}
-  - org.metaborg:org.metaborg.meta.lib.analysis:${metaborgVersion}
   - org.metaborg:org.metaborg.meta.nabl2.shared:${metaborgVersion}
   - org.metaborg:org.metaborg.meta.nabl2.runtime:${metaborgVersion}
 generates:
@@ -29,7 +28,7 @@ pardonedLanguages:
 - SDF
 language:
   sdf:
-    sdf2table: c # waiting for fix to sdf which will allow use of the java version
+    sdf2table: java # waiting for fix to sdf which will allow use of the java version
     pretty-print: flowspec
   stratego:
     format: ctree
