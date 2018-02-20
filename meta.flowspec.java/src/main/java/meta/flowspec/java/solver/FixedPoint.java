@@ -1,67 +1,69 @@
 package meta.flowspec.java.solver;
 
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraph;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
-import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
+import org.metaborg.meta.nabl2.controlflow.terms.ICompleteControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.IFlowSpecSolution;
 import org.metaborg.meta.nabl2.solver.ISolution;
-import org.metaborg.meta.nabl2.solver.ImmutableSolution;
-import org.metaborg.meta.nabl2.stratego.ImmutableTermIndex;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
+import org.metaborg.meta.nabl2.util.ImmutableTuple2;
 import org.metaborg.meta.nabl2.util.Tuple2;
-import org.metaborg.meta.nabl2.util.collections.IProperties;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
+import meta.flowspec.graph.Algorithms;
+import meta.flowspec.java.interpreter.ImmutableInitValues;
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.TransferFunction;
 import meta.flowspec.java.interpreter.UnreachableException;
 
-public abstract class FixedPoint {
+public class FixedPoint {
     private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);
     private static final String ARTIFICIAL_PROPERTY = "__START__";
     private static FixedPoint.TimingInfo timingInfo;
-    // TODO: Make a config variable
+    // TODO: Make this into a config variable
     private static final int FIXPOINT_LIMIT = 10_000;
 
-    public static ISolution entryPoint(ISolution nabl2solution, TFFileInfo tfFileInfo) {
-        // FIXME: this is an evil workaround, do better API design for CFG
-        final ControlFlowGraph<CFGNode> cfg = (ControlFlowGraph<CFGNode>) nabl2solution.controlFlowGraph();
+    private final Map.Transient<Tuple2<TermIndex, String>, ITerm> preProperties;
+    private final Map.Transient<Tuple2<TermIndex, String>, ITerm> postProperties;
+    
+    public FixedPoint() {
+        this.preProperties = Map.Transient.of();
+        this.postProperties = Map.Transient.of();
+    }
 
-        FixedPoint.flowspecCopyTFAppls(cfg, nabl2solution.astProperties());
+    public ISolution entryPoint(ISolution nabl2solution, TFFileInfo tfFileInfo) {
+        // FIXME: this is an evil workaround, do better API design for CFG
+        final IFlowSpecSolution<CFGNode> flowspecSolution = nabl2solution.flowSpecSolution();
+        final ICompleteControlFlowGraph<CFGNode> cfg = flowspecSolution.controlFlowGraph();
+
         timingInfo = new FixedPoint.TimingInfo();
 
         /* Pass the NaBL2 solution to the interpreter AST so it can save references to the CFG and the
          * resolution result in certain places
          */
-        tfFileInfo.init(nabl2solution);
+        InitValues initValues = ImmutableInitValues.of(nabl2solution.config(), cfg, this.preProperties,
+                                                       nabl2solution.scopeGraph(), nabl2solution.unifier(),
+                                                       nabl2solution.astProperties())
+                .withNameResolutionCache(nabl2solution.nameResolutionCache());
+        tfFileInfo.init(initValues);
 
-        // remove artificial nodes from CFG & compute the SCCs
-        cfg.complete();
+        timingInfo.recordInterpInit();
 
-        timingInfo.recordCfgProcessing();
-
-        List<CFGNode> unreachable = cfg.getUnreachableNodes();
-        if (!unreachable.isEmpty()) {
+        Iterable<CFGNode> unreachable = cfg.unreachableNodes();
+        if (!unreachable.iterator().hasNext()) {
             logger.warn("Found unreachable CFG nodes: " + unreachable);
         }
 
-        logger.debug("SCCs:" + cfg.getTopoSCCs());
+        logger.debug("SCCs:" + cfg.topoSCCs());
 
         try {
             solve(cfg, tfFileInfo);
@@ -73,7 +75,7 @@ public abstract class FixedPoint {
                 timingInfo.logReport(logger);
             }
 
-            return FixedPoint.flowspecCopyProperties(nabl2solution);
+            return this.flowspecCopyProperties(nabl2solution);
         } catch (UnimplementedException | UnreachableException | ParseException | CyclicGraphException | FixedPointLimitException e) {
             logger.error(e.getMessage());
 
@@ -81,22 +83,9 @@ public abstract class FixedPoint {
         }
     }
 
-    public static void solve(ControlFlowGraph<CFGNode> cfg, TFFileInfo tfFileInfo)
+    private void solve(ICompleteControlFlowGraph<CFGNode> cfg, TFFileInfo tfFileInfo)
             throws CyclicGraphException, FixedPointLimitException {
-        BinaryRelation.Immutable<String, String> propDependsOn;
-        { // Make sure every property is in the dependency graph's edges by adding an artificial edge.
-          // This way the later topoSort of the edges will give all properties and you just need
-          //  to remove the artificial start node. 
-            BinaryRelation.Transient<String, String> propDep = tfFileInfo.dependsOn().asTransient();
-            for (Entry<String, Metadata> entry : tfFileInfo.metadata().entrySet()) {
-                String prop = entry.getKey();
-                propDep.__insert(ARTIFICIAL_PROPERTY, prop);
-            }
-            propDependsOn = propDep.freeze();
-        }
-
-        List<String> propTopoOrder = topoSort(propDependsOn);
-        Collections.reverse(propTopoOrder);
+        Iterable<String> propTopoOrder = Algorithms.topoSort(tfFileInfo.metadata().keySet(), tfFileInfo.dependsOn().inverse());
 
         timingInfo.recordReverseTopo();
 
@@ -109,32 +98,43 @@ public abstract class FixedPoint {
         }
     }
 
+    private void setPostProperty(CFGNode n, String prop, ITerm value) {
+        this.preProperties.__put(ImmutableTuple2.of(TermIndex.get(n).get(), prop), value);
+    }
+
+    private void setProperty(CFGNode n, String prop, ITerm value) {
+        this.preProperties.__put(ImmutableTuple2.of(TermIndex.get(n).get(), prop), value);
+    }
+
+    private ITerm getProperty(CFGNode n, String prop) {
+        return this.preProperties.get(ImmutableTuple2.of(TermIndex.get(n).get(), prop));
+    }
+
     @SuppressWarnings("unchecked")
-    private static void solveFlowSensitiveProperty(ControlFlowGraph<CFGNode> cfg,
+    private void solveFlowSensitiveProperty(ICompleteControlFlowGraph<CFGNode> cfg,
             String prop, Metadata metadata) throws FixedPointLimitException {
         // Phase 1: initialisation
-
-        for (CFGNode n : cfg.getAllNodes()) {
-            cfg.setProperty(n, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().bottom());
+        for (CFGNode n : cfg.nodes()) {
+            setProperty(n, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().bottom());
         }
 
         final BinaryRelation<CFGNode, CFGNode> edges;
-        final Collection<Set<CFGNode>> sccs;
+        final Iterable<Set<CFGNode>> sccs;
         switch (metadata.dir()) {
             case Forward: {
-                for (CFGNode n : cfg.getStartNodes()) {
-                    cfg.setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
+                for (CFGNode n : cfg.startNodes()) {
+                    setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
                 }
-                edges = cfg.getDirectEdges();
-                sccs = cfg.getTopoSCCs();
+                edges = cfg.edges();
+                sccs = cfg.topoSCCs();
                 break;
             }
             case Backward: {
-                for (CFGNode n : cfg.getEndNodes()) {
-                    cfg.setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
+                for (CFGNode n : cfg.endNodes()) {
+                    setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
                 }
-                edges = cfg.getDirectEdges().inverse();
-                sccs = cfg.getRevTopoSCCs();
+                edges = cfg.edges().inverse();
+                sccs = cfg.revTopoSCCs();
                 break;
             }
             default: 
@@ -154,9 +154,9 @@ public abstract class FixedPoint {
                 for (CFGNode from : scc) {
                     for (CFGNode to : edges.get(from)) {
                         Object afterFromTF = TransferFunction.call(cfg.getTFAppl(from, prop), metadata.transferFunctions(), from);
-                        Object beforeToTF = cfg.getProperty(to, prop);
+                        Object beforeToTF = getProperty(to, prop);
                         if (metadata.lattice().nlte(afterFromTF, beforeToTF)) {
-                            cfg.setProperty(to, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
+                            setProperty(to, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
                             if (scc.contains(to)) {
                                 done = false;
                             }
@@ -170,75 +170,35 @@ public abstract class FixedPoint {
         }
 
         // Phase 3: Result calculation
-        final String prePropName;
-        final String postPropName;
         switch (metadata.dir()) {
             case Forward: {
-                 prePropName = "pre-" + prop;
-                postPropName = prop;
+                for (CFGNode n : cfg.nodes()) {
+                    meta.flowspec.java.interpreter.values.Set<IStringTerm> value = (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), metadata.transferFunctions(), n);
+                    setPostProperty(n, prop, value);
+                }
                 break;
             }
             case Backward: {
-                prePropName = prop;
-                postPropName = "pre-" + prop;
+                HashMap<CFGNode, meta.flowspec.java.interpreter.values.Set<IStringTerm>> temp = new HashMap<>();
+                for (CFGNode n : cfg.nodes()) {
+                    setPostProperty(n, prop, getProperty(n, prop));
+                    meta.flowspec.java.interpreter.values.Set<IStringTerm> value = (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), metadata.transferFunctions(), n);
+                    temp.put(n, value);
+                }
+                temp.forEach((n, value) -> {
+                    setProperty(n, prop, value);
+                });
                 break;
             }
             default: 
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
-        for (CFGNode n : cfg.getAllNodes()) {
-            // save pre-TF results
-            cfg.setProperty(n, prePropName, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) cfg.getProperty(n, prop));
-            // put post-TF results in property name
-            cfg.setProperty(n, postPropName, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), metadata.transferFunctions(), n));
-        }
     }
 
-    /**
-     * Interprets the relation as an edge list for a graph and gives a
-     * topological sorted list of its nodes. The used algorithm is due to Kahn
-     * (1962):
-     * https://en.wikipedia.org/wiki/Topological_sorting#Kahn.27s_algorithm
-     *
-     * @param rel
-     *            The relation / graph
-     * @return A list of "vertices" in topological order, or an empty optional
-     *         if there are cycles in the graph
-     */
-    public static <E> List<E> topoSort(BinaryRelation.Immutable<E, E> rel) throws CyclicGraphException {
-        List<E> result = new ArrayList<>();
-        // The frontier is initialised with nodes that have no incoming edges.
-        Set<E> frontier = new HashSet<>(rel.keySet());
-        frontier.removeAll(rel.values());
-        BinaryRelation.Transient<E, E> mutRel = rel.asTransient();
-
-        // (1) Move the nodes from the frontier (no incoming edges) to the
-        // result
-        // (2) Remove outgoing edges of each node moved from frontier to result
-        // (3) Add nodes that now no longer have incoming edges to frontier
-        while (!frontier.isEmpty()) {
-            E node = frontier.iterator().next();
-            frontier.remove(node);
-            result.add(node);
-            for (E rhs : mutRel.get(node)) {
-                mutRel.__remove(node, rhs);
-                if (!mutRel.containsValue(rhs)) {
-                    frontier.add(rhs);
-                }
-            }
-        }
-        // If graph is not empty when the frontier became empty, there must be a
-        // cycle in the graph
-        if (!mutRel.isEmpty()) {
-            throw new CyclicGraphException(mutRel.freeze());
-        }
-        return result;
-    }
-    
-    static class TimingInfo {
+    protected static class TimingInfo {
         private LinkedHashMap<String, Long> property;
         public final long start;
-        private long cfgProcessing;
+        private long interpInit;
         private long reverseTopo;
         private long end;
         
@@ -249,8 +209,8 @@ public abstract class FixedPoint {
         
         public void logReport(ILogger logger) {
             long total = millisecondBetween(this.start, this.end);
-            long cfgProcessing = millisecondBetween(this.start, this.cfgProcessing);
-            long reverseTopo = millisecondBetween(this.cfgProcessing, this.reverseTopo);
+            long interpInit = millisecondBetween(this.start, this.interpInit);
+            long reverseTopo = millisecondBetween(this.interpInit, this.reverseTopo);
             long properties = millisecondBetween(this.reverseTopo, this.end);
             String[] propertyNames = new String[property.size()];
             long[] propertyTimes = new long[property.size()];
@@ -268,7 +228,7 @@ public abstract class FixedPoint {
             StringBuilder message = new StringBuilder();
             message.append("FlowSpec dataflow solver timing report, time in milliseconds.\n");
             message.append("Total time: " + total + "\n");
-            message.append("|- CFG artificial node removal & SCC computation: " + cfgProcessing + "\n");
+            message.append("|- Initialising the interpreter: " + interpInit + "\n");
             message.append("|- Reverse topo order of properties: " + reverseTopo + "\n");
             message.append("|- Total dataflow property computation: " + properties + "\n");
             for (int i = 0; i < propertyNames.length; i++) {
@@ -278,8 +238,8 @@ public abstract class FixedPoint {
             logger.info(message.toString());
         }
 
-        public void recordCfgProcessing() {
-            this.cfgProcessing = System.nanoTime();
+        public void recordInterpInit() {
+            this.interpInit = System.nanoTime();
         }
 
         public void recordReverseTopo() {
@@ -299,39 +259,11 @@ public abstract class FixedPoint {
         }
     }
 
-    static void flowspecCopyTFAppls(ControlFlowGraph<CFGNode> cfg, IProperties.Immutable<TermIndex, ITerm, ITerm> astProperties) {
-        astProperties.stream().forEach(tuple -> {
-            ITerm key = tuple._2();
-            M.appl1("TF", M.string(), (keyAppl, propName) -> {
-                return propName.getValue();
-            }).match(key).ifPresent(propName -> {
-                TermIndex index = tuple._1();
-                ITerm tfApplTerm = tuple._3();
-                TransferFunctionAppl.match().match(tfApplTerm).ifPresent(tfAppl -> {
-                    cfg.addTFAppl(index, propName, tfAppl);
-                });
-            });
-        });
-    }
+    private ISolution flowspecCopyProperties(ISolution solution) {
+            IFlowSpecSolution<CFGNode> flowspecSolution = solution.flowSpecSolution()
+                    .withPreProperties(this.preProperties.freeze())
+                    .withPostProperties(this.postProperties.freeze());
 
-    static ISolution flowspecCopyProperties(ISolution solution) {
-            logger.debug("Copying FlowSpec properties to NaBL2 ast properties in solution");
-            IProperties.Transient<TermIndex, ITerm, ITerm> astProperties = solution.astProperties().melt();
-            IControlFlowGraph<CFGNode> controlFlowGraph = solution.controlFlowGraph();
-
-            for (Map.Entry<Tuple2<CFGNode, String>, ITerm> property : controlFlowGraph.getProperties().entrySet()) {
-                CFGNode node = property.getKey()._1();
-                String propName = property.getKey()._2();
-                ITerm value = property.getValue();
-
-                TermIndex ti = TermIndex.get(node).orElse(ImmutableTermIndex.of(node.getResource(), 0));
-
-                astProperties.putValue(ti, B.newAppl("DFProperty", B.newString(propName)), value);
-            }
-
-            return ImmutableSolution.of(solution.config(), astProperties.freeze(), solution.scopeGraph(),
-                    solution.declProperties(), solution.relations(), solution.unifier(),
-                    solution.symbolic(), solution.controlFlowGraph(), solution.messages(), solution.constraints())
-                .withNameResolutionCache(solution.nameResolutionCache());
+            return solution.withFlowSpecSolution(flowspecSolution);
         }
 }

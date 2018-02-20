@@ -2,7 +2,6 @@ package meta.flowspec.java.interpreter.expressions;
 
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
@@ -10,6 +9,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+
+import meta.flowspec.java.interpreter.InitValues;
 
 public class IfNode extends ExpressionNode {
     @Child
@@ -48,9 +49,9 @@ public class IfNode extends ExpressionNode {
                 (appl, i, t, e) -> new IfNode(i, t, e));
     }
 
-    public void init(ISolution solution) {
-        condition.init(solution);
-        thenBranch.init(solution);
-        elseBranch.init(solution);
+    public void init(InitValues initValues) {
+        condition.init(initValues);
+        thenBranch.init(initValues);
+        elseBranch.init(initValues);
     }
 }

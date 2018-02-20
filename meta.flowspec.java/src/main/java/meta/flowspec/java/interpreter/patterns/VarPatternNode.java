@@ -3,7 +3,7 @@ package meta.flowspec.java.interpreter.patterns;
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IControlFlowGraph;
+import org.metaborg.meta.nabl2.controlflow.terms.IBasicControlFlowGraph;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -13,6 +13,8 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import meta.flowspec.java.interpreter.InitValues;
+
 public class VarPatternNode extends PatternNode {
     public final FrameSlot slot;
 
@@ -21,7 +23,7 @@ public class VarPatternNode extends PatternNode {
     }
 
     public static VarPatternNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor,
-            IControlFlowGraph<CFGNode> cfg) {
+            IBasicControlFlowGraph<CFGNode> cfg) {
         FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
         FrameSlot slot = frameDescriptor.addFrameSlot(Tools.javaStringAt(appl, 0), slotKind);
         return new VarPatternNode(slot);
@@ -41,4 +43,8 @@ public class VarPatternNode extends PatternNode {
         });
     }
 
+    @Override
+    public void init(InitValues initValues) {
+        // do nothing
+    }
 }

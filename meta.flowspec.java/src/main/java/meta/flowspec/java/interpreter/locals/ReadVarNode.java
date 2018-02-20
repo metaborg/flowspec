@@ -14,6 +14,7 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.expressions.RefNode;
 
 @NodeField(name = "slot", type = FrameSlot.class)
@@ -45,5 +46,10 @@ public abstract class ReadVarNode extends RefNode {
     
     public static IMatcher<ReadVarNode> match(FrameDescriptor frameDescriptor) {
         return M.stringValue().map(string -> ReadVarNodeGen.create(Objects.requireNonNull(frameDescriptor.findFrameSlot(string))));
+    }
+
+    @Override
+    public void init(InitValues initValues) {
+        // Do nothing
     }
 }

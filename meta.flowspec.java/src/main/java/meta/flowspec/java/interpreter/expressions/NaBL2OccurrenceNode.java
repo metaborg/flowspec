@@ -6,7 +6,6 @@ import org.metaborg.meta.nabl2.scopegraph.terms.ImmutableOccurrence;
 import org.metaborg.meta.nabl2.scopegraph.terms.Namespace;
 import org.metaborg.meta.nabl2.scopegraph.terms.Occurrence;
 import org.metaborg.meta.nabl2.scopegraph.terms.OccurrenceIndex;
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
@@ -16,13 +15,14 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.locals.ReadVarNode;
 import meta.flowspec.java.interpreter.values.Name;
 
 public class NaBL2OccurrenceNode extends ExpressionNode {
     private final Namespace namespace;
     private final ReadVarNode ref;
-    private ISolution solution;
+    private InitValues initValues;
 
     public NaBL2OccurrenceNode(Namespace ns, ReadVarNode rvn) {
         this.namespace = ns;
@@ -43,7 +43,7 @@ public class NaBL2OccurrenceNode extends ExpressionNode {
         final ITerm name = ref.executeITerm(frame);
         final TermIndex termIndex = TermIndex.get(name).get();
         final Occurrence occurrence = ImmutableOccurrence.of(this.namespace, name, new OccurrenceIndex(termIndex.getResource(), termIndex));
-        return Name.fromOccurrence(solution, occurrence);
+        return Name.fromOccurrence(initValues, occurrence);
     }
 
     public static IMatcher<NaBL2OccurrenceNode> match(FrameDescriptor frameDescriptor) {
@@ -57,7 +57,7 @@ public class NaBL2OccurrenceNode extends ExpressionNode {
                 (appl, nsrvn) -> new NaBL2OccurrenceNode(nsrvn._1(), nsrvn._2()));
     }
     
-    public void init(ISolution solution) {
-        this.solution = solution;
+    public void init(InitValues initValues) {
+        this.initValues = initValues;
     }
 }

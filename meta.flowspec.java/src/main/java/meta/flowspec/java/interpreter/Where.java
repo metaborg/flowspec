@@ -2,7 +2,6 @@ package meta.flowspec.java.interpreter;
 
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
@@ -31,10 +30,10 @@ public class Where extends Node {
         return body.executeGeneric(frame);
     }
     
-    public void init(ISolution solution) {
-        body.init(solution);
+    public void init(InitValues initValues) {
+        body.init(initValues);
         for(WriteVarNode binding : bindings) {
-            binding.init(solution);
+            binding.init(initValues);
         }
     }
 

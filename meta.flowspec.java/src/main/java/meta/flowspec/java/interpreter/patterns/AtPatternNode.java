@@ -2,11 +2,12 @@ package meta.flowspec.java.interpreter.patterns;
 
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+
+import meta.flowspec.java.interpreter.InitValues;
 
 public class AtPatternNode extends PatternNode {
     private final VarPatternNode var;
@@ -32,7 +33,7 @@ public class AtPatternNode extends PatternNode {
                 (appl, var, pattern) -> new AtPatternNode(var, pattern));
     }
     
-    public void init(ISolution solution) {
-        pattern.init(solution);
+    public void init(InitValues initValues) {
+        pattern.init(initValues);
     }
 }

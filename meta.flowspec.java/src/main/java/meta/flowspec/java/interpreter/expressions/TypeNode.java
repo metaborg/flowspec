@@ -7,6 +7,7 @@ import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.locals.ReadVarNode;
 import meta.flowspec.java.solver.UnimplementedException;
 
@@ -26,5 +27,11 @@ public class TypeNode extends ExpressionNode {
 
     public static IMatcher<TypeNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("Type", ReadVarNode.match(frameDescriptor), (appl, rvn) -> new TypeNode(rvn));
+    }
+
+    @Override
+    public void init(InitValues initValues) {
+        // TODO Auto-generated method stub
+        
     }
 }

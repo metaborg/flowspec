@@ -9,6 +9,8 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import meta.flowspec.java.interpreter.InitValues;
+
 public class IntLiteralNode extends ExpressionNode {
     private final int value;
     
@@ -32,5 +34,10 @@ public class IntLiteralNode extends ExpressionNode {
 
     public static IMatcher<IntLiteralNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("Int", M.integerValue(), (appl, i) -> new IntLiteralNode(i));
+    }
+
+    @Override
+    public void init(InitValues initValues) {
+        // Do nothing
     }
 }

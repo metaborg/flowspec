@@ -1,5 +1,6 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
 import java.util.List;
@@ -7,11 +8,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.metaborg.meta.nabl2.scopegraph.terms.Occurrence;
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IListTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.google.common.collect.ImmutableList;
@@ -19,11 +18,12 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.locals.ReadVarNode;
 import meta.flowspec.java.interpreter.values.Name;
 
 public class ExtPropNode extends ExpressionNode {
-    private ISolution solution;
+    private InitValues initValues;
     private final String propName;
 
     @Child
@@ -38,9 +38,9 @@ public class ExtPropNode extends ExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         try {
-            Optional<ITerm> nabl2value = solution.astProperties().getValue(TermIndex.get(rhs.executeITerm(frame)).get(), B.newAppl("Property", B.newString(propName))).map(solution.unifier()::findRecursive);
+            Optional<ITerm> nabl2value = initValues.astProperties().getValue(TermIndex.get(rhs.executeITerm(frame)).get(), B.newAppl("Property", B.newString(propName))).map(initValues.unifier()::findRecursive);
             List<Occurrence> value = nabl2value.flatMap(term -> M.listElems(Occurrence.matcher(), (t, list) -> list).match(term)).orElseGet(() -> ImmutableList.<Occurrence>builder().build());
-            IListTerm list = B.newList(value.stream().map(occ -> Name.fromOccurrence(solution, occ)).collect(Collectors.toList()));
+            IListTerm list = B.newList(value.stream().map(occ -> Name.fromOccurrence(initValues, occ)).collect(Collectors.toList()));
             return list;
         } catch (UnexpectedResultException e) {
             throw new TypeErrorException(e);
@@ -55,7 +55,7 @@ public class ExtPropNode extends ExpressionNode {
     }
 
     @Override
-    public void init(ISolution solution) {
-        this.solution = solution;
+    public void init(InitValues initValues) {
+        this.initValues = initValues;
     }
 }

@@ -1,17 +1,18 @@
 package meta.flowspec.java.interpreter.expressions;
 
+import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+
+import meta.flowspec.java.interpreter.InitValues;
 
 public class TermNode extends ExpressionNode {
     private final String consName;
@@ -38,9 +39,9 @@ public class TermNode extends ExpressionNode {
     }
 
     @Override
-    public void init(ISolution solution) {
+    public void init(InitValues initValues) {
         for (ExpressionNode child : children) {
-            child.init(solution);
+            child.init(initValues);
         }
     }
 }

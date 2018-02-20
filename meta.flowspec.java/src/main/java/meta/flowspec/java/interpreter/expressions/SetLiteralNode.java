@@ -2,13 +2,13 @@ package meta.flowspec.java.interpreter.expressions;
 
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
-import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.values.Set;
 
 public class SetLiteralNode extends ExpressionNode {
@@ -38,9 +38,9 @@ public class SetLiteralNode extends ExpressionNode {
                 (appl, exprs) -> new SetLiteralNode(exprs.toArray(new ExpressionNode[exprs.size()])));
     }
 
-    public void init(ISolution solution) {
+    public void init(InitValues initValues) {
         for (ExpressionNode value : values) {
-            value.init(solution);
+            value.init(initValues);
         }
     }
 }

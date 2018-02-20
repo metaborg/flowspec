@@ -1,11 +1,12 @@
 package meta.flowspec.java.interpreter;
 
+import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
+
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IIntTerm;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
 
 import com.oracle.truffle.api.dsl.TypeSystem;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
