@@ -11,6 +11,7 @@ flowspec-editor-hover(language-pp) = flowspec--editor-hover(language-pp)
 
 flowspec--prop-names = fail
 
-flowspec-get-property(|a, propname) = flowspec--get-property(|a, propname)
+flowspec-get-property-pre(|a, propname) = flowspec--get-property-pre(|a, propname)
+flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propname)
 
 flowspec-constraint-list-to-cconj(index) = constraint-list-to-cconj(index)
