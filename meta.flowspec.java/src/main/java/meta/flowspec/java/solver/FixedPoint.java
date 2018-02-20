@@ -8,6 +8,7 @@ import java.util.Set;
 import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.controlflow.terms.ICompleteControlFlowGraph;
 import org.metaborg.meta.nabl2.controlflow.terms.IFlowSpecSolution;
+import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
 import org.metaborg.meta.nabl2.solver.ISolution;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
@@ -32,6 +33,7 @@ public class FixedPoint {
     // TODO: Make this into a config variable
     private static final int FIXPOINT_LIMIT = 10_000;
 
+    private IFlowSpecSolution<CFGNode> solution;
     private final Map.Transient<Tuple2<TermIndex, String>, ITerm> preProperties;
     private final Map.Transient<Tuple2<TermIndex, String>, ITerm> postProperties;
     
@@ -41,9 +43,10 @@ public class FixedPoint {
     }
 
     public ISolution entryPoint(ISolution nabl2solution, TFFileInfo tfFileInfo) {
-        // FIXME: this is an evil workaround, do better API design for CFG
-        final IFlowSpecSolution<CFGNode> flowspecSolution = nabl2solution.flowSpecSolution();
-        final ICompleteControlFlowGraph<CFGNode> cfg = flowspecSolution.controlFlowGraph();
+        this.solution = nabl2solution.flowSpecSolution();
+        final ICompleteControlFlowGraph<CFGNode> cfg = solution.controlFlowGraph();
+        preProperties.__putAll(solution.preProperties());
+        postProperties.__putAll(solution.postProperties());
 
         timingInfo = new FixedPoint.TimingInfo();
 
@@ -83,6 +86,7 @@ public class FixedPoint {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void solve(ICompleteControlFlowGraph<CFGNode> cfg, TFFileInfo tfFileInfo)
             throws CyclicGraphException, FixedPointLimitException {
         Iterable<String> propTopoOrder = Algorithms.topoSort(tfFileInfo.metadata().keySet(), tfFileInfo.dependsOn().inverse());
@@ -92,7 +96,7 @@ public class FixedPoint {
         for (String prop : propTopoOrder) {
             // remove artificial start used earlier to include all properties in the dependency graph
             if(prop != ARTIFICIAL_PROPERTY) {
-                solveFlowSensitiveProperty(cfg, prop, tfFileInfo.metadata().get(prop));
+                solveFlowSensitiveProperty(cfg, prop, (Metadata<ITerm>) tfFileInfo.metadata().get(prop));
                 timingInfo.recordProperty(prop);
             }
         }
@@ -112,7 +116,7 @@ public class FixedPoint {
 
     @SuppressWarnings("unchecked")
     private void solveFlowSensitiveProperty(ICompleteControlFlowGraph<CFGNode> cfg,
-            String prop, Metadata metadata) throws FixedPointLimitException {
+            String prop, Metadata<ITerm> metadata) throws FixedPointLimitException {
         // Phase 1: initialisation
         for (CFGNode n : cfg.nodes()) {
             setProperty(n, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().bottom());
@@ -153,10 +157,10 @@ public class FixedPoint {
                 fixpointCount++;
                 for (CFGNode from : scc) {
                     for (CFGNode to : edges.get(from)) {
-                        Object afterFromTF = TransferFunction.call(cfg.getTFAppl(from, prop), metadata.transferFunctions(), from);
-                        Object beforeToTF = getProperty(to, prop);
+                        ITerm afterFromTF = callTF(prop, metadata, from);
+                        ITerm beforeToTF = getProperty(to, prop);
                         if (metadata.lattice().nlte(afterFromTF, beforeToTF)) {
-                            setProperty(to, prop, (meta.flowspec.java.interpreter.values.Set<IStringTerm>) metadata.lattice().lub(beforeToTF, afterFromTF));
+                            setProperty(to, prop, metadata.lattice().lub(beforeToTF, afterFromTF));
                             if (scc.contains(to)) {
                                 done = false;
                             }
@@ -173,16 +177,16 @@ public class FixedPoint {
         switch (metadata.dir()) {
             case Forward: {
                 for (CFGNode n : cfg.nodes()) {
-                    meta.flowspec.java.interpreter.values.Set<IStringTerm> value = (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), metadata.transferFunctions(), n);
+                    ITerm value = callTF(prop, metadata, n);
                     setPostProperty(n, prop, value);
                 }
                 break;
             }
             case Backward: {
-                HashMap<CFGNode, meta.flowspec.java.interpreter.values.Set<IStringTerm>> temp = new HashMap<>();
+                HashMap<CFGNode, ITerm> temp = new HashMap<>();
                 for (CFGNode n : cfg.nodes()) {
                     setPostProperty(n, prop, getProperty(n, prop));
-                    meta.flowspec.java.interpreter.values.Set<IStringTerm> value = (meta.flowspec.java.interpreter.values.Set<IStringTerm>) TransferFunction.call(cfg.getTFAppl(n, prop), metadata.transferFunctions(), n);
+                    ITerm value = callTF(prop, metadata, n);
                     temp.put(n, value);
                 }
                 temp.forEach((n, value) -> {
@@ -193,6 +197,14 @@ public class FixedPoint {
             default: 
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
+    }
+
+    private ITerm callTF(String prop, Metadata<?> metadata, CFGNode node) {
+        TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
+        if (tfAppl == null) {
+            return getProperty(node, prop);
+        }
+        return TransferFunction.call(tfAppl, metadata.transferFunctions(), node);
     }
 
     protected static class TimingInfo {

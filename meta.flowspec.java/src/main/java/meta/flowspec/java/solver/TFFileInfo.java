@@ -23,10 +23,10 @@ import meta.flowspec.java.solver.Metadata.Direction;
 @Immutable
 public abstract class TFFileInfo {
     @Parameter public abstract BinaryRelation.Immutable<String, String> dependsOn();
-    @Parameter public abstract Map.Immutable<String, Metadata> metadata();
+    @Parameter public abstract Map.Immutable<String, Metadata<?>> metadata();
 
     public TFFileInfo addAll(TFFileInfo other) {
-        Map.Transient<String, Metadata> propMetadata = this.metadata().asTransient();
+        Map.Transient<String, Metadata<?>> propMetadata = this.metadata().asTransient();
         BinaryRelation.Transient<String, String> dependsOn = this.dependsOn().asTransient();
         propMetadata.__putAll(other.metadata());
         for (Entry<String, String> e : other.dependsOn().entrySet()) {
@@ -36,7 +36,7 @@ public abstract class TFFileInfo {
     }
     
     public void init(InitValues initValues) {
-        for (Entry<String, Metadata> e : metadata().entrySet()) {
+        for (Entry<String, Metadata<?>> e : metadata().entrySet()) {
             for (TransferFunction tf : e.getValue().transferFunctions()) {
                 tf.init(initValues);
             }
@@ -46,22 +46,21 @@ public abstract class TFFileInfo {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static IMatcher<TFFileInfo> match() {
         return M.listElems(tupleMatcher(), (list, t) -> {
-            Map.Transient<String, Metadata> propMetadata = Map.Transient.of();
+            Map.Transient<String, Metadata<?>> propMetadata = Map.Transient.of();
             BinaryRelation.Transient<String, String> dependsOn = BinaryRelation.Transient.of();
             for (ImmutableTuple3<String, Direction, TransferFunction[]> t3 : t) {
                 String propName = t3._1();
                 Direction dir = t3._2();
                 TransferFunction[] tfs = t3._3();
 
-                Type type = new Type();
                 CompleteLattice lattice = (CompleteLattice) new FullSetLattice<IStringTerm>();
                 switch (propName) {
                     case "veryBusy":
                     case "available":
-                        propMetadata.__put(propName, ImmutableMetadata.of(dir, lattice.flip(), type, tfs));
+                        propMetadata.__put(propName, ImmutableMetadata.of(dir, lattice.flip(), tfs));
                         break;
                     default:
-                        propMetadata.__put(propName, ImmutableMetadata.of(dir, lattice, type, tfs));
+                        propMetadata.__put(propName, ImmutableMetadata.of(dir, lattice, tfs));
                 }
             }
             return ImmutableTFFileInfo.of(dependsOn.freeze(), propMetadata.freeze());

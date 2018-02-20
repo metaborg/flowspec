@@ -3,8 +3,8 @@ package meta.flowspec.java.interpreter;
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
 import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IdentityTFAppl;
 import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
+import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 import org.metaborg.meta.nabl2.util.ImmutableTuple2;
 
@@ -69,13 +69,7 @@ public class TransferFunction extends RootNode {
                 });
     }
 
-    @SuppressWarnings("unchecked")
-    public static <N extends ICFGNode> Object call(TransferFunctionAppl appl, TransferFunction[] tfs, Object arg) {
-        if (appl instanceof IdentityTFAppl) {
-            IdentityTFAppl<N> iappl = (IdentityTFAppl<N>) appl;
-            return iappl.properties.get(ImmutableTuple2.of((N) arg, iappl.prop));
-        }
-        appl.args[0] = arg;
-        return Truffle.getRuntime().createCallTarget(tfs[appl.tfOffset]).call(appl.args);
+    public static <N extends ICFGNode> ITerm call(TransferFunctionAppl appl, TransferFunction[] tfs, ITerm arg) {
+        return (ITerm) Truffle.getRuntime().createCallTarget(tfs[appl.offset()]).call((Object[]) appl.args(arg));
     }
 }
