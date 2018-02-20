@@ -9,6 +9,7 @@ import java.util.stream.StreamSupport;
 
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import org.metaborg.meta.nabl2.terms.unification.PersistentUnifier;
 import org.metaborg.util.functions.Function2;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -33,7 +34,7 @@ public class TuplePatternNode extends PatternNode {
         return M.tuple(appl -> {
             Object[] valueChildren = appl.getArgs().toArray();
             return zip(Arrays.stream(children), Arrays.stream(valueChildren), (c, vc) -> c.matchGeneric(frame, vc)).allMatch(b -> b);
-        }).match(term).orElse(false);
+        }).match(term, PersistentUnifier.Immutable.of()).orElse(false);
     }
 
     public static IMatcher<TuplePatternNode> match(FrameDescriptor frameDescriptor) {
