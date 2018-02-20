@@ -12,7 +12,7 @@ flowspec/utils
 flowspec/dependencies
 
 nabl2/shared/-
-nabl2/runtime/-
+nabl2/api
 
 signature
   constructors
@@ -244,7 +244,7 @@ with
   pattern' := <pattern-in-dir> pattern
 ; patternstring := <gen-match-pattern-str> pattern'
 ; vars := <pattern-vars(|"match")> pattern'
-; rulestring := ${flowspec--proprule-{name}(|index): {patternstring} -> CAstProperty(index, TF("{name}"), ({n}, [{<csv> vars}]))}
+; rulestring := ${flowspec--proprule-{name}(|index): {patternstring} -> CTFAppl(index, "{name}", {n}, [{<csv> vars}])}
 
 // utils
 

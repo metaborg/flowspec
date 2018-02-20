@@ -37,7 +37,7 @@ rules // Debugging
     with
       filename := <target-file(|project-path, ".aterm")> "transfer-functions"
     where
-      result   := <gen-tf;pp-aterm> node
+      result   := <gen-tf;nabl2-erase-ast-indices;pp-aterm> node
 
   generate-all =
     where(

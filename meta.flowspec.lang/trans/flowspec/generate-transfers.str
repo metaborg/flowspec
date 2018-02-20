@@ -12,6 +12,7 @@ flowspec/utils
 flowspec/dependencies
 flowspec/generate-stratego
 
+nabl2/api
 nabl2/shared/-
 nabl2/runtime/-
 flowspec/static-semantics
