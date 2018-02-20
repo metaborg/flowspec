@@ -28,7 +28,7 @@ pardonedLanguages:
 - SDF
 language:
   sdf:
-    sdf2table: java # waiting for fix to sdf which will allow use of the java version
+    sdf2table: java
     pretty-print: flowspec
   stratego:
     format: ctree
