@@ -4,6 +4,7 @@ import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import org.metaborg.meta.nabl2.terms.unification.PersistentUnifier;
 import org.metaborg.meta.nabl2.util.ImmutableTuple2;
 
 import com.google.common.collect.ImmutableList;
@@ -66,13 +67,19 @@ public class SetCompNode extends ExpressionNode {
     }
 
     public static IMatcher<SetCompNode> match(FrameDescriptor frameDescriptor) {
+        /* NOTE: this is in a strange order because the matching construct builds an interpreter AST while
+         * doing side-effects on the frameDescriptor. Therefore definitions need to be built before
+         * references are built in the AST, because references are immediately resolved through the
+         * frameDescriptor. If you do this in the wrong order the AST will contain nulls instead of frame
+         * Slots. 
+         */
         return M.appl4("SetComp", 
                 M.term(),
                 M.listElems(PatternNode.matchPattern(frameDescriptor)),
                 M.listElems(ExpressionNode.matchExpr(frameDescriptor)),
                 M.listElems(SetCompPredicateNode.matchPred(frameDescriptor)),
                 (appl, term, patterns, exprs, preds) -> ImmutableTuple2.of(term, ImmutableTuple2.of(patterns, ImmutableTuple2.of(exprs, preds))))
-                .flatMap(tuple -> ExpressionNode.matchExpr(frameDescriptor).match(tuple._1()).map(expr -> {
+                .flatMap(tuple -> ExpressionNode.matchExpr(frameDescriptor).match(tuple._1(), PersistentUnifier.Immutable.of()).map(expr -> {
                     ImmutableList<PatternNode> patterns = tuple._2()._1();
                     ImmutableList<ExpressionNode> exprs = tuple._2()._2()._1();
                     ImmutableList<SetCompPredicateNode> preds = tuple._2()._2()._2();

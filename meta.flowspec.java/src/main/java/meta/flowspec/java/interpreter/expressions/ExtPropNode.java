@@ -12,6 +12,7 @@ import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IListTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import org.metaborg.meta.nabl2.terms.unification.PersistentUnifier;
 
 import com.google.common.collect.ImmutableList;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -39,7 +40,7 @@ public class ExtPropNode extends ExpressionNode {
     public Object executeGeneric(VirtualFrame frame) {
         try {
             Optional<ITerm> nabl2value = initValues.astProperties().getValue(TermIndex.get(rhs.executeITerm(frame)).get(), B.newAppl("Property", B.newString(propName))).map(initValues.unifier()::findRecursive);
-            List<Occurrence> value = nabl2value.flatMap(term -> M.listElems(Occurrence.matcher(), (t, list) -> list).match(term)).orElseGet(() -> ImmutableList.<Occurrence>builder().build());
+            List<Occurrence> value = nabl2value.flatMap(term -> M.listElems(Occurrence.matcher(), (t, list) -> list).match(term, PersistentUnifier.Immutable.of())).orElseGet(() -> ImmutableList.<Occurrence>builder().build());
             IListTerm list = B.newList(value.stream().map(occ -> Name.fromOccurrence(initValues, occ)).collect(Collectors.toList()));
             return list;
         } catch (UnexpectedResultException e) {

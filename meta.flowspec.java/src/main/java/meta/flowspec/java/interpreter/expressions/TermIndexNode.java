@@ -16,6 +16,8 @@ import meta.flowspec.java.interpreter.locals.ReadVarNode;
 
 @NodeChildren({@NodeChild(value = "var", type = ReadVarNode.class)})
 public abstract class TermIndexNode extends ExpressionNode {
+    protected ReadVarNode child;
+
     @Specialization
     public TermIndex indexOf(ITerm term) {
         return TermIndex.get(term).get();
@@ -25,9 +27,15 @@ public abstract class TermIndexNode extends ExpressionNode {
         return M.appl1(
                 "TermIndex", 
                 ReadVarNode.match(frameDescriptor), 
-                (appl, var) -> TermIndexNodeGen.create(var));
+                (appl, var) -> {
+                    TermIndexNode result = TermIndexNodeGen.create(var);
+                    result.child = var;
+                    return result;
+                });
     }
-    
-    @Override public void init(InitValues initValues) {
+
+    @Override
+    public void init(InitValues initValues) {
+        child.init(initValues);
     }
 }
