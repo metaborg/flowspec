@@ -11,6 +11,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
+import meta.flowspec.java.interpreter.InitValues;
 import meta.flowspec.java.interpreter.locals.ReadVarNode;
 
 @NodeChildren({@NodeChild(value = "var", type = ReadVarNode.class)})
@@ -25,5 +26,8 @@ public abstract class TermIndexNode extends ExpressionNode {
                 "TermIndex", 
                 ReadVarNode.match(frameDescriptor), 
                 (appl, var) -> TermIndexNodeGen.create(var));
+    }
+    
+    @Override public void init(InitValues initValues) {
     }
 }
