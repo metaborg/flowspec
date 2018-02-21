@@ -119,7 +119,7 @@ with
   // build normal pairs from the chains
 ; pairstr* := <map(gen-pair-to-edge-str)> pairs3
 
-; indexdefstr := "nabl2_index := <nabl2--get-ast-index> fs_term"
+; indexdefstr := "fs_index := <nabl2--get-ast-index> fs_term"
 ; vardefstr* := [recursevarsstr*, refvarsstr*, rrvarstr*, mergedrhsvarstr*, mergedlhsvarstr*]
 ; constraintstr* := [rrconstr*, pairstr*, mergedrhsstr*, mergedlhsstr*, refsstr*, recursesstr*]
 ; constraintstr := <constraint-str-list-to-cconj> constraintstr*
@@ -137,24 +137,24 @@ cfg-root-related-varstr: Root() -> [<gen-cfg-start-node-str> "t_start", <gen-cfg
 cfg-root-related-varstr: NoRoot() -> []
 
 cfg-root-related-constraintstr: Root() -> []
-cfg-root-related-constraintstr: NoRoot() -> ["CAstProperty(nabl2_index, CFGParams(), fs_params)"]
+cfg-root-related-constraintstr: NoRoot() -> ["CAstProperty(fs_index, CFGParams(), fs_params)"]
 
-gen-cfg-node-str = gen-cfg-node-str(|"Normal")
-gen-cfg-start-node-str: nodename -> <gen-cfg-node-str(|"Start")> ("fs_term", nodename)
-gen-cfg-end-node-str: nodename -> <gen-cfg-node-str(|"End")> ("fs_term", nodename)
-gen-artificial-cfg-node-str: nodename -> <gen-cfg-node-str(|"Artificial")> ("fs_term", nodename)
+gen-cfg-node-str: v -> <gen-cfg-node-str(|"Normal")> (${<nabl2-get-ast-index> match{v}}, ${node{v}})
+gen-cfg-start-node-str: nodename -> <gen-cfg-node-str(|"Start")> ("fs_index", nodename)
+gen-cfg-end-node-str: nodename -> <gen-cfg-node-str(|"End")> ("fs_index", nodename)
+gen-artificial-cfg-node-str: nodename -> <gen-cfg-node-str(|"Artificial")> ("fs_index", nodename)
 
 gen-cfg-node-str(|kind): (termname, nodename) ->
-  ${{nodename} := <flowspec--cfg-node(|nabl2_source,{kind}());try(nabl2--copy-origin(|{termname}));nabl2-copy-ast-index(|{termname})> "{nodename}"}
+  ${{nodename} := <flowspec--cfg-node(|{termname},{kind}());try(nabl2--copy-origin(|{termname}))> "{nodename}"}
 
 gen-new-var-str: v ->
   ${{v} := <nabl2--fresh-var(|nabl2_source);try(nabl2--copy-origin(|fs_term))> "{v}"}
 
 gen-directed-edge-str: (lhs, rhs) ->
-  ${CFDirectEdge({lhs}, {rhs}, nabl2_index)}
+  ${CFDirectEdge({lhs}, {rhs}, fs_index)}
 
 gen-equal-str: (lhs, rhs) ->
-  ${CEqual({lhs}, {rhs}, Message(Error(), Default(), nabl2_index))}
+  ${CEqual({lhs}, {rhs}, Message(Error(), Default(), fs_index))}
 
 gen-recurse-var-str: Recurse(v) ->
   <map(gen-new-var-str);semi-lines> [${entry{v}}, ${exit{v}}]
@@ -163,8 +163,7 @@ gen-recurse-str: Recurse(v) ->
   ${<nabl2--generate-constraint(flowspec--generate-cfg-constraint|"{rulename}")> ( nabl2_source, match{v}, CFGParams((entry{v}, exit{v}, t_start, t_end)) )}
 with rulename := "cfg"
 
-gen-ref-var-str: Ref(v) ->
-  <gen-cfg-node-str> (${match{v}}, ${node{v}})
+gen-ref-var-str: Ref(v) -> <gen-cfg-node-str> v
 
 gen-ref-str: Ref(v) ->
   ${<flowspec--proprule(|<nabl2--get-ast-index> match{v})> match{v}}
@@ -244,4 +243,4 @@ with
 
 // utils
 
-constraint-str-list-to-cconj = ?[] < !"CTrue(nabl2_index)" + foldr1(?[<id>], !$[CConj([<Fst>], [<Snd>])])
+constraint-str-list-to-cconj = ?[] < !"CTrue(fs_index)" + foldr1(?[<id>], !$[CConj([<Fst>], [<Snd>])])
