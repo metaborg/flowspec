@@ -10,7 +10,6 @@ import org.metaborg.meta.nabl2.controlflow.terms.ICompleteControlFlowGraph;
 import org.metaborg.meta.nabl2.controlflow.terms.IFlowSpecSolution;
 import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
 import org.metaborg.meta.nabl2.solver.ISolution;
-import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.IStringTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.util.ImmutableTuple2;
@@ -34,8 +33,8 @@ public class FixedPoint {
     private static final int FIXPOINT_LIMIT = 10_000;
 
     private IFlowSpecSolution<CFGNode> solution;
-    private final Map.Transient<Tuple2<TermIndex, String>, ITerm> preProperties;
-    private final Map.Transient<Tuple2<TermIndex, String>, ITerm> postProperties;
+    private final Map.Transient<Tuple2<CFGNode, String>, ITerm> preProperties;
+    private final Map.Transient<Tuple2<CFGNode, String>, ITerm> postProperties;
     
     public FixedPoint() {
         this.preProperties = Map.Transient.of();
@@ -103,15 +102,15 @@ public class FixedPoint {
     }
 
     private void setPostProperty(CFGNode n, String prop, ITerm value) {
-        this.preProperties.__put(ImmutableTuple2.of(TermIndex.get(n).get(), prop), value);
+        this.preProperties.__put(ImmutableTuple2.of(n, prop), value);
     }
 
     private void setProperty(CFGNode n, String prop, ITerm value) {
-        this.preProperties.__put(ImmutableTuple2.of(TermIndex.get(n).get(), prop), value);
+        this.preProperties.__put(ImmutableTuple2.of(n, prop), value);
     }
 
     private ITerm getProperty(CFGNode n, String prop) {
-        return this.preProperties.get(ImmutableTuple2.of(TermIndex.get(n).get(), prop));
+        return this.preProperties.get(ImmutableTuple2.of(n, prop));
     }
 
     @SuppressWarnings("unchecked")

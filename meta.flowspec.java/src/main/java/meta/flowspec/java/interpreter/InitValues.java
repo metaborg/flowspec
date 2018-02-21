@@ -31,7 +31,7 @@ public abstract class InitValues {
     public abstract IBasicControlFlowGraph<CFGNode> controlFlowGraph();
 
     @Parameter
-    public abstract Map<Tuple2<TermIndex, String>, ITerm> properties();
+    public abstract Map<Tuple2<CFGNode, String>, ITerm> properties();
 
     @Parameter
     public abstract IEsopScopeGraph.Immutable<Scope, Label, Occurrence, ITerm> scopeGraph();

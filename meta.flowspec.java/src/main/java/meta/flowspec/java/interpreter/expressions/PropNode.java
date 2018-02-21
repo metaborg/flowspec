@@ -2,6 +2,9 @@ package meta.flowspec.java.interpreter.expressions;
 
 import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 
+import org.metaborg.meta.nabl2.controlflow.terms.ImmutableCFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
+import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode.Kind;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
@@ -19,7 +22,7 @@ import meta.flowspec.java.interpreter.locals.ReadVarNode;
 
 @NodeChildren({@NodeChild("rhs")})
 public abstract class PropNode extends ExpressionNode {
-    private Map<Tuple2<TermIndex, String>, ITerm> properties;
+    private Map<Tuple2<CFGNode, String>, ITerm> properties;
     protected final String propName;
 
     public PropNode(String propName) {
@@ -28,7 +31,8 @@ public abstract class PropNode extends ExpressionNode {
 
     @Specialization
     protected ITerm lookup(ITerm rhs) {
-        return properties.get(ImmutableTuple2.of(TermIndex.get(rhs).get(), propName));
+        TermIndex index = TermIndex.get(rhs).get();
+        return properties.get(ImmutableTuple2.of(ImmutableCFGNode.of(index, null, Kind.Normal), propName));
     }
 
     public static IMatcher<PropNode> match(FrameDescriptor frameDescriptor) {

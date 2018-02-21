@@ -15,3 +15,5 @@ flowspec-get-property-pre(|a, propname) = flowspec--get-property-pre(|a, propnam
 flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propname)
 
 flowspec-constraint-list-to-cconj(index) = constraint-list-to-cconj(index)
+
+flowspec--cfg-node(|index,kind): n -> CFGNode(index, n, kind)
