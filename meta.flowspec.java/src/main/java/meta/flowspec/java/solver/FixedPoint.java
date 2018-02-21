@@ -102,7 +102,7 @@ public class FixedPoint {
     }
 
     private void setPostProperty(CFGNode n, String prop, ITerm value) {
-        this.preProperties.__put(ImmutableTuple2.of(n, prop), value);
+        this.postProperties.__put(ImmutableTuple2.of(n, prop), value);
     }
 
     private void setProperty(CFGNode n, String prop, ITerm value) {
