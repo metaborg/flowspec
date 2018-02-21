@@ -30,6 +30,11 @@ public abstract class PropNode extends ExpressionNode {
     }
 
     @Specialization
+    protected ITerm lookup(CFGNode rhs) {
+        return properties.get(ImmutableTuple2.of(rhs, propName));
+    }
+
+    @Specialization
     protected ITerm lookup(ITerm rhs) {
         TermIndex index = TermIndex.get(rhs).get();
         return properties.get(ImmutableTuple2.of(ImmutableCFGNode.of(index, null, Kind.Normal), propName));
