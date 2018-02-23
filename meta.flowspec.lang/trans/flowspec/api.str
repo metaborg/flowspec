@@ -6,6 +6,7 @@ flowspec/editor-hover
 flowspec/utils
 flowspec/primitives
 flowspec/menus
+signatures/flowspec/runtime/-
 
 strategies
 
