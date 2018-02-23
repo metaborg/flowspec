@@ -1,0 +1,11 @@
+module flowspec/runtime/Params
+
+imports
+
+  nabl2/shared/common/CTerms
+  nabl2/runtime/analysis/Generation
+
+context-free syntax
+
+  FSCGenArgs.CFGParams     = CGenParams
+  FSAstProperty.CFGParams  = "cfgparams"

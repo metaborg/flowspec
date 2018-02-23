@@ -41,6 +41,7 @@ imports
   nabl2/api
   
   flowspec/api
+  signatures/flowspec/runtime/-
 
 imports
   {importstring}
