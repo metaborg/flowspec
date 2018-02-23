@@ -9,6 +9,7 @@ imports
   nabl2/shared/common/Resolution
   nabl2/shared/common/ScopeGraph
   nabl2/shared/constraints/AST
+  flowspec/runtime/Nodes
 
 context-free syntax
 

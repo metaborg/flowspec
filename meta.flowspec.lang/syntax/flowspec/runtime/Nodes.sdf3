@@ -5,10 +5,13 @@ imports
   nabl2/shared/common/AST
   nabl2/shared/common/Resolution
   nabl2/shared/common/ScopeGraph
+  nabl2/shared/common/CTerms
   nabl2/runtime/common/Native
 
 context-free syntax
 
+  CFGNode = CVar
+  CTerm = CFGNode
   CFGNode.CFGNode = <##<TermIndex>-<String>-<CFGNodeKind>>
 
   CFGNodeKind.Normal =
