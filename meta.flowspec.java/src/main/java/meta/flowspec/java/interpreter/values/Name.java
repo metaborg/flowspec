@@ -10,8 +10,7 @@ import org.metaborg.meta.nabl2.scopegraph.terms.Namespace;
 import org.metaborg.meta.nabl2.scopegraph.terms.Occurrence;
 import org.metaborg.meta.nabl2.scopegraph.terms.OccurrenceIndex;
 import org.metaborg.meta.nabl2.scopegraph.terms.Scope;
-import org.metaborg.meta.nabl2.scopegraph.terms.path.ImmutableEmptyScopePath;
-import org.metaborg.meta.nabl2.scopegraph.terms.path.ImmutableResolutionPath;
+import org.metaborg.meta.nabl2.scopegraph.terms.path.Paths;
 import org.metaborg.meta.nabl2.terms.IApplTerm;
 import org.metaborg.meta.nabl2.terms.ITerm;
 import org.metaborg.meta.nabl2.util.collections.IFunction;
@@ -35,7 +34,8 @@ public class Name extends Occurrence implements IResolutionPath<Scope, Label, Oc
         if(paths.isEmpty()) {
             final IFunction.Immutable<Occurrence, Scope> decls = initValues.scopeGraph().getDecls();
             final Scope declScope = decls.get(occurrence).orElseThrow(() -> new RuntimeException("Name " + occurrence + " cannot be resolved"));
-            return new Name(ImmutableResolutionPath.of(occurrence, ImmutableEmptyScopePath.of(declScope), occurrence));
+            final IResolutionPath<Scope, Label, Occurrence> path = Paths.<Scope,Label,Occurrence>resolve(occurrence, Paths.decl(Paths.empty(declScope), occurrence)).get();
+            return new Name(path);
         } else if(paths.size() > 1) {
             throw new RuntimeException("Name " + occurrence + " does not resolve to a unique declaration");
         }
