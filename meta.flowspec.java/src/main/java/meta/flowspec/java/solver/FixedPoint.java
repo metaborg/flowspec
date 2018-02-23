@@ -61,7 +61,7 @@ public class FixedPoint {
         timingInfo.recordInterpInit();
 
         Iterable<CFGNode> unreachable = cfg.unreachableNodes();
-        if (!unreachable.iterator().hasNext()) {
+        if (unreachable.iterator().hasNext()) {
             logger.warn("Found unreachable CFG nodes: " + unreachable);
         }
 
