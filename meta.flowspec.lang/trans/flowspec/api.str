@@ -5,6 +5,7 @@ imports
 flowspec/editor-hover
 flowspec/utils
 flowspec/primitives
+flowspec/menus
 
 strategies
 
