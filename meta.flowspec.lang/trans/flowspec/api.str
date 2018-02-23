@@ -10,11 +10,32 @@ strategies
 
 flowspec-editor-hover(language-pp) = flowspec--editor-hover(language-pp)
 
-flowspec--prop-names = fail
-
+/**
+ * Get the property of the control flow graph node associated with
+ * the given term. The value returned is the value of the property
+ * _before_ the effect of the control flow graph node. 
+ *
+ * @param a : Analysis
+ * @param prop : String
+ * @type decl:Term -> Term
+ */
 flowspec-get-property-pre(|a, propname) = flowspec--get-property-pre(|a, propname)
+
+/**
+ * Get the property of the control flow graph node associated with
+ * the given term. The value returned is the value of the property
+ * _after_ the effect of the control flow graph node. 
+ *
+ * @param a : Analysis
+ * @param prop : String
+ * @type decl:Term -> Term
+ */
 flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propname)
 
-flowspec-constraint-list-to-cconj(index) = constraint-list-to-cconj(index)
+strategies // The following are used/extended by generated code
+
+flowspec--prop-names = fail
+
+flowspec--constraint-list-to-cconj(index) = constraint-list-to-cconj(index)
 
 flowspec--cfg-node(|index,kind): n -> CFGNode(index, n, kind)

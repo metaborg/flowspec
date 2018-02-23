@@ -48,7 +48,7 @@ imports
 rules
 
 nabl2--generate-constraint-default-cfg-rule:
-  _ -> <flowspec-constraint-list-to-cconj(<nabl2--get-ast-index> fs_term)> result
+  _ -> <flowspec--constraint-list-to-cconj(<nabl2--get-ast-index> fs_term)> result
 with(?(nabl2_source, fs_term, Params(_)))
 with(result := <collect-om(flowspec--generate-cfg-root-constraint(|nabl2_source), conc)> fs_term)
 

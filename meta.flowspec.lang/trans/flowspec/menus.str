@@ -17,10 +17,10 @@ rules
     nabl2--debug-file-result(flowspec--debug-control-flow-graph|"control-flow-graph")
 
   flowspec--show-file-control-flow-graph =
-    nabl2--show-file-result(flowspec--show-control-flow-graph|"control-flow-graph.gv")
+    nabl2--debug-file-result(flowspec--show-control-flow-graph,id|"control-flow-graph.gv")
 
   flowspec--debug-project-control-flow-graph =
     nabl2--debug-project-result(flowspec--debug-control-flow-graph|"control-flow-graph")
 
   flowspec--show-project-control-flow-graph =
-    nabl2--show-project-result(flowspec--show-control-flow-graph|"control-flow-graph.gv")
+    nabl2--debug-project-result(flowspec--show-control-flow-graph,id|"control-flow-graph.gv")

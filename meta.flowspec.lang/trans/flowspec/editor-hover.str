@@ -29,9 +29,9 @@ get-all-editor-properties(language-pp | a): t ->
 ]
 with property-tuple* :=
   <try(flowspec--prop-names)
-   ;mapconcat(\n ->
-    [ (${Prop pre-{n}}, <flowspec--get-property-pre(|a, n) <+ !None()> t)
-    , (${Prop {n}}, <flowspec--get-property-post(|a, n) <+ !None()> t) ]\)> []
+  ;mapconcat(\n ->
+    [ (${Prop {n} (pre)},  <flowspec--get-property-pre(|a, n)  <+ !None()> t)
+    , (${Prop {n} (post)}, <flowspec--get-property-post(|a, n) <+ !None()> t) ]\)> []
 
 flowspec--get-type(|a) = nabl2-get-ast-type(|a)
 
