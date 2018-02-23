@@ -2,7 +2,7 @@ module flowspec/utils
 
 imports
 
-nabl2/shared/-
+signatures/nabl2/Shared-sig
 
 strategies
 

@@ -35,12 +35,6 @@ with property-tuple* :=
 
 flowspec--get-type(|a) = nabl2-get-ast-type(|a)
 
-flowspec--get-property-pre(|a, key) = 
-    prim("FS_get_property_pre", a, key)
-
-flowspec--get-property-post(|a, key) = 
-    prim("FS_get_property_post", a, key)
-
 pp-cons: t -> $[[<get-constructor> t]/[<get-arguments;length> t]] where not(is-string)
 
 pp-property: a -> a

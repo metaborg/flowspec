@@ -1,0 +1,15 @@
+module flowspec/primitives
+
+rules
+
+flowspec--debug-control-flow-graph(|a) =
+  prim("FS_debug_control_flow_graph", a)
+
+flowspec--show-control-flow-graph(|a) =
+  prim("FS_show_control_flow_graph", a)
+
+flowspec--get-property-pre(|a, key) = 
+  prim("FS_get_property_pre", a, key)
+
+flowspec--get-property-post(|a, key) = 
+  prim("FS_get_property_post", a, key)

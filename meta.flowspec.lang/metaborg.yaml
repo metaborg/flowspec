@@ -16,12 +16,21 @@ generates:
 - language: Stratego-Sugar
   directory: src-gen/flowspec
 exports:
+
+  ## Stratego
 - language: Stratego-Sugar
   directory: trans
-  includes: "**/*.str"
+  includes: "flowspec/**/*.str"
 - language: Stratego-Sugar
   directory: src-gen
   includes: "**/*.str"
+
+  ## ESV
+- language: EditorService
+  directory: editor
+  includes:
+  - "flowspec/**/*.esv"
+
 pardonedLanguages:
 - EditorService
 - Stratego-Sugar

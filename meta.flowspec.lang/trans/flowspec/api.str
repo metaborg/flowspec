@@ -4,6 +4,7 @@ imports
 
 flowspec/editor-hover
 flowspec/utils
+flowspec/primitives
 
 strategies
 
