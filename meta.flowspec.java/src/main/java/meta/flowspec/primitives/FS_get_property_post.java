@@ -5,6 +5,7 @@ import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
 import java.util.List;
 import java.util.Optional;
 
+import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
 import org.metaborg.meta.nabl2.spoofax.analysis.IScopeGraphUnit;
 import org.metaborg.meta.nabl2.spoofax.primitives.AnalysisPrimitive;
 import org.metaborg.meta.nabl2.stratego.TermIndex;
@@ -27,7 +28,7 @@ public class FS_get_property_post extends AnalysisPrimitive {
         final Optional<String> key = M.stringValue().match(terms.get(0), PersistentUnifier.Immutable.of());
         return key.<ITerm>flatMap(k -> TermIndex.get(term).<ITerm>flatMap(index -> {
             return unit.solution().<ITerm>flatMap(s -> {
-                return Optional.ofNullable(s.flowSpecSolution().postProperties().get(ImmutableTuple2.of(index, k)));
+                return Optional.ofNullable(s.flowSpecSolution().postProperties().get(ImmutableTuple2.of(CFGNode.normal(index), k)));
             });
         }));
     }
