@@ -4,13 +4,5 @@ menus
 
   menu: "FlowSpec Analysis" (meta) (realtime) (openeditor)
 
-    action: "Debug file control-flow graph"   = flowspec--debug-file-control-flow-graph
-
-    separator
-
-    action: "Debug project control-flow graph"   = flowspec--debug-project-control-flow-graph
-
-    separator
-
     action: "Show file control-flow graph"    = flowspec--show-file-control-flow-graph
     action: "Show project control-flow graph" = flowspec--show-project-control-flow-graph

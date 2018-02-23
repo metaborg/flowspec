@@ -2,9 +2,6 @@ module flowspec/primitives
 
 rules
 
-flowspec--debug-control-flow-graph(|a) =
-  prim("FS_debug_control_flow_graph", a)
-
 flowspec--show-control-flow-graph(|a) =
   prim("FS_show_control_flow_graph", a)
 
