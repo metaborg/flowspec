@@ -2,4 +2,4 @@ module flowspec/Constraints
 
 context-free syntax
  
-AstProperty.CFGParams   = "cfgparams"
+NaBL2-AstProperty.CFGParams   = "cfgparams"

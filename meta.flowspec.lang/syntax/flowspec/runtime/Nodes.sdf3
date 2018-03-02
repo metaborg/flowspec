@@ -10,9 +10,9 @@ imports
 
 context-free syntax
 
-  CFGNode = CVar
-  CTerm = CFGNode
-  CFGNode.CFGNode = <##<TermIndex>-<String>-<CFGNodeKind>>
+  CFGNode = NaBL2-CVar
+  NaBL2-CTerm = CFGNode
+  CFGNode.CFGNode = <##<NaBL2-TermIndex>-<NaBL2-String>-<CFGNodeKind>>
 
   CFGNodeKind.Normal =
   CFGNodeKind.Start =
