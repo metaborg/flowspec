@@ -77,8 +77,6 @@ rules
 
   [[ Root() ^ (ruleScope) ]].
 
-  // TODO: give errors on Entry() and Exit() that aren't on the start resp. end of a chain
-  // TODO: give errors on Start() and End() that aren't on the start resp. end of a chain
   [[ Chain(elements) ^ (ruleScope) ]] :=
     Map1 [[ elements ^ (ruleScope) ]].
 
@@ -124,9 +122,16 @@ rules
     propDef.direction := Fw(),
     Pattern [[ patt ^ (ruleScope) ]].
 
+  PropPattern [[ Start(patt) ^ (propDef, ruleScope) ]] :=
+    propDef.direction := Fw(),
+    Pattern [[ patt ^ (ruleScope) ]].
+  PropPattern [[ End(patt) ^ (propDef, ruleScope) ]] :=
+    propDef.direction := Bw(),
+    Pattern [[ patt ^ (ruleScope) ]].
+
   Pattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
     Map1(Pattern) [[ patterns ^ (ruleScope) ]].
-  
+
   Pattern [[ Tuple(patt1, patts) ^ (ruleScope) ]] :=
     Pattern [[ patt1 ^ (ruleScope) ]],
     Map1(Pattern) [[ patts ^ (ruleScope) ]].

@@ -13,8 +13,6 @@ Pattern = Wildcard
 Pattern.Var = Var
 Pattern.At = [[Var]@[Pattern]]
 Pattern = Literal
-Pattern.Start = [start]
-Pattern.End = [end]
 
 Wildcard.Wildcard = "_"
 

@@ -29,13 +29,13 @@ public class FixedPoint {
     private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);
     private static final String ARTIFICIAL_PROPERTY = "__START__";
     private static FixedPoint.TimingInfo timingInfo;
-    // TODO: Make this into a config variable
+    // TODO: Turn this into a config variable
     private static final int FIXPOINT_LIMIT = 10_000;
 
     private IFlowSpecSolution<CFGNode> solution;
     private final Map.Transient<Tuple2<CFGNode, String>, ITerm> preProperties;
     private final Map.Transient<Tuple2<CFGNode, String>, ITerm> postProperties;
-    
+
     public FixedPoint() {
         this.preProperties = Map.Transient.of();
         this.postProperties = Map.Transient.of();
@@ -46,6 +46,10 @@ public class FixedPoint {
         final ICompleteControlFlowGraph<CFGNode> cfg = solution.controlFlowGraph();
         preProperties.__putAll(solution.preProperties());
         postProperties.__putAll(solution.postProperties());
+
+        if (!cfg.deadEndNodes().isEmpty()) {
+            logger.error("Found dead ends in control flow graph: " + cfg.deadEndNodes());
+        }
 
         timingInfo = new FixedPoint.TimingInfo();
 
@@ -60,24 +64,19 @@ public class FixedPoint {
 
         timingInfo.recordInterpInit();
 
-        Iterable<CFGNode> unreachable = cfg.unreachableNodes();
-        if (unreachable.iterator().hasNext()) {
-            logger.warn("Found unreachable CFG nodes: " + unreachable);
-        }
-
         logger.debug("SCCs:" + cfg.topoSCCs());
 
         try {
             solve(cfg, tfFileInfo);
 
             timingInfo.recordEnd();
+            timingInfo.logReport(logger);
 
-            // TODO: add config to turn on timing info
-            if (true) {
-                timingInfo.logReport(logger);
-            }
+            IFlowSpecSolution<CFGNode> flowspecSolution = nabl2solution.flowSpecSolution()
+                    .withPreProperties(this.preProperties.freeze())
+                    .withPostProperties(this.postProperties.freeze());
 
-            return this.flowspecCopyProperties(nabl2solution);
+            return nabl2solution.withFlowSpecSolution(flowspecSolution);
         } catch (UnimplementedException | UnreachableException | ParseException | CyclicGraphException | FixedPointLimitException e) {
             logger.error(e.getMessage());
 
@@ -127,6 +126,7 @@ public class FixedPoint {
             case Forward: {
                 for (CFGNode n : cfg.startNodes()) {
                     setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
+                    setProperty(n, prop, callTF(prop, metadata, n));
                 }
                 edges = cfg.edges();
                 sccs = cfg.topoSCCs();
@@ -135,6 +135,7 @@ public class FixedPoint {
             case Backward: {
                 for (CFGNode n : cfg.endNodes()) {
                     setProperty(n, prop, new meta.flowspec.java.interpreter.values.Set<>());
+                    setProperty(n, prop, callTF(prop, metadata, n));
                 }
                 edges = cfg.edges().inverse();
                 sccs = cfg.revTopoSCCs();
@@ -212,12 +213,12 @@ public class FixedPoint {
         private long interpInit;
         private long reverseTopo;
         private long end;
-        
+
         public TimingInfo() {
             this.property = new LinkedHashMap<>();
             this.start = System.nanoTime();
         }
-        
+
         public void logReport(ILogger logger) {
             long total = millisecondBetween(this.start, this.end);
             long interpInit = millisecondBetween(this.start, this.interpInit);
@@ -246,7 +247,8 @@ public class FixedPoint {
                 message.append("  |- Compute property '" + propertyNames[i] + "': " + propertyTimes[i] + "\n");
             }
 
-            logger.info(message.toString());
+            // TODO: make log level info available through config
+            logger.debug(message.toString());
         }
 
         public void recordInterpInit() {
@@ -269,12 +271,4 @@ public class FixedPoint {
             return (end - start) / 1_000_000;
         }
     }
-
-    private ISolution flowspecCopyProperties(ISolution solution) {
-            IFlowSpecSolution<CFGNode> flowspecSolution = solution.flowSpecSolution()
-                    .withPreProperties(this.preProperties.freeze())
-                    .withPostProperties(this.postProperties.freeze());
-
-            return solution.withFlowSpecSolution(flowspecSolution);
-        }
 }

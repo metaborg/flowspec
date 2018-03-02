@@ -22,6 +22,17 @@ rules // Analysis
 
   nabl2-debug-analysis-hook = id
 
+  // pass AST to final hook
+  nabl2-custom-analysis-init-hook:
+    (resource, ast) -> ast
+
+  // Extra errors/warnings
+  nabl2-custom-analysis-final-hook(|a):
+    (resource, custom-initial-result, custom-unit-results) -> (errors, warnings, notes, ())
+    with errors   := []
+       ; warnings := []
+       ; notes    := []
+
 rules // Debugging
   
   // Prints the abstract syntax ATerm of a selection.

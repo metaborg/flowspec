@@ -20,6 +20,9 @@ PropRule.PropRule = [[PropName]([PropPattern]) = [Expr] [PropWhere]]
 PropPattern.Backward = [[Pattern] -> [Var]]
 PropPattern.Forward = [[Var] -> [Pattern]]
 
+PropPattern.Start = [[Pattern].start]
+PropPattern.End = [[Pattern].end]
+
 PropWhere.NoWhereClause =
 PropWhere.WhereClause = [where [{Binding "\n"}+]]
 

@@ -140,13 +140,13 @@ cfg-root-related-varstr: NoRoot() -> []
 cfg-root-related-constraintstr: Root() -> []
 cfg-root-related-constraintstr: NoRoot() -> ["CAstProperty(fs_index, CFGParams(), fs_params)"]
 
-gen-cfg-node-str: v -> <gen-cfg-node-str(|"Normal")> (${<nabl2-get-ast-index> match{v}}, ${node{v}})
-gen-cfg-start-node-str: nodename -> <gen-cfg-node-str(|"Start")> ("fs_index", nodename)
-gen-cfg-end-node-str: nodename -> <gen-cfg-node-str(|"End")> ("fs_index", nodename)
-gen-artificial-cfg-node-str: nodename -> <gen-cfg-node-str(|"Artificial")> ("fs_index", nodename)
+gen-cfg-node-str: v -> <gen-cfg-node-str(|"Normal")> (${match{v}}, ${node{v}})
+gen-cfg-start-node-str: nodename -> <gen-cfg-node-str(|"Start")> ("fs_term", nodename)
+gen-cfg-end-node-str: nodename -> <gen-cfg-node-str(|"End")> ("fs_term", nodename)
+gen-artificial-cfg-node-str: nodename -> <gen-cfg-node-str(|"Artificial")> ("fs_term", nodename)
 
 gen-cfg-node-str(|kind): (termname, nodename) ->
-  ${{nodename} := <flowspec--cfg-node(|{termname},{kind}());try(nabl2--copy-origin(|{termname}))> "{nodename}"}
+  ${{nodename} := <flowspec--cfg-node(|<nabl2-get-ast-index> {termname},{kind}());try(nabl2--copy-origin(|{termname}))> "{nodename}"}
 
 gen-new-var-str: v ->
   ${{v} := <nabl2--fresh-var(|nabl2_source);try(nabl2--copy-origin(|fs_term))> "{v}"}
@@ -211,20 +211,34 @@ gen-cfg-rhs-str: Start() -> <with(fail|"Error: start on rhs of arrow")>
 
 // Pattern - Pattern, Wildcard
 
+gen-match-pattern-str: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
+with subpatternsstring := <map(gen-match-pattern-str);csv> subpattern*
+gen-match-pattern-str: Tuple(patt, patt*) -> $[([subpatternsstring])]
+with subpatternsstring := <map(gen-match-pattern-str);csv> [patt | patt*]
+gen-match-pattern-str: Wildcard() -> "_"
 gen-match-pattern-str: Var(ident) -> $[match[ident]]
 gen-match-pattern-str: At(ident, pattern) -> $[match[ident]@[patternstring]]
 with patternstring := <gen-match-pattern-str> pattern
-gen-match-pattern-str: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
-with subpatternsstring := <map(gen-match-pattern-str);csv> subpattern*
-gen-match-pattern-str: Wildcard() -> "_"
+gen-match-pattern-str: Int(i) -> i
+gen-match-pattern-str: String(s) -> $["[s]"]
 
-pattern-vars(|prefix): Var(ident) -> [$[[prefix][ident]]]
-pattern-vars(|prefix): At(ident, pattern) -> [$[[prefix][ident]] | <pattern-vars(|prefix)> pattern]
-pattern-vars(|prefix): Term(consname, subpattern*) -> <mapconcat(pattern-vars(|prefix))> subpattern*
-pattern-vars(|prefix): Wildcard() -> []
+pattern-vars(|prefix) = pattern-vars;map(!$[[prefix][<id>]])
+pattern-vars: Term(consname, subpattern*) -> <mapconcat(pattern-vars)> subpattern*
+pattern-vars: Tuple(patt, patt*) -> <mapconcat(pattern-vars)> [patt | patt*]
+pattern-vars: Wildcard() -> []
+pattern-vars: Var(ident) -> [ident]
+pattern-vars: At(ident, pattern) -> [ident | <pattern-vars> pattern]
+pattern-vars: Int(i) -> []
+pattern-vars: String(s) -> []
+
+pattern-to-kind: Start(_) -> "Start"
+pattern-to-kind: End(_) -> "End"
+pattern-to-kind: _ -> "Normal"
 
 pattern-in-dir: Forward(_, p) -> p
 pattern-in-dir: Backward(p,_) -> p
+pattern-in-dir: Start(p) -> p
+pattern-in-dir: End(p) -> p
 
 // PropRule
 
@@ -237,10 +251,11 @@ gen-prop-fail-str: name -> ${flowspec--proprule-{name}(|index) = fail}
 
 gen-str: (n, PropRule(name, pattern, _, _)) -> rulestring
 with
-  pattern' := <pattern-in-dir> pattern
+  kind := <pattern-to-kind> pattern
+; pattern' := <pattern-in-dir> pattern
 ; patternstring := <gen-match-pattern-str> pattern'
 ; vars := <pattern-vars(|"match")> pattern'
-; rulestring := ${flowspec--proprule-{name}(|index): {patternstring} -> CTFAppl(index, "{name}", {n}, [{<csv> vars}])}
+; rulestring := ${flowspec--proprule-{name}(|index): {patternstring} -> CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", "{name}", {n}, [{<csv> vars}])}
 
 // utils
 
