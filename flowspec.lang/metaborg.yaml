@@ -1,5 +1,5 @@
 ---
-id: org.metaborg:meta.flowspec.lang:${metaborgVersion}
+id: org.metaborg:flowspec.lang:${metaborgVersion}
 name: flowspec
 metaborgVersion: 2.5.0-SNAPSHOT
 #metaborgBaselineVersion: 2.4.0

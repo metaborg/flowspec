@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 >
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>meta.flowspec.lang.eclipse</artifactId>
+  <artifactId>flowspec.lang.eclipse</artifactId>
   <packaging>eclipse-plugin</packaging>
 
   <parent>
@@ -15,14 +15,14 @@
   </parent>
 
   <properties>
-    <lang.unpack.artifactId>meta.flowspec.lang</lang.unpack.artifactId>
+    <lang.unpack.artifactId>flowspec.lang</lang.unpack.artifactId>
     <lang.baseline.unpack.skip>true</lang.baseline.unpack.skip>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>meta.flowspec.lang</artifactId>
+      <artifactId>flowspec.lang</artifactId>
       <version>${project.version}</version>
       <type>spoofax-language</type>
     </dependency>
