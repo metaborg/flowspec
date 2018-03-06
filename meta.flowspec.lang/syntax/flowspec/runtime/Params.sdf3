@@ -7,5 +7,5 @@ imports
 
 context-free syntax
 
-  FSCGenArgs.CFGParams     = CGenParams
+  FSCGenArgs.CFGParams     = NaBL2-CGenParams
   FSAstProperty.CFGParams  = "cfgparams"

@@ -13,6 +13,6 @@ imports
 
 context-free syntax
 
-  FSConstraint.CTFAppl =  <<TermIndex>.<AstPropertyId>:<INT> := [<{CTerm ", "}*>]>
+  FSConstraint.CTFAppl =  <<NaBL2-TermIndex>.<NaBL2-AstPropertyId>:<NaBL2-INT> := [<{NaBL2-CTerm ", "}*>]>
 
-  FSConstraint.CFDirectEdge = [[CFGNode] -~-> [CFGNode] [MessagePosition]]
+  FSConstraint.CFDirectEdge = [[CFGNode] -~-> [CFGNode] [NaBL2-MessagePosition]]

@@ -39,9 +39,9 @@ SetCompPredicate.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longes
 SetCompSource.Source = [[Pattern] <- [Expr]]
 
 Expr.TermIndex = [indexOf([Var])]
-Expr.NaBL2Occurrence = Occurrence {avoid}
-CTerm.Ref = Var
-OccurrenceIndex.FSNoIndex = []
+Expr.NaBL2Occurrence = NaBL2-Occurrence {avoid}
+NaBL2-CTerm.Ref = Var
+NaBL2-OccurrenceIndex.FSNoIndex = []
 
 Expr.SetUnion = [[Expr] \/ [Expr]] {left}
 Expr.SetDifference = [[Expr] \ [Expr]] {left}
