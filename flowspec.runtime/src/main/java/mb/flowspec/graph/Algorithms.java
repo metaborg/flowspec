@@ -14,8 +14,8 @@ import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
 import io.usethesource.capsule.BinaryRelation;
-import mb.flowspec.java.solver.CyclicGraphException;
 import mb.flowspec.graph.ImmutableTopoSCCResult;
+import mb.flowspec.runtime.solver.CyclicGraphException;
 
 public class Algorithms {
     /**
