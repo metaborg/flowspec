@@ -1,16 +1,12 @@
 package mb.flowspec.runtime.solver;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
-import org.metaborg.meta.nabl2.terms.IStringTerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
-import org.metaborg.meta.nabl2.util.ImmutableTuple2;
-import org.metaborg.meta.nabl2.util.ImmutableTuple3;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
@@ -19,8 +15,10 @@ import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.flowspec.runtime.solver.Metadata.Direction;
-import mb.flowspec.runtime.solver.ImmutableMetadata;
-import mb.flowspec.runtime.solver.ImmutableTFFileInfo;
+import mb.nabl2.terms.IStringTerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.nabl2.util.ImmutableTuple2;
+import mb.nabl2.util.ImmutableTuple3;
 
 @Immutable
 public abstract class TFFileInfo {

@@ -1,17 +1,17 @@
 package mb.flowspec.runtime.interpreter.values;
 
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
+import static mb.nabl2.terms.build.TermBuild.B;
 
 import java.util.List;
-
-import org.metaborg.meta.nabl2.terms.IApplTerm;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.ITermVar;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
+
+import mb.nabl2.terms.IApplTerm;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.ITermVar;
 
 public class Set<K extends ITerm> implements IApplTerm {
     public final io.usethesource.capsule.Set.Immutable<K> set;

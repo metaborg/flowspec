@@ -1,12 +1,6 @@
 package mb.flowspec.runtime.interpreter;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
-import org.metaborg.meta.nabl2.util.ImmutableTuple2;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
@@ -16,6 +10,11 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
+import mb.nabl2.controlflow.terms.ICFGNode;
+import mb.nabl2.controlflow.terms.TransferFunctionAppl;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.nabl2.util.ImmutableTuple2;
 
 @TypeSystemReference(Types.class)
 public class TransferFunction extends RootNode {

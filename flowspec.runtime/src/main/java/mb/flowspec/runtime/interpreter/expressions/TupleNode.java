@@ -1,18 +1,17 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+import static mb.nabl2.terms.build.TermBuild.B;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Arrays;
-
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.InitValues;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class TupleNode extends ExpressionNode {
     @Children

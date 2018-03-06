@@ -1,8 +1,6 @@
 package mb.flowspec.runtime.interpreter.locals;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
@@ -17,7 +15,7 @@ import com.oracle.truffle.api.nodes.Node;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
 import mb.flowspec.runtime.interpreter.expressions.ExpressionNode;
-import mb.flowspec.runtime.interpreter.locals.WriteVarNodeGen;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @TypeSystemReference(Types.class)
 @NodeChild(value = "valNode", type = ExpressionNode.class)

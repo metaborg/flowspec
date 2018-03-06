@@ -1,8 +1,7 @@
 package mb.flowspec.runtime.lattice;
 
-import org.metaborg.meta.nabl2.terms.ITerm;
-
 import mb.flowspec.runtime.interpreter.values.Set;
+import mb.nabl2.terms.ITerm;
 
 public class FullSetLattice<E extends ITerm> implements CompleteLattice<Set<E>> {
     @SuppressWarnings("unchecked")

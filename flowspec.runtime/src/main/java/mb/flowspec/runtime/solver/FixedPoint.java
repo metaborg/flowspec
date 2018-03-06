@@ -5,25 +5,25 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.ICompleteControlFlowGraph;
-import org.metaborg.meta.nabl2.controlflow.terms.IFlowSpecSolution;
-import org.metaborg.meta.nabl2.controlflow.terms.TransferFunctionAppl;
-import org.metaborg.meta.nabl2.solver.ISolution;
-import org.metaborg.meta.nabl2.terms.IStringTerm;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.util.ImmutableTuple2;
-import org.metaborg.meta.nabl2.util.Tuple2;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import mb.flowspec.graph.Algorithms;
+import mb.flowspec.runtime.interpreter.ImmutableInitValues;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.interpreter.UnreachableException;
-import mb.flowspec.runtime.interpreter.ImmutableInitValues;
+import mb.nabl2.controlflow.terms.CFGNode;
+import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph;
+import mb.nabl2.controlflow.terms.IFlowSpecSolution;
+import mb.nabl2.controlflow.terms.TransferFunctionAppl;
+import mb.nabl2.solver.ISolution;
+import mb.nabl2.terms.IStringTerm;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.util.ImmutableTuple2;
+import mb.nabl2.util.Tuple2;
 
 public class FixedPoint {
     private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);

@@ -1,14 +1,15 @@
 package mb.flowspec.primitives;
 
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
+import static mb.nabl2.terms.build.TermBuild.B;
 
 import java.util.Optional;
 
-import org.metaborg.meta.nabl2.controlflow.terms.ControlFlowGraphTerms;
-import org.metaborg.meta.nabl2.spoofax.analysis.IScopeGraphUnit;
-import org.metaborg.meta.nabl2.spoofax.primitives.AnalysisNoTermPrimitive;
-import org.metaborg.meta.nabl2.terms.ITerm;
 import org.spoofax.interpreter.core.InterpreterException;
+
+import mb.nabl2.controlflow.terms.ControlFlowGraphTerms;
+import mb.nabl2.spoofax.analysis.IScopeGraphUnit;
+import mb.nabl2.spoofax.primitives.AnalysisNoTermPrimitive;
+import mb.nabl2.terms.ITerm;
 
 public class FS_show_control_flow_graph extends AnalysisNoTermPrimitive {
 

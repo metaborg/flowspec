@@ -1,8 +1,7 @@
 package mb.flowspec.runtime.interpreter.patterns;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
@@ -10,6 +9,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.interpreter.InitValues;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class StringLiteralPatternNode extends PatternNode {
     private final String value;

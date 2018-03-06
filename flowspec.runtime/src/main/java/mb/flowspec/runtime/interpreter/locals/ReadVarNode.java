@@ -1,10 +1,8 @@
 package mb.flowspec.runtime.interpreter.locals;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Objects;
-
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -16,7 +14,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.expressions.RefNode;
-import mb.flowspec.runtime.interpreter.locals.ReadVarNodeGen;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @NodeField(name = "slot", type = FrameSlot.class)
 public abstract class ReadVarNode extends RefNode {

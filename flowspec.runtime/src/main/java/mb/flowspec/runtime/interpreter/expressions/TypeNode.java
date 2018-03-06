@@ -1,8 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -10,6 +8,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.solver.UnimplementedException;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class TypeNode extends ExpressionNode {
     @SuppressWarnings("unused")

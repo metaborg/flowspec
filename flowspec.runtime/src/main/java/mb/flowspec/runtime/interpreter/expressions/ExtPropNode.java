@@ -1,18 +1,11 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+import static mb.nabl2.terms.build.TermBuild.B;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.metaborg.meta.nabl2.scopegraph.terms.Occurrence;
-import org.metaborg.meta.nabl2.stratego.TermIndex;
-import org.metaborg.meta.nabl2.terms.IListTerm;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
-import org.metaborg.meta.nabl2.terms.unification.PersistentUnifier;
 
 import com.google.common.collect.ImmutableList;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -22,6 +15,12 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.interpreter.values.Name;
+import mb.nabl2.scopegraph.terms.Occurrence;
+import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.IListTerm;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.nabl2.terms.unification.PersistentUnifier;
 
 public class ExtPropNode extends ExpressionNode {
     private InitValues initValues;

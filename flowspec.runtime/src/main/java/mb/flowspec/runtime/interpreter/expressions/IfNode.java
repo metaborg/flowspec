@@ -1,8 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -11,6 +9,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.InitValues;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class IfNode extends ExpressionNode {
     @Child

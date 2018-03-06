@@ -1,12 +1,6 @@
 package mb.flowspec.runtime.interpreter;
 
-import static org.metaborg.meta.nabl2.terms.build.TermBuild.B;
-
-import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.stratego.TermIndex;
-import org.metaborg.meta.nabl2.terms.IIntTerm;
-import org.metaborg.meta.nabl2.terms.IStringTerm;
-import org.metaborg.meta.nabl2.terms.ITerm;
+import static mb.nabl2.terms.build.TermBuild.B;
 
 import com.oracle.truffle.api.dsl.TypeSystem;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -14,6 +8,11 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import mb.flowspec.runtime.interpreter.values.Function;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.runtime.interpreter.values.Set;
+import mb.nabl2.controlflow.terms.CFGNode;
+import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.IIntTerm;
+import mb.nabl2.terms.IStringTerm;
+import mb.nabl2.terms.ITerm;
 
 @TypeSystem({boolean.class, Function.class, Set.class, TermIndex.class, Name.class, CFGNode.class, ITerm.class})
 public abstract class Types {

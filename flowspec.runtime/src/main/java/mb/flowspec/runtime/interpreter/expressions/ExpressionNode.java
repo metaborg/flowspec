@@ -1,13 +1,8 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Optional;
-
-import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.stratego.TermIndex;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -17,9 +12,13 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
+import mb.flowspec.runtime.interpreter.TypesGen;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.runtime.solver.ParseException;
-import mb.flowspec.runtime.interpreter.TypesGen;
+import mb.nabl2.controlflow.terms.CFGNode;
+import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @TypeSystemReference(Types.class)
 public abstract class ExpressionNode extends Node {

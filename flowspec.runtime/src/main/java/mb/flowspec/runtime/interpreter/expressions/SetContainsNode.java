@@ -1,9 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
@@ -12,7 +9,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.values.Set;
-import mb.flowspec.runtime.interpreter.expressions.SetContainsNodeGen;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @NodeChildren({ @NodeChild("left"), @NodeChild("right") })
 public abstract class SetContainsNode extends ExpressionNode {

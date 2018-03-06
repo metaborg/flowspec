@@ -1,14 +1,14 @@
 package mb.flowspec.runtime.solver;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.lattice.CompleteLattice;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @Immutable
 public abstract class Metadata<T extends ITerm> {

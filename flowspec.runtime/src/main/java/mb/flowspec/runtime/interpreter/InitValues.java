@@ -5,22 +5,22 @@ import java.util.Optional;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
-import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.IBasicControlFlowGraph;
-import org.metaborg.meta.nabl2.scopegraph.esop.IEsopNameResolution;
-import org.metaborg.meta.nabl2.scopegraph.esop.IEsopScopeGraph;
-import org.metaborg.meta.nabl2.scopegraph.esop.lazy.EsopNameResolution;
-import org.metaborg.meta.nabl2.scopegraph.terms.Label;
-import org.metaborg.meta.nabl2.scopegraph.terms.Occurrence;
-import org.metaborg.meta.nabl2.scopegraph.terms.Scope;
-import org.metaborg.meta.nabl2.solver.SolverConfig;
-import org.metaborg.meta.nabl2.stratego.TermIndex;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.unification.IUnifier;
-import org.metaborg.meta.nabl2.util.Tuple2;
-import org.metaborg.meta.nabl2.util.collections.IProperties;
 
 import io.usethesource.capsule.Map;
+import mb.nabl2.controlflow.terms.CFGNode;
+import mb.nabl2.controlflow.terms.IBasicControlFlowGraph;
+import mb.nabl2.scopegraph.esop.IEsopNameResolution;
+import mb.nabl2.scopegraph.esop.IEsopScopeGraph;
+import mb.nabl2.scopegraph.esop.lazy.EsopNameResolution;
+import mb.nabl2.scopegraph.terms.Label;
+import mb.nabl2.scopegraph.terms.Occurrence;
+import mb.nabl2.scopegraph.terms.Scope;
+import mb.nabl2.solver.SolverConfig;
+import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.unification.IUnifier;
+import mb.nabl2.util.Tuple2;
+import mb.nabl2.util.collections.IProperties;
 
 @Immutable
 public abstract class InitValues {

@@ -3,23 +3,22 @@ package mb.flowspec.runtime.interpreter.values;
 import java.util.Collections;
 import java.util.Objects;
 
-import org.metaborg.meta.nabl2.scopegraph.path.IResolutionPath;
-import org.metaborg.meta.nabl2.scopegraph.path.IScopePath;
-import org.metaborg.meta.nabl2.scopegraph.terms.Label;
-import org.metaborg.meta.nabl2.scopegraph.terms.Namespace;
-import org.metaborg.meta.nabl2.scopegraph.terms.Occurrence;
-import org.metaborg.meta.nabl2.scopegraph.terms.OccurrenceIndex;
-import org.metaborg.meta.nabl2.scopegraph.terms.Scope;
-import org.metaborg.meta.nabl2.scopegraph.terms.path.Paths;
-import org.metaborg.meta.nabl2.terms.IApplTerm;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.util.collections.IFunction;
-import org.metaborg.meta.nabl2.util.collections.PSequence;
-
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import io.usethesource.capsule.Set;
 import mb.flowspec.runtime.interpreter.InitValues;
+import mb.nabl2.scopegraph.path.IResolutionPath;
+import mb.nabl2.scopegraph.path.IScopePath;
+import mb.nabl2.scopegraph.terms.Label;
+import mb.nabl2.scopegraph.terms.Namespace;
+import mb.nabl2.scopegraph.terms.Occurrence;
+import mb.nabl2.scopegraph.terms.OccurrenceIndex;
+import mb.nabl2.scopegraph.terms.Scope;
+import mb.nabl2.scopegraph.terms.path.Paths;
+import mb.nabl2.terms.IApplTerm;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.util.collections.IFunction;
+import mb.nabl2.util.collections.PSequence;
 
 public class Name extends Occurrence implements IResolutionPath<Scope, Label, Occurrence> {
     private final IResolutionPath<Scope, Label, Occurrence> resolutionPath;

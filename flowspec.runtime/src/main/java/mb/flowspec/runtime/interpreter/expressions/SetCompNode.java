@@ -1,11 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
-import org.metaborg.meta.nabl2.terms.unification.PersistentUnifier;
-import org.metaborg.meta.nabl2.util.ImmutableTuple2;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.google.common.collect.ImmutableList;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -16,6 +11,10 @@ import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.UnreachableException;
 import mb.flowspec.runtime.interpreter.patterns.PatternNode;
 import mb.flowspec.runtime.interpreter.values.Set;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.nabl2.terms.unification.PersistentUnifier;
+import mb.nabl2.util.ImmutableTuple2;
 
 public class SetCompNode extends ExpressionNode {
     public final ExpressionNode expression;

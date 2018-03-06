@@ -1,15 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import org.metaborg.meta.nabl2.controlflow.terms.ImmutableCFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.CFGNode;
-import org.metaborg.meta.nabl2.controlflow.terms.ICFGNode.Kind;
-import org.metaborg.meta.nabl2.stratego.TermIndex;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
-import org.metaborg.meta.nabl2.util.ImmutableTuple2;
-import org.metaborg.meta.nabl2.util.Tuple2;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
@@ -19,7 +10,14 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import io.usethesource.capsule.Map;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
-import mb.flowspec.runtime.interpreter.expressions.PropNodeGen;
+import mb.nabl2.controlflow.terms.CFGNode;
+import mb.nabl2.controlflow.terms.ICFGNode.Kind;
+import mb.nabl2.controlflow.terms.ImmutableCFGNode;
+import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.nabl2.util.ImmutableTuple2;
+import mb.nabl2.util.Tuple2;
 
 @NodeChildren({@NodeChild("rhs")})
 public abstract class PropNode extends ExpressionNode {

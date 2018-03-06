@@ -1,14 +1,10 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
- import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+ import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.metaborg.meta.nabl2.terms.IListTerm;
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.ListTerms;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
@@ -18,6 +14,10 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import io.usethesource.capsule.Set.Immutable;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.values.Set;
+import mb.nabl2.terms.IListTerm;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.ListTerms;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class ApplicationNode extends ExpressionNode {
     private static ILogger logger = LoggerUtils.logger(ApplicationNode.class);

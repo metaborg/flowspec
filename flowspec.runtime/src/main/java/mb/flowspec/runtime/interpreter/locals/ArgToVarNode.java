@@ -1,8 +1,6 @@
 package mb.flowspec.runtime.interpreter.locals;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
-
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -12,6 +10,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 
 import mb.flowspec.runtime.interpreter.Types;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @TypeSystemReference(Types.class)
 public class ArgToVarNode extends Node {

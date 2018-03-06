@@ -1,15 +1,12 @@
 package mb.flowspec.runtime.interpreter.patterns;
 
-import static org.metaborg.meta.nabl2.terms.matching.TermMatch.M;
+import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.metaborg.meta.nabl2.terms.ITerm;
-import org.metaborg.meta.nabl2.terms.matching.TermMatch.IMatcher;
-import org.metaborg.meta.nabl2.terms.unification.PersistentUnifier;
 import org.metaborg.util.functions.Function2;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -17,6 +14,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.nabl2.terms.unification.PersistentUnifier;
 
 public class TuplePatternNode extends PatternNode {
     @Children

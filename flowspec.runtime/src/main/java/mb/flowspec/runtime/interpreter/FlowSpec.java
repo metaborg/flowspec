@@ -1,7 +1,5 @@
 package mb.flowspec.runtime.interpreter;
 
-import org.metaborg.meta.nabl2.stratego.StrategoTerms;
-import org.metaborg.meta.nabl2.terms.unification.PersistentUnifier;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
@@ -11,6 +9,9 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.source.Source;
+
+import mb.nabl2.stratego.StrategoTerms;
+import mb.nabl2.terms.unification.PersistentUnifier;
 
 @TruffleLanguage.Registration(name = "FlowSpec", version = FlowSpec.VERSION, mimeType = FlowSpec.MIME_TYPE)
 public final class FlowSpec extends TruffleLanguage<Context> {
