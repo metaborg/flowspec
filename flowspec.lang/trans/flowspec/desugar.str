@@ -64,7 +64,7 @@ extract-definitions =
 
 alt-syntax: AltCFGRule(r, p, c*) -> CFGRule(r, p', c'*)
 where this := <extract-this-name> p
-    ; p' := <topdown(try(origin-track-forced(alt-syntax(|this))))> p
+    ; p' := At(this, <topdown(try(origin-track-forced(alt-syntax(|this))))> p)
     ; c'* := <topdown(try(origin-track-forced(alt-syntax(|this))))> c*
 alt-syntax: CFGNode(p) -> CFGRule(NoRoot(), At(this, p), [Chain([Entry(), Ref(this), Exit()])])
 where this := <extract-this-name> p
