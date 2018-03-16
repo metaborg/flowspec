@@ -1,0 +1,9 @@
+module flowspec/desugar/Flow
+
+imports
+
+flowspec/Flow
+
+context-free syntax
+
+CFGChain.Chain = {CFGChainElement " -> "}+

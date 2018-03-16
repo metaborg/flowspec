@@ -20,7 +20,7 @@ rules
 desugar-all = topdown(try(desugar-one))
 //;remove-object-sharing-in-strings;warning-on-missing-origin
 
-desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm)
+desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm + desugar-chain)
 
 desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
 where if map(not(s))
@@ -54,3 +54,7 @@ with (sources, exprs') := <partition(?Source(_, _))> exprs
    ; (sourcepatterns, sources') := <unzip(\Source(a,b) -> (a,b)\)> sources
 
 desugar-setcompmatcharm: MatchArm(pattern) -> pattern
+
+desugar-chain: Chain(head, tail) -> Chain([head | tail])
+
+desugar-chain: CFGRule(root, pattern) -> CFGRule(root, pattern, [])
