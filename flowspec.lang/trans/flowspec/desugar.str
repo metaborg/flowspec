@@ -22,7 +22,7 @@ post-desugar-all = topdown(try(post-desugar-one))
 post-desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm)
 
 pre-desugar-all = topdown(try(pre-desugar-one))
-pre-desugar-one = origin-track-forced(desugar-chain + desugar-cfgrule)
+pre-desugar-one = origin-track-forced(desugar-chain + desugar-cfgrule + alt-syntax)
 
 desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
 where if map(not(s))
@@ -42,3 +42,40 @@ desugar-setcompmatcharm: MatchArm(pattern) -> pattern
 desugar-chain: Chain(head, tail) -> Chain([head | tail])
 
 desugar-cfgrule: CFGRule(root, pattern) -> CFGRule(root, pattern, [])
+
+alt-syntax: Module(name, sections) -> Module(name, imports, [], definitions)
+with imports := <extract-imports> sections
+   ; definitions := <extract-definitions> sections
+
+extract-imports = 
+  retain-all(\Imports(i,e) -> 
+    <conc> ( <map(!Import(<id>))> i
+           , <mapconcat(\Externals(i) -> <map(!ExtImport(<id>))> i\)> e
+           )\)
+  ; concat
+
+extract-definitions =
+  remove-all(?Imports(_,_))
+; mapconcat( ?CFGRules(<id>)
+           + ?LatticeDefs(<id>)
+           + \PropDefs(d, e) -> <conc> (d, <mapconcat(\Externals(e) -> <map(\PropDef(n,t) -> ExtPropDef(n,t)\)> e\)> e)\
+           + \PropRules(r) -> r\
+           )
+
+alt-syntax: AltCFGRule(r, p, c*) -> CFGRule(r, p', c'*)
+where this := <extract-this-name> p
+    ; p' := <topdown(try(origin-track-forced(alt-syntax(|this))))> p
+    ; c'* := <topdown(try(origin-track-forced(alt-syntax(|this))))> c*
+alt-syntax: CFGNode(p) -> CFGRule(NoRoot(), At(this, p), [Chain([Entry(), Ref(this), Exit()])])
+where this := <extract-this-name> p
+alt-syntax(|this): This() -> Ref(this)
+alt-syntax(|this): SubCFG(r) -> Recurse(r)
+alt-syntax(|this): Node(r) -> Ref(r)
+
+extract-this-name: Term(name, _) -> <lower-case> name
+extract-this-name: Tuple(_, l) -> $[tuple[<length;inc> l]]
+extract-this-name: Wildcard() -> "wld"
+extract-this-name: Var(v) -> v
+extract-this-name: At(_,p) -> <extract-this-name> p
+extract-this-name: Int(i) -> $[int[i]]
+extract-this-name: String(_) -> $[string]

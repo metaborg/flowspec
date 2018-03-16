@@ -22,6 +22,20 @@ CFGChainElement.Ref = Var
 Root.NoRoot =
 Root.Root = [root]
 
+context-free syntax
+
+AltCFGRule.AltCFGRule = [[Root] [Pattern] = [{AltCFGChain ", "}+]]
+AltCFGChain.Chain = [[AltCFGChainElement] -> [{AltCFGChainElement " -> "}+]]
+AltCFGChainElement.Entry = [entry]
+AltCFGChainElement.Exit = [exit]
+AltCFGChainElement.Start = [start]
+AltCFGChainElement.End = [end]
+AltCFGChainElement.SubCFG = Var
+AltCFGChainElement.Node = [node [Var]]
+AltCFGChainElement.This = [this]
+
+AltCFGRule.CFGNode = [node [Pattern]]
+
 template options
 
   keyword -/- [A-Za-z\-]

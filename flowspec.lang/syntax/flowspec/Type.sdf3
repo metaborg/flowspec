@@ -23,6 +23,10 @@ LatticeDef.LatticeDef =
 [lattice [TypeName] [Var*] where
   [LatticePart+]]
 
+AltLatticeDef.LatticeDef =
+[[TypeName] [Var*] where
+  [LatticePart+]]
+
 LatticePart.Type = [type = [Type]]
 LatticePart.Lub = [lub [Var] [Var] = [Expr]]
 LatticePart.Glb = [glb [Var] [Var] = [Expr]]

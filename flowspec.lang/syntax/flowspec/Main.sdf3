@@ -36,6 +36,45 @@ Definition = FunDef
 
 FunDef.FunDef = [fun [Var] [Pattern*] = [Expr]]
 
+context-free syntax // Alternative syntax
+
+AltModule.Module =
+[#alt-syntax
+module [ModuleName]
+
+[{Section "\n"}*]
+]
+
+Section.Imports =
+[imports
+  [{ModuleName "\n"}*]
+  [{ImportExternalSection "\n"}*]]
+
+ImportExternalSection.Externals =
+[external
+  [{StrategoModName "\n"}*]]
+
+Section.CFGRules =
+[control-flow rules
+  [{AltCFGRule "\n"}*]]
+
+Section.LatticeDefs =
+[lattice definitions
+  [{AltLatticeDef "\n"}*]]
+
+Section.PropDefs =
+[property definitions
+  [{AltPropDef "\n"}*]
+  [{PropDefExternalSection "\n"}*]]
+
+PropDefExternalSection.Externals =
+[external
+  [{AltPropDef "\n"}*]]
+
+Section.PropRules =
+[property rules
+  [{PropRule "\n"}*]]
+
 template options
 
 keyword -/- [A-Za-z\-]
