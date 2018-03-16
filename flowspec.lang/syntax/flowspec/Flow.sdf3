@@ -32,7 +32,7 @@ AltCFGChainElement.Start = [start]
 AltCFGChainElement.End = [end]
 AltCFGChainElement.SubCFG = Var
 AltCFGChainElement.Node = [node [Var]]
-AltCFGChainElement.This = [this]
+AltCFGChainElement.This = [this] {prefer}
 
 AltCFGRule.CFGNode = [node [Pattern]]
 
