@@ -24,7 +24,7 @@ rules // Debugging
     (node, _, _, path, project-path) -> (filename, result)
     with
       filename := <guarantee-extension(|"desugared.aterm")> path
-    ; result   := <desugar-all> node
+    ; result   := <pre-desugar-all> node
 
   generate-stratego: 
     (node@Module(name, _, _, _), _, _, path, project-path) -> (filename, result)

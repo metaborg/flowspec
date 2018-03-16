@@ -21,7 +21,7 @@ post-desugar-all = topdown(try(post-desugar-one))
 
 post-desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm)
 
-pre-desugar-all = topdown(try(pre-desugar-all))
+pre-desugar-all = topdown(try(pre-desugar-one))
 pre-desugar-one = origin-track-forced(desugar-chain + desugar-cfgrule)
 
 desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
