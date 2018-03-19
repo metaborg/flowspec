@@ -72,10 +72,12 @@ alt-syntax(|this): This() -> Ref(this)
 alt-syntax(|this): SubCFG(r) -> Recurse(r)
 alt-syntax(|this): Node(r) -> Ref(r)
 
-extract-this-name: Term(name, _) -> <lower-case> name
-extract-this-name: Tuple(_, l) -> $[tuple[<length;inc> l]]
-extract-this-name: Wildcard() -> "wld"
-extract-this-name: Var(v) -> v
-extract-this-name: At(_,p) -> <extract-this-name> p
-extract-this-name: Int(i) -> $[int[i]]
-extract-this-name: String(_) -> $[string]
+extract-this-name = origin-track-forced(!$[_[<extract-this-name_>]])
+
+extract-this-name_: Term(name, _) -> <lower-case> name
+extract-this-name_: Tuple(_, l) -> $[tuple[<length;inc> l]]
+extract-this-name_: Wildcard() -> "wld"
+extract-this-name_: Var(v) -> v
+extract-this-name_: At(_,p) -> <extract-this-name> p
+extract-this-name_: Int(i) -> $[int[i]]
+extract-this-name_: String(_) -> $[string]

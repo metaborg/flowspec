@@ -3,6 +3,7 @@ module generate-stratego
 imports
 
 signatures/flowspec/-
+signatures/flowspec/desugar/-
 
 libspoofax/stratego/debug
 libspoofax/core/language
