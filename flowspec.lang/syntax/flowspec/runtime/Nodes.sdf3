@@ -1,0 +1,20 @@
+module flowspec/runtime/Nodes
+
+imports
+
+  nabl2/shared/common/AST
+  nabl2/shared/common/Resolution
+  nabl2/shared/common/ScopeGraph
+  nabl2/shared/common/CTerms
+  nabl2/runtime/common/Native
+
+context-free syntax
+
+  CFGNode = NaBL2-CVar
+  NaBL2-CTerm = CFGNode
+  CFGNode.CFGNode = <##<NaBL2-TermIndex>-<NaBL2-String>-<CFGNodeKind>>
+
+  CFGNodeKind.Normal =
+  CFGNodeKind.Start =
+  CFGNodeKind.End =
+  CFGNodeKind.Artificial =

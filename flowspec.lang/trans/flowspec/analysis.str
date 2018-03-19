@@ -1,0 +1,46 @@
+module flowspec/analysis
+
+imports
+  flowspec/desugar
+  
+  nabl2/api
+  nabl2shared
+  nabl2runtime
+  
+  flowspec/static-semantics
+
+  pp
+  
+  libspoofax/stratego/debug
+
+rules // Analysis
+
+//  editor-analyze = !(<Fst;desugar-all>, [], [], [])
+  editor-analyze = nabl2-analyze(id);desugar-all
+
+  nabl2-debug-constraint-generation-hook = id
+
+  nabl2-debug-analysis-hook = id
+
+  // pass AST to final hook
+  nabl2-custom-analysis-init-hook:
+    (resource, ast) -> ast
+
+  // Extra errors/warnings
+  nabl2-custom-analysis-final-hook(|a):
+    (resource, custom-initial-result, custom-unit-results) -> (errors, warnings, notes, ())
+    with errors   := []
+       ; warnings := []
+       ; notes    := []
+
+rules // Debugging
+  
+  // Prints the abstract syntax ATerm of a selection.
+  debug-show-aterm: (selected, _, _, path, project-path) -> (filename, result)
+    with filename := <guarantee-extension(|"aterm")> path
+       ; result   := selected
+
+  // Prints the analyzed annotated abstract syntax ATerm of a selection.
+  debug-show-analyzed: (selected, _, _, path, project-path) -> (filename, result)
+    with filename := <guarantee-extension(|"analyzed.aterm")> path
+       ; result   := selected

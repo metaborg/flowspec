@@ -1,0 +1,61 @@
+module flowspec/Expr
+
+imports
+
+flowspec/Common
+flowspec/Pattern
+nabl2/shared/common/Names
+nabl2/shared/common/ScopeGraph
+
+template options
+tokenize: "("
+
+context-free syntax // expressions
+
+Expr.Term = [[ConsName]([{Expr ","}*])]
+Expr = Ref
+Expr.Prop = [[PropName]([Var])] {prefer}
+Expr.Tuple = [([Expr], [{Expr ", "}+])]
+Expr = Literal
+Expr.Start = [start]
+Expr.End = [end]
+// TODO: add ADT application
+
+Expr = [([Expr])] {bracket}
+Expr.Type = [[Var].type]
+Expr.Appl = [[Ref]([{Expr ", "}+])] {left}
+Expr.If = [if [Expr] then [Expr] else [Expr]]
+Expr.Eq = [[Expr] == [Expr]] {left}
+Expr.NEq = [[Expr] != [Expr]] {left}
+Expr.Not = [![Expr]]
+Expr.Match = [match [Expr] with [MatchArm+]] {longest-match}
+
+Expr.SetLiteral = [{ [{Expr ","}*] }]
+Expr.SetComp = [{ [Expr] | [{SetCompExpr ", "}+] }]
+SetCompExpr = SetCompSource
+SetCompExpr = SetCompPredicate
+SetCompPredicate.Predicate = Expr
+SetCompPredicate.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longest-match}
+SetCompSource.Source = [[Pattern] <- [Expr]]
+
+Expr.TermIndex = [indexOf([Var])]
+Expr.NaBL2Occurrence = NaBL2-Occurrence {avoid}
+NaBL2-CTerm.Ref = Var
+NaBL2-OccurrenceIndex.FSNoIndex = []
+
+Expr.SetUnion = [[Expr] \/ [Expr]] {left}
+Expr.SetDifference = [[Expr] \ [Expr]] {left}
+Expr.SetContains = [[Expr] in [Expr]] {left}
+Expr.SetIntersection = [[Expr] /\ [Expr]] {left}
+
+MatchArm.MatchArm = [| [Pattern] => [Expr]]
+SetCompMatchArm.MatchArm = [| [Pattern]]
+
+Literal.Int = INT
+Literal.String = STRING
+
+Ref.QualRef = [[ModuleName].[Var]] {avoid}
+Ref.Ref = Var
+
+context-free priorities
+  Expr.Not > { left: Expr.Appl Expr.If Expr.Match } > { non-assoc: Expr.SetUnion Expr.SetIntersection Expr.SetContains Expr.SetDifference } > { left: Expr.Eq Expr.NEq }

@@ -1,0 +1,18 @@
+module flowspec/runtime/Constraints
+
+imports
+
+  nabl2/shared/common/AST
+  nabl2/shared/common/Identifiers
+  nabl2/shared/common/CTerms
+  nabl2/shared/common/Messages
+  nabl2/shared/common/Resolution
+  nabl2/shared/common/ScopeGraph
+  nabl2/shared/constraints/AST
+  flowspec/runtime/Nodes
+
+context-free syntax
+
+  FSConstraint.CTFAppl =  <<NaBL2-TermIndex>.<NaBL2-AstPropertyId>:<NaBL2-INT> := [<{NaBL2-CTerm ", "}*>]>
+
+  FSConstraint.CFDirectEdge = [[CFGNode] -~-> [CFGNode] [NaBL2-MessagePosition]]

@@ -1,0 +1,21 @@
+module flowspec/Pattern
+
+imports
+
+flowspec/Common
+flowspec/Expr
+
+context-free syntax
+
+Pattern.Term = [[ConsName]([{Pattern ", "}*])]
+Pattern.Tuple = [([Pattern], [{Pattern ", "}+])]
+Pattern = Wildcard
+Pattern.Var = Var
+Pattern.At = [[Var]@[Pattern]]
+Pattern = Literal
+
+Wildcard.Wildcard = "_"
+
+template options
+
+keyword -/- [A-Za-z\-]

@@ -1,0 +1,33 @@
+module flowspec/Property
+
+imports
+
+flowspec/Common
+flowspec/Pattern
+flowspec/Type
+flowspec/Expr
+flowspec/Flow
+
+context-free syntax // Properties
+
+PropDef.PropDef = [prop [PropName]: [Type]]
+PropDef.ExtPropDef = [external prop [PropName]: [Type]]
+
+context-free syntax // Property Rules
+
+PropRule.PropRule = [[PropName]([PropPattern]) = [Expr] [PropWhere]]
+
+PropPattern.Backward = [[Pattern] -> [Var]]
+PropPattern.Forward = [[Var] -> [Pattern]]
+
+PropPattern.Start = [[Pattern].start]
+PropPattern.End = [[Pattern].end]
+
+PropWhere.NoWhereClause =
+PropWhere.WhereClause = [where [{Binding "\n"}+]]
+
+Binding.Binding = [[Var] = [Expr]]
+
+template options
+
+  keyword -/- [A-Za-z\-]
