@@ -36,11 +36,6 @@ public class Set<K extends ITerm> implements IApplTerm {
     }
 
     @Override
-    public boolean isLocked() {
-        return false;
-    }
-
-    @Override
     public Multiset<ITermVar> getVars() {
         return ImmutableMultiset.of();
     }
@@ -90,8 +85,4 @@ public class Set<K extends ITerm> implements IApplTerm {
         return new ImmutableList.Builder<ITerm>().add(B.newList(this.set)).build();
     }
 
-    @Override
-    public IApplTerm withLocked(boolean locked) {
-        return this;
-    }
 }
