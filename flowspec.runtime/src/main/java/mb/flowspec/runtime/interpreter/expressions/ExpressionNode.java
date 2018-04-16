@@ -78,6 +78,8 @@ public abstract class ExpressionNode extends Node {
             IfNode.match(frameDescriptor),
             EqualNode.match(frameDescriptor),
             NotEqualNode.match(frameDescriptor),
+            AndNode.match(frameDescriptor),
+            OrNode.match(frameDescriptor),
             NotNode.match(frameDescriptor),
             PlusNode.match(frameDescriptor),
             // TODO Match/2?
