@@ -30,15 +30,19 @@ Expr.NEq = [[Expr] != [Expr]] {left}
 Expr.Not = [![Expr]]
 Expr.Match = [match [Expr] with [MatchArm+]] {longest-match}
 
-Expr.SetLiteral = [{ [{Expr ","}*] }]
+Expr.SetLiteral = [{ [{Expr ","}+] }]
 Expr.SetComp = [{ [Expr] | [{SetCompExpr ", "}+] }]
+Expr.MapLiteral = [{ [{MapBinding ","}+] }]
+Expr.MapLookup = <<Expr>[<Expr>]>
+Expr.EmptySetOrMapLiteral = [{ }] {prefer}
 SetCompExpr = SetCompSource
 SetCompExpr = SetCompPredicate
 SetCompPredicate.Predicate = Expr
 SetCompPredicate.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longest-match}
 SetCompSource.Source = [[Pattern] <- [Expr]]
+MapBinding.Binding = [[Expr] |-> [Expr]]
 
-Expr.TermIndex = [indexOf([Var])]
+Expr.TermIndex = [occurrence([Var])]
 Expr.NaBL2Occurrence = NaBL2-Occurrence {avoid}
 NaBL2-CTerm.Ref = Var
 NaBL2-OccurrenceIndex.FSNoIndex = []

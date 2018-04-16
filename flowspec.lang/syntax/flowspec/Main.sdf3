@@ -34,7 +34,7 @@ Definition = PropRule
 Definition = TypeDef
 Definition = FunDef
 
-FunDef.FunDef = [fun [Var] [Pattern*] = [Expr]]
+FunDef.FunDef = [fun [Var]([{Pattern ", "}*]) = [Expr]]
 
 context-free syntax // Alternative syntax
 
@@ -59,11 +59,11 @@ Section.CFGRules =
   [{AltCFGRule "\n"}*]]
 
 Section.LatticeDefs =
-[lattice definitions
+[lattices
   [{AltLatticeDef "\n"}*]]
 
 Section.PropDefs =
-[property definitions
+[properties
   [{AltPropDef "\n"}*]
   [{PropDefExternalSection "\n"}*]]
 
