@@ -16,14 +16,14 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-external prop reads: Set(name)
+external prop refs: Set(name)
 
 prop veryBusy: MustSet(term)
 
 veryBusy(Assign(n, e) -> next) =
   { expr |
     expr <- veryBusy(next),
-    !(n in reads(expr)) }
+    !(n in refs(expr)) }
    \/ {e}
 
 veryBusy(_ -> next) = veryBusy(next)

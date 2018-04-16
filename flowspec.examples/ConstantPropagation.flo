@@ -16,9 +16,48 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
-prop constProp: Map name Const
+prop constProp: CP
 
 constProp(prev -> Assign(n, e)) =
+  match constProp(prev) with
+    | M1(m, v) => M(m \/ {Var{n} |-> v})
+    | _ => CP.top
+
+constProp(prev -> Add(e1,e2)) =
+  constAdd(constProp(prev))
+
+constProp(prev -> VarRef(n)) =
+  addResult(constProp(prev), getMap(constProp(prev))[Var{n}])
+
+constProp(prev -> _) = constProp(prev)
+
+type CPType =
+  | M(Map(name, Const))
+  | M1(Map(name, Const), ConstProp)
+  | M2(Map(name, Const), ConstProp, ConstProp)
+
+fun getMap(cpt: CPType) = match cpt with
+  | M(m) => m
+  | M1(m,_) => m
+  | M2(m,_,_) => m
+
+fun addResult(cpt: CPType, v: Const) = match cpt with
+  | M1(m, v1) => M2(m, v1, v)
+  | _ => M1(getMap(cpt), v)
+
+lattice CP where
+  type CPType
+
+  lub l r = match (l,r) with
+    | (M(l), M(r)) => M(Map.lub(l,r))
+    | (M1(l, cl), M1(r, cr)) => M1(Map.lub(l,r), Const.lub(cl,cr))
+    | (M2(l, cl1, cl2), M2(r, cr1, cr2)) =>
+        M2(Map.lub(l,r), Const.lub(cl1, cr1), Const.lub(cl2, cr2))
+    | _ => CP.top
+
+  bottom = M(Map.bottom)
+
+  top = M(Map.top)
 
 type ConstProp =
   | Top()
@@ -29,11 +68,17 @@ lattice Const where
   type = ConstProp
 
   lub l r = match (l,r) with
-    | (Top(), _) => Top
-    | (_, Top()) => Top
+    | (Top(), _) => Top()
+    | (_, Top()) => Top()
     | (Const(i), Const(j)) => if i == j
-        then Const i else Top
+        then Const(i) else Top()
     | (_, Bottom()) => l
     | (Bottom(), _) => r
 
-  bottom = Bottom
+  bottom = Bottom()
+
+fun constAdd(cpt: CPType) = match cpt with
+  | M2(m, l, r) => M1(m, match(l,r) with 
+    | (Const(i), Const(j)) => Const(i+j)
+    | _ => Const.lub(l,r))
+  | _ => CP.top
