@@ -356,6 +356,14 @@ rules
     [[ l ^ (ruleScope) ]],
     [[ r ^ (ruleScope) ]].
   
+  [[ And(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Or(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
   [[ Not(e) ^ (ruleScope) ]] :=
     [[ e ^ (ruleScope) ]].
   

@@ -23,6 +23,7 @@ LatticeDef.LatticeDef =
 [lattice [TypeName]([{Var ", "}*]) where
   [LatticePart+]]
 
+// TODO: no need for the Var*?
 AltLatticeDef.LatticeDef =
 [[TypeName]([{Var ", "}*]) where
   [LatticePart+]]

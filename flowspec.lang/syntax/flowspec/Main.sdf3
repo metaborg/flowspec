@@ -75,6 +75,10 @@ Section.PropRules =
 [property rules
   [{PropRule "\n"}*]]
 
+Section.LatticeDefs =
+[lattices
+  [{AltLatticeDef "\n"}*]]
+
 template options
 
 keyword -/- [A-Za-z\-]
