@@ -20,7 +20,7 @@ prop definition: MaySet(name * Option(index))
 
 definition(prev -> this@Assign(n, e)) =
   { (n, Some(indexOf(this))) } \/
-  { (m, l) | (m, l) <- definition(pred), m != n }
+  { (m, l) | (m, l) <- definition(prev), m != n }
 
 definition(prev -> _) = definition(prev)
 
