@@ -1,17 +1,9 @@
 package mb.flowspec.graph;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Parameter;
 
 import io.usethesource.capsule.BinaryRelation;
 import mb.flowspec.runtime.solver.CyclicGraphException;

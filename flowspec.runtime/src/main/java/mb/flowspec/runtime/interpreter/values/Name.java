@@ -112,11 +112,6 @@ public class Name extends Occurrence implements IResolutionPath<Scope, Label, Oc
     }
 
     @Override
-    public IApplTerm withLocked(boolean locked) {
-        return resolutionPath.getDeclaration().withLocked(locked);
-    }
-
-    @Override
     public Namespace getNamespace() {
         return resolutionPath.getDeclaration().getNamespace();
     }
