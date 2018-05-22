@@ -1,84 +1,92 @@
+#alt-syntax
 module flow
 
-cfg Root(s) = entry -> cfg s -> exit
+control-flow rules
+  root Root(s) = start -> s -> end
 
-cfg this@Assign(n, e) =
-  entry -> cfg e -> this -> exit
+  Assign(n, e) =
+    entry -> e -> this -> exit
 
-cfg Skip() = entry -> exit
+  Skip() = entry -> exit
 
-cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
+  Seq(s1,s2) = entry -> s1 -> s2 -> exit
 
-cfg IfThenElse(c, t, e) =
-  entry -> c -> cfg t -> exit, 
-           c -> cfg e -> exit
+  IfThenElse(c, t, e) =
+    entry -> node c -> t -> exit, 
+             node c -> e -> exit
 
-cfg While(e, s) =
-  entry -> e -> cfg s -> e -> exit
+  While(e, s) =
+    entry -> node e -> s -> node e -> exit
 
-prop constProp: CP
+properties
+  constProp: CP
 
-constProp(prev -> Assign(n, e)) =
-  match constProp(prev) with
-    | M1(m, v) => M(m \/ {Var{n} |-> v})
-    | _ => CP.top
+property rules
 
-constProp(prev -> Add(e1,e2)) =
-  constAdd(constProp(prev))
+  constProp(prev -> Assign(n, e)) =
+    match constProp(prev) with
+      | M1(m, v) => M(m \/ {Var{n} |-> v})
+      | _ => CP.top
+  
+  constProp(prev -> Add(e1,e2)) =
+    constAdd(constProp(prev))
+  
+  constProp(prev -> VarRef(n)) =
+    addResult(constProp(prev), getMap(constProp(prev))[Var{n}])
+  
+  constProp(prev -> _) = constProp(prev)
 
-constProp(prev -> VarRef(n)) =
-  addResult(constProp(prev), getMap(constProp(prev))[Var{n}])
-
-constProp(prev -> _) = constProp(prev)
-
-type CPType =
+types
+  CPType =
   | M(Map(name, Const))
   | M1(Map(name, Const), ConstProp)
   | M2(Map(name, Const), ConstProp, ConstProp)
 
-fun getMap(cpt: CPType) = match cpt with
-  | M(m) => m
-  | M1(m,_) => m
-  | M2(m,_,_) => m
-
-fun addResult(cpt: CPType, v: Const) = match cpt with
-  | M1(m, v1) => M2(m, v1, v)
-  | _ => M1(getMap(cpt), v)
-
-lattice CP where
-  type CPType
-
-  lub l r = match (l,r) with
-    | (M(l), M(r)) => M(Map.lub(l,r))
-    | (M1(l, cl), M1(r, cr)) => M1(Map.lub(l,r), Const.lub(cl,cr))
-    | (M2(l, cl1, cl2), M2(r, cr1, cr2)) =>
-        M2(Map.lub(l,r), Const.lub(cl1, cr1), Const.lub(cl2, cr2))
-    | _ => CP.top
-
-  bottom = M(Map.bottom)
-
-  top = M(Map.top)
-
-type ConstProp =
+  ConstProp =
   | Top()
   | Const(int)
   | Bottom()
 
-lattice Const where
-  type = ConstProp
+functions
+  getMap(cpt: CPType) = match cpt with
+  | M(m) => m
+  | M1(m,_) => m
+  | M2(m,_,_) => m
 
-  lub l r = match (l,r) with
-    | (Top(), _) => Top()
-    | (_, Top()) => Top()
-    | (Const(i), Const(j)) => if i == j
-        then Const(i) else Top()
-    | (_, Bottom()) => l
-    | (Bottom(), _) => r
+  addResult(cpt: CPType, v: Const) = match cpt with
+  | M1(m, v1) => M2(m, v1, v)
+  | _ => M1(getMap(cpt), v)
 
-  bottom = Bottom()
-
-fun constAdd(cpt: CPType) = match cpt with
+  constAdd(cpt: CPType) = match cpt with
   | M2(m, l, r) => M1(m, match(l,r) with 
     | (Const(i), Const(j)) => Const(i+j)
-    | _ => Const.lub(l,r))
+    | _ => Const.top)
   | _ => CP.top
+
+lattices
+  CP where
+    type = CPType
+  
+    lub(l, r) = match (l,r) with
+      | (M(l), M(r)) => M(Map.lub(l,r))
+      | (M1(l, cl), M1(r, cr)) => M1(Map.lub(l,r), Const.lub(cl,cr))
+      | (M2(l, cl1, cl2), M2(r, cr1, cr2)) =>
+          M2(Map.lub(l,r), Const.lub(cl1, cr1), Const.lub(cl2, cr2))
+      | _ => CP.top
+  
+    bottom = M(Map.bottom)
+  
+    top = M(Map.top)
+
+  Const where
+    type = ConstProp
+  
+    lub(l, r) = match (l,r) with
+      | (Top(), _) => Top()
+      | (_, Top()) => Top()
+      | (Const(i), Const(j)) => if i == j
+          then Const(i) else Top()
+      | (_, Bottom()) => l
+      | (Bottom(), _) => r
+  
+    bottom = Bottom()

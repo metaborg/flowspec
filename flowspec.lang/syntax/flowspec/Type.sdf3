@@ -12,6 +12,10 @@ TypeDef.TypeDef =
 [type [TypeName]([{Var ", "}*]) =
   [{ConsDef "\n"}+]]
 
+AltTypeDef.TypeDef =
+[[TypeName]([{Var ", "}*]) =
+  [{ConsDef "\n"}+]]
+
 ConsDef.ConsDef = [| [ConsName]([{TypeOrVar ", "}*])]
 
 TypeOrVar = Type
@@ -20,12 +24,20 @@ TypeOrVar.Var = Var
 context-free syntax // Lattice definitions
 
 LatticeDef.LatticeDef =
-[lattice [TypeName]([{Var ", "}*]) where
+[lattice [TypeName] where
+  [LatticePart+]]
+
+LatticeDef.LatticeDef =
+[lattice [TypeName]([{Var ", "}+]) where
   [LatticePart+]]
 
 // TODO: no need for the Var*?
 AltLatticeDef.LatticeDef =
-[[TypeName]([{Var ", "}*]) where
+[[TypeName] where
+  [LatticePart+]]
+
+AltLatticeDef.LatticeDef =
+[[TypeName]([{Var ", "}+]) where
   [LatticePart+]]
 
 LatticePart.Type = [type = [Type]]
@@ -39,13 +51,14 @@ LatticePart.Bottom = [bottom = [Expr]]
 
 context-free syntax // Type expressions
 
-Type = SimpleType
+Type = SimpleType {avoid}
 SimpleType.Name = "name"
 SimpleType.Term = "term"
 SimpleType.Index = "occurrence"
 SimpleType.Int = "int"
 SimpleType.String = "string"
-SimpleType.UserType = [[TypeName]([{Type ", "}*])] {avoid}
+SimpleType.UserType = [[TypeName]] {avoid}
+SimpleType.UserType = [[TypeName]([{Type ", "}+])]
 Type = [([Type])] {bracket}
 Type.Tuple = [[Type] * [Type]] {right}
 Type.Map = [Map([Type], [Type])]
