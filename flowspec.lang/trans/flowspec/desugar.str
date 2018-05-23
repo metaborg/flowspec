@@ -7,6 +7,8 @@ signatures/flowspec/desugar/-
 libspoofax/term/origin
 libspoofax/stratego/debug
 
+nabl2/api
+
 rules
 
 thread-map_(s): ([], t) -> ([], t)
@@ -19,10 +21,10 @@ rules
 
 post-desugar-all = topdown(try(post-desugar-one))
 
-post-desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm)
+post-desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm + desugar-proporappl)
 
 pre-desugar-all = topdown(try(pre-desugar-one))
-pre-desugar-one = origin-track-forced(desugar-chain + desugar-cfgrule + alt-syntax)
+pre-desugar-one = origin-track-forced(desugar-chain + desugar-cfgrule + desugar-usertype + desugar-typedef + desugar-latticedef + alt-syntax)
 
 desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
 where if map(not(s))
@@ -39,9 +41,25 @@ with (sources, exprs') := <partition(?Source(_, _))> exprs
 
 desugar-setcompmatcharm: MatchArm(pattern) -> pattern
 
+desugar-proporappl: PropOrAppl(n, arg) -> <desugar-proporappl-1(|a, arg)> n
+where
+  a := <nabl2-get-ast-analysis> n
+
+desugar-proporappl-1(|a, arg): n -> Prop(n, arg)
+where nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a)
+
+desugar-proporappl-1(|a, arg): n -> Appl(Ref(n), [Ref(arg)])
+where nabl2-mk-occurrence(|"Variable"); nabl2-get-resolved-name(|a)
+
 desugar-chain: Chain(head, tail) -> Chain([head | tail])
 
 desugar-cfgrule: CFGRule(root, pattern) -> CFGRule(root, pattern, [])
+
+desugar-usertype: UserType(name) -> UserType(name, [])
+
+desugar-typedef: TypeDef(n, c*) -> TypeDef(n, [], c*)
+
+desugar-latticedef: LatticeDef(n, b) -> LatticeDef(n, [], b)
 
 alt-syntax: Module(name, sections) -> Module(name, imports, [], definitions)
 with imports := <extract-imports> sections
@@ -58,8 +76,10 @@ extract-definitions =
   remove-all(?Imports(_,_))
 ; mapconcat( ?CFGRules(<id>)
            + ?LatticeDefs(<id>)
+           + ?TypeDefs(<id>)
            + \PropDefs(d, e) -> <conc> (d, <mapconcat(\Externals(e) -> <map(\PropDef(n,t) -> ExtPropDef(n,t)\)> e\)> e)\
            + \PropRules(r) -> r\
+           + ?FunDefs(<id>)
            )
 
 alt-syntax: AltCFGRule(r, p, c*) -> CFGRule(r, p', c'*)

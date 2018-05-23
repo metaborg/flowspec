@@ -34,8 +34,10 @@ Definition = PropRule
 Definition = TypeDef
 Definition = FunDef
 
-FunDef.FunDef = [fun [Var]([{Pattern ", "}+]) = [Expr]]
-AltFunDef.FunDef = [[Var]([{Pattern ", "}+]) = [Expr]]
+FunDef.FunDef = [fun [Var]([{FunArg ", "}+]) = [Expr]]
+AltFunDef.FunDef = [[Var]([{FunArg ", "}+]) = [Expr]]
+
+FunArg.Arg = [[Var]: [Type]]
 
 context-free syntax // Alternative syntax
 

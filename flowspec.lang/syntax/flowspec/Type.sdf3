@@ -9,16 +9,24 @@ flowspec/Expr
 context-free syntax // Type definitions
 
 TypeDef.TypeDef =
-[type [TypeName]([{Var ", "}*]) =
+[type [TypeName]([{Var ", "}+]) =
+  [{ConsDef "\n"}+]]
+
+TypeDef.TypeDef =
+[type [TypeName] =
   [{ConsDef "\n"}+]]
 
 AltTypeDef.TypeDef =
-[[TypeName]([{Var ", "}*]) =
+[[TypeName]([{Var ", "}+]) =
+  [{ConsDef "\n"}+]]
+
+AltTypeDef.TypeDef =
+[[TypeName] =
   [{ConsDef "\n"}+]]
 
 ConsDef.ConsDef = [| [ConsName]([{TypeOrVar ", "}*])]
 
-TypeOrVar = Type
+TypeOrVar = Type {prefer}
 TypeOrVar.Var = Var
 
 context-free syntax // Lattice definitions
@@ -51,14 +59,16 @@ LatticePart.Bottom = [bottom = [Expr]]
 
 context-free syntax // Type expressions
 
-Type = SimpleType {avoid}
+Type = SimpleType
 SimpleType.Name = "name"
 SimpleType.Term = "term"
 SimpleType.Index = "occurrence"
 SimpleType.Int = "int"
 SimpleType.String = "string"
-SimpleType.UserType = [[TypeName]] {avoid}
-SimpleType.UserType = [[TypeName]([{Type ", "}+])]
+SimpleType.Float = "float"
+SimpleType.Bool = "bool"
+Type.UserType = [[TypeName]] {avoid}
+Type.UserType = [[TypeName]([{Type ", "}+])] {avoid}
 Type = [([Type])] {bracket}
 Type.Tuple = [[Type] * [Type]] {right}
 Type.Map = [Map([Type], [Type])]
@@ -66,4 +76,4 @@ Type.Set = [Set([Type])]
 
 context-free priorities
 
-{ Type.Set Type.Map SimpleType.UserType } > Type.Tuple
+{ Type.Set Type.Map Type.UserType } > Type.Tuple

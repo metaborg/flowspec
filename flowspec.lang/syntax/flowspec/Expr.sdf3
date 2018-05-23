@@ -14,7 +14,7 @@ context-free syntax // expressions
 
 Expr.Term = [[ConsName]([{Expr ","}*])]
 Expr = Ref
-Expr.Prop = [[PropName]([Var])] {prefer}
+Expr.PropOrAppl = [[PropName]([Var])] {prefer}
 Expr.Tuple = [([Expr], [{Expr ", "}+])]
 Expr = Literal
 Expr.Start = [start]
@@ -25,11 +25,25 @@ Expr = [([Expr])] {bracket}
 Expr.Type = [[Var].type]
 Expr.Appl = [[Ref]([{Expr ", "}+])] {left}
 Expr.If = [if [Expr] then [Expr] else [Expr]]
+
 Expr.Eq = [[Expr] == [Expr]] {left}
 Expr.NEq = [[Expr] != [Expr]] {left}
 Expr.And = [[Expr] && [Expr]] {left}
 Expr.Or = [[Expr] || [Expr]] {left}
 Expr.Not = [![Expr]]
+
+Expr.Lt  = [[Expr] < [Expr]] {left}
+Expr.Lte = [[Expr] <= [Expr]] {left}
+Expr.Gt  = [[Expr] > [Expr]] {left}
+Expr.Gte = [[Expr] >= [Expr]] {left}
+
+Expr.Add = [[Expr] + [Expr]] {left}
+Expr.Sub = [[Expr] - [Expr]] {left}
+Expr.Mul = [[Expr] * [Expr]] {left}
+Expr.Div = [[Expr] / [Expr]] {left}
+Expr.Mod = [[Expr] % [Expr]] {left}
+Expr.Neg = [- [Expr]] {left}
+
 Expr.Match = [match [Expr] with [MatchArm+]] {longest-match}
 
 Expr.SetLiteral = [{ [{Expr ","}+] }]
@@ -37,7 +51,7 @@ Expr.SetComp = [{ [Expr] | [{SetCompExpr ", "}+] }]
 Expr.MapLiteral = [{ [{MapBinding ","}+] }]
 Expr.MapLookup = <<Expr>[<Expr>]>
 Expr.EmptySetOrMapLiteral = [{ }] {prefer}
-SetCompExpr = SetCompSource
+SetCompExpr = SetCompSource {prefer}
 SetCompExpr = SetCompPredicate
 SetCompPredicate.Predicate = Expr
 SetCompPredicate.MatchPredicate = [match [Expr] with [SetCompMatchArm+]] {longest-match}
