@@ -37,4 +37,9 @@ public class ArgToVarNode extends Node {
             return patternVariables;
         });
     }
+    
+    public static ArgToVarNode of(FrameDescriptor frameDescriptor, int offset, String name) {
+        FrameSlot slot = frameDescriptor.addFrameSlot(name, FrameSlotKind.Object);
+        return new ArgToVarNode(offset, slot);
+    }
 }

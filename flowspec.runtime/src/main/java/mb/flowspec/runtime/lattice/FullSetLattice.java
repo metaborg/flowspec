@@ -33,7 +33,8 @@ public class FullSetLattice<E extends ITerm> implements CompleteLattice<Set<E>> 
         } else if (one == TOP) {
             return other;
         } else {
-            return new Set<>(io.usethesource.capsule.Set.Immutable.subtract(one.set, io.usethesource.capsule.Set.Immutable.subtract(one.set, other.set)));
+            return new Set<>(io.usethesource.capsule.Set.Immutable.subtract(one.set,
+                    io.usethesource.capsule.Set.Immutable.subtract(one.set, other.set)));
         }
     }
 

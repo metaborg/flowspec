@@ -41,7 +41,7 @@ public class FixedPoint {
         this.postProperties = Map.Transient.of();
     }
 
-    public ISolution entryPoint(ISolution nabl2solution, TFFileInfo tfFileInfo) {
+    public ISolution entryPoint(ISolution nabl2solution, TransferFunctionInfo tfFileInfo) {
         this.solution = nabl2solution.flowSpecSolution();
         final ICompleteControlFlowGraph<CFGNode> cfg = solution.controlFlowGraph();
         preProperties.__putAll(solution.preProperties());
@@ -85,7 +85,7 @@ public class FixedPoint {
     }
 
     @SuppressWarnings("unchecked")
-    private void solve(ICompleteControlFlowGraph<CFGNode> cfg, TFFileInfo tfFileInfo)
+    private void solve(ICompleteControlFlowGraph<CFGNode> cfg, TransferFunctionInfo tfFileInfo)
             throws CyclicGraphException, FixedPointLimitException {
         Iterable<String> propTopoOrder = Algorithms.topoSort(tfFileInfo.metadata().keySet(), tfFileInfo.dependsOn().inverse());
 
