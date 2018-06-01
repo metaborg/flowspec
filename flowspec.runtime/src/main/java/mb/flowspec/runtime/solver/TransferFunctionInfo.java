@@ -35,7 +35,7 @@ public abstract class TransferFunctionInfo {
         for (Entry<String, String> e : other.dependsOn().entrySet()) {
             dependsOn.__insert(e.getKey(), e.getValue());
         }
-        return ImmutableTFFileInfo.of(dependsOn.freeze(), propMetadata.freeze());
+        return ImmutableTransferFunctionInfo.of(dependsOn.freeze(), propMetadata.freeze());
     }
 
     public void init(InitValues initValues) {
@@ -48,7 +48,7 @@ public abstract class TransferFunctionInfo {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static IMatcher<TransferFunctionInfo> match(LatticeInfo latticeInfo) {
-        Map.Transient<String, CompleteLattice> latticeDefs = latticeInfo.latticeDefs().asTransient();
+        Map.Transient<String, CompleteLattice> latticeDefs = ((Map.Immutable) latticeInfo.latticeDefs()).asTransient();
         latticeDefs.__put("MaySet", new FullSetLattice());
         latticeDefs.__put("MustSet", new FullSetLattice().flip());
         return M.listElems(tupleMatcher(), (list, tuples) -> {
@@ -62,13 +62,13 @@ public abstract class TransferFunctionInfo {
 
                 propMetadata.__put(propName, ImmutableMetadata.of(dir, latticeFromType(latticeDefs, type), tfs));
             }
-            return ImmutableTFFileInfo.of(dependsOn.freeze(), propMetadata.freeze());
+            return ImmutableTransferFunctionInfo.of(dependsOn.freeze(), propMetadata.freeze());
         });
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected static CompleteLattice latticeFromType(Map<String, CompleteLattice> latticeDefs, Type type) {
-        // TODO: consider not using Map but MayMap and MustMap
+        // TODO: Replace Map with MayMap and MustMap
         if (type instanceof UserType) {
             UserType utype = (UserType) type;
             return latticeDefs.get(utype.name());

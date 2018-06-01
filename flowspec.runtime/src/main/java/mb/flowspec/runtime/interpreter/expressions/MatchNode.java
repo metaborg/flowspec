@@ -1,12 +1,16 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import static mb.nabl2.terms.matching.TermMatch.M;
+
+import java.util.Arrays;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.patterns.PatternNode;
+import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.nabl2.util.ImmutableTuple2;
 
 public class MatchNode extends ExpressionNode {
     @Child
@@ -27,21 +31,29 @@ public class MatchNode extends ExpressionNode {
         Object value = subject.executeGeneric(frame);
         for (int i = 0; i < matchArms.length; i++) {
             PatternNode p = matchArms[i];
-            if(p.matchGeneric(frame, value)) {
+            if (p.matchGeneric(frame, value)) {
                 return matchBodies[i].executeGeneric(frame);
             }
         }
         return null;
     }
 
-    public MatchNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor) {
-     // TODO Auto-generated method stub
-        return null;
-    }
-
     @Override
     public void init(InitValues initValues) {
-        // TODO Auto-generated method stub
-        
+        subject.init(initValues);
+        Arrays.stream(matchArms).forEach(pn -> pn.init(initValues));
+        Arrays.stream(matchBodies).forEach(en -> en.init(initValues));
+    }
+
+    public static IMatcher<MatchNode> match(FrameDescriptor frameDescriptor) {
+        return M.appl2("Match", ExpressionNode.matchExpr(frameDescriptor), M.listElems(matchArm(frameDescriptor)),
+                (appl, e, arms) -> new MatchNode(e, arms.stream().map(ImmutableTuple2::_1).toArray(PatternNode[]::new),
+                        arms.stream().map(ImmutableTuple2::_2).toArray(ExpressionNode[]::new)));
+    }
+
+    public static IMatcher<ImmutableTuple2<PatternNode, ExpressionNode>> matchArm(FrameDescriptor frameDescriptor) {
+        FrameDescriptor localFrameDescriptor = frameDescriptor.copy();
+        return M.appl2("MatchArm", PatternNode.matchPattern(localFrameDescriptor),
+                ExpressionNode.matchExpr(localFrameDescriptor), (appl, p, e) -> ImmutableTuple2.of(p, e));
     }
 }

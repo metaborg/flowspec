@@ -17,7 +17,7 @@ public abstract class PatternNode extends Node {
 
     public static IMatcher<PatternNode> matchPattern(FrameDescriptor frameDescriptor) {
         return (term, unifier) -> M.cases(
-            // TODO Term/2
+            TermPatternNode.match(frameDescriptor),
             TuplePatternNode.match(frameDescriptor),
             WildcardPatternNode.match(frameDescriptor),
             VarPatternNode.match(frameDescriptor),

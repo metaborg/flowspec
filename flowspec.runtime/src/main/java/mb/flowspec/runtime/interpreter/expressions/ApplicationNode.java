@@ -22,16 +22,16 @@ import mb.nabl2.terms.matching.TermMatch.IMatcher;
 public class ApplicationNode extends ExpressionNode {
     private static ILogger logger = LoggerUtils.logger(ApplicationNode.class);
     
-    private final RefNode reference;
+    private final FunRefNode reference;
     private final ExpressionNode[] arguments;
 
-    public ApplicationNode(RefNode reference, ExpressionNode[] arguments) {
+    public ApplicationNode(FunRefNode reference, ExpressionNode[] arguments) {
         this.reference = reference;
         this.arguments = arguments;
     }
 
     public static IMatcher<ApplicationNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("Appl", RefNode.matchRef(frameDescriptor), M.listElems(ExpressionNode.matchExpr(frameDescriptor)), (appl, reference, expr) -> {
+        return M.appl2("Appl", FunRefNode.matchRef(frameDescriptor), M.listElems(ExpressionNode.matchExpr(frameDescriptor)), (appl, reference, expr) -> {
             return new ApplicationNode(reference, expr.toArray(new ExpressionNode[expr.size()]));
         });
     }
@@ -42,14 +42,24 @@ public class ApplicationNode extends ExpressionNode {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        if (reference instanceof QualRefNode) {
+        if (reference instanceof LatticeOpRefNode) {
+            LatticeOpRefNode opRefNode = (LatticeOpRefNode) reference;
+            assert arguments.length == 2;
+            Object arg0 = arguments[0].executeGeneric(frame);
+            Object arg1 = arguments[1].executeGeneric(frame);
+            return opRefNode.function.apply(arg0, arg1);
+        } else if (reference instanceof FunRefRefNode) {
+            FunRefRefNode opRefNode = (FunRefRefNode) reference;
+            return opRefNode.function.execute(frame);
+        } else if (reference instanceof QualRefNode) {
             QualRefNode qualRef = (QualRefNode) reference;
             if (qualRef.modname.length == 1 && qualRef.modname[0].equals("Set")) {
                 switch (qualRef.var) {
                     case "fromList":
-                        assert arguments.length == 0;
+                        assert arguments.length == 1;
                         Object arg0 = arguments[0].executeGeneric(frame);
                         assert arg0 instanceof IListTerm;
                         java.util.Set<ITerm> list = listTermToSet((IListTerm) arg0);
@@ -63,7 +73,7 @@ public class ApplicationNode extends ExpressionNode {
                 logger.warn("Don't know Qualifier " + Arrays.toString(qualRef.modname));
             }
         }
-        return null;
+        throw new RuntimeException("Application of unknown function: " + reference);
     }
     
     private static java.util.Set<ITerm> listTermToSet(IListTerm list) {

@@ -23,7 +23,7 @@ public class SetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
     }
 
     @Override
-    public boolean lte(Set.Immutable<E> one, Set.Immutable<E> other) {
+    public boolean leq(Set.Immutable<E> one, Set.Immutable<E> other) {
         return other.containsAll(one); // one isSubSetOf other
     }
 

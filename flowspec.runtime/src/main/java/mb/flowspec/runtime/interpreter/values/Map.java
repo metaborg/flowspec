@@ -250,7 +250,7 @@ public class Map<K extends ITerm, V extends ITerm> implements IApplTerm {
                         this.map.entrySet()
                             .stream()
                             .map(e -> B.newTuple(e.getKey(), e.getValue()))
-                            .toArray(i -> new ITerm[i])))
+                            .toArray(ITerm[]::new)))
                 .build();
     }
 

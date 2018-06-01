@@ -12,11 +12,6 @@ public abstract class RefNode extends ExpressionNode {
     public abstract Object executeGeneric(VirtualFrame frame);
 
     public static IMatcher<RefNode> matchRef(FrameDescriptor frameDescriptor) {
-        return M.cases(
-            M.appl2("QualRef", M.stringValue(), M.stringValue(), (appl, modname, var) -> {
-                return new QualRefNode(modname, var);
-            }),
-            M.appl1("Ref", ReadVarNode.match(frameDescriptor), (appl, rvn) -> rvn)
-        );
+        return M.appl1("Ref", ReadVarNode.match(frameDescriptor), (appl, rvn) -> rvn);
     }
 }

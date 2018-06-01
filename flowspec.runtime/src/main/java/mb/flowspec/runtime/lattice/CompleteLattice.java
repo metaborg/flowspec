@@ -28,16 +28,16 @@ public interface CompleteLattice<E> extends Lattice<E> {
         return elements.stream().reduce(bottom(), this::lub);
     }
 
-    default public boolean lte(E one, E other) {
+    default public boolean leq(E one, E other) {
         return lub(one, other).equals(other);
     }
 
-    default public boolean nlte(E one, E other) {
-        return !lte(one, other);
+    default public boolean nleq(E one, E other) {
+        return !leq(one, other);
     }
 
-    default public boolean gte(E one, E other) {
-        return lte(other, one);
+    default public boolean geq(E one, E other) {
+        return leq(other, one);
     }
 
     default public CompleteLattice<E> flip() {
@@ -63,13 +63,13 @@ public interface CompleteLattice<E> extends Lattice<E> {
             }
 
             @Override
-            public boolean lte(E one, E other) {
-                return CompleteLattice.this.gte(one, other);
+            public boolean leq(E one, E other) {
+                return CompleteLattice.this.geq(one, other);
             }
 
             @Override
-            public boolean gte(E one, E other) {
-                return CompleteLattice.this.lte(other, one);
+            public boolean geq(E one, E other) {
+                return CompleteLattice.this.leq(other, one);
             }
         };
     }

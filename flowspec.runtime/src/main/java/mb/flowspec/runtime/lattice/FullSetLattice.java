@@ -16,7 +16,7 @@ public class FullSetLattice<E extends ITerm> implements CompleteLattice<Set<E>> 
     }
 
     @Override
-    public boolean lte(Set<E> one, Set<E> other) {
+    public boolean leq(Set<E> one, Set<E> other) {
         if (other == TOP) {
             return true;
         } else if (one == TOP) {

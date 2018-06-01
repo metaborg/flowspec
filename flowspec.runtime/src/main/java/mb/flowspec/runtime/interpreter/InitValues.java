@@ -2,11 +2,13 @@ package mb.flowspec.runtime.interpreter;
 
 import java.util.Optional;
 
-import org.immutables.value.Value;
+import org.immutables.value.Value.Auxiliary;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
 import io.usethesource.capsule.Map;
+import mb.flowspec.runtime.interpreter.values.Function;
+import mb.flowspec.runtime.solver.UserDefinedLattice;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.controlflow.terms.IBasicControlFlowGraph;
 import mb.nabl2.scopegraph.esop.IEsopNameResolution;
@@ -25,7 +27,7 @@ import mb.nabl2.util.collections.IProperties;
 @Immutable
 public abstract class InitValues {
 
-    @Value.Parameter public abstract SolverConfig config();
+    @Parameter public abstract SolverConfig config();
 
     @Parameter
     public abstract IBasicControlFlowGraph<CFGNode> controlFlowGraph();
@@ -44,7 +46,7 @@ public abstract class InitValues {
         return nr;
     }
 
-    @Value.Auxiliary public abstract Optional<IEsopNameResolution.ResolutionCache<Scope, Label, Occurrence>>
+    @Auxiliary public abstract Optional<IEsopNameResolution.ResolutionCache<Scope, Label, Occurrence>>
             nameResolutionCache();
 
 
@@ -53,4 +55,11 @@ public abstract class InitValues {
     
     @Parameter
     public abstract IProperties.Immutable<TermIndex, ITerm, ITerm> astProperties();
+    
+    @Parameter
+    public abstract Map<String, Function> functions();
+    
+    @SuppressWarnings("rawtypes")
+    @Parameter
+    public abstract Map<String, UserDefinedLattice> lattices();
 }

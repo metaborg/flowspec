@@ -4,8 +4,9 @@ import java.util.Map.Entry;
 
 import io.usethesource.capsule.Map.Transient;
 import mb.flowspec.runtime.interpreter.values.Map;
+import mb.nabl2.terms.ITerm;
 
-public class MapLattice<K, V> implements CompleteLattice<Map<K, V>> {
+public class MapLattice<K extends ITerm, V extends ITerm> implements CompleteLattice<Map<K, V>> {
     public final CompleteLattice<V> valueLattice;
     
     public MapLattice(CompleteLattice<V> valueLattice) {
