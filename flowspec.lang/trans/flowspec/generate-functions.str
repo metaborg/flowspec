@@ -19,4 +19,6 @@ flowspec/static-semantics
 
 rules
 
-gen-functionterm: m@Module(_, _, _, def*) -> ()
+gen-functionterm: Module(_, _, _, def*) -> functions
+with
+  functions := <retain-all(?FunDef(_, _, _))> def*

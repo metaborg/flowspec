@@ -19,7 +19,7 @@ flowspec/static-semantics
 
 rules
 
-gen-latticeterm: m@Module(_, _, _, def*) -> lattices
+gen-latticeterm: Module(_, _, _, def*) -> lattices
 with
   latticedefs := <retain-all(?LatticeDef(_, _, _))> def*
 ; lattices := <map(normalize-latticedef)> latticedefs
