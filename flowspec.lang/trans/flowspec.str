@@ -29,13 +29,17 @@ rules // Debugging
       filename := <guarantee-extension(|"desugared.aterm")> path
     ; result   := <pre-desugar-all> node
 
-  generate-stratego: 
+  generate-stratego = (post-desugar-all, id, id, id, id); generate-stratego'
+
+  generate-stratego': 
     (node@Module(name, _, _, _), _, _, path, project-path) -> (filename, result)
     with
       filename := <src-gen-file(|project-path, "flowspec", ".str")> name
     ; result   := <gen-str> node
 
-  generate-static-info:
+  generate-static-info = (post-desugar-all, id, id, id, id); generate-static-info'
+
+  generate-static-info':
     (node, _, _, path, project-path) -> (filename, result)
     with
       filename := <target-file(|project-path, ".aterm")> "flowspec-static-info"
@@ -51,8 +55,9 @@ rules // Debugging
     ; not(<nabl2-get-ast-analysis;nabl2-analysis-has-errors> m
          ; !"NaBL2 errors keep transfer function file from updating. "
          ; debug))
-  ; where(generate-stratego;write-string-to-file)
-  ; where(generate-static-info;write-string-to-file)
+  ; (post-desugar-all, id, id, id, id)
+  ; where(generate-stratego';write-string-to-file)
+  ; where(generate-static-info';write-string-to-file)
   ; !()
 
 // Copied from https://github.com/metaborg/nabl/blob/6f5630aef0179163e7c8eb29db9901586d064f78/org.metaborg.meta.nabl2.lang/trans/nabl2/lang/util/misc.str#L9-L14

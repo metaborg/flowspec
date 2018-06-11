@@ -41,9 +41,10 @@ with (sources, exprs') := <partition(?Source(_, _))> exprs
 
 desugar-setcompmatcharm: MatchArm(pattern) -> pattern
 
-desugar-proporappl: PropOrAppl(n, arg) -> <desugar-proporappl-1(|a, arg)> n
-where
+desugar-proporappl: PropOrAppl(n, arg) -> result
+with
   a := <nabl2-get-ast-analysis> n
+; result := <desugar-proporappl-1(|a, arg)> n
 
 desugar-proporappl-1(|a, arg): n -> Prop(n, arg)
 where nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a)

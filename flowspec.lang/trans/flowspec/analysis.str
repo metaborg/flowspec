@@ -17,7 +17,7 @@ imports
 rules // Analysis
 
 //  editor-analyze = !(<Fst;pre-desugar-all;post-desugar-all>, [], [], [])
-  editor-analyze = nabl2-analyze(pre-desugar-all);post-desugar-all
+  editor-analyze = nabl2-analyze(pre-desugar-all)
 
   nabl2-debug-constraint-generation-hook = id
 
@@ -35,13 +35,15 @@ rules // Analysis
        ; notes    := []
 
 rules // Debugging
-  
-  // Prints the abstract syntax ATerm of a selection.
+
   debug-show-aterm: (selected, _, _, path, project-path) -> (filename, result)
     with filename := <guarantee-extension(|"aterm")> path
        ; result   := selected
 
-  // Prints the analyzed annotated abstract syntax ATerm of a selection.
   debug-show-analyzed: (selected, _, _, path, project-path) -> (filename, result)
     with filename := <guarantee-extension(|"analyzed.aterm")> path
        ; result   := selected
+
+  debug-show-post-desugared: (selected, _, _, path, project-path) -> (filename, result)
+    with filename := <guarantee-extension(|"analyzed.aterm")> path
+       ; result   := <post-desugar-all> selected
