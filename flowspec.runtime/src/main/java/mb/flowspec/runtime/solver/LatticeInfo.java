@@ -2,6 +2,8 @@ package mb.flowspec.runtime.solver;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
+import java.util.Optional;
+
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
@@ -32,7 +34,8 @@ public abstract class LatticeInfo {
 
     @SuppressWarnings("rawtypes")
     protected static IMatcher<ImmutableTuple2<String, UserDefinedLattice>> tupleMatcher() {
-        return M.<String, ImmutableList<String>, ITerm, Function, Function, ImmutableTuple2<String, UserDefinedLattice>>tuple5(
+        return (term, unifier) -> 
+                Optional.of(M.<String, ImmutableList<String>, ITerm, Function, Function, ImmutableTuple2<String, UserDefinedLattice>>tuple5(
                 M.stringValue(), 
                 M.listElems(M.stringValue()), 
                 M.term(),
@@ -41,7 +44,9 @@ public abstract class LatticeInfo {
                 (appl, name, vars, type, lub, top) -> {
                     Object top_object = Truffle.getRuntime().createCallTarget(top).call(new Object[0]);
                     return ImmutableTuple2.<String, UserDefinedLattice>of(name, new UserDefinedLattice<>(top_object, lub));
-                });
+                })
+                .match(term, unifier)
+                .orElseThrow(() -> new ParseException("Parse error on reading function")));
     }
 
     public LatticeInfo addAll(LatticeInfo lattices) {
