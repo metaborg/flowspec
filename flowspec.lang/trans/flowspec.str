@@ -13,6 +13,7 @@ imports
   flowspec/generate-functions
   flowspec/editor-hover
   signatures/flowspec/Main-sig
+  libstratego-aterm
 
 rules // Debugging
 
@@ -34,7 +35,7 @@ rules // Debugging
       filename := <src-gen-file(|project-path, "flowspec", ".str")> name
     ; result   := <gen-str> node
 
-  generate-static-info: 
+  generate-static-info:
     (node, _, _, path, project-path) -> (filename, result)
     with
       filename := <target-file(|project-path, ".aterm")> "flowspec-static-info"

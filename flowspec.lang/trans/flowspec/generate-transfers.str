@@ -24,7 +24,7 @@ with
   a := <nabl2-get-ast-analysis>
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(\PropDef(name, ty) -> (<nabl2-mk-occurrence(|"Property")> name, ty)\)> def*
-; numberedrules := <number-prop-rules(|a, propnames)> proprule*
+; numberedrules := <number-prop-rules(|a, <map(Fst)> propnames)> proprule*
 ; transfer-functions := <map(gen-tf(|a)); bundle-tfs(|a, propnames)> numberedrules
 
 gen-tf(|a): (n, PropRule(name, pattern, body, wherecl)) ->

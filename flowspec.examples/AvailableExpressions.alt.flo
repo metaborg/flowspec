@@ -34,7 +34,7 @@ node Int(_)
 node True()
 node False()
 
-property definitions
+properties
   available: MustSet(term)
   external
     reads: Set(name)
