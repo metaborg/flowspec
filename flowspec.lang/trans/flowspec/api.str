@@ -34,6 +34,16 @@ flowspec-get-property-pre(|a, propname) = flowspec--get-property-pre(|a, propnam
  */
 flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propname)
 
+/**
+ * Analyze the given AST with NaBL2 and FlowSpec.
+ *
+ * @param resource:String
+ * @type ast:Term -> (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage))
+ */
+flowspec-analyze-ast(|resource): ast -> (ast', analysis', errors, warnings, notes)
+where (ast', analysis, errors, warnings, notes) := <nabl2-analyze-ast(|resource)> ast
+    ; analysis' := <flowspec--solve(|analysis)> ast'
+
 strategies // The following are used/extended by generated code
 
 flowspec--prop-names = fail
