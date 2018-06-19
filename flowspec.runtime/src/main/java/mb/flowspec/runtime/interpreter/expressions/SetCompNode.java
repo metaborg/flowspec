@@ -2,7 +2,8 @@ package mb.flowspec.runtime.interpreter.expressions;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
+
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
@@ -79,9 +80,9 @@ public class SetCompNode extends ExpressionNode {
                 M.listElems(SetCompPredicateNode.matchPred(frameDescriptor)),
                 (appl, term, patterns, exprs, preds) -> ImmutableTuple2.of(term, ImmutableTuple2.of(patterns, ImmutableTuple2.of(exprs, preds))))
                 .flatMap(tuple -> ExpressionNode.matchExpr(frameDescriptor).match(tuple._1(), PersistentUnifier.Immutable.of()).map(expr -> {
-                    ImmutableList<PatternNode> patterns = tuple._2()._1();
-                    ImmutableList<ExpressionNode> exprs = tuple._2()._2()._1();
-                    ImmutableList<SetCompPredicateNode> preds = tuple._2()._2()._2();
+                    List<PatternNode> patterns = tuple._2()._1();
+                    List<ExpressionNode> exprs = tuple._2()._2()._1();
+                    List<SetCompPredicateNode> preds = tuple._2()._2()._2();
                     return new SetCompNode(expr, 
                         patterns.toArray(new PatternNode[patterns.size()]), 
                         exprs.toArray(new ExpressionNode[exprs.size()]), 
