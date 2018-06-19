@@ -2,12 +2,12 @@ package mb.flowspec.runtime.solver;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
-import com.google.common.collect.ImmutableList;
 import com.oracle.truffle.api.Truffle;
 
 import io.usethesource.capsule.Map;
@@ -35,7 +35,7 @@ public abstract class LatticeInfo {
     @SuppressWarnings("rawtypes")
     protected static IMatcher<ImmutableTuple2<String, UserDefinedLattice>> tupleMatcher() {
         return (term, unifier) -> 
-                Optional.of(M.<String, ImmutableList<String>, ITerm, Function, Function, ImmutableTuple2<String, UserDefinedLattice>>tuple5(
+                Optional.of(M.<String, List<String>, ITerm, Function, Function, ImmutableTuple2<String, UserDefinedLattice>>tuple5(
                 M.stringValue(), 
                 M.listElems(M.stringValue()), 
                 M.term(),
