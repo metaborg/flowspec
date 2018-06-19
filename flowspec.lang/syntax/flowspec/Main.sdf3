@@ -34,7 +34,57 @@ Definition = PropRule
 Definition = TypeDef
 Definition = FunDef
 
-FunDef.FunDef = [fun [Var] [Pattern*] = [Expr]]
+FunDef.FunDef = [fun [Var]([{FunArg ", "}+]) = [Expr]]
+AltFunDef.FunDef = [[Var]([{FunArg ", "}+]) = [Expr]]
+
+FunArg.Arg = [[Var]: [Type]]
+
+context-free syntax // Alternative syntax
+
+AltModule.Module =
+[#alt-syntax
+module [ModuleName]
+
+[{Section "\n"}*]
+]
+
+Section.Imports =
+[imports
+  [{ModuleName "\n"}*]
+  [{ImportExternalSection "\n"}*]]
+
+ImportExternalSection.Externals =
+[external
+  [{StrategoModName "\n"}*]]
+
+Section.CFGRules =
+[control-flow rules
+  [{AltCFGRule "\n"}*]]
+
+Section.LatticeDefs =
+[lattices
+  [{AltLatticeDef "\n"}*]]
+
+Section.TypeDefs =
+[types
+  [{AltTypeDef "\n"}*]]
+
+Section.PropDefs =
+[properties
+  [{AltPropDef "\n"}*]
+  [{PropDefExternalSection "\n"}*]]
+
+PropDefExternalSection.Externals =
+[external
+  [{AltPropDef "\n"}*]]
+
+Section.PropRules =
+[property rules
+  [{PropRule "\n"}*]]
+
+Section.FunDefs =
+[functions
+  [{AltFunDef "\n"}*]]
 
 template options
 

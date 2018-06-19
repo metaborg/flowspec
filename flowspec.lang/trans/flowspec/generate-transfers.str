@@ -23,8 +23,8 @@ gen-tf: m@Module(_, _, _, def*) -> transfer-functions
 with
   a := <nabl2-get-ast-analysis>
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
-; propnames := <retain-all(?PropDef(<nabl2-mk-occurrence(|"Property")>, _))> def*
-; numberedrules := <number-prop-rules(|a, propnames)> proprule*
+; propnames := <retain-all(\PropDef(name, ty) -> (<nabl2-mk-occurrence(|"Property")> name, ty)\)> def*
+; numberedrules := <number-prop-rules(|a, <map(Fst)> propnames)> proprule*
 ; transfer-functions := <map(gen-tf(|a)); bundle-tfs(|a, propnames)> numberedrules
 
 gen-tf(|a): (n, PropRule(name, pattern, body, wherecl)) ->
@@ -52,12 +52,12 @@ with
 ; result := <thread-map(bundle-tfs-helper1); Snd> (list, namesmap)
 ; result' := <map((nabl2-get-occurrence-name, id))> result
 
-// TODO: should be a fold above, not a thread-map;Snd with return here of ((), thing_to_fold)
+// TODO: use a fold above, not a thread-map;Snd with return here of ((), thing_to_fold)
 bundle-tfs-helper1: ((nm, n, tf), map) -> ((), map')
 with
-  map' := <map(try((?nm, (id, ![(n,tf)|<id>]))))> map
+  map' := <map(try((?nm, (id, id, ![(n,tf)|<id>]))))> map
 
-bundle-tfs-helper3(|a): n -> (n, (d, []))
+bundle-tfs-helper3(|a): (n, ty) -> (n, (ty, d, []))
 with
   d := <nabl2-get-property(|a, "direction")> n
 

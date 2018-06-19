@@ -13,6 +13,8 @@ context-free syntax // Properties
 PropDef.PropDef = [prop [PropName]: [Type]]
 PropDef.ExtPropDef = [external prop [PropName]: [Type]]
 
+AltPropDef.PropDef = [[PropName]: [Type]]
+
 context-free syntax // Property Rules
 
 PropRule.PropRule = [[PropName]([PropPattern]) = [Expr] [PropWhere]]

@@ -6,4 +6,4 @@ menus
     
     action: "Generate all" = generate-all
     action: "Generate Stratego" = generate-stratego (openeditor)
-    action: "Generate TransferFunctions" = generate-transfers (openeditor)
+    action: "Generate Static Info File" = generate-static-info (openeditor)

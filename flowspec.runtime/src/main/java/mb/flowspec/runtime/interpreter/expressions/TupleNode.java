@@ -35,7 +35,7 @@ public class TupleNode extends ExpressionNode {
             } catch (UnexpectedResultException e) {
                 throw new TypeErrorException(e);
             }
-        }).toArray(i -> new ITerm[i]);
+        }).toArray(ITerm[]::new);
         return B.newTuple(childVals);
     }
 

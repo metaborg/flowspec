@@ -1,0 +1,49 @@
+#alt-syntax
+module AvailableExpressions
+
+imports
+  
+  external
+    signatures/-
+
+control-flow rules
+
+root Root(s) = start -> s -> end
+
+Assign(n, e) =
+  entry -> e -> this -> exit
+
+Skip() = entry -> exit
+
+Seq(s1, s2) = entry -> s1 -> s2 -> exit
+
+IfThenElse(c, t, e) =
+  entry -> node c -> t -> exit,
+           node c -> e -> exit
+
+While(e, s) =
+  entry -> node e -> s -> node e -> exit
+
+BinOp(_, e1, e2) =
+  entry -> e1 -> e2 -> this -> exit
+
+UnOp(_, e) =
+  entry -> e -> this -> exit
+
+node Int(_)
+node True()
+node False()
+
+properties
+  available: MustSet(term)
+  external
+    reads: Set(name)
+
+property rules
+
+available(prev -> Assign(n, e)) =
+  { expr |
+    expr <- available(prev) \/ {e},
+    !(Var{n} in reads(expr)) }
+
+available(prev -> _) = available(prev)

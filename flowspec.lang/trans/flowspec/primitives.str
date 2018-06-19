@@ -10,3 +10,6 @@ flowspec--get-property-pre(|a, key) =
 
 flowspec--get-property-post(|a, key) = 
   prim("FS_get_property_post", a, key)
+
+flowspec--solve(|a) =
+  prim("FS_solve", a)

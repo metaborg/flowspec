@@ -16,6 +16,16 @@ cfg IfThenElse(c, t, e) =
 cfg While(e, s) =
   entry -> e -> cfg s -> e -> exit
 
+cfg binop@BinOp(_, e1, e2) =
+  entry -> cfg e1 -> cfg e2 -> binop -> exit
+
+cfg unop@UnOp(_, e) =
+  entry -> cfg e -> unop -> exit
+
+cfg int@Int(_) = entry -> int -> exit
+cfg true@True(_) = entry -> true -> exit
+cfg false@False(_) = entry -> false -> exit
+
 external prop reads: Set(name)
 
 prop available: MustSet(term)

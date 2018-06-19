@@ -8,8 +8,9 @@ flowspec/Pattern
 
 context-free syntax
 
+CFGRule.CFGRule = [cfg [Root] [Pattern]]
 CFGRule.CFGRule = [cfg [Root] [Pattern] = [{CFGChain ", "}+]]
-CFGChain.Chain = {CFGChainElement "->"}+
+CFGChain.Chain = [[CFGChainElement] -> [{CFGChainElement " -> "}+]]
 CFGChainElement.Entry = [entry]
 CFGChainElement.Exit = [exit]
 CFGChainElement.Start = [start]
@@ -20,6 +21,20 @@ CFGChainElement.Ref = Var
 
 Root.NoRoot =
 Root.Root = [root]
+
+context-free syntax
+
+AltCFGRule.AltCFGRule = [[Root] [Pattern] = [{AltCFGChain ", "}+]]
+AltCFGChain.Chain = [[AltCFGChainElement] -> [{AltCFGChainElement " -> "}+]]
+AltCFGChainElement.Entry = [entry]
+AltCFGChainElement.Exit = [exit]
+AltCFGChainElement.Start = [start]
+AltCFGChainElement.End = [end]
+AltCFGChainElement.SubCFG = Var
+AltCFGChainElement.Node = [node [Var]]
+AltCFGChainElement.This = [this] {prefer}
+
+AltCFGRule.CFGNode = [node [Pattern]]
 
 template options
 

@@ -1,0 +1,24 @@
+module generate-functions
+
+imports
+
+signatures/flowspec/-
+
+libspoofax/stratego/debug
+libspoofax/core/language
+
+flowspec/desugar
+flowspec/utils
+flowspec/dependencies
+flowspec/generate-stratego
+
+nabl2/api
+nabl2/shared/-
+nabl2/runtime/-
+flowspec/static-semantics
+
+rules
+
+gen-functionterm: Module(_, _, _, def*) -> functions
+with
+  functions := <retain-all(?FunDef(_, _, _))> def*

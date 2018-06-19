@@ -84,5 +84,4 @@ public class Set<K extends ITerm> implements IApplTerm {
     public List<ITerm> getArgs() {
         return new ImmutableList.Builder<ITerm>().add(B.newList(this.set)).build();
     }
-
 }

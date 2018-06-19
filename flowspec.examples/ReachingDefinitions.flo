@@ -1,6 +1,6 @@
 module flow
 
-cfg Root(s) = entry -> cfg s -> exit
+cfg root Root(s) = start -> cfg s -> end
 
 cfg this@Assign(n, e) =
   entry -> cfg e -> this -> exit
@@ -19,14 +19,14 @@ cfg While(e, s) =
 prop definition: MaySet(name * Option(index))
 
 definition(prev -> this@Assign(n, e)) =
-  { (n, Some(indexOf this)) } \/
-  { (m, l) | (m, l) <- definition(pred), m != n }
+  { (n, Some(indexOf(this))) } \/
+  { (m, l) | (m, l) <- definition(prev), m != n }
 
 definition(prev -> _) = definition(prev)
 
-//definition(start) = { (n, None()) | n <- live(start) }
+//definition(Root(_).start) = { (n, None()) | n <- live(start) }
 
-prop usesDef: Set index
-
-usesDef(this@Ref(n)) =
-  { opt | (m, opt) <- definition(this), n == m, opt != None() }
+//prop usesDef: Set index
+//
+//usesDef(this@Ref(n)) =
+//  { opt | (m, opt) <- definition(this), n == m, opt != None() }

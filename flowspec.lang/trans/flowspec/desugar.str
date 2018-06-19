@@ -7,6 +7,8 @@ signatures/flowspec/desugar/-
 libspoofax/term/origin
 libspoofax/stratego/debug
 
+nabl2/api
+
 rules
 
 thread-map_(s): ([], t) -> ([], t)
@@ -17,10 +19,12 @@ where <s> (x, t) => (y, t')
 
 rules
 
-desugar-all = topdown(try(desugar-one))
-//;remove-object-sharing-in-strings;warning-on-missing-origin
+post-desugar-all = topdown(try(post-desugar-one))
 
-desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm)
+post-desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm + desugar-proporappl)
+
+pre-desugar-all = topdown(try(pre-desugar-one))
+pre-desugar-one = origin-track-forced(desugar-chain + desugar-cfgrule + desugar-usertype + desugar-typedef + desugar-latticedef + alt-syntax)
 
 desugar-in-list(s): subj@[_|_] -> <origin-track-forced(!obj)> subj
 where if map(not(s))
@@ -29,24 +33,6 @@ where if map(not(s))
       end//if
     ; ?obj
 
-rules // check AST whether every sub term has an origin
-
-warning-on-missing-origin: term -> <id>
-//with terms-missing-origin
-//   ; remove-all(?[])
-//   ; map(debug(|"[WARNING] Term missing origin: "))
-
-terms-missing-origin = collect-all(not(origin-offset))
-
-warning-on-origin-loss(s|str): original -> <s> original
-where transformed := <s> original
-    ; if <(origin-offset, not(origin-offset))> (original, transformed)
-        then <debug(|${[WARNING] Origin just lost in {str}:{" "}})> transformed
-      end//if
-
-remove-object-sharing-in-strings =
-  topdown(try(is-string;origin-track-forced(explode-string;implode-string)))
-
 rules // FlowSpec specific
 
 desugar-setcomp: SetComp(expr, exprs) -> SetComp(expr, sourcepatterns, sources', exprs')
@@ -54,3 +40,65 @@ with (sources, exprs') := <partition(?Source(_, _))> exprs
    ; (sourcepatterns, sources') := <unzip(\Source(a,b) -> (a,b)\)> sources
 
 desugar-setcompmatcharm: MatchArm(pattern) -> pattern
+
+desugar-proporappl: PropOrAppl(n, arg) -> result
+with
+  a := <nabl2-get-ast-analysis> n
+; result := <desugar-proporappl-1(|a, arg)> n
+
+desugar-proporappl-1(|a, arg): n -> Prop(n, arg)
+where nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a)
+
+desugar-proporappl-1(|a, arg): n -> Appl(Ref(n), [Ref(arg)])
+where nabl2-mk-occurrence(|"Variable"); nabl2-get-resolved-name(|a)
+
+desugar-chain: Chain(head, tail) -> Chain([head | tail])
+
+desugar-cfgrule: CFGRule(root, pattern) -> CFGRule(root, pattern, [])
+
+desugar-usertype: UserType(name) -> UserType(name, [])
+
+desugar-typedef: TypeDef(n, c*) -> TypeDef(n, [], c*)
+
+desugar-latticedef: LatticeDef(n, b) -> LatticeDef(n, [], b)
+
+alt-syntax: Module(name, sections) -> Module(name, imports, [], definitions)
+with imports := <extract-imports> sections
+   ; definitions := <extract-definitions> sections
+
+extract-imports = 
+  retain-all(\Imports(i,e) -> 
+    <conc> ( <map(!Import(<id>))> i
+           , <mapconcat(\Externals(i) -> <map(!ExtImport(<id>))> i\)> e
+           )\)
+  ; concat
+
+extract-definitions =
+  remove-all(?Imports(_,_))
+; mapconcat( ?CFGRules(<id>)
+           + ?LatticeDefs(<id>)
+           + ?TypeDefs(<id>)
+           + \PropDefs(d, e) -> <conc> (d, <mapconcat(\Externals(e) -> <map(\PropDef(n,t) -> ExtPropDef(n,t)\)> e\)> e)\
+           + \PropRules(r) -> r\
+           + ?FunDefs(<id>)
+           )
+
+alt-syntax: AltCFGRule(r, p, c*) -> CFGRule(r, p', c'*)
+where this := <extract-this-name> p
+    ; p' := At(this, <topdown(try(origin-track-forced(alt-syntax(|this))))> p)
+    ; c'* := <topdown(try(origin-track-forced(alt-syntax(|this))))> c*
+alt-syntax: CFGNode(p) -> CFGRule(NoRoot(), At(this, p), [Chain([Entry(), Ref(this), Exit()])])
+where this := <extract-this-name> p
+alt-syntax(|this): This() -> Ref(this)
+alt-syntax(|this): SubCFG(r) -> Recurse(r)
+alt-syntax(|this): Node(r) -> Ref(r)
+
+extract-this-name = origin-track-forced(!$[_[<extract-this-name_>]])
+
+extract-this-name_: Term(name, _) -> <lower-case> name
+extract-this-name_: Tuple(_, l) -> $[tuple[<length;inc> l]]
+extract-this-name_: Wildcard() -> "wld"
+extract-this-name_: Var(v) -> v
+extract-this-name_: At(_,p) -> <extract-this-name> p
+extract-this-name_: Int(i) -> $[int[i]]
+extract-this-name_: String(_) -> $[string]

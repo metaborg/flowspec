@@ -12,3 +12,4 @@ context-free start-symbols
 context-free syntax
 
   Start = Module
+  Start = AltModule

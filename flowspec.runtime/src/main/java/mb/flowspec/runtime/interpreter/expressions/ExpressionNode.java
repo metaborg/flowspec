@@ -73,14 +73,15 @@ public abstract class ExpressionNode extends Node {
             IntLiteralNode.match(frameDescriptor),
             StringLiteralNode.match(frameDescriptor),
             TypeNode.match(frameDescriptor),
-            // TODO Abs/1
             ApplicationNode.match(frameDescriptor),
             IfNode.match(frameDescriptor),
             EqualNode.match(frameDescriptor),
             NotEqualNode.match(frameDescriptor),
+            AndNode.match(frameDescriptor),
+            OrNode.match(frameDescriptor),
             NotNode.match(frameDescriptor),
             PlusNode.match(frameDescriptor),
-            // TODO Match/2?
+            MatchNode.match(frameDescriptor),
             SetLiteralNode.match(frameDescriptor),
             SetCompNode.match(frameDescriptor),
             TermIndexNode.match(frameDescriptor),

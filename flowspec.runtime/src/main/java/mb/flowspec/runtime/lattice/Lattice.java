@@ -28,11 +28,11 @@ public interface Lattice<E> {
 
     public Optional<E> partial_lub(E one, E other);
 
-    default public boolean lte(E one, E other) {
+    default public boolean leq(E one, E other) {
         return partial_lub(one, other).equals(Optional.of(other));
     }
 
-    default public boolean gte(E one, E other) {
-        return lte(other, one);
+    default public boolean geq(E one, E other) {
+        return leq(other, one);
     }
 }

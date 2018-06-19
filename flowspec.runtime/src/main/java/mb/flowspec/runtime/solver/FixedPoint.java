@@ -41,7 +41,8 @@ public class FixedPoint {
         this.postProperties = Map.Transient.of();
     }
 
-    public ISolution entryPoint(ISolution nabl2solution, TFFileInfo tfFileInfo) {
+    public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo) {
+        TransferFunctionInfo tfFileInfo = staticInfo.transfers();
         this.solution = nabl2solution.flowSpecSolution();
         final ICompleteControlFlowGraph<CFGNode> cfg = solution.controlFlowGraph();
         preProperties.__putAll(solution.preProperties());
@@ -58,7 +59,9 @@ public class FixedPoint {
          */
         InitValues initValues = ImmutableInitValues.of(nabl2solution.config(), cfg, this.preProperties,
                                                        nabl2solution.scopeGraph(), nabl2solution.unifier(),
-                                                       nabl2solution.astProperties())
+                                                       nabl2solution.astProperties(), 
+                                                       staticInfo.functions().functions(), 
+                                                       staticInfo.lattices().latticeDefs())
                 .withNameResolutionCache(nabl2solution.nameResolutionCache());
         tfFileInfo.init(initValues);
 
@@ -85,7 +88,7 @@ public class FixedPoint {
     }
 
     @SuppressWarnings("unchecked")
-    private void solve(ICompleteControlFlowGraph<CFGNode> cfg, TFFileInfo tfFileInfo)
+    private void solve(ICompleteControlFlowGraph<CFGNode> cfg, TransferFunctionInfo tfFileInfo)
             throws CyclicGraphException, FixedPointLimitException {
         Iterable<String> propTopoOrder = Algorithms.topoSort(tfFileInfo.metadata().keySet(), tfFileInfo.dependsOn().inverse());
 
@@ -159,7 +162,7 @@ public class FixedPoint {
                     for (CFGNode to : edges.get(from)) {
                         ITerm afterFromTF = callTF(prop, metadata, from);
                         ITerm beforeToTF = getProperty(to, prop);
-                        if (metadata.lattice().nlte(afterFromTF, beforeToTF)) {
+                        if (metadata.lattice().nleq(afterFromTF, beforeToTF)) {
                             setProperty(to, prop, metadata.lattice().lub(beforeToTF, afterFromTF));
                             if (scc.contains(to)) {
                                 done = false;

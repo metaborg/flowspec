@@ -16,7 +16,7 @@ public class FullSetLattice<E extends ITerm> implements CompleteLattice<Set<E>> 
     }
 
     @Override
-    public boolean lte(Set<E> one, Set<E> other) {
+    public boolean leq(Set<E> one, Set<E> other) {
         if (other == TOP) {
             return true;
         } else if (one == TOP) {
@@ -33,7 +33,8 @@ public class FullSetLattice<E extends ITerm> implements CompleteLattice<Set<E>> 
         } else if (one == TOP) {
             return other;
         } else {
-            return new Set<>(io.usethesource.capsule.Set.Immutable.subtract(one.set, io.usethesource.capsule.Set.Immutable.subtract(one.set, other.set)));
+            return new Set<>(io.usethesource.capsule.Set.Immutable.subtract(one.set,
+                    io.usethesource.capsule.Set.Immutable.subtract(one.set, other.set)));
         }
     }
 

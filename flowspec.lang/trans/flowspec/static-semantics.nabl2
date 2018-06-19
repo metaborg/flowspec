@@ -47,9 +47,11 @@ rules
     Module { module } ===> moduleScope,
     Map1 [[ imports ^ (global, moduleScope) ]],
     Map1 [[ definitions ^ (moduleScope) ]],
-    distinct D(global)/Module,
-    distinct D(moduleScope)/Property,
-    distinct D(moduleScope)/Type,
+    distinct/name D(global)/Module,
+    distinct/name D(moduleScope)/Property,
+    distinct/name D(moduleScope)/Type,
+    distinct/name D(moduleScope)/Variable,
+    0 seteq (D(moduleScope)/Variable isect/name D(moduleScope)/Property) | error $[Property and function names may not overlap: [NAME]] @NAMES,
     new moduleScope.
   
   [[ Import(mod) ^ (moduleScope) ]] :=
@@ -110,6 +112,14 @@ rules
     Property { propname } -> ruleScope,
     Property { propname } |-> _.
 
+  [[ PropOrAppl(name, x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> _,
+    Property { name } -> ruleScope,
+//    Property { name } |-> _,
+    Variable { name } -> ruleScope.
+//    Variable { name } |-> _.
+
 // Pattern
 rules
 
@@ -168,16 +178,13 @@ rules
     Type { name } <- moduleScope,
     typeDefScope ---> moduleScope,
     Type { name } ===> typeDefScope,
-    Vars [[ vars ^ (typeDefScope) ]],
+    Map1(Var) [[ vars ^ (typeDefScope) ]],
     Map1 [[ constrs ^ (typeDefScope) ]],
     new typeDefScope.
 
-  Vars [[ [v|vs] ^ (typeDefScope) ]] :=
+  Var [[ v ^ (typeDefScope) ]] :=
     Type { v } -> typeDefScope,
-    Type { v } |-> _,
-    Vars [[ vs ^ (typeDefScope) ]].
-
-  Vars [[ [] ^ (_) ]].
+    Type { v } |-> _.
 
   [[ ConsDef(name, tovs) ^ (typeDefScope) ]] :=
     Constructor { name } <- typeDefScope,
@@ -191,7 +198,7 @@ rules
     Type { name } <- moduleScope,
     latticeDefScope ---> moduleScope,
     Type { name } ===> latticeDefScope,
-    Vars [[ vars ^ (latticeDefScope) ]],
+    Map1(Var) [[ vars ^ (latticeDefScope) ]],
     Map1 [[ latticeparts ^ (latticeDefScope) ]],
     new latticeDefScope.
 
@@ -255,6 +262,12 @@ rules
 
   Type [[ Int() ^ (moduleScope) ]].
 
+  Type [[ String() ^ (moduleScope) ]].
+
+  Type [[ Float() ^ (moduleScope) ]].
+
+  Type [[ Bool() ^ (moduleScope) ]].
+
   Type [[ UserType(name, types) ^ (moduleScope) ]] :=
     Type { name } -> moduleScope,
 //    Type { name } |-> dName,
@@ -295,12 +308,16 @@ rules
 // Main
 rules
 
-  [[ FunDef(var, funpatterns, expr) ^ (moduleScope) ]] :=
+  [[ FunDef(var, args, expr) ^ (moduleScope) ]] :=
+    Variable { var } <- moduleScope,
     ruleScope ---> moduleScope,
-    Variable { var } <- ruleScope,
-    Map1(Pattern) [[ funpatterns ^ (ruleScope) ]],
+    Map1 [[ args ^ (ruleScope) ]],
     [[ expr ^ (ruleScope) ]],
     new ruleScope.
+
+  [[ Arg(var, ty) ^ (ruleScope) ]] :=
+    Type [[ ty ^ (ruleScope) ]],
+    Variable { var } <- ruleScope.
 
 // Expr
 rules
@@ -356,7 +373,54 @@ rules
     [[ l ^ (ruleScope) ]],
     [[ r ^ (ruleScope) ]].
   
+  [[ And(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Or(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
   [[ Not(e) ^ (ruleScope) ]] :=
+    [[ e ^ (ruleScope) ]].
+  
+  [[ Lt(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Lte(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Gt(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Gte(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Add(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Sub(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Mul(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Div(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Mod(l, r) ^ (ruleScope) ]] :=
+    [[ l ^ (ruleScope) ]],
+    [[ r ^ (ruleScope) ]].
+  
+  [[ Neg(e) ^ (ruleScope) ]] :=
     [[ e ^ (ruleScope) ]].
   
   [[ Match(e, arms) ^ (ruleScope) ]] :=
@@ -372,6 +436,17 @@ rules
   [[ SetLiteral(exprs) ^ (ruleScope) ]] :=
     Map1 [[ exprs ^ (ruleScope) ]].
   
+  [[ MapLiteral(exprs) ^ (ruleScope) ]] :=
+    Map1 [[ exprs ^ (ruleScope) ]].
+  
+  [[ MapLookup(expr1, expr2) ^ (ruleScope) ]] :=
+    [[ expr1 ^ (ruleScope) ]],
+    [[ expr2 ^ (ruleScope) ]].
+
+  [[ Binding(expr1, expr2) ^ (ruleScope) ]] :=
+    [[ expr1 ^ (ruleScope) ]],
+    [[ expr2 ^ (ruleScope) ]].
+
   [[ SetComp(expr, setcompexprs) ^ (ruleScope) ]] :=
     new setCompScope,
     setCompScope ---> ruleScope,

@@ -1,0 +1,30 @@
+module generate-lattices
+
+imports
+
+signatures/flowspec/-
+
+libspoofax/stratego/debug
+libspoofax/core/language
+
+flowspec/desugar
+flowspec/utils
+flowspec/dependencies
+flowspec/generate-stratego
+
+nabl2/api
+nabl2/shared/-
+nabl2/runtime/-
+flowspec/static-semantics
+
+rules
+
+gen-latticeterm: Module(_, _, _, def*) -> lattices
+with
+  latticedefs := <retain-all(?LatticeDef(_, _, _))> def*
+; lattices := <map(normalize-latticedef)> latticedefs
+
+normalize-latticedef: LatticeDef(name, vars, part*) -> (name, vars, type, lub, 'top)
+with type := <getfirst(?Type(<id>))> part*
+   ; lub := <getfirst(?Lub(_,_,_))> part*
+   ; 'top := <getfirst(?Top(<id>))> part*

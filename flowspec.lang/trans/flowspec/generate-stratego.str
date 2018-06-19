@@ -3,6 +3,7 @@ module generate-stratego
 imports
 
 signatures/flowspec/-
+signatures/flowspec/desugar/-
 
 libspoofax/stratego/debug
 libspoofax/core/language
@@ -70,7 +71,7 @@ with
 ; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str);lines_> def*
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _))> def*
-; matchpropsstring := <map(\n -> ${<flowspec--proprule-{n}(|index)> term}\);constraint-str-list-to-cconj> propnames
+; matchpropsstring := <map(\n -> ${<flowspec--proprule-{n}(|index)> term}\);constraint-str-list-to-cconj(|"index")> propnames
 ; propstring := <number-prop-rules(|a, <map(nabl2-mk-occurrence(|"Property"))> propnames);gen-prop-str(|propnames);lines_> proprule*
 ; propnamesstring := <map(!${"{<id>}"});csv-lines> propnames
 
@@ -123,7 +124,7 @@ with
 ; indexdefstr := "fs_index := <nabl2--get-ast-index> fs_term"
 ; vardefstr* := [recursevarsstr*, refvarsstr*, rrvarstr*, mergedrhsvarstr*, mergedlhsvarstr*]
 ; constraintstr* := [rrconstr*, pairstr*, mergedrhsstr*, mergedlhsstr*, refsstr*, recursesstr*]
-; constraintstr := <constraint-str-list-to-cconj> constraintstr*
+; constraintstr := <constraint-str-list-to-cconj(|"fs_index")> constraintstr*
 
 cfg-root-rule-header(|patternstr): Root() ->
 ${flowspec--generate-cfg-root-constraint(|nabl2_source):
@@ -259,4 +260,4 @@ with
 
 // utils
 
-constraint-str-list-to-cconj = ?[] < !"CTrue(fs_index)" + foldr1(?[<id>], !$[CConj([<Fst>], [<Snd>])])
+constraint-str-list-to-cconj(|index_name) = ?[] < !$[CTrue([index_name])] + foldr1(?[<id>], !$[CConj([<Fst>], [<Snd>])])

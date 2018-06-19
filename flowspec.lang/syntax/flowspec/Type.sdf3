@@ -9,26 +9,51 @@ flowspec/Expr
 context-free syntax // Type definitions
 
 TypeDef.TypeDef =
-[type [TypeName] [Var*] =
+[type [TypeName]([{Var ", "}+]) =
   [{ConsDef "\n"}+]]
 
-ConsDef.ConsDef = [| [ConsName]([{TypeOrVar " "}*])]
+TypeDef.TypeDef =
+[type [TypeName] =
+  [{ConsDef "\n"}+]]
 
-TypeOrVar = Type
+AltTypeDef.TypeDef =
+[[TypeName]([{Var ", "}+]) =
+  [{ConsDef "\n"}+]]
+
+AltTypeDef.TypeDef =
+[[TypeName] =
+  [{ConsDef "\n"}+]]
+
+ConsDef.ConsDef = [| [ConsName]([{TypeOrVar ", "}*])]
+
+TypeOrVar = Type {prefer}
 TypeOrVar.Var = Var
 
 context-free syntax // Lattice definitions
 
 LatticeDef.LatticeDef =
-[lattice [TypeName] [Var*] where
+[lattice [TypeName] where
+  [LatticePart+]]
+
+LatticeDef.LatticeDef =
+[lattice [TypeName]([{Var ", "}+]) where
+  [LatticePart+]]
+
+// TODO: no need for the Var*?
+AltLatticeDef.LatticeDef =
+[[TypeName] where
+  [LatticePart+]]
+
+AltLatticeDef.LatticeDef =
+[[TypeName]([{Var ", "}+]) where
   [LatticePart+]]
 
 LatticePart.Type = [type = [Type]]
-LatticePart.Lub = [lub [Var] [Var] = [Expr]]
-LatticePart.Glb = [glb [Var] [Var] = [Expr]]
-LatticePart.Leq = [leq [Var] [Var] = [Expr]]
-LatticePart.Geq = [geq [Var] [Var] = [Expr]]
-LatticePart.NLeq = [nleq [Var] [Var] = [Expr]]
+LatticePart.Lub = [lub([Var], [Var]) = [Expr]]
+LatticePart.Glb = [glb([Var], [Var]) = [Expr]]
+LatticePart.Leq = [leq([Var], [Var]) = [Expr]]
+LatticePart.Geq = [geq([Var], [Var]) = [Expr]]
+LatticePart.NLeq = [nleq([Var], [Var]) = [Expr]]
 LatticePart.Top = [top = [Expr]]
 LatticePart.Bottom = [bottom = [Expr]]
 
@@ -37,14 +62,18 @@ context-free syntax // Type expressions
 Type = SimpleType
 SimpleType.Name = "name"
 SimpleType.Term = "term"
-SimpleType.Index = "index"
+SimpleType.Index = "occurrence"
 SimpleType.Int = "int"
-SimpleType.UserType = [[TypeName] [Type*]] {avoid}
+SimpleType.String = "string"
+SimpleType.Float = "float"
+SimpleType.Bool = "bool"
+Type.UserType = [[TypeName]] {avoid}
+Type.UserType = [[TypeName]([{Type ", "}+])] {avoid}
 Type = [([Type])] {bracket}
 Type.Tuple = [[Type] * [Type]] {right}
-Type.Map = [Map [Type] [Type]]
-Type.Set = [Set [Type]]
+Type.Map = [Map([Type], [Type])]
+Type.Set = [Set([Type])]
 
 context-free priorities
 
-{ Type.Set Type.Map SimpleType.UserType } > Type.Tuple
+{ Type.Set Type.Map Type.UserType } > Type.Tuple
