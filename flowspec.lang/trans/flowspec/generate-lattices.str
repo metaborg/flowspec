@@ -24,7 +24,8 @@ with
   latticedefs := <retain-all(?LatticeDef(_, _, _))> def*
 ; lattices := <map(normalize-latticedef)> latticedefs
 
-normalize-latticedef: LatticeDef(name, vars, part*) -> (name, vars, type, lub, 'top)
+normalize-latticedef: LatticeDef(name, vars, part*) -> (name, vars, type, (lub, 'top, 'bottom))
 with type := <getfirst(?Type(<id>))> part*
    ; lub := <getfirst(?Lub(_,_,_))> part*
    ; 'top := <getfirst(?Top(<id>))> part*
+   ; 'bottom := <getfirst(?Bottom(<id>))> part*

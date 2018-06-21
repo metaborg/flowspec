@@ -155,8 +155,11 @@ rules
     Variable { x } <- ruleScope,
     Pattern [[ pattern ^ (ruleScope) ]].
 
-  Pattern [[ Int(_) ^ (_) ]]. // Literal
-  Pattern [[ String(_) ^ (_) ]]. // Literal
+  // Literals
+  Pattern [[ Int(_) ^ (_) ]].
+  Pattern [[ String(_) ^ (_) ]].
+  Pattern [[ True() ^ (_) ]].
+  Pattern [[ False() ^ (_) ]].
 
 // Properties
 rules
@@ -332,9 +335,37 @@ rules
     Variable { var } -> qualRefScope.
 //    Variable { var } |-> _.
 
+  [[ TopOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  [[ BottomOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
   [[ Ref(var) ^ (ruleScope) ]] :=
     Variable { var } -> ruleScope,
     Variable { var } |-> _.
+
+  [[ LubOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  [[ GlbOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  [[ LeqOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  [[ GeqOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  [[ NLeqOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
 
   [[ Prop(prop, var) ^ (ruleScope) ]] :=
     Property { prop } -> ruleScope,
@@ -348,6 +379,8 @@ rules
 
   [[ Int(_) ^ (ruleScope) ]].
   [[ String(_) ^ (ruleScope) ]].
+  [[ True() ^ (ruleScope) ]].
+  [[ False() ^ (ruleScope) ]].
   
   [[ Start() ^ (ruleScope) ]].
   [[ End() ^ (ruleScope) ]].

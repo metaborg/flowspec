@@ -13,7 +13,7 @@ tokenize: "("
 context-free syntax // expressions
 
 Expr.Term = [[ConsName]([{Expr ","}*])]
-Expr = Ref
+Expr = ExprRef
 Expr.PropOrAppl = [[PropName]([Var])] {prefer}
 Expr.Tuple = [([Expr], [{Expr ", "}+])]
 Expr = Literal
@@ -23,7 +23,7 @@ Expr.End = [end]
 
 Expr = [([Expr])] {bracket}
 Expr.Type = [[Var].type]
-Expr.Appl = [[Ref]([{Expr ", "}+])] {left}
+Expr.Appl = [[FunRef]([{Expr ", "}+])] {left}
 Expr.If = [if [Expr] then [Expr] else [Expr]]
 
 Expr.Eq = [[Expr] == [Expr]] {left}
@@ -73,9 +73,22 @@ SetCompMatchArm.MatchArm = [| [Pattern]]
 
 Literal.Int = INT
 Literal.String = STRING
+Literal.True = [true]
+Literal.False = [false]
 
 Ref.QualRef = [[ModuleName].[Var]] {avoid}
 Ref.Ref = Var
+
+ExprRef = Ref
+ExprRef.TopOf = [[TypeName].top]
+ExprRef.BottomOf = [[TypeName].bottom]
+
+FunRef.LubOf = [[TypeName].lub]
+FunRef.GlbOf = [[TypeName].glb]
+FunRef.LeqOf = [[TypeName].leq]
+FunRef.GeqOf = [[TypeName].geq]
+FunRef.NLeqOf = [[TypeName].nleq]
+FunRef = Ref
 
 context-free priorities
   Expr.Not > { left: Expr.Appl Expr.If Expr.Match } > { non-assoc: Expr.SetUnion Expr.SetIntersection Expr.SetContains Expr.SetDifference } > { left: Expr.Eq Expr.NEq } > Expr.And > Expr.Or
