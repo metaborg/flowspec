@@ -52,8 +52,7 @@ public class MatchNode extends ExpressionNode {
     }
 
     public static IMatcher<ImmutableTuple2<PatternNode, ExpressionNode>> matchArm(FrameDescriptor frameDescriptor) {
-        FrameDescriptor localFrameDescriptor = frameDescriptor.copy();
-        return M.appl2("MatchArm", PatternNode.matchPattern(localFrameDescriptor),
-                ExpressionNode.matchExpr(localFrameDescriptor), (appl, p, e) -> ImmutableTuple2.of(p, e));
+        return M.appl2("MatchArm", PatternNode.matchPattern(frameDescriptor),
+                ExpressionNode.matchExpr(frameDescriptor), (appl, p, e) -> ImmutableTuple2.of(p, e));
     }
 }

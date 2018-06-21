@@ -19,7 +19,7 @@ public class QualRefNode extends FunRefNode {
         return "QualRefNode [modname=" + String.join("/", modname) + ", var=" + var + "]";
     }
 
-    public IMatcher<QualRefNode> match() {
+    public static IMatcher<QualRefNode> match() {
         return M.appl2("QualRef", M.stringValue(), M.stringValue(), (appl, modname, var) -> {
             return new QualRefNode(modname, var);
         });

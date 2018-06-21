@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.InitValues;
-import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class TermNode extends ExpressionNode {
@@ -25,7 +25,13 @@ public class TermNode extends ExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         return B.newAppl(consName, Arrays.stream(children)
-                                        .map(c -> (ITerm) c.executeGeneric(frame))
+                                        .map(c -> {
+                                            try {
+                                                return c.executeITerm(frame);
+                                            } catch (UnexpectedResultException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                        })
                                         .collect(Collectors.toList()));
     }
 

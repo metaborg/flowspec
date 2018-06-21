@@ -15,12 +15,12 @@ import mb.flowspec.runtime.interpreter.ImmutableInitValues;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.interpreter.UnreachableException;
+import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph;
 import mb.nabl2.controlflow.terms.IFlowSpecSolution;
 import mb.nabl2.controlflow.terms.TransferFunctionAppl;
 import mb.nabl2.solver.ISolution;
-import mb.nabl2.terms.IStringTerm;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
@@ -28,17 +28,18 @@ import mb.nabl2.util.Tuple2;
 public class FixedPoint {
     private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);
     private static final String ARTIFICIAL_PROPERTY = "__START__";
-    private static FixedPoint.TimingInfo timingInfo;
     // TODO: Turn this into a config variable
     private static final int FIXPOINT_LIMIT = 10_000;
 
     private IFlowSpecSolution<CFGNode> solution;
+    private final FixedPoint.TimingInfo timingInfo;
     private final Map.Transient<Tuple2<CFGNode, String>, ITerm> preProperties;
     private final Map.Transient<Tuple2<CFGNode, String>, ITerm> postProperties;
 
     public FixedPoint() {
         this.preProperties = Map.Transient.of();
         this.postProperties = Map.Transient.of();
+        this.timingInfo = new FixedPoint.TimingInfo();
     }
 
     public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo) {
@@ -52,7 +53,7 @@ public class FixedPoint {
             logger.error("Found dead ends in control flow graph: " + cfg.deadEndNodes());
         }
 
-        timingInfo = new FixedPoint.TimingInfo();
+        timingInfo.recordStart();
 
         /* Pass the NaBL2 solution to the interpreter AST so it can save references to the CFG and the
          * resolution result in certain places
@@ -115,37 +116,37 @@ public class FixedPoint {
         return this.preProperties.get(ImmutableTuple2.of(n, prop));
     }
 
-    @SuppressWarnings("unchecked")
     private void solveFlowSensitiveProperty(ICompleteControlFlowGraph<CFGNode> cfg,
             String prop, Metadata<ITerm> metadata) throws FixedPointLimitException {
         // Phase 1: initialisation
         for (CFGNode n : cfg.nodes()) {
-            setProperty(n, prop, (mb.flowspec.runtime.interpreter.values.Set<IStringTerm>) metadata.lattice().bottom());
+            setProperty(n, prop, metadata.lattice().bottom());
         }
 
         final BinaryRelation<CFGNode, CFGNode> edges;
         final Iterable<Set<CFGNode>> sccs;
+        final io.usethesource.capsule.Set<CFGNode> initNodes;
         switch (metadata.dir()) {
             case Forward: {
-                for (CFGNode n : cfg.startNodes()) {
-                    setProperty(n, prop, new mb.flowspec.runtime.interpreter.values.Set<>());
-                    setProperty(n, prop, callTF(prop, metadata, n));
-                }
+                initNodes = cfg.startNodes();
                 edges = cfg.edges();
                 sccs = cfg.topoSCCs();
                 break;
             }
             case Backward: {
-                for (CFGNode n : cfg.endNodes()) {
-                    setProperty(n, prop, new mb.flowspec.runtime.interpreter.values.Set<>());
-                    setProperty(n, prop, callTF(prop, metadata, n));
-                }
+                initNodes = cfg.endNodes();
                 edges = cfg.edges().inverse();
                 sccs = cfg.revTopoSCCs();
                 break;
             }
             default: 
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
+        }
+        for (CFGNode n : initNodes) {
+            if (metadata.lattice() instanceof FullSetLattice) {
+                setProperty(n, prop, new mb.flowspec.runtime.interpreter.values.Set<>());
+            }
+            setProperty(n, prop, callTF(prop, metadata, n));
         }
 
         // Phase 2: Fixpoint iteration
@@ -212,13 +213,16 @@ public class FixedPoint {
 
     protected static class TimingInfo {
         private LinkedHashMap<String, Long> property;
-        public final long start;
+        private long start;
         private long interpInit;
         private long reverseTopo;
         private long end;
 
         public TimingInfo() {
             this.property = new LinkedHashMap<>();
+        }
+
+        public void recordStart() {
             this.start = System.nanoTime();
         }
 

@@ -1,6 +1,7 @@
 package mb.flowspec.runtime.lattice;
 
 import io.usethesource.capsule.Set;
+import mb.flowspec.runtime.interpreter.InitValues;
 
 public class SetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
     private final Set.Immutable<E> top;
@@ -36,4 +37,7 @@ public class SetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
     public Set.Immutable<E> lub(Set.Immutable<E> one, Set.Immutable<E> other) {
         return Set.Immutable.union(one, other);
     }
+
+    @Override
+    public void init(InitValues initValues) {}
 }

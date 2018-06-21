@@ -1,5 +1,6 @@
 package mb.flowspec.runtime.lattice;
 
+import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.values.Set;
 import mb.nabl2.terms.ITerm;
 
@@ -49,4 +50,7 @@ public class FullSetLattice<E extends ITerm> implements CompleteLattice<Set<E>> 
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final Set TOP = new Set(null);
+
+    @Override
+    public void init(InitValues initValues) {}
 }

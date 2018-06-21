@@ -2,6 +2,8 @@ package mb.flowspec.runtime.solver;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
+import java.util.Optional;
+
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
@@ -22,13 +24,16 @@ public abstract class StaticInfo {
 
     public static IMatcher<StaticInfo> match() {
         return (term, unifier) ->
-            M.tuple3(M.term(), LatticeInfo.match(), FunctionInfo.match(), (t, tf, l, f) ->
-                TransferFunctionInfo.match(l)
-                    .match(tf, unifier)
-                    .map(tf1 -> (StaticInfo) ImmutableStaticInfo.of(tf1, f, l))
-            )
-            .flatMap(i -> i)
-            .match(term, unifier);
+            Optional.of(
+                M.tuple3(M.term(), LatticeInfo.match(), FunctionInfo.match(), (t, tf, l, f) ->
+                    TransferFunctionInfo.match(l)
+                        .match(tf, unifier)
+                        .map(tf1 -> (StaticInfo) ImmutableStaticInfo.of(tf1, f, l))
+                )
+                .flatMap(i -> i)
+                .match(term, unifier)
+                .orElseThrow(() -> new ParseException("Parse error on reading Static Info"))
+            );
     }
 
     public static StaticInfo of() {

@@ -2,9 +2,6 @@ package mb.flowspec.runtime.interpreter.expressions;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -26,10 +23,6 @@ public class IntLiteralNode extends ExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame _frame) {
         return value;
-    }
-
-    public static IntLiteralNode fromIStrategoAppl(IStrategoAppl appl) {
-        return new IntLiteralNode(Integer.valueOf(Tools.javaStringAt(appl, 0)));
     }
 
     public static IMatcher<IntLiteralNode> match(FrameDescriptor frameDescriptor) {

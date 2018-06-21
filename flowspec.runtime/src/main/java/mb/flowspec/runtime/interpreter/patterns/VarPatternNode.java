@@ -2,17 +2,12 @@ package mb.flowspec.runtime.interpreter.patterns;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.interpreter.InitValues;
-import mb.nabl2.controlflow.terms.CFGNode;
-import mb.nabl2.controlflow.terms.IBasicControlFlowGraph;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class VarPatternNode extends PatternNode {
@@ -20,13 +15,6 @@ public class VarPatternNode extends PatternNode {
 
     public VarPatternNode(FrameSlot slot) {
         this.slot = slot;
-    }
-
-    public static VarPatternNode fromIStrategoAppl(IStrategoAppl appl, FrameDescriptor frameDescriptor,
-            IBasicControlFlowGraph<CFGNode> cfg) {
-        FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
-        FrameSlot slot = frameDescriptor.addFrameSlot(Tools.javaStringAt(appl, 0), slotKind);
-        return new VarPatternNode(slot);
     }
 
     @Override

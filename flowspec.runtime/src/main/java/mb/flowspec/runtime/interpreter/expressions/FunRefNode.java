@@ -16,7 +16,7 @@ public abstract class FunRefNode {
                 M.appl1("LeqOf", M.stringValue(), (appl, string) -> new LatticeOpRefNode(LatticeOp.Leq, string)),
                 M.appl1("GeqOf", M.stringValue(), (appl, string) -> new LatticeOpRefNode(LatticeOp.Geq, string)),
                 M.appl1("NLeqOf", M.stringValue(), (appl, string) -> new LatticeOpRefNode(LatticeOp.NLeq, string)),
-                M.appl2("QualRef", M.stringValue(), M.stringValue(), (appl, modname, var) -> new QualRefNode(modname, var))
+                QualRefNode.match()
         );
     }
 

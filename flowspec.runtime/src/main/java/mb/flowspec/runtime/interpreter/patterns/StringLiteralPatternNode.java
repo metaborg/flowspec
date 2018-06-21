@@ -27,10 +27,6 @@ public class StringLiteralPatternNode extends PatternNode {
         return this.value == value;
     }
 
-    public static StringLiteralPatternNode fromIStrategoAppl(IStrategoAppl appl) {
-        return new StringLiteralPatternNode(Tools.javaStringAt(appl, 0));
-    }
-
     public static IMatcher<StringLiteralPatternNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("String", M.stringValue(), (appl, string) -> new StringLiteralPatternNode(string));
     }

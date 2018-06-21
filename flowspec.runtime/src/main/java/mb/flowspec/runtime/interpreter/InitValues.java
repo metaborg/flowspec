@@ -8,7 +8,7 @@ import org.immutables.value.Value.Parameter;
 
 import io.usethesource.capsule.Map;
 import mb.flowspec.runtime.interpreter.values.Function;
-import mb.flowspec.runtime.solver.UserDefinedLattice;
+import mb.flowspec.runtime.lattice.CompleteLattice;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.controlflow.terms.IBasicControlFlowGraph;
 import mb.nabl2.scopegraph.esop.IEsopNameResolution;
@@ -52,14 +52,14 @@ public abstract class InitValues {
 
     @Parameter
     public abstract IUnifier.Immutable unifier();
-    
+
     @Parameter
     public abstract IProperties.Immutable<TermIndex, ITerm, ITerm> astProperties();
-    
+
     @Parameter
     public abstract Map<String, Function> functions();
-    
+
     @SuppressWarnings("rawtypes")
     @Parameter
-    public abstract Map<String, UserDefinedLattice> lattices();
+    public abstract Map<String, CompleteLattice> lattices();
 }

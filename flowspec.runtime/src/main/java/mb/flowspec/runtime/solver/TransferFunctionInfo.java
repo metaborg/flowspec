@@ -13,7 +13,6 @@ import io.usethesource.capsule.Map;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.lattice.CompleteLattice;
-import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.flowspec.runtime.lattice.MapLattice;
 import mb.flowspec.runtime.solver.Metadata.Direction;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
@@ -43,14 +42,13 @@ public abstract class TransferFunctionInfo {
             for (TransferFunction tf : e.getValue().transferFunctions()) {
                 tf.init(initValues);
             }
+            e.getValue().lattice().init(initValues);
         }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static IMatcher<TransferFunctionInfo> match(LatticeInfo latticeInfo) {
-        Map.Transient<String, CompleteLattice> latticeDefs = ((Map.Immutable) latticeInfo.latticeDefs()).asTransient();
-        latticeDefs.__put("MaySet", new FullSetLattice());
-        latticeDefs.__put("MustSet", new FullSetLattice().flip());
+        Map.Transient<String, CompleteLattice> latticeDefs = latticeInfo.latticeDefs().asTransient();
         return M.listElems(tupleMatcher(), (list, tuples) -> {
             Map.Transient<String, Metadata<?>> propMetadata = Map.Transient.of();
             BinaryRelation.Transient<String, String> dependsOn = BinaryRelation.Transient.of();

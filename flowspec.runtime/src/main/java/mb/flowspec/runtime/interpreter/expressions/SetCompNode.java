@@ -59,7 +59,7 @@ public class SetCompNode extends ExpressionNode {
                 keep &= pred.executeBoolean(frame);
             }
             if (keep) {
-                result.__insert((ITerm) expression.executeGeneric(frame));
+                result.__insert(expression.executeITerm(frame));
             }
         }
         return new Set<>(result.freeze());

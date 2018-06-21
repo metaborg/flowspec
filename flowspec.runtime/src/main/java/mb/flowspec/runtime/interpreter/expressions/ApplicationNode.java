@@ -8,6 +8,7 @@ import java.util.HashSet;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
@@ -40,6 +41,7 @@ public class ApplicationNode extends ExpressionNode {
         for (ExpressionNode argument : arguments) {
             argument.init(initValues);
         }
+        reference.init(initValues);
     }
 
     @SuppressWarnings("unchecked")
@@ -53,7 +55,9 @@ public class ApplicationNode extends ExpressionNode {
             return opRefNode.function.apply(arg0, arg1);
         } else if (reference instanceof FunRefRefNode) {
             FunRefRefNode opRefNode = (FunRefRefNode) reference;
-            return opRefNode.function.execute(frame);
+            // TODO: prepare arguments for function execution...
+            Object[] args = Arrays.stream(arguments).map(a -> a.executeGeneric(frame)).toArray();
+            return Truffle.getRuntime().createCallTarget(opRefNode.function).call(args);
         } else if (reference instanceof QualRefNode) {
             QualRefNode qualRef = (QualRefNode) reference;
             if (qualRef.modname.length == 1 && qualRef.modname[0].equals("Set")) {

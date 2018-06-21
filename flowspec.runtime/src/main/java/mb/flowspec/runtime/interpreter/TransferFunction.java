@@ -8,6 +8,7 @@ import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
 import mb.nabl2.controlflow.terms.ICFGNode;
@@ -69,6 +70,10 @@ public class TransferFunction extends RootNode {
     }
 
     public static <N extends ICFGNode> ITerm call(TransferFunctionAppl appl, TransferFunction[] tfs, ITerm arg) {
-        return (ITerm) Truffle.getRuntime().createCallTarget(tfs[appl.offset()]).call((Object[]) appl.args(arg));
+        try {
+            return Types.expectITerm(Truffle.getRuntime().createCallTarget(tfs[appl.offset()]).call((Object[]) appl.args(arg)));
+        } catch (UnexpectedResultException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

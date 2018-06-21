@@ -4,6 +4,7 @@ import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.values.Set;
@@ -26,7 +27,11 @@ public class SetLiteralNode extends ExpressionNode {
     public Set<ITerm> executeSet(VirtualFrame frame) {
         io.usethesource.capsule.Set.Transient<ITerm> set = io.usethesource.capsule.Set.Transient.of();
         for (ExpressionNode expr : values) {
-            set.__insert((ITerm) expr.executeGeneric(frame));
+            try {
+                set.__insert(expr.executeITerm(frame));
+            } catch (UnexpectedResultException e) {
+                throw new RuntimeException(e);
+            }
         }
         return new Set<>(set.freeze());
     }

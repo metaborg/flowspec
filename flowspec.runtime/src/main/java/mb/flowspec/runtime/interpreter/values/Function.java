@@ -15,9 +15,9 @@ import mb.flowspec.runtime.interpreter.Context;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
 import mb.flowspec.runtime.interpreter.expressions.ExpressionNode;
-import mb.flowspec.runtime.interpreter.expressions.TypeNode;
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
 import mb.flowspec.runtime.solver.ParseException;
+import mb.flowspec.runtime.solver.Type;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 import mb.nabl2.util.ImmutableTuple2;
 
@@ -54,19 +54,17 @@ public class Function extends RootNode {
                 Optional.of(
                     M.appl3("FunDef", M.stringValue(), M.term(), M.term(), (appl, name, args, body) -> {
                         FrameDescriptor frameDescriptor = new FrameDescriptor();
-                        return M.listElems(matchArg(frameDescriptor)).match(args, unifier).flatMap(a ->
-                            ExpressionNode.matchExpr(frameDescriptor)
+                        return M.listElems(matchArg(frameDescriptor)).match(args, unifier).flatMap(a -> {
+                            ArgToVarNode[] as = new ArgToVarNode[a.size()];
+                            final AtomicInteger i = new AtomicInteger(0);
+                            a.stream().map(ImmutableTuple2::_1).forEach(s -> {
+                                int offset = i.getAndIncrement();
+                                as[offset] = ArgToVarNode.of(frameDescriptor, offset, s);
+                            });
+                            return ExpressionNode.matchExpr(frameDescriptor)
                                 .match(body, unifier)
-                                .map(b -> {
-                                    ArgToVarNode[] as = new ArgToVarNode[a.size()];
-                                    final AtomicInteger i = new AtomicInteger(0);
-                                    a.stream().map(ImmutableTuple2::_1).forEach(s -> {
-                                        int offset = i.getAndIncrement();
-                                        as[offset] = ArgToVarNode.of(frameDescriptor, offset, s);
-                                    });
-                                    return ImmutableTuple2.<String, Function>of(name, new Function(language, frameDescriptor, as, b));
-                                })
-                        );
+                                .map(b -> ImmutableTuple2.<String, Function>of(name, new Function(language, frameDescriptor, as, b)));
+                        });
                     })
                     .flatMap(i -> i)
                     .match(term, unifier)
@@ -74,8 +72,8 @@ public class Function extends RootNode {
                 );
     }
 
-    private static IMatcher<ImmutableTuple2<String, TypeNode>> matchArg(FrameDescriptor frameDescriptor) {
-        return M.appl2("Arg", M.stringValue(), TypeNode.match(frameDescriptor), (appl, s, t) -> ImmutableTuple2.of(s,t));
+    private static IMatcher<ImmutableTuple2<String, Type>> matchArg(FrameDescriptor frameDescriptor) {
+        return M.appl2("Arg", M.stringValue(), Type.matchType(), (appl, s, t) -> ImmutableTuple2.of(s,t));
     }
 
     public static IMatcher<ImmutableTuple2<String, Function>> match() {

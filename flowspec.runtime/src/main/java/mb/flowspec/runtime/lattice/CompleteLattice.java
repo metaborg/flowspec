@@ -3,6 +3,8 @@ package mb.flowspec.runtime.lattice;
 import java.util.Optional;
 import java.util.Set;
 
+import mb.flowspec.runtime.interpreter.InitValues;
+
 public interface CompleteLattice<E> extends Lattice<E> {
     public E top();
 
@@ -71,6 +73,11 @@ public interface CompleteLattice<E> extends Lattice<E> {
             public boolean geq(E one, E other) {
                 return CompleteLattice.this.leq(other, one);
             }
+
+            @Override
+            public void init(InitValues initValues) {}
         };
     }
+
+    public void init(InitValues initValues);
 }

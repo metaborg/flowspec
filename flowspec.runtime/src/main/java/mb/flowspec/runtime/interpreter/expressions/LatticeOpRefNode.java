@@ -3,7 +3,7 @@ package mb.flowspec.runtime.interpreter.expressions;
 import java.util.function.BiFunction;
 
 import mb.flowspec.runtime.interpreter.InitValues;
-import mb.flowspec.runtime.solver.UserDefinedLattice;
+import mb.flowspec.runtime.lattice.CompleteLattice;
 
 public class LatticeOpRefNode extends FunRefNode {
     public final LatticeOp op;
@@ -20,7 +20,7 @@ public class LatticeOpRefNode extends FunRefNode {
     @Override
     public void init(InitValues initValues) {
         @SuppressWarnings("rawtypes")
-        UserDefinedLattice lattice = initValues.lattices().get(name);
+        CompleteLattice lattice = initValues.lattices().get(name);
         switch(this.op) {
         case Lub:
             function = lattice::lub;
@@ -42,7 +42,7 @@ public class LatticeOpRefNode extends FunRefNode {
         }
     }
 
-    public enum LatticeOp {
+    public static enum LatticeOp {
         Lub,
         Glb,
         Leq,

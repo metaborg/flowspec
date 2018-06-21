@@ -33,7 +33,7 @@ public abstract class ExpressionNode extends Node {
     }
 
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-        return TypesGen.expectBoolean(executeGeneric(frame));
+        return Types.expectBoolean(executeGeneric(frame));
     }
 
     public String executeString(VirtualFrame frame) throws UnexpectedResultException {
@@ -55,7 +55,7 @@ public abstract class ExpressionNode extends Node {
     public ITerm executeITerm(VirtualFrame frame) throws UnexpectedResultException {
         return Types.expectITerm(executeGeneric(frame));
     }
-    
+
     @SuppressWarnings("unchecked")
     public mb.flowspec.runtime.interpreter.values.Set<ITerm> executeSet(VirtualFrame frame) throws UnexpectedResultException {
         return TypesGen.expectSet(executeGeneric(frame));
@@ -66,12 +66,13 @@ public abstract class ExpressionNode extends Node {
     public static IMatcher<ExpressionNode> matchExpr(FrameDescriptor frameDescriptor) {
         return (term, unifier) -> Optional.of(M.cases(
             TermNode.match(frameDescriptor),
-            RefNode.matchRef(frameDescriptor),
+            ExprRefNode.matchExprRef(frameDescriptor),
             PropNode.match(frameDescriptor),
             ExtPropNode.match(frameDescriptor),
             TupleNode.match(frameDescriptor),
             IntLiteralNode.match(frameDescriptor),
             StringLiteralNode.match(frameDescriptor),
+            BooleanLiteralNode.match(frameDescriptor),
             TypeNode.match(frameDescriptor),
             ApplicationNode.match(frameDescriptor),
             IfNode.match(frameDescriptor),
