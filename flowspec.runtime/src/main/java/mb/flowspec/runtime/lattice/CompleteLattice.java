@@ -6,6 +6,7 @@ import java.util.Set;
 import mb.flowspec.runtime.interpreter.InitValues;
 
 public interface CompleteLattice<E> extends Lattice<E> {
+
     public E top();
 
     public E bottom();
@@ -42,42 +43,53 @@ public interface CompleteLattice<E> extends Lattice<E> {
         return leq(other, one);
     }
 
+    @SuppressWarnings("unchecked")
     default public CompleteLattice<E> flip() {
-        return new CompleteLattice<E>() {
-            @Override
-            public E top() {
-                return CompleteLattice.this.bottom();
-            }
-
-            @Override
-            public E bottom() {
-                return CompleteLattice.this.top();
-            }
-
-            @Override
-            public E glb(E one, E other) {
-                return CompleteLattice.this.lub(one, other);
-            }
-
-            @Override
-            public E lub(E one, E other) {
-                return CompleteLattice.this.glb(one, other);
-            }
-
-            @Override
-            public boolean leq(E one, E other) {
-                return CompleteLattice.this.geq(one, other);
-            }
-
-            @Override
-            public boolean geq(E one, E other) {
-                return CompleteLattice.this.leq(other, one);
-            }
-
-            @Override
-            public void init(InitValues initValues) {}
-        };
+        return new Flipped(this);
     }
 
     public void init(InitValues initValues);
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public final class Flipped implements CompleteLattice {
+        public final CompleteLattice wrapped;
+
+        Flipped(CompleteLattice wrapped) {
+            this.wrapped = wrapped;
+        }
+        
+        @Override
+        public Object top() {
+            return wrapped.bottom();
+        }
+
+        @Override
+        public Object bottom() {
+            return wrapped.top();
+        }
+
+        @Override
+        public Object glb(Object one, Object other) {
+            return wrapped.lub(one, other);
+        }
+
+        @Override
+        public Object lub(Object one, Object other) {
+            return wrapped.glb(one, other);
+        }
+
+        @Override
+        public boolean leq(Object one, Object other) {
+            return wrapped.geq(one, other);
+        }
+
+        @Override
+        public boolean geq(Object one, Object other) {
+            return wrapped.leq(other, one);
+        }
+
+        @Override
+        public void init(InitValues initValues) {}
+    }
+    
 }

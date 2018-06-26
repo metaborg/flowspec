@@ -15,6 +15,7 @@ import mb.flowspec.runtime.interpreter.ImmutableInitValues;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.interpreter.UnreachableException;
+import mb.flowspec.runtime.lattice.CompleteLattice;
 import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph;
@@ -143,7 +144,8 @@ public class FixedPoint {
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
         for (CFGNode n : initNodes) {
-            if (metadata.lattice() instanceof FullSetLattice) {
+            if (metadata.lattice() instanceof FullSetLattice || metadata.lattice() instanceof CompleteLattice.Flipped
+                    && ((CompleteLattice.Flipped) metadata.lattice()).wrapped instanceof FullSetLattice) {
                 setProperty(n, prop, new mb.flowspec.runtime.interpreter.values.Set<>());
             }
             setProperty(n, prop, callTF(prop, metadata, n));
