@@ -9,10 +9,12 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
+import com.oracle.truffle.api.frame.FrameSlotTypeException;
 import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.interpreter.Types;
 import mb.flowspec.runtime.interpreter.expressions.RefNode;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
@@ -22,12 +24,20 @@ public abstract class ReadVarNode extends RefNode {
 
     @Specialization(guards = "isInt(frame)")
     protected int readInt(VirtualFrame frame) {
-        return FrameUtil.getIntSafe(frame, getSlot());
+        try {
+            return frame.getInt(getSlot());
+        } catch (FrameSlotTypeException e) {
+            return Types.asInteger(FrameUtil.getObjectSafe(frame, getSlot()));
+        }
     }
 
     @Specialization(guards = "isBoolean(frame)")
     protected boolean readBoolean(VirtualFrame frame) {
-        return FrameUtil.getBooleanSafe(frame, getSlot());
+        try {
+            return frame.getBoolean(getSlot());
+        } catch (FrameSlotTypeException e) {
+            return Types.asBoolean(FrameUtil.getObjectSafe(frame, getSlot()));
+        }
     }
 
     @Specialization(replaces = {"readInt", "readBoolean"})
@@ -36,11 +46,13 @@ public abstract class ReadVarNode extends RefNode {
     }
 
     protected boolean isInt(VirtualFrame frame) {
-        return getSlot().getKind() == FrameSlotKind.Int;
+        return getSlot().getKind() == FrameSlotKind.Int || getSlot().getKind() == FrameSlotKind.Object
+                && Types.isInteger(FrameUtil.getObjectSafe(frame, getSlot()));
     }
 
     protected boolean isBoolean(VirtualFrame frame) {
-        return getSlot().getKind() == FrameSlotKind.Boolean;
+        return getSlot().getKind() == FrameSlotKind.Boolean || getSlot().getKind() == FrameSlotKind.Object
+                && Types.isBoolean(FrameUtil.getObjectSafe(frame, getSlot()));
     }
     
     public static IMatcher<ReadVarNode> match(FrameDescriptor frameDescriptor) {
