@@ -2,6 +2,7 @@ module flowspec/api
 
 imports
 
+libspoofax/core/language
 flowspec/editor-hover
 flowspec/utils
 flowspec/primitives
@@ -42,7 +43,17 @@ flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propn
  */
 flowspec-analyze-ast(|resource): ast -> (ast', analysis', errors, warnings, notes)
 where (ast', analysis, errors, warnings, notes) := <nabl2-analyze-ast(|resource)> ast
-    ; analysis' := <flowspec--solve(|analysis)> ast'
+    ; static-info := <flowspec--find-static-info>
+    ; analysis' := <flowspec--solve(|analysis, static-info)> ast'
+
+flowspec--find-static-info =
+  language-components;
+  getfirst({ loc, spec-file:
+             ?(_, _, _, loc);
+             spec-file := $[[loc]/target/metaborg/flowspec-static-info.aterm];
+             <file-exists> spec-file;
+             <ReadFromFile> spec-file
+          })
 
 strategies // The following are used/extended by generated code
 
