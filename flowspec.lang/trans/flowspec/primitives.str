@@ -13,3 +13,6 @@ flowspec--get-property-post(|a, key) =
 
 flowspec--solve(|a) =
   prim("FS_solve", a)
+
+flowspec--get-cfg-node(|a, kind) =
+  prim("FS_get_cfg_node", a, kind)

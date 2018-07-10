@@ -8,6 +8,8 @@ flowspec/primitives
 flowspec/menus
 signatures/flowspec/runtime/-
 
+nabl2/api
+
 strategies
 
 flowspec-editor-hover(language-pp) = flowspec--editor-hover(language-pp)
@@ -19,7 +21,7 @@ flowspec-editor-hover(language-pp) = flowspec--editor-hover(language-pp)
  *
  * @param a : Analysis
  * @param prop : String
- * @type decl:Term -> Term
+ * @type term:Term -> Term
  */
 flowspec-get-property-pre(|a, propname) = flowspec--get-property-pre(|a, propname)
 
@@ -30,7 +32,7 @@ flowspec-get-property-pre(|a, propname) = flowspec--get-property-pre(|a, propnam
  *
  * @param a : Analysis
  * @param prop : String
- * @type decl:Term -> Term
+ * @type term:Term -> Term
  */
 flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propname)
 
@@ -43,6 +45,38 @@ flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propn
 flowspec-analyze-ast(|resource): ast -> (ast', analysis', errors, warnings, notes)
 where (ast', analysis, errors, warnings, notes) := <nabl2-analyze-ast(|resource)> ast
     ; analysis' := <flowspec--solve(|analysis)> ast'
+
+/**
+ * Get the control flow graph node associated with the given term. 
+ *
+ * @param a : Analysis
+ * @type term:Term -> CFGNode
+ */
+flowspec-get-cfg-node(|a) = flowspec--get-cfg-node(|a, Normal())
+
+/**
+ * Get the control flow graph start node associated with the given term. 
+ *
+ * @param a : Analysis
+ * @type term:Term -> CFGNode
+ */
+flowspec-get-cfg-start-node(|a) = flowspec--get-cfg-node(|a, Start())
+
+/**
+ * Get the control flow graph start node associated with the given term. 
+ *
+ * @param a : Analysis
+ * @type term:Term -> CFGNode
+ */
+flowspec-get-cfg-end-node(|a) = flowspec--get-cfg-node(|a, End())
+
+/**
+ * Find AST node corresponding to the CFGNode back again
+ *
+ * @param ast : Term
+ * @type node:CFGNode -> Term
+ */
+flowspec-cfg-node-ast-node(|ast): CFGNode(index, _, _) -> <oncetd(where(nabl2-get-ast-index;?index);?term);!term> ast
 
 strategies // The following are used/extended by generated code
 
