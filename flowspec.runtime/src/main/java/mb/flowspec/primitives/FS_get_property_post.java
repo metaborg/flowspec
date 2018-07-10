@@ -23,6 +23,9 @@ public class FS_get_property_post extends AnalysisPrimitive {
 
     @Override public Optional<? extends ITerm> call(ISolution solution, ITerm term, List<ITerm> terms)
             throws InterpreterException {
+        if(terms.size() != 1) {
+            throw new InterpreterException("Need one term argument: key");
+        }
         final Optional<String> key = M.stringValue().match(terms.get(0), PersistentUnifier.Immutable.of());
         return key.<ITerm>flatMap(k -> TermIndex.get(term).<ITerm>flatMap(index -> {
             return Optional.ofNullable(solution.flowSpecSolution().postProperties().get(ImmutableTuple2.of(CFGNode.normal(index), k)));
