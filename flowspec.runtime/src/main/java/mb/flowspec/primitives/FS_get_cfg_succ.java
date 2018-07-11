@@ -15,7 +15,7 @@ import mb.nabl2.terms.ITerm;
 public class FS_get_cfg_succ extends AnalysisPrimitive {
 
     public FS_get_cfg_succ() {
-        super(FS_get_cfg_succ.class.getSimpleName(), 1);
+        super(FS_get_cfg_succ.class.getSimpleName(), 0);
     }
 
     @Override
