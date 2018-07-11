@@ -16,3 +16,9 @@ flowspec--solve(|a) =
 
 flowspec--get-cfg-node(|a, kind) =
   prim("FS_get_cfg_node", a, kind)
+
+flowspec--get-cfg-prev-nodes(|a) =
+  prim("FS_get_cfg_pred", a)
+
+flowspec--get-cfg-next-nodes(|a) =
+  prim("FS_get_cfg_succ", a)

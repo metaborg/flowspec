@@ -9,6 +9,7 @@ flowspec/menus
 signatures/flowspec/runtime/-
 
 nabl2/api
+libspoofax/stratego/debug
 
 strategies
 
@@ -71,12 +72,29 @@ flowspec-get-cfg-start-node(|a) = flowspec--get-cfg-node(|a, Start())
 flowspec-get-cfg-end-node(|a) = flowspec--get-cfg-node(|a, End())
 
 /**
+ * Get the control flow graph start node associated with the given term. 
+ *
+ * @param a : Analysis
+ * @type term:Term -> CFGNode
+ */
+flowspec-get-cfg-prev-nodes(|a) = flowspec--get-cfg-prev-nodes(|a)
+
+/**
+ * Get the control flow graph start node associated with the given term. 
+ *
+ * @param a : Analysis
+ * @type term:Term -> CFGNode
+ */
+flowspec-get-cfg-next-nodes(|a) = flowspec--get-cfg-next-nodes(|a)
+
+/**
  * Find AST node corresponding to the CFGNode back again
  *
  * @param ast : Term
  * @type node:CFGNode -> Term
  */
-flowspec-cfg-node-ast-node(|ast): CFGNode(index, _, _) -> <oncetd(where(nabl2-get-ast-index;?index);?term);!term> ast
+flowspec-cfg-node-ast(|ast): CFGNode(index, _, _) ->
+  <collect-one(where(nabl2-get-ast-index;?index))> ast
 
 strategies // The following are used/extended by generated code
 
