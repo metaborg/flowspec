@@ -46,7 +46,7 @@ public class FixedPoint {
     public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo) {
         TransferFunctionInfo tfFileInfo = staticInfo.transfers();
         this.solution = nabl2solution.flowSpecSolution();
-        final ICompleteControlFlowGraph<CFGNode> cfg = solution.controlFlowGraph();
+        final ICompleteControlFlowGraph.Immutable<CFGNode> cfg = solution.controlFlowGraph();
         preProperties.__putAll(solution.preProperties());
         postProperties.__putAll(solution.postProperties());
 
@@ -90,7 +90,7 @@ public class FixedPoint {
     }
 
     @SuppressWarnings("unchecked")
-    private void solve(ICompleteControlFlowGraph<CFGNode> cfg, TransferFunctionInfo tfFileInfo)
+    private void solve(ICompleteControlFlowGraph.Immutable<CFGNode> cfg, TransferFunctionInfo tfFileInfo)
             throws CyclicGraphException, FixedPointLimitException {
         Iterable<String> propTopoOrder = Algorithms.topoSort(tfFileInfo.metadata().keySet(), tfFileInfo.dependsOn().inverse());
 
@@ -117,7 +117,7 @@ public class FixedPoint {
         return this.preProperties.get(ImmutableTuple2.of(n, prop));
     }
 
-    private void solveFlowSensitiveProperty(ICompleteControlFlowGraph<CFGNode> cfg,
+    private void solveFlowSensitiveProperty(ICompleteControlFlowGraph.Immutable<CFGNode> cfg,
             String prop, Metadata<ITerm> metadata) throws FixedPointLimitException {
         // Phase 1: initialisation
         for (CFGNode n : cfg.nodes()) {

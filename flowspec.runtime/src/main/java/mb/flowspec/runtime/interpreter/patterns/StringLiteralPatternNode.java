@@ -2,9 +2,6 @@ package mb.flowspec.runtime.interpreter.patterns;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 

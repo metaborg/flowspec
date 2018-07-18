@@ -5,6 +5,7 @@ import static mb.nabl2.terms.matching.TermMatch.M;
 import java.util.List;
 import java.util.Optional;
 
+import org.metaborg.util.optionals.Optionals;
 import org.spoofax.interpreter.core.InterpreterException;
 
 import mb.nabl2.controlflow.terms.ICFGNode;
@@ -25,7 +26,9 @@ public class FS_get_cfg_node extends AnalysisPrimitive {
         if(terms.size() != 1) {
             throw new InterpreterException("Need one term argument: nodeKind");
         }
-        final Optional<ICFGNode.Kind> nodeKind = M.appl().flatMap(appl -> Optional.ofNullable(ICFGNode.Kind.valueOf(appl.getOp()))).match(terms.get(0), PersistentUnifier.Immutable.of());
+        final Optional<ICFGNode.Kind> nodeKind = M.appl()
+                .flatMap(appl -> Optionals.ofThrowing(() -> ICFGNode.Kind.valueOf(appl.getOp())))
+                .match(terms.get(0), PersistentUnifier.Immutable.of());
         return nodeKind
                 .<ITerm>flatMap(kind -> TermIndex.get(term)
                         .<ITerm>flatMap(index -> 
