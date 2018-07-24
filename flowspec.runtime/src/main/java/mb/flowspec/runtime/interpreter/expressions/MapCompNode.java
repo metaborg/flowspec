@@ -1,5 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
+import static mb.nabl2.terms.build.TermBuild.B;
 import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.List;
@@ -12,11 +13,11 @@ import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.UnreachableException;
 import mb.flowspec.runtime.interpreter.patterns.PatternNode;
 import mb.flowspec.runtime.interpreter.values.Map;
+import mb.nabl2.terms.IApplTerm;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 import mb.nabl2.terms.unification.PersistentUnifier;
 import mb.nabl2.util.ImmutableTuple2;
-import mb.nabl2.util.Tuple2;
 
 public class MapCompNode extends ExpressionNode {
     public final ExpressionNode expression;
@@ -56,14 +57,14 @@ public class MapCompNode extends ExpressionNode {
         io.usethesource.capsule.Map.Immutable<ITerm, ITerm> map = sources[0].executeIMap(frame).getMap();
         io.usethesource.capsule.Map.Transient<ITerm, ITerm> result = io.usethesource.capsule.Map.Transient.of();
         for(java.util.Map.Entry<ITerm, ITerm> value : map.entrySet()) {
-            boolean keep = this.sourcePatterns[0].matchGeneric(frame, value);
+            boolean keep = this.sourcePatterns[0].matchGeneric(frame, B.newTuple(value.getKey(), value.getValue()));
             for (CompPredicateNode pred : predicates) {
                 keep &= pred.executeBoolean(frame);
             }
             if (keep) {
-                @SuppressWarnings("unchecked")
-                Tuple2<ITerm, ITerm> tuple = (Tuple2<ITerm, ITerm>) expression.executeITerm(frame);
-                result.__put(tuple._1(), tuple._2());
+                ITerm expectedTuple = expression.executeITerm(frame);
+                IApplTerm appl = M.tuple2(M.term(), M.term()).match(expectedTuple).orElseThrow(() -> new UnexpectedResultException(expectedTuple));
+                result.__put(appl.getArgs().get(0), appl.getArgs().get(1));
             }
         }
         return new Map<ITerm, ITerm>(result.freeze());
