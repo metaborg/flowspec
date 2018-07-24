@@ -13,6 +13,8 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
 import mb.flowspec.runtime.interpreter.TypesGen;
+import mb.flowspec.runtime.interpreter.values.IMap;
+import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.runtime.solver.ParseException;
 import mb.nabl2.controlflow.terms.CFGNode;
@@ -39,7 +41,7 @@ public abstract class ExpressionNode extends Node {
     public String executeString(VirtualFrame frame) throws UnexpectedResultException {
         return Types.expectString(executeGeneric(frame));
     }
-    
+
     public TermIndex executeTermIndex(VirtualFrame frame) throws UnexpectedResultException {
         return TypesGen.expectTermIndex(executeGeneric(frame));
     }
@@ -47,18 +49,23 @@ public abstract class ExpressionNode extends Node {
     public Name executeName(VirtualFrame frame) throws UnexpectedResultException {
         return TypesGen.expectName(executeGeneric(frame));
     }
-    
+
     public CFGNode executeCFGNode(VirtualFrame frame) throws UnexpectedResultException {
         return TypesGen.expectCFGNode(executeGeneric(frame));
     }
-    
+
     public ITerm executeITerm(VirtualFrame frame) throws UnexpectedResultException {
         return Types.expectITerm(executeGeneric(frame));
     }
 
     @SuppressWarnings("unchecked")
-    public mb.flowspec.runtime.interpreter.values.Set<ITerm> executeSet(VirtualFrame frame) throws UnexpectedResultException {
-        return TypesGen.expectSet(executeGeneric(frame));
+    public ISet<ITerm> executeISet(VirtualFrame frame) throws UnexpectedResultException {
+        return TypesGen.expectISet(executeGeneric(frame));
+    }
+
+    @SuppressWarnings("unchecked")
+    public IMap<ITerm, ITerm> executeIMap(VirtualFrame frame) throws UnexpectedResultException {
+        return TypesGen.expectIMap(executeGeneric(frame));
     }
 
     public abstract void init(InitValues initValues);
@@ -81,10 +88,22 @@ public abstract class ExpressionNode extends Node {
             AndNode.match(frameDescriptor),
             OrNode.match(frameDescriptor),
             NotNode.match(frameDescriptor),
-            PlusNode.match(frameDescriptor),
+            LtNode.match(frameDescriptor),
+            LteNode.match(frameDescriptor),
+            GtNode.match(frameDescriptor),
+            GteNode.match(frameDescriptor),
+            AddNode.match(frameDescriptor),
+            SubNode.match(frameDescriptor),
+            MulNode.match(frameDescriptor),
+            DivNode.match(frameDescriptor),
+            ModNode.match(frameDescriptor),
+            NegNode.match(frameDescriptor),
             MatchNode.match(frameDescriptor),
             SetLiteralNode.match(frameDescriptor),
             SetCompNode.match(frameDescriptor),
+            MapLiteralNode.match(frameDescriptor),
+            MapCompNode.match(frameDescriptor),
+            EmptySetOrMapLiteral.match(frameDescriptor),
             TermIndexNode.match(frameDescriptor),
             NaBL2OccurrenceNode.match(frameDescriptor),
             SetUnionNode.match(frameDescriptor),

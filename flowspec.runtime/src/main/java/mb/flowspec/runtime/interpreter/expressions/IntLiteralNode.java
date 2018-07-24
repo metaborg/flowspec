@@ -26,7 +26,7 @@ public class IntLiteralNode extends ExpressionNode {
     }
 
     public static IMatcher<IntLiteralNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl1("Int", M.integerValue(), (appl, i) -> new IntLiteralNode(i));
+        return M.appl1("Int", M.stringValue().map(Integer::parseInt), (appl, i) -> new IntLiteralNode(i));
     }
 
     @Override

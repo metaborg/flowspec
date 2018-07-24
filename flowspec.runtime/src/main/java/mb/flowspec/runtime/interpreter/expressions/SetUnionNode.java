@@ -8,23 +8,38 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.interpreter.SymbolicLargestSetException;
+import mb.flowspec.runtime.interpreter.values.IMap;
+import mb.flowspec.runtime.interpreter.values.ISet;
+import mb.flowspec.runtime.interpreter.values.Map;
 import mb.flowspec.runtime.interpreter.values.Set;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class SetUnionNode extends ExpressionNode {
     protected ExpressionNode[] children;
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
-    protected Set union(Set left, Set right) {
-        if (left.set == null) { // handle symbolic value of set with everything in it
+    protected ISet union(ISet left, ISet right) {
+        // handle symbolic value of set with everything in it
+        try {
+            left.getSet();
+        } catch(SymbolicLargestSetException e) {
             return left;
         }
-        if (right.set == null) { // handle symbolic value of set with everything in it
+        try {
+            right.getSet();
+        } catch(SymbolicLargestSetException e) {
             return right;
         }
-        return new Set(io.usethesource.capsule.Set.Immutable.union(left.set, right.set));
+        return new Set(io.usethesource.capsule.Set.Immutable.union(left.getSet(), right.getSet()));
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Specialization
+    protected IMap union(IMap left, IMap right) {
+        return new Map(left.getMap().__putAll(right.getMap()));
     }
 
     public static IMatcher<SetUnionNode> match(FrameDescriptor frameDescriptor) {

@@ -8,7 +8,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import mb.flowspec.runtime.interpreter.InitValues;
-import mb.flowspec.runtime.interpreter.values.Set;
+import mb.flowspec.runtime.interpreter.SymbolicLargestSetException;
+import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
@@ -17,11 +18,14 @@ public abstract class SetContainsNode extends ExpressionNode {
     protected ExpressionNode[] children;
 
     @Specialization
-    protected boolean contains(ITerm left, Set<?> right) {
-        if (right.set == null) { // handle symbolic value of set with everything in it
+    protected boolean contains(ITerm left, ISet<?> right) {
+        // handle symbolic value of set with everything in it
+        try {
+            right.getSet();
+        } catch (SymbolicLargestSetException e) {
             return true;
         }
-        return right.set.contains(left);
+        return right.getSet().contains(left);
     }
 
     public static IMatcher<SetContainsNode> match(FrameDescriptor frameDescriptor) {

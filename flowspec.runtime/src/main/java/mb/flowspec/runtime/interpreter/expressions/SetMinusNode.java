@@ -9,6 +9,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.SymbolicLargestSetException;
+import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Set;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
@@ -17,14 +18,14 @@ public abstract class SetMinusNode extends ExpressionNode {
     protected ExpressionNode[] children;
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
-    protected Set minus(Set left, Set right) {
-        if (left.set == null) { // handle symbolic value of set with everything in it
-            throw new SymbolicLargestSetException();
+    protected ISet minus(ISet left, ISet right) {
+        // handle symbolic value of set with everything in it
+        try {
+            right.getSet();
+        } catch(SymbolicLargestSetException e) {
+            return new Set();
         }
-        if (right.set == null) { // handle symbolic value of set with everything in it
-            return new Set(io.usethesource.capsule.Set.Immutable.of());
-        }
-        return new Set(io.usethesource.capsule.Set.Immutable.subtract(left.set, right.set));
+        return new Set(io.usethesource.capsule.Set.Immutable.subtract(left.getSet(), right.getSet()));
     }
 
     public static IMatcher<SetMinusNode> match(FrameDescriptor frameDescriptor) {

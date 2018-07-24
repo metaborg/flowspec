@@ -12,11 +12,10 @@ import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import mb.flowspec.graph.Algorithms;
 import mb.flowspec.runtime.interpreter.ImmutableInitValues;
+import mb.flowspec.runtime.interpreter.InitFunction;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.interpreter.UnreachableException;
-import mb.flowspec.runtime.lattice.CompleteLattice;
-import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph;
 import mb.nabl2.controlflow.terms.IFlowSpecSolution;
@@ -30,7 +29,7 @@ public class FixedPoint {
     private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);
     private static final String ARTIFICIAL_PROPERTY = "__START__";
     // TODO: Turn this into a config variable
-    private static final int FIXPOINT_LIMIT = 10_000;
+    private static final int FIXPOINT_LIMIT = 1_000;
 
     private IFlowSpecSolution<CFGNode> solution;
     private final FixedPoint.TimingInfo timingInfo;
@@ -144,11 +143,11 @@ public class FixedPoint {
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
         for (CFGNode n : initNodes) {
-            if (metadata.lattice() instanceof FullSetLattice || metadata.lattice() instanceof CompleteLattice.Flipped
-                    && ((CompleteLattice.Flipped) metadata.lattice()).wrapped instanceof FullSetLattice) {
-                setProperty(n, prop, new mb.flowspec.runtime.interpreter.values.Set<>());
-            }
-            setProperty(n, prop, callTF(prop, metadata, n));
+//            if (metadata.lattice() instanceof FullSetLattice || metadata.lattice() instanceof CompleteLattice.Flipped
+//                    && ((CompleteLattice.Flipped) metadata.lattice()).wrapped instanceof FullSetLattice) {
+//                setProperty(n, prop, new mb.flowspec.runtime.interpreter.values.Set<>());
+//            }
+            setProperty(n, prop, callInit(prop, metadata, n));
         }
 
         // Phase 2: Fixpoint iteration
@@ -204,10 +203,27 @@ public class FixedPoint {
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
     }
+    
+    private ITerm callInit(String prop, Metadata<?> metadata, CFGNode node) {
+        TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
+        if (tfAppl == null || tfAppl.isIdentity() || !metadata.initFunction().isPresent()) {
+            if(!metadata.initFunction().isPresent()) {
+                logger.warn("No initialisation rule found of " + prop);
+            }
+            if(tfAppl == null) {
+                logger.warn("No (init) rule of " + prop + " found for " + node);
+            }
+            return getProperty(node, prop);
+        }
+        return InitFunction.call(tfAppl.args(), metadata.initFunction().get());
+    }
 
     private ITerm callTF(String prop, Metadata<?> metadata, CFGNode node) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
-        if (tfAppl == null) {
+        if (tfAppl == null || tfAppl.isIdentity()) {
+            if(tfAppl == null) {
+                logger.warn("No rule of " + prop + " found for " + node);
+            }
             return getProperty(node, prop);
         }
         return TransferFunction.call(tfAppl, metadata.transferFunctions(), node);

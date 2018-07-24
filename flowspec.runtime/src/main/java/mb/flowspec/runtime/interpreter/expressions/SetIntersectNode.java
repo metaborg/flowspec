@@ -8,6 +8,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.interpreter.SymbolicLargestSetException;
+import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Set;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
@@ -17,14 +19,19 @@ public abstract class SetIntersectNode extends ExpressionNode {
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
-    protected Set intersect(Set left, Set right) {
-        if (left.set == null) { // handle symbolic value of set with everything in it
+    protected ISet intersect(ISet left, ISet right) {
+        // handle symbolic value of set with everything in it
+        try {
+            left.getSet();
+        } catch(SymbolicLargestSetException e) {
             return right;
         }
-        if (right.set == null) { // handle symbolic value of set with everything in it
+        try {
+            right.getSet();
+        } catch(SymbolicLargestSetException e) {
             return left;
         }
-        return new Set(io.usethesource.capsule.Set.Immutable.intersect(left.set, right.set));
+        return new Set(io.usethesource.capsule.Set.Immutable.intersect(left.getSet(), right.getSet()));
     }
 
     public static IMatcher<SetIntersectNode> match(FrameDescriptor frameDescriptor) {

@@ -1,43 +1,31 @@
 package mb.flowspec.runtime.interpreter.values;
 
-import static mb.nabl2.terms.build.TermBuild.B;
-
-import java.util.List;
-
 import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultiset;
-import com.google.common.collect.Multiset;
 
+import io.usethesource.capsule.Set.Immutable;
 import mb.nabl2.terms.IApplTerm;
 import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.ITermVar;
 
-public class Set<K extends ITerm> implements IApplTerm {
-    public final io.usethesource.capsule.Set.Immutable<K> set;
+public class Set<K extends ITerm> implements IApplTerm, ISet<K> {
+    private final Immutable<K> set;
     private final ImmutableClassToInstanceMap<Object> attachments;
 
     public Set() {
-        this(io.usethesource.capsule.Set.Immutable.of(), ImmutableClassToInstanceMap.builder().build());
+        this(Immutable.of(), ImmutableClassToInstanceMap.builder().build());
     }
 
-    public Set(io.usethesource.capsule.Set.Immutable<K> set) {
+    public Set(Immutable<K> set) {
         this(set, ImmutableClassToInstanceMap.builder().build());
     }
 
-    public Set(io.usethesource.capsule.Set.Immutable<K> set, ImmutableClassToInstanceMap<Object> attachments) {
+    public Set(Immutable<K> set, ImmutableClassToInstanceMap<Object> attachments) {
         this.set = set;
         this.attachments = attachments;
     }
 
     @Override
-    public boolean isGround() {
-        return true;
-    }
-
-    @Override
-    public Multiset<ITermVar> getVars() {
-        return ImmutableMultiset.of();
+    public Immutable<K> getSet() {
+        return set;
     }
 
     @Override
@@ -47,67 +35,48 @@ public class Set<K extends ITerm> implements IApplTerm {
 
     @Override
     public Set<K> withAttachments(ImmutableClassToInstanceMap<Object> value) {
-        return new Set<>(this.set, value);
-    }
-
-    @Override
-    public <T> T match(ITerm.Cases<T> cases) {
-        return cases.caseAppl(this);
-    }
-
-    @Override
-    public <T, E extends Throwable> T matchOrThrow(ITerm.CheckedCases<T, E> cases)
-            throws E {
-        return cases.caseAppl(this);
+        return new Set<>(this.getSet(), value);
     }
 
     @Override
     public String toString() {
-        if (set == null) {
+        if (getSet() == null) {
             return "null";
         } else {
-            return set.toString();
+            return getSet().toString();
         }
     }
-
     @Override
     public String getOp() {
         return "Set";
     }
 
-    @Override
-    public int getArity() {
-        return 1;
-    }
-
-    @Override
-    public List<ITerm> getArgs() {
-        return new ImmutableList.Builder<ITerm>().add(B.newList(this.set)).build();
-    }
-    
+    /* (non-Javadoc)
+     * @see mb.flowspec.runtime.interpreter.values.ISet#hashCode()
+     */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((set == null) ? 0 : set.hashCode());
-        return result;
+        return getSet().hashCode();
     }
 
+    /* (non-Javadoc)
+     * @see mb.flowspec.runtime.interpreter.values.ISet#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof ISet))
             return false;
         @SuppressWarnings("rawtypes")
-        Set other = (Set) obj;
-        if (set == null) {
-            if (other.set != null)
+        ISet other = (ISet) obj;
+        if (getSet() == null) {
+            if (other.getSet() != null)
                 return false;
-        } else if (!set.equals(other.set))
+        } else if (!getSet().equals(other.getSet()))
             return false;
-        return true;
+        return getSet().equals(other.getSet());
     }
 }

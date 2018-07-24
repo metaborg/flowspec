@@ -1,10 +1,12 @@
 package mb.flowspec.runtime.interpreter.values;
 
+import static mb.nabl2.terms.build.TermBuild.B;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -17,15 +19,21 @@ import com.google.common.collect.Multiset;
 import io.usethesource.capsule.Map.Immutable;
 import io.usethesource.capsule.Map.Transient;
 import io.usethesource.capsule.util.EqualityComparator;
-import mb.nabl2.terms.IApplTerm;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.ITermVar;
-import static mb.nabl2.terms.build.TermBuild.B;
 
-public class Map<K extends ITerm, V extends ITerm> implements IApplTerm {
-    public final Immutable<K, V> map;
+public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
+    private final Immutable<K, V> map;
     public final V topValue;
     private final ImmutableClassToInstanceMap<Object> attachments;
+
+    public Map(Immutable<K, V> map) {
+        this(map, null, ImmutableClassToInstanceMap.builder().build());
+    }
+
+    public Map(Immutable<K, V> map, V topValue) {
+        this(map, topValue, ImmutableClassToInstanceMap.builder().build());
+    }
 
     public Map(Immutable<K, V> map, V topValue, ImmutableClassToInstanceMap<Object> attachments) {
         this.map = map;
@@ -35,6 +43,11 @@ public class Map<K extends ITerm, V extends ITerm> implements IApplTerm {
 
     public Map<K, V> update(Immutable<K, V> map) {
         return new Map<>(map, topValue, attachments);
+    }
+
+    @Override
+    public Immutable<K, V> getMap() {
+        return this.map;
     }
 
     public static <K extends ITerm, V extends ITerm> Map<K, V> of(V topValue) {
@@ -83,12 +96,32 @@ public class Map<K extends ITerm, V extends ITerm> implements IApplTerm {
         return map.entryIterator();
     }
 
-    public boolean equals(Object o) {
-        return map.equals(o);
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj)
+            return true;
+        if(obj == null)
+            return false;
+        if(!(obj instanceof IMap))
+            return false;
+        @SuppressWarnings("rawtypes")
+        IMap other = (IMap) obj;
+        if(getMap() == null) {
+            if(other.getMap() != null)
+                return false;
+        } else if(!getMap().equals(other.getMap()))
+            return false;
+        return true;
     }
 
+    @Override
     public int hashCode() {
         return map.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return map.toString();
     }
 
     @Deprecated
@@ -255,7 +288,7 @@ public class Map<K extends ITerm, V extends ITerm> implements IApplTerm {
     }
 
     @Override
-    public IApplTerm withAttachments(ImmutableClassToInstanceMap<Object> value) {
+    public IMap<K, V> withAttachments(ImmutableClassToInstanceMap<Object> value) {
         return new Map<>(this.map, this.topValue, value);
     }
 }

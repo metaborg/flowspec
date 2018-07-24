@@ -24,8 +24,8 @@ public abstract class TermIndexNode extends ExpressionNode {
 
     public static IMatcher<TermIndexNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1(
-                "TermIndex", 
-                ReadVarNode.match(frameDescriptor), 
+                "TermIndex",
+                ReadVarNode.match(frameDescriptor),
                 (appl, var) -> {
                     TermIndexNode result = TermIndexNodeGen.create(var);
                     result.child = var;

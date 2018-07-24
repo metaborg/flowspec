@@ -7,6 +7,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Set;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
@@ -20,11 +21,11 @@ public class SetLiteralNode extends ExpressionNode {
     
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return executeSet(frame);
+        return executeISet(frame);
     }
 
     @Override
-    public Set<ITerm> executeSet(VirtualFrame frame) {
+    public ISet<ITerm> executeISet(VirtualFrame frame) {
         io.usethesource.capsule.Set.Transient<ITerm> set = io.usethesource.capsule.Set.Transient.of();
         for (ExpressionNode expr : values) {
             try {

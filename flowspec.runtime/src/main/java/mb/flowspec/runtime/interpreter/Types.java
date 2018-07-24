@@ -7,8 +7,9 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.expressions.BooleanLiteralNode;
 import mb.flowspec.runtime.interpreter.values.Function;
+import mb.flowspec.runtime.interpreter.values.IMap;
+import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Name;
-import mb.flowspec.runtime.interpreter.values.Set;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.stratego.TermIndex;
 import mb.nabl2.terms.IApplTerm;
@@ -16,7 +17,7 @@ import mb.nabl2.terms.IIntTerm;
 import mb.nabl2.terms.IStringTerm;
 import mb.nabl2.terms.ITerm;
 
-@TypeSystem({Function.class, Set.class, TermIndex.class, Name.class, CFGNode.class, ITerm.class})
+@TypeSystem({Function.class, ISet.class, IMap.class, TermIndex.class, Name.class, CFGNode.class, ITerm.class})
 public abstract class Types {
     public static boolean isInteger(Object value) {
         return value instanceof Integer || value instanceof IIntTerm;

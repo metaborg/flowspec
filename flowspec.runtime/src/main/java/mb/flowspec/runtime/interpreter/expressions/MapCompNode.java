@@ -11,19 +11,20 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.UnreachableException;
 import mb.flowspec.runtime.interpreter.patterns.PatternNode;
-import mb.flowspec.runtime.interpreter.values.Set;
+import mb.flowspec.runtime.interpreter.values.Map;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 import mb.nabl2.terms.unification.PersistentUnifier;
 import mb.nabl2.util.ImmutableTuple2;
+import mb.nabl2.util.Tuple2;
 
-public class SetCompNode extends ExpressionNode {
+public class MapCompNode extends ExpressionNode {
     public final ExpressionNode expression;
     public final PatternNode[] sourcePatterns;
     public final ExpressionNode[] sources;
     public final CompPredicateNode[] predicates;
 
-    public SetCompNode(ExpressionNode expression, PatternNode[] sourcePatterns, ExpressionNode[] sources,
+    public MapCompNode(ExpressionNode expression, PatternNode[] sourcePatterns, ExpressionNode[] sources,
             CompPredicateNode[] predicates) {
         this.expression = expression;
         this.sourcePatterns = sourcePatterns;
@@ -34,7 +35,7 @@ public class SetCompNode extends ExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         try {
-            return executeISet(frame);
+            return executeIMap(frame);
         } catch (UnexpectedResultException e) {
             throw new UnreachableException(e);
         }
@@ -43,37 +44,39 @@ public class SetCompNode extends ExpressionNode {
     @Override
     public ITerm executeITerm(VirtualFrame frame) {
         try {
-            return executeISet(frame);
+            return executeIMap(frame);
         } catch (UnexpectedResultException e) {
             throw new UnreachableException(e);
         }
     }
 
     @Override
-    public Set<ITerm> executeISet(VirtualFrame frame) throws UnexpectedResultException {
+    public Map<ITerm, ITerm> executeIMap(VirtualFrame frame) throws UnexpectedResultException {
         // FIXME For now we're assuming exactly one source
-        io.usethesource.capsule.Set.Immutable<ITerm> set = sources[0].executeISet(frame).getSet();
-        io.usethesource.capsule.Set.Transient<ITerm> result = io.usethesource.capsule.Set.Transient.of();
-        for(Object value : set) {
+        io.usethesource.capsule.Map.Immutable<ITerm, ITerm> map = sources[0].executeIMap(frame).getMap();
+        io.usethesource.capsule.Map.Transient<ITerm, ITerm> result = io.usethesource.capsule.Map.Transient.of();
+        for(java.util.Map.Entry<ITerm, ITerm> value : map.entrySet()) {
             boolean keep = this.sourcePatterns[0].matchGeneric(frame, value);
             for (CompPredicateNode pred : predicates) {
                 keep &= pred.executeBoolean(frame);
             }
             if (keep) {
-                result.__insert(expression.executeITerm(frame));
+                @SuppressWarnings("unchecked")
+                Tuple2<ITerm, ITerm> tuple = (Tuple2<ITerm, ITerm>) expression.executeITerm(frame);
+                result.__put(tuple._1(), tuple._2());
             }
         }
-        return new Set<>(result.freeze());
+        return new Map<ITerm, ITerm>(result.freeze());
     }
 
-    public static IMatcher<SetCompNode> match(FrameDescriptor frameDescriptor) {
+    public static IMatcher<MapCompNode> match(FrameDescriptor frameDescriptor) {
         /* NOTE: this is in a strange order because the matching construct builds an interpreter AST while
          * doing side-effects on the frameDescriptor. Therefore definitions need to be built before
          * references are built in the AST, because references are immediately resolved through the
          * frameDescriptor. If you do this in the wrong order the AST will contain nulls instead of frame
          * Slots. 
          */
-        return M.appl4("SetComp", 
+        return M.appl4("MapComp", 
                 M.term(),
                 M.listElems(PatternNode.matchPattern(frameDescriptor)),
                 M.listElems(ExpressionNode.matchExpr(frameDescriptor)),
@@ -83,7 +86,7 @@ public class SetCompNode extends ExpressionNode {
                     List<PatternNode> patterns = tuple._2()._1();
                     List<ExpressionNode> exprs = tuple._2()._2()._1();
                     List<CompPredicateNode> preds = tuple._2()._2()._2();
-                    return new SetCompNode(expr, 
+                    return new MapCompNode(expr, 
                         patterns.toArray(new PatternNode[patterns.size()]), 
                         exprs.toArray(new ExpressionNode[exprs.size()]), 
                         preds.toArray(new CompPredicateNode[preds.size()]));

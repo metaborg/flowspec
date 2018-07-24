@@ -8,7 +8,7 @@ import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.patterns.PatternNode;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
-class SetCompMatchPredicateNode extends SetCompPredicateNode {
+class SetCompMatchPredicateNode extends CompPredicateNode {
     public final PatternNode[] arms;
 
     public SetCompMatchPredicateNode(ExpressionNode expr, PatternNode[] arms) {

@@ -11,20 +11,20 @@ import mb.flowspec.runtime.interpreter.InitValues;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
-public abstract class PlusNode extends ExpressionNode {
+public abstract class SubNode extends ExpressionNode {
     protected ExpressionNode[] children;
-    
+
     @Specialization
-    protected int plus(int left, int right) {
-        return left + right;
+    protected int subtract(int left, int right) {
+        return left - right;
     }
 
-    public static IMatcher<PlusNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("Plus", 
+    public static IMatcher<SubNode> match(FrameDescriptor frameDescriptor) {
+        return M.appl2("Sub", 
                 ExpressionNode.matchExpr(frameDescriptor), 
                 ExpressionNode.matchExpr(frameDescriptor),
                 (appl, e1, e2) -> {
-                    PlusNode result = PlusNodeGen.create(e1, e2);
+                    SubNode result = SubNodeGen.create(e1, e2);
                     result.children = new ExpressionNode[] {e1, e2};
                     return result;
                 });

@@ -45,20 +45,23 @@ public class TransferFunction extends RootNode {
     }
 
     public static IMatcher<TransferFunction> match(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor) {
-        return M.appl2("TransferFunction", ArgToVarNode.matchList(frameDescriptor), Where.match(frameDescriptor), (appl, patternVariables, body) -> {
-            return new TransferFunction(language, frameDescriptor, patternVariables, body);
-        });
+        return M.cases(
+            M.appl2("TransferFunction", ArgToVarNode.matchList(frameDescriptor), Where.match(frameDescriptor),
+            (appl, patternVariables, body) -> {
+                return new TransferFunction(language, frameDescriptor, patternVariables, body);
+            }),
+            M.appl2("InitFunction", ArgToVarNode.matchList(frameDescriptor), Where.match(frameDescriptor),
+            (appl, patternVariables, body) -> {
+                return new InitFunction(language, frameDescriptor, patternVariables, body);
+            })
+        );
     }
 
-    public static IMatcher<TransferFunction> match() {
-        return match(null, new FrameDescriptor());
-    }
-    
     public static IMatcher<TransferFunction[]> matchList() {
         return M.listElems(
                     M.tuple2(
-                        M.integerValue(), 
-                        (term, unifier) -> TransferFunction.match().match(term, unifier), 
+                        M.integerValue(),
+                        (term, unifier) -> TransferFunction.match(null, new FrameDescriptor()).match(term, unifier),
                         (appl, i, tf) -> ImmutableTuple2.of(i,tf)))
                 .map(list -> {
                     TransferFunction[] tfs = new TransferFunction[list.size()];

@@ -10,13 +10,13 @@ import org.immutables.value.Value.Parameter;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
+import mb.flowspec.runtime.interpreter.InitFunction;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 import mb.flowspec.runtime.lattice.MapLattice;
 import mb.flowspec.runtime.solver.Metadata.Direction;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
-import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.ImmutableTuple3;
 
 @Immutable
@@ -52,13 +52,14 @@ public abstract class TransferFunctionInfo {
         return M.listElems(tupleMatcher(), (list, tuples) -> {
             Map.Transient<String, Metadata<?>> propMetadata = Map.Transient.of();
             BinaryRelation.Transient<String, String> dependsOn = BinaryRelation.Transient.of();
-            for (ImmutableTuple2<String, ImmutableTuple3<Type, Direction, TransferFunction[]>> t4 : tuples) {
+            for (ImmutableTuple3<String, Direction, ImmutableTuple3<Type, Optional<InitFunction>, TransferFunction[]>> t4 : tuples) {
                 String propName = t4._1();
-                Type type = t4._2()._1();
-                Direction dir = t4._2()._2();
-                TransferFunction[] tfs = t4._2()._3();
+                Type type = t4._3()._1();
+                Direction dir = t4._2();
+                TransferFunction[] tfs = t4._3()._3();
+                Optional<InitFunction> init = t4._3()._2();
 
-                propMetadata.__put(propName, ImmutableMetadata.of(dir, latticeFromType(latticeDefs, type), tfs));
+                propMetadata.__put(propName, ImmutableMetadata.of(dir, latticeFromType(latticeDefs, type), init, tfs));
             }
             return ImmutableTransferFunctionInfo.of(dependsOn.freeze(), propMetadata.freeze());
         });
@@ -77,12 +78,22 @@ public abstract class TransferFunctionInfo {
         return null;
     }
 
-    protected static IMatcher<ImmutableTuple2<String, ImmutableTuple3<Type, Direction, TransferFunction[]>>> tupleMatcher() {
+    protected static IMatcher<ImmutableTuple3<String, Direction, ImmutableTuple3<Type, Optional<InitFunction>, TransferFunction[]>>> tupleMatcher() {
         return (term, unifier) -> 
             Optional.of(
                 M.tuple2(M.stringValue(), M.tuple3(Type.matchType(), Direction.match(), TransferFunction.matchList(),
                     (appl, type, dir, tfs) -> ImmutableTuple3.of(type, dir, tfs)), (appl, propName, t2) -> {
-                        return ImmutableTuple2.of(propName, t2);
+                        Type type = t2._1();
+                        Direction dir = t2._2();
+                        TransferFunction[] tfs = t2._3();
+                        Optional<InitFunction> init = Optional.empty();
+                        for(TransferFunction tf : tfs) {
+                            if (tf instanceof InitFunction) {
+                                init = Optional.of((InitFunction) tf);
+                                break;
+                            }
+                        }
+                        return ImmutableTuple3.of(propName, dir, ImmutableTuple3.of(type, init, tfs));
                     })
                     .match(term, unifier)
                     .orElseThrow(() -> new ParseException("Parse error on reading the transfer function tuple")));
