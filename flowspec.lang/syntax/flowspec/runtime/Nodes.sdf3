@@ -17,4 +17,5 @@ context-free syntax
   CFGNodeKind.Normal =
   CFGNodeKind.Start =
   CFGNodeKind.End =
-  CFGNodeKind.Artificial =
+  CFGNodeKind.Entry =
+  CFGNodeKind.Exit =

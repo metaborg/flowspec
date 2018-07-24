@@ -56,7 +56,7 @@ where (ast', analysis, errors, warnings, notes) := <nabl2-analyze-ast(|resource)
 flowspec-get-cfg-node(|a) = flowspec--get-cfg-node(|a, Normal())
 
 /**
- * Get the control flow graph start node associated with the given term. 
+ * Get the control flow graph start node associated with the given term.
  *
  * @param a : Analysis
  * @type term:Term -> CFGNode
@@ -64,12 +64,28 @@ flowspec-get-cfg-node(|a) = flowspec--get-cfg-node(|a, Normal())
 flowspec-get-cfg-start-node(|a) = flowspec--get-cfg-node(|a, Start())
 
 /**
- * Get the control flow graph start node associated with the given term. 
+ * Get the control flow graph start node associated with the given term.
  *
  * @param a : Analysis
  * @type term:Term -> CFGNode
  */
 flowspec-get-cfg-end-node(|a) = flowspec--get-cfg-node(|a, End())
+
+/**
+ * Get the control flow graph start node associated with the given term.
+ *
+ * @param a : Analysis
+ * @type term:Term -> CFGNode
+ */
+flowspec-get-cfg-entry-node(|a) = flowspec--get-cfg-node(|a, Entry())
+
+/**
+ * Get the control flow graph start node associated with the given term.
+ *
+ * @param a : Analysis
+ * @type term:Term -> CFGNode
+ */
+flowspec-get-cfg-exit-node(|a) = flowspec--get-cfg-node(|a, Exit())
 
 /**
  * Get the control flow graph start node associated with the given term. 

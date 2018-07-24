@@ -126,17 +126,24 @@ rules
   PropPattern [[ Backward(patt, var) ^ (propDef, ruleScope) ]] :=
     Variable { var } <- ruleScope,
     propDef.direction := Bw(),
-    Pattern [[ patt ^ (ruleScope) ]].
+    PropCFGNodePattern [[ patt ^ (ruleScope) ]].
   PropPattern [[ Forward(var, patt) ^ (propDef, ruleScope) ]] :=
     Variable { var } <- ruleScope,
     propDef.direction := Fw(),
-    Pattern [[ patt ^ (ruleScope) ]].
+    PropCFGNodePattern [[ patt ^ (ruleScope) ]].
 
   PropPattern [[ Start(patt) ^ (propDef, ruleScope) ]] :=
     propDef.direction := Fw(),
     Pattern [[ patt ^ (ruleScope) ]].
   PropPattern [[ End(patt) ^ (propDef, ruleScope) ]] :=
     propDef.direction := Bw(),
+    Pattern [[ patt ^ (ruleScope) ]].
+
+  PropCFGNodePattern [[ Entry(patt) ^ (ruleScope) ]] :=
+    Pattern [[ patt ^ (ruleScope) ]].
+  PropCFGNodePattern [[ Exit(patt) ^ (ruleScope) ]] :=
+    Pattern [[ patt ^ (ruleScope) ]].
+  PropCFGNodePattern [[ patt ^ (ruleScope) ]] :=
     Pattern [[ patt ^ (ruleScope) ]].
 
   Pattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
@@ -476,11 +483,19 @@ rules
     [[ expr1 ^ (ruleScope) ]],
     [[ expr2 ^ (ruleScope) ]].
 
-  [[ Binding(expr1, expr2) ^ (ruleScope) ]] :=
+  [[ EmptySetOrMapLiteral() ^ (ruleScope) ]].
+
+  [[ MapBinding(expr1, expr2) ^ (ruleScope) ]] :=
     [[ expr1 ^ (ruleScope) ]],
     [[ expr2 ^ (ruleScope) ]].
 
   [[ SetComp(expr, setcompexprs) ^ (ruleScope) ]] :=
+    new setCompScope,
+    setCompScope ---> ruleScope,
+    [[ expr ^ (setCompScope) ]],
+    Map1 [[ setcompexprs ^ (setCompScope) ]].
+
+  [[ MapComp(expr, setcompexprs) ^ (ruleScope) ]] :=
     new setCompScope,
     setCompScope ---> ruleScope,
     [[ expr ^ (setCompScope) ]],
@@ -496,8 +511,13 @@ rules
   [[ MatchArm(pattern) ^ (ruleScope) ]] :=
     Pattern [[ pattern ^ (ruleScope) ]].
   
-  [[ Source(pattern, expr) ^ (setCompScope) ]] :=
+  [[ SetSource(pattern, expr) ^ (setCompScope) ]] :=
     Pattern [[ pattern ^ (setCompScope) ]],
+    [[ expr ^ (setCompScope) ]].
+  
+  [[ MapSource(pattern1, pattern2, expr) ^ (setCompScope) ]] :=
+    Pattern [[ pattern1 ^ (setCompScope) ]],
+    Pattern [[ pattern2 ^ (setCompScope) ]],
     [[ expr ^ (setCompScope) ]].
   
   [[ TermIndex(var) ^ (ruleScope) ]] :=

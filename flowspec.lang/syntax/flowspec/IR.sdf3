@@ -9,8 +9,11 @@ flowspec/Common
 context-free syntax
 
 TransferFunction.TransferFunction = [TF [{ID " "}+] = [Where]]
+TransferFunction.InitFunction = [TF [{ID " "}+] = [Where]]
+
 Where.Where = [[Expr] where
   [{Binding "\n"}+]] 
+
 Expr.ExtProp = [[PropName]([Var])]
 
 Dir.Fw = [fw]

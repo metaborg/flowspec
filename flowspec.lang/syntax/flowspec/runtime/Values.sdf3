@@ -7,3 +7,5 @@ imports
 context-free syntax
 
   Values.Set = [{[{NaBL2-Term ","}*]}]
+  Values.Map = [{[{MapPair ","}*]}]
+  MapPair = [([NaBL2-Term], [NaBL2-Term])]

@@ -8,5 +8,7 @@ flowspec/Common
 
 context-free syntax // expressions
 
-Expr.SetComp = [{ [Expr] | [{Pattern ", "}+] <<-- [{Expr ", "}+], [{SetCompPredicate ", "}+] }]
+Expr.SetComp = [{ [Expr] | [{Pattern ", "}+] <<-- [{Expr ", "}+], [{CompPredicate ", "}+] }]
+Expr.MapComp = [{ [Expr] | [{Pattern ", "}+] <<-- [{Expr ", "}+], [{CompPredicate ", "}+] }]
+//            pair ^         ^ pair
 Expr.Prop = [[PropName]([Var])]

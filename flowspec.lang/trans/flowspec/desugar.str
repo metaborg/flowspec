@@ -21,7 +21,7 @@ rules
 
 post-desugar-all = topdown(try(post-desugar-one))
 
-post-desugar-one = origin-track-forced(desugar-setcomp + desugar-setcompmatcharm + desugar-proporappl)
+post-desugar-one = origin-track-forced(desugar-setcomp + desugar-mapbinding + desugar-mapcomp + desugar-compmatcharm + desugar-proporappl)
 
 pre-desugar-all = topdown(try(pre-desugar-one))
 pre-desugar-one = origin-track-forced(desugar-chain + desugar-cfgrule + desugar-usertype + desugar-typedef + desugar-latticedef + alt-syntax)
@@ -36,10 +36,16 @@ where if map(not(s))
 rules // FlowSpec specific
 
 desugar-setcomp: SetComp(expr, exprs) -> SetComp(expr, sourcepatterns, sources', exprs')
-with (sources, exprs') := <partition(?Source(_, _))> exprs
-   ; (sourcepatterns, sources') := <unzip(\Source(a,b) -> (a,b)\)> sources
+with (sources, exprs') := <partition(?SetSource(_, _))> exprs
+   ; (sourcepatterns, sources') := <unzip(\SetSource(a,b) -> (a,b)\)> sources
 
-desugar-setcompmatcharm: MatchArm(pattern) -> pattern
+desugar-mapbinding: MapBinding(e1, e2) -> Tuple(e1, [e2])
+
+desugar-mapcomp: MapComp(t, exprs) -> MapComp(t, sourcepatterns, sources', exprs')
+with (sources, exprs') := <partition(?MapSource(_, _, _))> exprs
+   ; (sourcepatterns, sources') := <unzip(\MapSource(p1,p2,e) -> (Tuple(p1,[p2]),e)\)> sources
+
+desugar-compmatcharm: MatchArm(pattern) -> pattern
 
 desugar-proporappl: PropOrAppl(n, arg) -> result
 with

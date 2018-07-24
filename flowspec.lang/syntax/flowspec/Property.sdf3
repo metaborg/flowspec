@@ -19,8 +19,12 @@ context-free syntax // Property Rules
 
 PropRule.PropRule = [[PropName]([PropPattern]) = [Expr] [PropWhere]]
 
-PropPattern.Backward = [[Pattern] -> [Var]]
-PropPattern.Forward = [[Var] -> [Pattern]]
+PropPattern.Backward = [[PropCFGNodePattern] -> [Var]]
+PropPattern.Forward = [[Var] -> [PropCFGNodePattern]]
+
+PropCFGNodePattern = Pattern
+PropCFGNodePattern.Entry = [[Pattern].entry]
+PropCFGNodePattern.Exit = [[Pattern].exit]
 
 PropPattern.Start = [[Pattern].start]
 PropPattern.End = [[Pattern].end]

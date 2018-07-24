@@ -29,10 +29,21 @@ with
 
 gen-tf(|a): (n, PropRule(name, pattern, body, wherecl)) ->
   (name', n, TransferFunction(vars, Where(body', binding*)))
-with
-  dirvar := <dir-var> pattern
+where id
+; dirvar := <dir-var> pattern
+with id
 ; pvar* := <pattern-in-dir;pattern-vars(|"")> pattern
 ; vars := <wildcards-to-numbered-vars> [dirvar | pvar*]
+; binding* := <where-clause-bindings> wherecl
+; body' := <topdown(try(identify-ExtProp(|a)))> body
+; name' := <nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a); Fst> name
+
+gen-tf(|a): (n, PropRule(name, pattern, body, wherecl)) ->
+  (name', n, InitFunction(vars, Where(body', binding*)))
+where not(<dir-var> pattern)
+with id
+; pvar* := <pattern-in-dir;pattern-vars(|"")> pattern
+; vars := <wildcards-to-numbered-vars> pvar*
 ; binding* := <where-clause-bindings> wherecl
 ; body' := <topdown(try(identify-ExtProp(|a)))> body
 ; name' := <nabl2-mk-occurrence(|"Property"); nabl2-get-resolved-name(|a); Fst> name

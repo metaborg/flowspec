@@ -71,9 +71,17 @@ with
 ; cfgstring := <retain-all(?CFGRule(_, _, _));map(gen-str);lines_> def*
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _))> def*
-; matchpropsstring := <map(\n -> ${<flowspec--proprule-{n}(|index)> term}\);constraint-str-list-to-cconj(|"index")> propnames
+; matchpropsstring := <gen-match-prop-string> propnames
 ; propstring := <number-prop-rules(|a, <map(nabl2-mk-occurrence(|"Property"))> propnames);gen-prop-str(|propnames);lines_> proprule*
 ; propnamesstring := <map(!${"{<id>}"});csv-lines> propnames
+
+gen-match-prop-string =
+  let
+    kinds = !["Start", "End", "Entry", "Exit", "Normal"]
+  in
+    mapconcat(\n -> <kinds;map(\kind -> ${<flowspec--proprule-{n}-{kind}(|index)> term}\)> \)
+  ; constraint-str-list-to-cconj(|"index")
+  end
 
 number-prop-rules(|a, propnames): proprules -> numberedproprules
 with
@@ -108,43 +116,43 @@ with
 ; refsstr* := <map(gen-ref-str)> refs
   // generate pairs from chains
 ; pairs := <mapconcat(\Chain(l) -> <zip> (<init> l, <Tl> l)\)> chain'*
-
-; lhses := <map(Fst);nub> pairs
-; rhsesmerged := <map(\lhs -> (lhs, <retain-all(?(lhs, <id>))> pairs)\)> lhses
-; (mergedrhsvarstr*, mergedrhsstr*) := <retain-all(gen-rhs-merged-str);unzip> rhsesmerged
-; pairs2 := <mapconcat(use-merged-rhs-str)> rhsesmerged
-
-; rhses := <map(Snd);nub> pairs2
-; lhsesmerged := <map(\rhs -> (<retain-all(?(<id>, rhs))> pairs2, rhs)\)> rhses
-; (mergedlhsvarstr*, mergedlhsstr*) := <retain-all(gen-lhs-merged-str);unzip> lhsesmerged
-; pairs3 := <mapconcat(use-merged-lhs-str)> lhsesmerged
   // build normal pairs from the chains
-; pairstr* := <map(gen-pair-to-edge-str)> pairs3
+; pairstr* := <map(gen-pair-to-edge-str)> pairs
 
 ; indexdefstr := "fs_index := <nabl2--get-ast-index> fs_term"
-; vardefstr* := [recursevarsstr*, refvarsstr*, rrvarstr*, mergedrhsvarstr*, mergedlhsvarstr*]
-; constraintstr* := [rrconstr*, pairstr*, mergedrhsstr*, mergedlhsstr*, refsstr*, recursesstr*]
+; vardefstr* := [recursevarsstr*, refvarsstr*, rrvarstr*]
+; thisconstr* := [${<flowspec--proprule(|<nabl2--get-ast-index> fs_term)> fs_term}]
+; constraintstr* := [thisconstr*, rrconstr*, pairstr*, refsstr*, recursesstr*]
 ; constraintstr := <constraint-str-list-to-cconj(|"fs_index")> constraintstr*
 
 cfg-root-rule-header(|patternstr): Root() ->
 ${flowspec--generate-cfg-root-constraint(|nabl2_source):
-    fs_term@{patternstr} -> fs_constraint}
+  fs_term@{patternstr} -> fs_constraint}
 
 cfg-root-rule-header(|patternstr): NoRoot() ->
 ${flowspec--generate-cfg-constraint: _ -> fs_constraint
-  with(?(nabl2_source, fs_term, CFGParams(fs_params@(entry, exit, t_start, t_end))))
+  with(?(nabl2_source, fs_term, CFGParams(fs_params@(t_entry, t_exit, t_start, t_end))))
   where({patternstr} := fs_term)}
 
-cfg-root-related-varstr: Root() -> [<gen-cfg-start-node-str> "t_start", <gen-cfg-end-node-str> "t_end"]
-cfg-root-related-varstr: NoRoot() -> []
+cfg-root-related-varstr: Root()   -> [<gen-cfg-start-node-str>, <gen-cfg-end-node-str>]
+cfg-root-related-varstr: NoRoot() -> [<gen-cfg-entry-node-str>, <gen-cfg-exit-node-str>]
 
-cfg-root-related-constraintstr: Root() -> []
-cfg-root-related-constraintstr: NoRoot() -> ["CAstProperty(fs_index, CFGParams(), fs_params)"]
+cfg-root-related-constraintstr:
+  Root() -> [ ]
+cfg-root-related-constraintstr:
+  NoRoot() -> [<gen-equal-str> ("t_entry", "entry"),
+               <gen-equal-str> ("t_exit", "exit"),
+               "CAstProperty(fs_index, CFGParams(), fs_params)" ]
+
+gen-ref-str: Ref(v) ->
+  ${<flowspec--proprule(|<nabl2--get-ast-index> match{v})> match{v}}
 
 gen-cfg-node-str: v -> <gen-cfg-node-str(|"Normal")> (${match{v}}, ${node{v}})
-gen-cfg-start-node-str: nodename -> <gen-cfg-node-str(|"Start")> ("fs_term", nodename)
-gen-cfg-end-node-str: nodename -> <gen-cfg-node-str(|"End")> ("fs_term", nodename)
-gen-artificial-cfg-node-str: nodename -> <gen-cfg-node-str(|"Artificial")> ("fs_term", nodename)
+
+gen-cfg-start-node-str = !${t_start := <flowspec--cfg-node(|<nabl2-get-ast-index> fs_term,Start());try(nabl2--copy-origin(|fs_term))> "t_start"}
+gen-cfg-end-node-str   = !${t_end   := <flowspec--cfg-node(|<nabl2-get-ast-index> fs_term,End());try(nabl2--copy-origin(|fs_term))> "t_end"}
+gen-cfg-entry-node-str = !${entry   := <flowspec--cfg-node(|<nabl2-get-ast-index> fs_term,Entry());try(nabl2--copy-origin(|fs_term))> "entry"}
+gen-cfg-exit-node-str  = !${exit    := <flowspec--cfg-node(|<nabl2-get-ast-index> fs_term,Exit());try(nabl2--copy-origin(|fs_term))> "exit"}
 
 gen-cfg-node-str(|kind): (termname, nodename) ->
   ${{nodename} := <flowspec--cfg-node(|<nabl2-get-ast-index> {termname},{kind}());try(nabl2--copy-origin(|{termname}))> "{nodename}"}
@@ -170,94 +178,90 @@ gen-ref-var-str: Ref(v) -> <gen-cfg-node-str> v
 gen-ref-str: Ref(v) ->
   ${<flowspec--proprule(|<nabl2--get-ast-index> match{v})> match{v}}
 
-gen-rhs-merged-str: (Entry(), rhses@[_,_|_]) -> (<gen-artificial-cfg-node-str> "entrysplit", <gen-equal-str> ("entry", "entrysplit"))
-gen-rhs-merged-str: (Start(), rhses@[_,_|_]) -> (<gen-artificial-cfg-node-str> "startsplit", <gen-directed-edge-str> ("t_start", "startsplit"))
-gen-rhs-merged-str: (Ref(v), rhses@[_,_|_]) -> (<gen-artificial-cfg-node-str> ${node{v}split}, <gen-directed-edge-str> (${node{v}}, ${node{v}split}))
-gen-rhs-merged-str: (Recurse(v), rhses@[_,_|_]) -> (<gen-artificial-cfg-node-str> ${split{v}}, <gen-equal-str> (${exit{v}}, ${split{v}}))
+gen-cfg-lhs-str: Recurse(v) -> ${exit{v}}
+gen-cfg-lhs-str: Entry()    -> ${entry}
+gen-cfg-lhs-str: Start()    -> ${t_start}
+gen-cfg-lhs-str: Ref(v)     -> ${node{v}}
+gen-cfg-lhs-str: Prop(p, v) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
+gen-cfg-lhs-str: Exit()     -> <with(fail|"Error: exit on rhs of arrow")>
+gen-cfg-lhs-str: End()      -> <with(fail|"Error: end on rhs of arrow")>
 
-use-merged-rhs-str = (id, ?[<id>]);MkSingleton
-use-merged-rhs-str: (Entry(), rhses@[_,_|_]) -> <map(!(Split("entrysplit"), <id>))> rhses
-use-merged-rhs-str: (Start(), rhses@[_,_|_]) -> <map(!(Split("startsplit"), <id>))> rhses
-use-merged-rhs-str: (Ref(v), rhses@[_,_|_]) -> <map(!(Split(${node{v}split}), <id>))> rhses
-use-merged-rhs-str: (Recurse(v), rhses@[_,_|_]) -> <map(!(Split(${split{v}}), <id>))> rhses
-
-gen-pair-to-edge-str: (Entry(), rhs) -> <gen-equal-str> ("entry", <gen-cfg-rhs-str> rhs)
-gen-pair-to-edge-str: (Start(), rhs) -> <gen-directed-edge-str> ("t_start", <gen-cfg-rhs-str> rhs)
-gen-pair-to-edge-str: (Ref(v), rhs) -> <gen-directed-edge-str> (${node{v}}, <gen-cfg-rhs-str> rhs)
-gen-pair-to-edge-str: (Recurse(v), rhs) -> <gen-equal-str> (${exit{v}}, <gen-cfg-rhs-str> rhs)
-gen-pair-to-edge-str: (Split(lhs), rhs) -> <gen-directed-edge-str> (lhs, <gen-cfg-rhs-str> rhs)
-gen-pair-to-edge-str: (Prop(_, _), _) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
-gen-pair-to-edge-str: (Exit(), _) -> <with(fail|"Error: exit on lhs of arrow")>
-gen-pair-to-edge-str: (End(), _) -> <with(fail|"Error: end on lhs of arrow")>
-
-gen-lhs-merged-str: (lhses@[_,_|_], r@Exit()) -> (<gen-artificial-cfg-node-str> "exitmerge", <gen-directed-edge-str> ("exitmerge", <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@End()) -> (<gen-artificial-cfg-node-str> "endmerge", <gen-directed-edge-str> ("endmerge", <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@Ref(v)) -> (<gen-artificial-cfg-node-str> ${node{v}merge}, <gen-directed-edge-str> (${node{v}merge}, <gen-cfg-rhs-str> r))
-gen-lhs-merged-str: (lhses@[_,_|_], r@Recurse(v)) -> (<gen-artificial-cfg-node-str> ${merge{v}}, <gen-directed-edge-str> (${merge{v}}, <gen-cfg-rhs-str> r))
-
-use-merged-lhs-str = (?[<id>], id);MkSingleton
-use-merged-lhs-str: (lhses@[_,_|_], Exit()) ->  <map(!(<id>, Merge("exitmerge")))> lhses
-use-merged-lhs-str: (lhses@[_,_|_], End()) -> <map(!(<id>, Merge("endmerge")))> lhses
-use-merged-lhs-str: (lhses@[_,_|_], Ref(v)) -> <map(!(<id>, Merge(${node{v}merge})))> lhses
-use-merged-lhs-str: (lhses@[_,_|_], Recurse(v)) -> <map(!(<id>, Merge(${merge{v}})))> lhses
-
-gen-cfg-rhs-str: Merge(v) -> v
 gen-cfg-rhs-str: Recurse(v) -> ${entry{v}}
-gen-cfg-rhs-str: Exit() -> ${exit}
-gen-cfg-rhs-str: End() -> ${t_end}
-gen-cfg-rhs-str: Ref(v) -> ${node{v}}
+gen-cfg-rhs-str: Exit()     -> ${exit}
+gen-cfg-rhs-str: End()      -> ${t_end}
+gen-cfg-rhs-str: Ref(v)     -> ${node{v}}
 gen-cfg-rhs-str: Prop(p, v) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
-gen-cfg-rhs-str: Entry() -> <with(fail|"Error: entry on rhs of arrow")>
-gen-cfg-rhs-str: Start() -> <with(fail|"Error: start on rhs of arrow")>
+gen-cfg-rhs-str: Entry()    -> <with(fail|"Error: entry on rhs of arrow")>
+gen-cfg-rhs-str: Start()    -> <with(fail|"Error: start on rhs of arrow")>
+
+gen-pair-to-edge-str = (gen-cfg-lhs-str, gen-cfg-rhs-str); gen-directed-edge-str
 
 // Pattern - Pattern, Wildcard
 
 gen-match-pattern-str: Term(consname, subpattern*) -> $[[consname]([subpatternsstring])]
 with subpatternsstring := <map(gen-match-pattern-str);csv> subpattern*
+
 gen-match-pattern-str: Tuple(patt, patt*) -> $[([subpatternsstring])]
 with subpatternsstring := <map(gen-match-pattern-str);csv> [patt | patt*]
+
 gen-match-pattern-str: Wildcard() -> "_"
 gen-match-pattern-str: Var(ident) -> $[match[ident]]
 gen-match-pattern-str: At(ident, pattern) -> $[match[ident]@[patternstring]]
 with patternstring := <gen-match-pattern-str> pattern
+
 gen-match-pattern-str: Int(i) -> i
 gen-match-pattern-str: String(s) -> $["[s]"]
 
-pattern-vars(|prefix) = pattern-vars;map(!$[[prefix][<id>]])
-pattern-vars: Term(consname, subpattern*) -> <mapconcat(pattern-vars)> subpattern*
-pattern-vars: Tuple(patt, patt*) -> <mapconcat(pattern-vars)> [patt | patt*]
-pattern-vars: Wildcard() -> []
-pattern-vars: Var(ident) -> [ident]
-pattern-vars: At(ident, pattern) -> [ident | <pattern-vars> pattern]
-pattern-vars: Int(i) -> []
-pattern-vars: String(s) -> []
+pattern-vars(|prefix) = bottomup(pattern-vars);map(!$[[prefix][<id>]])
+pattern-vars: Term(_, vars*)      -> vars*
+pattern-vars: Tuple(var1*, var2*) -> [ var1*, var2* ]
+pattern-vars: Wildcard()          -> []
+pattern-vars: Var(var)            -> [var]
+pattern-vars: At(ident, var*)     -> [ ident | var* ]
+pattern-vars: Int(i)              -> []
+pattern-vars: String(s)           -> []
+pattern-vars: True()              -> []
+pattern-vars: False()             -> []
+pattern-vars = is-string
+pattern-vars = is-list; concat
 
-pattern-to-kind: Start(_) -> "Start"
-pattern-to-kind: End(_) -> "End"
-pattern-to-kind: _ -> "Normal"
+pattern-to-kind: Start(_)             -> "Start"
+pattern-to-kind: End(_)               -> "End"
+pattern-to-kind: Forward(_,Entry(_))  -> "Entry"
+pattern-to-kind: Backward(Entry(_),_) -> "Entry"
+pattern-to-kind: Forward(_,Exit(_))   -> "Exit"
+pattern-to-kind: Backward(Exit(_),_)  -> "Exit"
+pattern-to-kind: _                    -> "Normal"
 
-pattern-in-dir: Forward(_, p) -> p
-pattern-in-dir: Backward(p,_) -> p
-pattern-in-dir: Start(p) -> p
-pattern-in-dir: End(p) -> p
+pattern-in-dir = ?Forward(_, <try(?Entry(<id>) + ?Exit(<id>))>)
+pattern-in-dir = ?Backward(<try(?Entry(<id>) + ?Exit(<id>))>,_)
+pattern-in-dir = ?Start(<id>)
+pattern-in-dir = ?End(<id>)
 
 // PropRule
 
-gen-prop-str(|propnames): list -> [def*, rule*]
-with
-  def* := <map(gen-prop-fail-str)> propnames
+gen-prop-str(|propnames): list -> [rule*, def*]
+with id
+; def*  := <map(gen-prop-default-str)> propnames
 ; rule* := <map(gen-str)> list
 
-gen-prop-fail-str: name -> ${flowspec--proprule-{name}(|index) = fail}
+gen-prop-default-str: name -> ${flowspec--proprule-{name}-Start(|index) = !CTrue(index)
+flowspec--proprule-{name}-End(|index) = !CTrue(index)
+flowspec--proprule-{name}-Entry(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Entry())> "irrelevant", "{name}")
+flowspec--proprule-{name}-Exit(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Exit())> "irrelevant", "{name}")
+flowspec--proprule-{name}-Normal(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Normal())> "irrelevant", "{name}")}
 
 gen-str: (n, PropRule(name, pattern, _, _)) -> rulestring
-with
-  kind := <pattern-to-kind> pattern
-; pattern' := <pattern-in-dir> pattern
+with id
+; kind          := <pattern-to-kind> pattern
+; pattern'      := <pattern-in-dir> pattern
 ; patternstring := <gen-match-pattern-str> pattern'
-; vars := <pattern-vars(|"match")> pattern'
-; rulestring := ${flowspec--proprule-{name}(|index): {patternstring} -> CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", "{name}", {n}, [{<csv> vars}])}
+; vars          := <pattern-vars(|"match")> pattern'
+; rulestring    := ${flowspec--proprule-{name}-{kind}(|index):
+  {patternstring} ->
+    CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", "{name}", {n}, [{<csv> vars}])}
 
 // utils
 
-constraint-str-list-to-cconj(|index_name) = ?[] < !$[CTrue([index_name])] + foldr1(?[<id>], !$[CConj([<Fst>], [<Snd>])])
+constraint-str-list-to-cconj(|index_name) =
+  ?[] < !$[CTrue([index_name])] + foldr1(?[<id>], !$[CConj([<Fst>], [<Snd>])])
