@@ -112,6 +112,35 @@ flowspec-get-cfg-next-nodes(|a) = flowspec--get-cfg-next-nodes(|a)
 flowspec-cfg-node-ast(|ast): CFGNode(index, _, _) ->
   <collect-one(where(nabl2-get-ast-index;?index))> ast
 
+/**
+ * Find AST node corresponding to the CFGNode back again
+ *
+ * @param ast : Term
+ * @type pos:Position -> Term
+ */
+flowspec-pos-ast(|ast): index@TermIndex(_, _) ->
+  <collect-one(where(nabl2-get-ast-index;?index))> ast
+
+/**
+ * Find parent of AST node corresponding to the CFGNode back again
+ *
+ * @param parent : Term -> Term
+ * @param ast : Term
+ * @type node:CFGNode -> Term
+ */
+flowspec-cfg-node-ast(parent|ast): CFGNode(index, _, _) ->
+  <collect-one(where(parent;nabl2-get-ast-index;?index))> ast
+
+/**
+ * Find parent of AST node corresponding to the CFGNode back again
+ *
+ * @param parent : Term -> Term
+ * @param ast : Term
+ * @type pos:Position -> Term
+ */
+flowspec-pos-ast(parent|ast): index@TermIndex(_, _) ->
+  <collect-one(where(parent;nabl2-get-ast-index;?index))> ast
+
 strategies // The following are used/extended by generated code
 
 flowspec--prop-names = fail
