@@ -62,7 +62,7 @@ SetCompSource.SetSource = [[Pattern] <- [Expr]]
 MapCompSource.MapSource = [([Pattern] |-> [Pattern]) <- [Expr]]
 MapBinding.MapBinding = [[Expr] |-> [Expr]]
 
-Expr.TermIndex = [occurrence([Var])]
+Expr.TermIndex = [position([Var])]
 Expr.NaBL2Occurrence = NaBL2-Occurrence {avoid}
 NaBL2-CTerm.Ref = Var
 NaBL2-OccurrenceIndex.FSNoIndex = []
@@ -95,4 +95,19 @@ FunRef.NLeqOf = [[TypeName].nleq]
 FunRef = Ref
 
 context-free priorities
-  Expr.Not > { left: Expr.Appl Expr.If Expr.Match } > { non-assoc: Expr.SetUnion Expr.SetIntersection Expr.SetContains Expr.SetDifference } > { left: Expr.Eq Expr.NEq } > Expr.And > Expr.Or
+  Expr.MapLookup >
+  Expr.Not >
+  { non-assoc:
+    Expr.SetUnion
+    Expr.SetIntersection
+    Expr.SetContains
+    Expr.SetDifference } >
+  { left:
+    Expr.Eq
+    Expr.NEq } >
+  Expr.And >
+  Expr.Or > 
+  { left:
+    Expr.Appl
+    Expr.If
+    Expr.Match }

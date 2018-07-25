@@ -62,7 +62,7 @@ context-free syntax // Type expressions
 Type = SimpleType
 SimpleType.Name = "name"
 SimpleType.Term = "term"
-SimpleType.Index = "occurrence"
+SimpleType.Index = "position"
 SimpleType.Int = "int"
 SimpleType.String = "string"
 SimpleType.Float = "float"

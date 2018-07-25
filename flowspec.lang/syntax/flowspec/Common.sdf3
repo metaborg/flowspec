@@ -42,7 +42,7 @@ Var = "end" {reject}
 Var = "name" {reject}
 Var = "in" {reject}
 Var = "external" {reject}
-Var = "occurrence" {reject}
+Var = "position" {reject}
 Var = "true" {reject}
 Var = "false" {reject}
 PropName = "cfg" {reject}
@@ -50,7 +50,7 @@ PropName = "entry" {reject}
 PropName = "exit" {reject}
 PropName = "start" {reject}
 PropName = "end" {reject}
-PropName = "occurrence" {reject}
+PropName = "position" {reject}
 
 lexical restrictions
 
