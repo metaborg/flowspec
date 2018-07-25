@@ -245,8 +245,8 @@ with id
 ; def*  := <map(gen-prop-default-str)> propnames
 ; rule* := <map(gen-str)> list
 
-gen-prop-default-str: name -> ${flowspec--proprule-{name}-Start(|index) = !CTrue(index)
-flowspec--proprule-{name}-End(|index) = !CTrue(index)
+gen-prop-default-str: name -> ${flowspec--proprule-{name}-Start(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Start())> "irrelevant", "{name}")
+flowspec--proprule-{name}-End(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, End())> "irrelevant", "{name}")
 flowspec--proprule-{name}-Entry(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Entry())> "irrelevant", "{name}")
 flowspec--proprule-{name}-Exit(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Exit())> "irrelevant", "{name}")
 flowspec--proprule-{name}-Normal(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Normal())> "irrelevant", "{name}")}
