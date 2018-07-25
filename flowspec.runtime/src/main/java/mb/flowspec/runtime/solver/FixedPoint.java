@@ -29,7 +29,7 @@ public class FixedPoint {
     private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);
     private static final String ARTIFICIAL_PROPERTY = "__START__";
     // TODO: Turn this into a config variable
-    private static final int FIXPOINT_LIMIT = 1_000;
+    private static final int FIXPOINT_LIMIT = 500;
 
     private IFlowSpecSolution<CFGNode> solution;
     private final FixedPoint.TimingInfo timingInfo;

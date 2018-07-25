@@ -9,6 +9,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.SymbolicLargestSetException;
+import mb.flowspec.runtime.interpreter.values.IMap;
 import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
@@ -26,6 +27,11 @@ public abstract class SetContainsNode extends ExpressionNode {
             return true;
         }
         return right.getSet().contains(left);
+    }
+
+    @Specialization
+    protected boolean contains(ITerm left, IMap<?,?> right) {
+        return right.getMap().containsKey(left);
     }
 
     public static IMatcher<SetContainsNode> match(FrameDescriptor frameDescriptor) {

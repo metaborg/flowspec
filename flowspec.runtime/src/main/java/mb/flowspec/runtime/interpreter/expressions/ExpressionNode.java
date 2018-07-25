@@ -103,6 +103,7 @@ public abstract class ExpressionNode extends Node {
             SetCompNode.match(frameDescriptor),
             MapLiteralNode.match(frameDescriptor),
             MapCompNode.match(frameDescriptor),
+            MapLookupNode.match(frameDescriptor),
             EmptySetOrMapLiteral.match(frameDescriptor),
             TermIndexNode.match(frameDescriptor),
             NaBL2OccurrenceNode.match(frameDescriptor),
