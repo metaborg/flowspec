@@ -42,8 +42,7 @@ FunArg.Arg = [[Var]: [Type]]
 context-free syntax // Alternative syntax
 
 AltModule.Module =
-[#alt-syntax
-module [ModuleName]
+[module [ModuleName]
 
 [{Section "\n"}*]
 ]
