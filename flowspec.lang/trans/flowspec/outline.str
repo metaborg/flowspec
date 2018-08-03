@@ -5,6 +5,7 @@ imports
   signatures/flowspec-sig
   signatures/flowspec/-
   libspoofax/editor/outline
+  pp
 
 rules
 
@@ -16,16 +17,31 @@ rules
   to-outline-label: Imports(_, _) -> "imports"
   to-outline-label: Externals(_) -> "external"
   to-outline-label: CFGRules(_) -> "control-flow"
-  to-outline-label: AltCFGRule(Root(), _, _) -> "root rule"
-  to-outline-label: AltCFGRule(NoRoot(), _, _) -> "rule"
-  to-outline-label: CFGNode(_) -> "node"
+  to-outline-label: AltCFGRule(Root(), p, _) -> $[cfg root [<pp-partial-flowspec-string(|"Pattern")> p]]
+  to-outline-label: AltCFGRule(NoRoot(), p, _) -> $[cfg [<pp-partial-flowspec-string(|"Pattern")> p]]
+  to-outline-label: CFGNode(p) -> $[node [<pp-partial-flowspec-string(|"Pattern")> p]]
   to-outline-label: PropDefs(_, _) -> "properties"
-  to-outline-label: PropDef(name, _) -> name
+  to-outline-label: PropDef(name, type) -> $[[name]: [<pp-partial-flowspec-string(|"Type")> type]]
   to-outline-label: PropRules(_) -> "data-flow"
-  to-outline-label: PropRule(_, _, _, _) -> "rule"
+  to-outline-label: PropRule(n, p, _, _) -> $[[n]: [<pp-partial-flowspec-string(|"PropPattern")> p]]
   to-outline-label: TypeDefs(_) -> "types"
   to-outline-label: TypeDef(name, _) -> name
+  to-outline-label: ConsDef(name, typeorvar*) -> $[[name]([<pp-type-or-var-list> typeorvar*])]
   to-outline-label: LatticeDefs(_) -> "lattices"
   to-outline-label: LatticeDef(name, _) -> name
+  to-outline-label: LatticeDef(name, _, _) -> name
+  to-outline-label: Type(type) -> $[type = [<pp-partial-flowspec-string(|"Type")> type]]
+  to-outline-label: Lub(l, r, _) -> $[lub([l], [r])]
+  to-outline-label: Glb(l, r, _) -> $[glb([l], [r])]
+  to-outline-label: Leq(l, r, _) -> $[leq([l], [r])]
+  to-outline-label: Geq(l, r, _) -> $[geq([l], [r])]
+  to-outline-label: NLeq(l, r, _) -> $[nleq([l], [r])]
+  to-outline-label: Top(_) -> "top"
+  to-outline-label: Bottom(_) -> "bottom"
   to-outline-label: FunDefs(_) -> "functions"
   to-outline-label: FunDef(name, _, _) -> name
+
+  pp-type-or-var-list =
+    map(pp-partial-flowspec-string(|"TypeOrVar"))
+  ; separate-by(|", ")
+  ; concat-strings
