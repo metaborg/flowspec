@@ -38,14 +38,31 @@ flowspec-get-property-pre(|a, propname) = flowspec--get-property-pre(|a, propnam
 flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propname)
 
 /**
- * Analyze the given AST with NaBL2 and FlowSpec.
+ * Analyze the given AST with NaBL2 and FlowSpec
  *
  * @param resource:String
  * @type ast:Term -> (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage))
  */
-flowspec-analyze-ast(|resource): ast -> (ast', analysis', errors, warnings, notes)
-where (ast', analysis, errors, warnings, notes) := <nabl2-analyze-ast(|resource)> ast
-    ; analysis' := <flowspec--solve(|analysis)> ast'
+flowspec-analyze-ast(|resource) = flowspec-analyze-ast(|resource, <flowspec--prop-names>)
+
+/**
+ * Analyze the given AST with NaBL2 and FlowSpec, but only the given FlowSpec properties.
+ *
+ * @param resource:String
+ * @param propnames:String or List(String)
+ * @type ast:Term -> (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage))
+ */
+flowspec-analyze-ast(|resource, propnames) = where(<is-string> propnames); flowspec-analyze-ast(|resource, [propnames])
+flowspec-analyze-ast(|resource, propnames): ast -> (ast', analysis', errors, warnings, notes)
+where ((ast', analysis, errors, warnings, notes), nabl2-time-diff) := <profile(nabl2-analyze-ast(|resource))> ast
+    ; (analysis', flowspec-time-diff) := <profile(flowspec--solve(|analysis, propnames))> ast'
+    ; if flowspec-debug-profile then
+        <debug> $[nabl2 (cfg building): [<ticks-to-seconds> nabl2-time-diff]]
+        ;
+        <debug> $[flowspec (property solving): [<ticks-to-seconds> flowspec-time-diff]]
+      end
+
+flowspec-debug-profile = false
 
 /**
  * Get the control flow graph node associated with the given term. 
