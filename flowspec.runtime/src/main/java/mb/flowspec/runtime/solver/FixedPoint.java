@@ -1,6 +1,8 @@
 package mb.flowspec.runtime.solver;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -41,8 +43,11 @@ public class FixedPoint {
         this.postProperties = Map.Transient.of();
         this.timingInfo = new FixedPoint.TimingInfo();
     }
-
     public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo) {
+        return entryPoint(nabl2solution, staticInfo, staticInfo.transfers().metadata().keySet());
+    }
+
+    public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo, Collection<String> propNames) {
         TransferFunctionInfo tfFileInfo = staticInfo.transfers();
         this.solution = nabl2solution.flowSpecSolution();
         final ICompleteControlFlowGraph.Immutable<CFGNode> cfg = solution.controlFlowGraph();
@@ -71,7 +76,7 @@ public class FixedPoint {
         logger.debug("SCCs:" + cfg.topoSCCs());
 
         try {
-            solve(cfg, tfFileInfo);
+            solve(cfg, tfFileInfo, propNames);
 
             timingInfo.recordEnd();
             timingInfo.logReport(logger);
@@ -89,9 +94,24 @@ public class FixedPoint {
     }
 
     @SuppressWarnings("unchecked")
-    private void solve(ICompleteControlFlowGraph.Immutable<CFGNode> cfg, TransferFunctionInfo tfFileInfo)
+    private void solve(ICompleteControlFlowGraph.Immutable<CFGNode> cfg, TransferFunctionInfo tfFileInfo, Collection<String> propNames)
             throws CyclicGraphException, FixedPointLimitException {
-        Iterable<String> propTopoOrder = Algorithms.topoSort(tfFileInfo.metadata().keySet(), tfFileInfo.dependsOn().inverse());
+        // Check that all given property names exists, and meanwhile check if this is the full list of property names
+        Set<String> allProps = new HashSet<>(tfFileInfo.metadata().keySet());
+        for(String propName : propNames) {
+            if(!allProps.contains(propName)) {
+                logger.warn("Given property {} cannot be found", propName);
+            } else {
+                allProps.remove(propName);
+            }
+        }
+        Iterable<String> propTopoOrder;
+        // If the full list of property names was given, we can simply find the topo order on the full dependency graph
+        if(allProps.isEmpty()) {
+            propTopoOrder = Algorithms.topoSort(propNames, tfFileInfo.dependsOn().inverse());
+        } else {
+            propTopoOrder = Algorithms.topoDeps(propNames, tfFileInfo.dependsOn());
+        }
 
         timingInfo.recordReverseTopo();
 

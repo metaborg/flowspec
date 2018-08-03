@@ -22,11 +22,9 @@ public interface IGetPropertyPrimitive {
             throw new InterpreterException("Need one term argument: key");
         }
         final Optional<String> key = M.stringValue().match(terms.get(0), PersistentUnifier.Immutable.of());
-        final ITerm term1 = term;
-        final Immutable<Tuple2<CFGNode, String>, ITerm> properties1 = properties;
-        final Optional<CFGNode> optNode = CFGNode.matcher().match(term1).map(Optional::of)
-                .orElseGet(() -> TermIndex.get(term1).map(CFGNode::normal));
+        final Optional<CFGNode> optNode = CFGNode.matcher().match(term).map(Optional::of)
+                .orElseGet(() -> TermIndex.get(term).map(CFGNode::normal));
         return optNode.flatMap(node -> key.<ITerm>flatMap(k -> Optional
-                .ofNullable(properties1.get(ImmutableTuple2.of(node, k)))));
+                .ofNullable(properties.get(ImmutableTuple2.of(node, k)))));
     }
 }
