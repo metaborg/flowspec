@@ -2,6 +2,9 @@ module flowspec/primitives
 
 rules
 
+flowspec--build-cfg(|a) =
+  prim("FS_build_cfg", a)
+
 flowspec--show-control-flow-graph(|a) =
   prim("FS_show_control_flow_graph", a)
 

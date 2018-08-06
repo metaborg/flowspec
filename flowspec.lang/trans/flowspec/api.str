@@ -53,14 +53,18 @@ flowspec-analyze-ast(|resource) = flowspec-analyze-ast(|resource, <flowspec--pro
  * @type ast:Term -> (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage))
  */
 flowspec-analyze-ast(|resource, propnames) = where(<is-string> propnames); flowspec-analyze-ast(|resource, [propnames])
-flowspec-analyze-ast(|resource, propnames): ast -> (ast', analysis', errors, warnings, notes)
-where ((ast', analysis, errors, warnings, notes), nabl2-time-diff) := <profile(nabl2-analyze-ast(|resource))> ast
-    ; (analysis', flowspec-time-diff) := <profile(flowspec--solve(|analysis, propnames))> ast'
-    ; if flowspec-debug-profile then
-        <debug> $[nabl2 (cfg building): [<ticks-to-seconds> nabl2-time-diff]]
-        ;
-        <debug> $[flowspec (property solving): [<ticks-to-seconds> flowspec-time-diff]]
-      end
+flowspec-analyze-ast(|resource, propnames): ast -> (ast', analysis'', errors, warnings, notes)
+where
+  ((ast', analysis, errors, warnings, notes), nabl2-time-diff) := <profile(nabl2-analyze-ast(|resource))> ast
+; (analysis', flowspec-cfg-time-diff) := <profile(flowspec--generate-cfg; flowspec--build-cfg(|analysis))> ast'
+; (analysis'', flowspec-prop-time-diff) := <profile(flowspec--solve(|analysis', propnames))> ast'
+; if flowspec-debug-profile then
+    <debug> $[nabl2: [<ticks-to-seconds> nabl2-time-diff]]
+    ;
+    <debug> $[flowspec (cfg building): [<ticks-to-seconds> flowspec-cfg-time-diff]]
+    ;
+    <debug> $[flowspec (property solving): [<ticks-to-seconds> flowspec-prop-time-diff]]
+  end
 
 flowspec-debug-profile = false
 
@@ -160,7 +164,12 @@ flowspec-pos-ast(parent|ast): pos ->
 
 flowspec-get-position = nabl2-get-ast-index
 
+flowspec--proprule-rec(flowspec--proprule) =
+  flowspec--proprule <+ (!${Missing FlowSpec cfg rule for {<nabl2--pp-flat-term>}}; debug; ![])
+
 strategies // The following are used/extended by generated code
+
+flowspec--generate-cfg = fail
 
 flowspec--prop-names = fail
 
