@@ -167,9 +167,15 @@ flowspec-get-position = nabl2-get-ast-index
 flowspec--proprule-rec(flowspec--proprule) =
   flowspec--proprule <+ (!${Missing FlowSpec cfg rule for {<nabl2--pp-flat-term>}}; debug; ![])
 
+flowspec--generate-cfg: ast -> result
+where
+  try(flowspec-debug-profile;where(term-size;debug(|"flowspec, ast input size: ")))
+; result := <flowspec--generate-cfg-inner> ast
+; try(flowspec-debug-profile;length;debug(|"flowspec, cfg edge list size: "))
+
 strategies // The following are used/extended by generated code
 
-flowspec--generate-cfg = fail
+flowspec--generate-cfg-inner = fail
 
 flowspec--prop-names = fail
 

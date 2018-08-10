@@ -49,14 +49,17 @@ imports
 
 rules
 
-flowspec--generate-cfg:
-  ast -> result
-with(result := <collect-om(flowspec--generate-cfg-root, conc);concat> ast)
+flowspec--generate-cfg-inner =
+  collect-om(flowspec--generate-cfg-root, conc)
+; concat
 
 {cfgstring}
 
 flowspec--proprule(|index):
-  term -> {matchpropsstring}
+  term -> result
+with ![]
+{matchpropsstring}
+; ?result
 
 flowspec--prop-names =
   ![ {propnamesstring}
@@ -78,8 +81,8 @@ gen-match-prop-string =
   let
     kinds = !["Start", "End", "Entry", "Exit", "Normal"]
   in
-    mapconcat(\n -> <kinds;map(\kind -> ${<flowspec--proprule-{n}-{kind}(|index)> term}\)> \)
-  ; !${[{<csv>}]}
+    mapconcat(\n -> <kinds;map(\kind -> ${; try(![ <flowspec--proprule-{n}-{kind}(|index)> term | <id> ])} \)> \)
+  ; lines_
   end
 
 number-prop-rules(|a, propnames): proprules -> numberedproprules
@@ -101,6 +104,7 @@ ${{ruleheader}
 }
 with
   patternstr := <gen-match-pattern-str> pattern
+; this-aliases := <match-pattern-this-aliases> pattern
 ; ruleheader := <cfg-root-rule-header(|patternstr)> r
 ; rrvarstr* := <cfg-root-related-varstr> r
 ; chain'* := <strip-annos> chain*
@@ -110,7 +114,7 @@ with
   // handle new nodes
 ; refs := <mapconcat(?Chain(<retain-all(?Ref(_))>));nub> chain'*
 ; refvarsstr* := <map(gen-ref-var-str)> refs
-; refsstr* := <map(gen-ref-str)> refs
+; refsstr* := <diff;map(gen-ref-str)> (refs, this-aliases) // don't generate for alias of this
   // generate pairs from chains
 ; pairs := <mapconcat(\Chain(l) -> <zip> (<init> l, <Tl> l)\)> chain'*
   // build normal pairs from the chains
@@ -191,6 +195,10 @@ with patternstring := <gen-match-pattern-str> pattern
 gen-match-pattern-str: Int(i) -> i
 gen-match-pattern-str: String(s) -> $["[s]"]
 
+match-pattern-this-aliases =
+  \At(ident, p) -> [ident | <match-pattern-this-aliases> p]\
+  <+ ![]
+
 pattern-vars(|prefix) = bottomup(pattern-vars);map(!$[[prefix][<id>]])
 pattern-vars: Term(_, vars*)      -> vars*
 pattern-vars: Tuple(var1*, var2*) -> [ var1*, var2* ]
@@ -224,11 +232,11 @@ with id
 ; def*  := <map(gen-prop-default-str)> propnames
 ; rule* := <map(gen-str)> list
 
-gen-prop-default-str: name -> ${flowspec--proprule-{name}-Start(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Start())> "irrelevant", "{name}")
-flowspec--proprule-{name}-End(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, End())> "irrelevant", "{name}")
-flowspec--proprule-{name}-Entry(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Entry())> "irrelevant", "{name}")
-flowspec--proprule-{name}-Exit(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Exit())> "irrelevant", "{name}")
-flowspec--proprule-{name}-Normal(|index) = !CTFIdentityAppl(<flowspec--cfg-node(|index, Normal())> "irrelevant", "{name}")}
+gen-prop-default-str: name -> ${flowspec--proprule-{name}-Start(|index) = fail
+flowspec--proprule-{name}-End(|index) = fail
+flowspec--proprule-{name}-Entry(|index) = fail
+flowspec--proprule-{name}-Exit(|index) = fail
+flowspec--proprule-{name}-Normal(|index) = fail}
 
 gen-str: (n, PropRule(name, pattern, _, _)) -> rulestring
 with id
