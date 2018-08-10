@@ -5,13 +5,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.stream.StreamSupport;
+import java.util.Optional;
 import java.util.Set;
 
+import org.metaborg.util.Ref;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
+import io.usethesource.capsule.Set.Immutable;
 import mb.flowspec.graph.Algorithms;
 import mb.flowspec.runtime.interpreter.ImmutableInitValues;
 import mb.flowspec.runtime.interpreter.InitFunction;
@@ -35,8 +39,8 @@ public class FixedPoint {
 
     private IFlowSpecSolution<CFGNode> solution;
     private final FixedPoint.TimingInfo timingInfo;
-    private final Map.Transient<Tuple2<CFGNode, String>, ITerm> preProperties;
-    private final Map.Transient<Tuple2<CFGNode, String>, ITerm> postProperties;
+    private final Map.Transient<Tuple2<CFGNode, String>, Ref<ITerm>> preProperties;
+    private final Map.Transient<Tuple2<CFGNode, String>, Ref<ITerm>> postProperties;
 
     public FixedPoint() {
         this.preProperties = Map.Transient.of();
@@ -124,25 +128,31 @@ public class FixedPoint {
         }
     }
 
-    private void setPostProperty(CFGNode n, String prop, ITerm value) {
-        this.postProperties.__put(ImmutableTuple2.of(n, prop), value);
-    }
-
-    private void setProperty(CFGNode n, String prop, ITerm value) {
+    private void setProperty(CFGNode n, String prop, Ref<ITerm> value) {
         this.preProperties.__put(ImmutableTuple2.of(n, prop), value);
     }
 
+    private void setPostProperty(CFGNode n, String prop, ITerm value) {
+        this.postProperties.__put(ImmutableTuple2.of(n, prop), new Ref<>(value));
+    }
+
+    private void setProperty(CFGNode n, String prop, ITerm value) {
+        getPropertyRef(n, prop).set(value);
+    }
+
     private ITerm getProperty(CFGNode n, String prop) {
+        return getPropertyRef(n, prop).get();
+    }
+
+    private Ref<ITerm> getPropertyRef(CFGNode n, String prop) {
         return this.preProperties.get(ImmutableTuple2.of(n, prop));
     }
 
     private void solveFlowSensitiveProperty(ICompleteControlFlowGraph.Immutable<CFGNode> cfg,
             String prop, Metadata<ITerm> metadata) throws FixedPointLimitException {
         // Phase 1: initialisation
-        for (CFGNode n : cfg.nodes()) {
-            setProperty(n, prop, metadata.lattice().bottom());
-        }
 
+        final ITerm bottom = metadata.lattice().bottom();
         final BinaryRelation<CFGNode, CFGNode> edges;
         final Iterable<Set<CFGNode>> sccs;
         final io.usethesource.capsule.Set<CFGNode> initNodes;
@@ -163,12 +173,17 @@ public class FixedPoint {
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
         for (CFGNode n : initNodes) {
-//            if (metadata.lattice() instanceof FullSetLattice || metadata.lattice() instanceof CompleteLattice.Flipped
-//                    && ((CompleteLattice.Flipped) metadata.lattice()).wrapped instanceof FullSetLattice) {
-//                setProperty(n, prop, new mb.flowspec.runtime.interpreter.values.Set<>());
-//            }
-            setProperty(n, prop, callInit(prop, metadata, n));
+            setProperty(n, prop, new Ref<>(callInit(prop, metadata, n)));
         }
+        final Set<CFGNode> ignoredNodes = new HashSet<>();
+        StreamSupport.stream(sccs.spliterator(), false)
+            .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
+            .forEach(n -> {
+                Ref<ITerm> ref = perhapsIgnore(n, edges, ignoredNodes, prop)
+                        .orElseGet(() -> new Ref<>(bottom));
+                setProperty(n, prop, ref);
+            });
+        logger.debug("Ignoring {} out of {} nodes", ignoredNodes.size(), cfg.nodes().size());
 
         // Phase 2: Fixpoint iteration
         for(Set<CFGNode> scc : sccs) {
@@ -182,12 +197,14 @@ public class FixedPoint {
                 fixpointCount++;
                 for (CFGNode from : scc) {
                     for (CFGNode to : edges.get(from)) {
-                        ITerm afterFromTF = callTF(prop, metadata, from);
-                        ITerm beforeToTF = getProperty(to, prop);
-                        if (metadata.lattice().nleq(afterFromTF, beforeToTF)) {
-                            setProperty(to, prop, metadata.lattice().lub(beforeToTF, afterFromTF));
-                            if (scc.contains(to)) {
-                                done = false;
+                        if (!ignoredNodes.contains(to)) {
+                            ITerm afterFromTF = callTF(prop, metadata, from);
+                            ITerm beforeToTF = getProperty(to, prop);
+                            if (metadata.lattice().nleq(afterFromTF, beforeToTF)) {
+                                setProperty(to, prop, metadata.lattice().lub(beforeToTF, afterFromTF));
+                                if (scc.contains(to)) {
+                                    done = false;
+                                }
                             }
                         }
                     }
@@ -201,19 +218,23 @@ public class FixedPoint {
         // Phase 3: Result calculation
         switch (metadata.dir()) {
             case Forward: {
-                for (CFGNode n : cfg.nodes()) {
+                StreamSupport.stream(sccs.spliterator(), false)
+                .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
+                .forEach(n -> {
                     ITerm value = callTF(prop, metadata, n);
                     setPostProperty(n, prop, value);
-                }
+                });
                 break;
             }
             case Backward: {
                 HashMap<CFGNode, ITerm> temp = new HashMap<>();
-                for (CFGNode n : cfg.nodes()) {
+                StreamSupport.stream(sccs.spliterator(), false)
+                .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
+                .forEach(n -> {
                     setPostProperty(n, prop, getProperty(n, prop));
                     ITerm value = callTF(prop, metadata, n);
                     temp.put(n, value);
-                }
+                });
                 temp.forEach((n, value) -> {
                     setProperty(n, prop, value);
                 });
@@ -223,16 +244,26 @@ public class FixedPoint {
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
     }
-    
+
+    private Optional<Ref<ITerm>> perhapsIgnore(CFGNode n, BinaryRelation<CFGNode, CFGNode> edges, Set<CFGNode> ignoredNodes, String prop) {
+        Immutable<CFGNode> predecessors = edges.inverse().get(n);
+        if(predecessors.size() == 1) {
+            CFGNode pred = predecessors.iterator().next();
+            if(solution.getTFAppl(pred, prop) == null) {
+                ignoredNodes.add(n);
+                return Optional.of(getPropertyRef(pred, prop));
+            }
+        }
+        return Optional.empty();
+    }
+
     private ITerm callInit(String prop, Metadata<?> metadata, CFGNode node) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
-        if (tfAppl == null || tfAppl.isIdentity() || !metadata.initFunction().isPresent()) {
-            if(!metadata.initFunction().isPresent()) {
-                logger.warn("No initialisation rule found of " + prop);
-            }
-            if(tfAppl == null) {
-                logger.warn("No (init) rule of " + prop + " found for " + node);
-            }
+        if(!metadata.initFunction().isPresent()) {
+            logger.warn("No initialisation rule found for property " + prop);
+            return getProperty(node, prop);
+        }
+        if (tfAppl == null) {
             return getProperty(node, prop);
         }
         return InitFunction.call(tfAppl.args(), metadata.initFunction().get());
@@ -240,10 +271,7 @@ public class FixedPoint {
 
     private ITerm callTF(String prop, Metadata<?> metadata, CFGNode node) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
-        if (tfAppl == null || tfAppl.isIdentity()) {
-            if(tfAppl == null) {
-                logger.warn("No rule of " + prop + " found for " + node);
-            }
+        if (tfAppl == null) {
             return getProperty(node, prop);
         }
         return TransferFunction.call(tfAppl, metadata.transferFunctions(), node);

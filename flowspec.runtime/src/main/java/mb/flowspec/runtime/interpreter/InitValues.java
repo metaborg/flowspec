@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.immutables.value.Value.Auxiliary;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
+import org.metaborg.util.Ref;
 
 import io.usethesource.capsule.Map;
 import mb.flowspec.runtime.interpreter.values.Function;
@@ -33,7 +34,7 @@ public abstract class InitValues {
     public abstract IBasicControlFlowGraph<CFGNode> controlFlowGraph();
 
     @Parameter
-    public abstract Map<Tuple2<CFGNode, String>, ITerm> properties();
+    public abstract Map<Tuple2<CFGNode, String>, Ref<ITerm>> properties();
 
     @Parameter
     public abstract IEsopScopeGraph.Immutable<Scope, Label, Occurrence, ITerm> scopeGraph();

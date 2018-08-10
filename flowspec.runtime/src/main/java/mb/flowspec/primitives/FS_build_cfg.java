@@ -7,10 +7,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.metaborg.util.Ref;
+import org.metaborg.util.log.ILogger;
+import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.InterpreterException;
 
 import mb.nabl2.constraints.controlflow.ControlFlowConstraints;
 import mb.nabl2.constraints.controlflow.IControlFlowConstraint;
+import mb.nabl2.controlflow.terms.CFGNode;
+import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph.Immutable;
+import mb.nabl2.controlflow.terms.IFlowSpecSolution;
 import mb.nabl2.solver.ISolution;
 import mb.nabl2.solver.SolverCore;
 import mb.nabl2.solver.components.ControlFlowComponent;
@@ -20,6 +25,7 @@ import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.unification.PersistentUnifier;
 
 public class FS_build_cfg extends AnalysisPrimitive {
+    private static final ILogger logger = LoggerUtils.logger(FS_build_cfg.class);
 
     public FS_build_cfg() {
         super(FS_build_cfg.class.getSimpleName());
@@ -46,7 +52,12 @@ public class FS_build_cfg extends AnalysisPrimitive {
         for(IControlFlowConstraint flowConstraint : constraints) {
             cfc.solve(flowConstraint);
         }
-        solution = solution.withFlowSpecSolution(cfc.finish());
+        IFlowSpecSolution<CFGNode> fsSolution = cfc.finish();
+
+        Immutable<CFGNode> cfg = fsSolution.controlFlowGraph();
+        logger.debug("CFG has {} nodes and {} edges", cfg.nodes().size(), cfg.edges().size());
+
+        solution = solution.withFlowSpecSolution(fsSolution);
         return unit.withSolution(solution);
     }
 }

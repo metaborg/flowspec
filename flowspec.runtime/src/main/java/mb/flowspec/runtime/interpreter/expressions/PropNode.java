@@ -2,6 +2,8 @@ package mb.flowspec.runtime.interpreter.expressions;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
+import org.metaborg.util.Ref;
+
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -21,7 +23,7 @@ import mb.nabl2.util.Tuple2;
 
 @NodeChildren({@NodeChild("rhs")})
 public abstract class PropNode extends ExpressionNode {
-    private Map<Tuple2<CFGNode, String>, ITerm> properties;
+    private Map<Tuple2<CFGNode, String>, Ref<ITerm>> properties;
     protected final String propName;
 
     public PropNode(String propName) {
@@ -30,13 +32,14 @@ public abstract class PropNode extends ExpressionNode {
 
     @Specialization
     protected ITerm lookup(CFGNode rhs) {
-        return properties.get(ImmutableTuple2.of(rhs, propName));
+        return properties.get(ImmutableTuple2.of(rhs, propName)).get();
     }
 
     @Specialization
     protected ITerm lookup(ITerm rhs) {
         TermIndex index = TermIndex.get(rhs).get();
-        return properties.get(ImmutableTuple2.of(ImmutableCFGNode.of(index, null, Kind.Normal), propName));
+        final ImmutableCFGNode node = ImmutableCFGNode.of(index, null, Kind.Normal);
+        return properties.get(ImmutableTuple2.of(node, propName)).get();
     }
 
     public static IMatcher<PropNode> match(FrameDescriptor frameDescriptor) {

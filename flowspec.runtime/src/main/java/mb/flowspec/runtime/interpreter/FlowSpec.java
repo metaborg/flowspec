@@ -25,33 +25,33 @@ public final class FlowSpec extends TruffleLanguage<Context> {
     protected Context createContext(com.oracle.truffle.api.TruffleLanguage.Env env) {
         return new Context();
     }
-    
+
     @Override
     protected Object findExportedSymbol(Context context, String globalName, boolean onlyExplicit) {
         return null;
     }
-    
+
     @Override
     protected Object getLanguageGlobal(Context context) {
         return context;
     }
-    
+
     @Override
     protected boolean isObjectOfLanguage(Object object) {
         return false;
     }
-    
+
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
         Source source = request.getSource();
-        
+
         ITermFactory f = new TermFactory();
         StrategoTerms strategoTerms = new StrategoTerms(f);
-        
-        IStrategoTerm term = f.parseFromString(source.getCode());
-        
+
+        IStrategoTerm term = f.parseFromString(source.getCharacters().toString());
+
         TransferFunction rootNode = TransferFunction.match(this, new FrameDescriptor()).match(strategoTerms.fromStratego(term), PersistentUnifier.Immutable.of()).get();
-        
+
         return Truffle.getRuntime().createCallTarget(rootNode);
     }
 }
