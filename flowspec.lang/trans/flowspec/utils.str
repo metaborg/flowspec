@@ -22,3 +22,14 @@ make-set_(s) = foldr(![], union(s), ![<id>])
 
 constraint-list-to-cconj(index): [] -> CTrue(<index>)
 constraint-list-to-cconj(index) = foldr1(?[<id>], !CConj(<Fst>, <Snd>))
+
+foldl-some(s): ([], _) -> <fail>
+foldl-some(s) =
+  ?([h|t], acc)
+; if acc' := <s> (h, acc)
+    then <foldl-some(s, id)> (t, acc')
+    else <foldl-some(s)> (t, acc)
+  end
+
+foldl-some(s, finally): ([], _) -> <finally>
+foldl-some(s, f): ([h|t], acc) -> <foldl-some(s, f)> (t, <s <+ Snd> (h, acc))

@@ -40,9 +40,9 @@ rules // Debugging
   generate-static-info = (post-desugar-all, id, id, id, id); generate-static-info'
 
   generate-static-info':
-    (node, _, _, path, project-path) -> (filename, result)
+    (node@Module(name, _, _, _), _, _, path, project-path) -> (filename, result)
     with
-      filename := <target-file(|project-path, ".aterm")> "flowspec-static-info"
+      filename := <string-replace(|"/", "+"); target-file(|project-path, "flowspec-static-info", ".aterm")> name
     where
       tf := <gen-tf;nabl2-erase-ast-indices> node
     ; l  := <gen-latticeterm;nabl2-erase-ast-indices> node
@@ -68,12 +68,16 @@ rules // Debugging
   src-gen-dir(|project-path, sub-dir): _ -> dir
   with dir := $[[project-path]/src-gen/[sub-dir]]
 
-  target-file(|project-path, ext): name -> file-name
-  with target-dir := <target-dir(|project-path)>;
+  target-file(|project-path, sub-dir, ext): name -> file-name
+  with target-dir := <target-dir(|project-path, sub-dir)>;
        file-name := $[[target-dir]/[name][ext]]
 
-  target-dir(|project-path): _ -> dir
-  with dir := $[[project-path]/target/metaborg]
+  target-file(|project-path, ext): name -> file-name
+  with target-dir := <target-dir(|project-path, "")>;
+       file-name := $[[target-dir][name][ext]]
+
+  target-dir(|project-path, sub-dir): _ -> dir
+  with dir := $[[project-path]/target/metaborg/[sub-dir]]
 
 // Copied from https://github.com/metaborg/sdf/blob/50018c3843b4717bd7baa7b16ae49781d91a3ce4/org.metaborg.meta.lang.template/trans/editor/build-utils.str#L55-L64
   // When given a tuple (path, string) this writes string into path.

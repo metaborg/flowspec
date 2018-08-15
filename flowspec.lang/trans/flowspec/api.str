@@ -182,3 +182,13 @@ flowspec--prop-names = fail
 flowspec--constraint-list-to-cconj(index) = constraint-list-to-cconj(index)
 
 flowspec--cfg-node(|index,kind): n -> CFGNode(index, n, kind)
+
+flowspec--proprule(|index): term -> constr*
+with (constr*, _) :=
+  <repeat(\(constr, files) -> <flowspec--proprule(|index, constr, files)> term\)> ([], [])
+
+flowspec--proprule(|index, constr, files) = fail
+
+flowspec--prop-names = <repeat(flowspec--add-prop-names)> []
+
+flowspec--add-prop-names = fail

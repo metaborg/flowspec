@@ -55,15 +55,27 @@ flowspec--generate-cfg-inner =
 
 {cfgstring}
 
-flowspec--proprule(|index):
-  term -> result
-with ![]
+flowspec--proprule(|index, constr*, names*):
+  term -> (constr', names')
+with
+  new-names := [ {propnamesstring}
+               ]
+where
+  really-new*@[_|_] := <diff> (new-names, names*)
+with
+  names' := [ names*, really-new* ]
+with !constr*
 {matchpropsstring}
-; ?result
+; ?constr'
 
-flowspec--prop-names =
-  ![ {propnamesstring}
-   ]
+flowspec--add-prop-names: names* -> names'
+with
+  new-names := [ {propnamesstring}
+               ]
+where
+  really-new*@[_|_] := <diff> (new-names, names*)
+with
+  names' := [ names*, really-new* ]
 
 {propstring}
 }
@@ -74,14 +86,18 @@ with
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _))> def*
 ; matchpropsstring := <gen-match-prop-string> propnames
-; propstring := <number-prop-rules(|a, <map(nabl2-mk-occurrence(|"Property"))> propnames);gen-prop-str(|propnames);lines_> proprule*
+; propstring := <number-prop-rules(|a, <map(nabl2-mk-occurrence(|"Property"))> propnames);gen-prop-str(|modulename, propnames);lines_> proprule*
 ; propnamesstring := <map(!${"{<id>}"});csv-lines> propnames
 
 gen-match-prop-string =
   let
     kinds = !["Start", "End", "Entry", "Exit", "Normal"]
   in
-    mapconcat(\n -> <kinds;map(\kind -> ${; try(![ <flowspec--proprule-{n}-{kind}(|index)> term | <id> ])} \)> \)
+    map(\n ->
+      ${; if <getfirst(?"{n}")> really-new* then
+            {<kinds;map(\kind -> ${try(![ <flowspec--proprule-{n}-{kind}(|index)> term | <id> ])} \);semi-lines> n}
+          end}
+    \)
   ; lines_
   end
 
@@ -227,10 +243,10 @@ pattern-in-dir = ?End(<id>)
 
 // PropRule
 
-gen-prop-str(|propnames): list -> [rule*, def*]
+gen-prop-str(|mod-name, propnames): list -> [rule*, def*]
 with id
 ; def*  := <map(gen-prop-default-str)> propnames
-; rule* := <map(gen-str)> list
+; rule* := <map(gen-str(|mod-name))> list
 
 gen-prop-default-str: name -> ${flowspec--proprule-{name}-Start(|index) = fail
 flowspec--proprule-{name}-End(|index) = fail
@@ -238,7 +254,7 @@ flowspec--proprule-{name}-Entry(|index) = fail
 flowspec--proprule-{name}-Exit(|index) = fail
 flowspec--proprule-{name}-Normal(|index) = fail}
 
-gen-str: (n, PropRule(name, pattern, _, _)) -> rulestring
+gen-str(|mod-name): (n, PropRule(name, pattern, _, _)) -> rulestring
 with id
 ; kind          := <pattern-to-kind> pattern
 ; pattern'      := <pattern-in-dir> pattern
@@ -246,7 +262,7 @@ with id
 ; vars          := <pattern-vars(|"match")> pattern'
 ; rulestring    := ${flowspec--proprule-{name}-{kind}(|index):
   {patternstring} ->
-    CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", "{name}", {n}, [{<csv> vars}])}
+    CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", "{name}", "{mod-name}", {n}, [{<csv> vars}])}
 
 // utils
 
