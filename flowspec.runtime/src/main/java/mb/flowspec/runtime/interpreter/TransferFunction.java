@@ -10,12 +10,14 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
+import io.usethesource.capsule.Map;
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
 import mb.nabl2.controlflow.terms.ICFGNode;
 import mb.nabl2.controlflow.terms.TransferFunctionAppl;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 import mb.nabl2.util.ImmutableTuple2;
+import mb.nabl2.util.Tuple2;
 
 @TypeSystemReference(Types.class)
 public class TransferFunction extends RootNode {
@@ -72,9 +74,9 @@ public class TransferFunction extends RootNode {
                 });
     }
 
-    public static <N extends ICFGNode> ITerm call(TransferFunctionAppl appl, TransferFunction[] tfs, ITerm arg) {
+    public static <N extends ICFGNode> ITerm call(TransferFunctionAppl appl, Map.Immutable<Tuple2<String, Integer>, TransferFunction> tfs, ITerm arg) {
         try {
-            return Types.expectITerm(Truffle.getRuntime().createCallTarget(tfs[appl.offset()]).call((Object[]) appl.args(arg)));
+            return Types.expectITerm(Truffle.getRuntime().createCallTarget(tfs.get(ImmutableTuple2.of(appl.moduleName(), appl.offset()))).call((Object[]) appl.args(arg)));
         } catch (UnexpectedResultException e) {
             throw new RuntimeException(e);
         }

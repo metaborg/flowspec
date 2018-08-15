@@ -11,13 +11,14 @@ import org.immutables.value.Value.Parameter;
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import mb.flowspec.runtime.interpreter.InitFunction;
-import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 import mb.flowspec.runtime.lattice.MapLattice;
 import mb.flowspec.runtime.solver.Metadata.Direction;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.ImmutableTuple3;
+import mb.nabl2.util.Tuple2;
 
 @Immutable
 public abstract class TransferFunctionInfo {
@@ -37,17 +38,8 @@ public abstract class TransferFunctionInfo {
         return ImmutableTransferFunctionInfo.of(dependsOn.freeze(), propMetadata.freeze());
     }
 
-    public void init(InitValues initValues) {
-        for (Entry<String, Metadata<?>> e : metadata().entrySet()) {
-            for (TransferFunction tf : e.getValue().transferFunctions()) {
-                tf.init(initValues);
-            }
-            e.getValue().lattice().init(initValues);
-        }
-    }
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static IMatcher<TransferFunctionInfo> match(LatticeInfo latticeInfo) {
+    public static IMatcher<TransferFunctionInfo> match(LatticeInfo latticeInfo, String moduleName) {
         Map.Transient<String, CompleteLattice> latticeDefs = latticeInfo.latticeDefs().asTransient();
         return M.listElems(tupleMatcher(), (list, tuples) -> {
             Map.Transient<String, Metadata<?>> propMetadata = Map.Transient.of();
@@ -58,8 +50,14 @@ public abstract class TransferFunctionInfo {
                 Direction dir = t4._2();
                 TransferFunction[] tfs = t4._3()._3();
                 Optional<InitFunction> init = t4._3()._2();
+                
+                Map.Transient<Tuple2<String, Integer>, TransferFunction> tfMap = Map.Transient.of();
+                for(int i = 0; i < tfs.length; i++) {
+                    TransferFunction tf = tfs[i];
+                    tfMap.__put(ImmutableTuple2.of(moduleName, i), tf);
+                }
 
-                propMetadata.__put(propName, ImmutableMetadata.of(dir, latticeFromType(latticeDefs, type), init, tfs));
+                propMetadata.__put(propName, ImmutableMetadata.of(dir, latticeFromType(latticeDefs, type), init, tfMap.freeze()));
             }
             return ImmutableTransferFunctionInfo.of(dependsOn.freeze(), propMetadata.freeze());
         });

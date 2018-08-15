@@ -3,32 +3,60 @@ package mb.flowspec.runtime.solver;
 import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Optional;
+import java.util.Map.Entry;
 
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
+import io.usethesource.capsule.BinaryRelation;
+import io.usethesource.capsule.Map;
+import mb.flowspec.runtime.interpreter.InitValues;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @Immutable
 public abstract class StaticInfo {
-    @Parameter public abstract TransferFunctionInfo transfers();
+    /// Strings are names of dataflow properties
+    @Parameter public abstract BinaryRelation.Immutable<String, String> dependsOn();
+    /// String is dataflow property name
+    @Parameter public abstract Map.Immutable<String, Metadata<?>> metadata();
     @Parameter public abstract FunctionInfo functions();
     @Parameter public abstract LatticeInfo lattices();
 
     public StaticInfo addAll(StaticInfo other) {
-        TransferFunctionInfo transfers = this.transfers().addAll(other.transfers());
+        BinaryRelation.Transient<String, String> dependsOn = this.dependsOn().asTransient();
+        other.dependsOn().entryIterator().forEachRemaining(e -> {
+            dependsOn.__insert(e.getKey(), e.getValue());
+        });
+        Map.Transient<String, Metadata<?>> metadata = this.metadata().asTransient();
+        other.metadata().entryIterator().forEachRemaining(e -> {
+            Metadata<?> md = metadata.get(e.getKey());
+            if(md == null) {
+                metadata.__put(e.getKey(), e.getValue());
+            } else {
+                metadata.__put(e.getKey(), md.addAll(e.getValue()));
+            }
+        });
         FunctionInfo functions = this.functions().addAll(other.functions());
         LatticeInfo lattices = this.lattices().addAll(other.lattices());
-        return ImmutableStaticInfo.of(transfers, functions, lattices);
+        return ImmutableStaticInfo.of(dependsOn.freeze(), metadata.freeze(), functions, lattices);
     }
 
-    public static IMatcher<StaticInfo> match() {
+    public void init(InitValues initValues) {
+        for (Entry<String, Metadata<?>> e : metadata().entrySet()) {
+            e.getValue().transferFunctions().valueIterator().forEachRemaining(tf -> {
+                tf.init(initValues);
+            });
+            e.getValue().lattice().init(initValues);
+        }
+    }
+
+    public static IMatcher<StaticInfo> match(String moduleName) {
         return (term, unifier) ->
             Optional.of(
                 M.tuple3(M.term(), LatticeInfo.match(), FunctionInfo.match(), (t, tf, l, f) ->
-                    TransferFunctionInfo.match(l)
+                    TransferFunctionInfo.match(l, moduleName)
                         .match(tf, unifier)
-                        .map(tf1 -> (StaticInfo) ImmutableStaticInfo.of(tf1, f, l))
+                        .map(tf1 -> (StaticInfo) ImmutableStaticInfo.of(tf1.dependsOn(), tf1.metadata(), f, l))
                 )
                 .flatMap(i -> i)
                 .match(term, unifier)
@@ -37,6 +65,6 @@ public abstract class StaticInfo {
     }
 
     public static StaticInfo of() {
-        return ImmutableStaticInfo.of(ImmutableTransferFunctionInfo.of(), ImmutableFunctionInfo.of(), ImmutableLatticeInfo.of());
+        return ImmutableStaticInfo.of(BinaryRelation.Immutable.of(), Map.Immutable.of(), ImmutableFunctionInfo.of(), ImmutableLatticeInfo.of());
     }
 }

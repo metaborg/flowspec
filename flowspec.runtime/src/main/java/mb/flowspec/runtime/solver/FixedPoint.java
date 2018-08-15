@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-import java.util.stream.StreamSupport;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import org.metaborg.util.Ref;
 import org.metaborg.util.log.ILogger;
@@ -48,11 +48,10 @@ public class FixedPoint {
         this.timingInfo = new FixedPoint.TimingInfo();
     }
     public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo) {
-        return entryPoint(nabl2solution, staticInfo, staticInfo.transfers().metadata().keySet());
+        return entryPoint(nabl2solution, staticInfo, staticInfo.metadata().keySet());
     }
 
     public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo, Collection<String> propNames) {
-        TransferFunctionInfo tfFileInfo = staticInfo.transfers();
         this.solution = nabl2solution.flowSpecSolution();
         final ICompleteControlFlowGraph.Immutable<CFGNode> cfg = solution.controlFlowGraph();
         preProperties.__putAll(solution.preProperties());
@@ -73,14 +72,14 @@ public class FixedPoint {
                                                        staticInfo.functions().functions(), 
                                                        staticInfo.lattices().latticeDefs())
                 .withNameResolutionCache(nabl2solution.nameResolutionCache());
-        tfFileInfo.init(initValues);
+        staticInfo.init(initValues);
 
         timingInfo.recordInterpInit();
 
         logger.debug("SCCs:" + cfg.topoSCCs());
 
         try {
-            solve(cfg, tfFileInfo, propNames);
+            solve(cfg, staticInfo, propNames);
 
             timingInfo.recordEnd();
             timingInfo.logReport(logger);
@@ -98,10 +97,10 @@ public class FixedPoint {
     }
 
     @SuppressWarnings("unchecked")
-    private void solve(ICompleteControlFlowGraph.Immutable<CFGNode> cfg, TransferFunctionInfo tfFileInfo, Collection<String> propNames)
+    private void solve(ICompleteControlFlowGraph.Immutable<CFGNode> cfg, StaticInfo staticInfo, Collection<String> propNames)
             throws CyclicGraphException, FixedPointLimitException {
         // Check that all given property names exists, and meanwhile check if this is the full list of property names
-        Set<String> allProps = new HashSet<>(tfFileInfo.metadata().keySet());
+        Set<String> allProps = new HashSet<>(staticInfo.metadata().keySet());
         for(String propName : propNames) {
             if(!allProps.contains(propName)) {
                 logger.warn("Given property {} cannot be found", propName);
@@ -112,9 +111,9 @@ public class FixedPoint {
         Iterable<String> propTopoOrder;
         // If the full list of property names was given, we can simply find the topo order on the full dependency graph
         if(allProps.isEmpty()) {
-            propTopoOrder = Algorithms.topoSort(propNames, tfFileInfo.dependsOn().inverse());
+            propTopoOrder = Algorithms.topoSort(propNames, staticInfo.dependsOn().inverse());
         } else {
-            propTopoOrder = Algorithms.topoDeps(propNames, tfFileInfo.dependsOn());
+            propTopoOrder = Algorithms.topoDeps(propNames, staticInfo.dependsOn());
         }
 
         timingInfo.recordReverseTopo();
@@ -122,7 +121,7 @@ public class FixedPoint {
         for (String prop : propTopoOrder) {
             // remove artificial start used earlier to include all properties in the dependency graph
             if(prop != ARTIFICIAL_PROPERTY) {
-                solveFlowSensitiveProperty(cfg, prop, (Metadata<ITerm>) tfFileInfo.metadata().get(prop));
+                solveFlowSensitiveProperty(cfg, prop, (Metadata<ITerm>) staticInfo.metadata().get(prop));
                 timingInfo.recordProperty(prop);
             }
         }
