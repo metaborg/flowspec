@@ -1,0 +1,241 @@
+module flowspec/static-semantics/expr
+
+imports
+
+  signatures/flowspec/-
+
+  flowspec/static-semantics/signatures
+
+// Expr
+rules
+
+  Expr [[ Term(cons, exprs) ^ (ruleScope) ]] :=
+    Map1(Expr) [[ exprs ^ (ruleScope) ]].
+
+  Expr [[ PropOrAppl(name, x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> _,
+    Property { name } -> ruleScope,
+//    Property { name } |-> _,
+    Variable { name } -> ruleScope.
+//    Variable { name } |-> _.
+
+  Expr [[ Prop(prop, var) ^ (ruleScope) ]] :=
+    Property { prop } -> ruleScope,
+    Property { prop } |-> _,
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+
+  Expr [[ Tuple(expr, exprs) ^ (ruleScope) ]] :=
+    Expr [[ expr ^ (ruleScope) ]],
+    Map1(Expr) [[ exprs ^ (ruleScope) ]].
+  
+  Expr [[ Start() ^ (ruleScope) ]].
+  Expr [[ End() ^ (ruleScope) ]].
+  
+  Expr [[ Type(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+  
+  Expr [[ Appl(ref, exprs) ^ (ruleScope) ]] :=
+    FunRef[[ ref ^ (ruleScope) ]],
+    Map1(Expr) [[ exprs ^ (ruleScope) ]].
+  
+  Expr [[ If(c, t, e) ^ (ruleScope) ]] :=
+    Expr [[ c ^ (ruleScope) ]],
+    Expr [[ t ^ (ruleScope) ]],
+    Expr [[ e ^ (ruleScope) ]].
+  
+  Expr [[ Eq(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ NEq(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ And(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Or(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Not(e) ^ (ruleScope) ]] :=
+    Expr [[ e ^ (ruleScope) ]].
+  
+  Expr [[ Lt(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Lte(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Gt(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Gte(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Add(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Sub(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Mul(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Div(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Mod(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ Neg(e) ^ (ruleScope) ]] :=
+    Expr [[ e ^ (ruleScope) ]].
+  
+  Expr [[ Match(e, arms) ^ (ruleScope) ]] :=
+    Expr [[ e ^ (ruleScope) ]],
+    Map1 [[ arms ^ (ruleScope) ]].
+  
+  Expr [[ SetLiteral(exprs) ^ (ruleScope) ]] :=
+    Map1(Expr) [[ exprs ^ (ruleScope) ]].
+
+  Expr [[ SetComp(expr, setcompexprs) ^ (ruleScope) ]] :=
+    new setCompScope,
+    setCompScope ---> ruleScope,
+    Expr [[ expr ^ (setCompScope) ]],
+    Map1 [[ setcompexprs ^ (setCompScope) ]].
+  
+  Expr [[ MapLiteral(bindings) ^ (ruleScope) ]] :=
+    Map1 [[ bindings ^ (ruleScope) ]].
+
+  Expr [[ MapComp(binding, mapcompexprs) ^ (ruleScope) ]] :=
+    new mapCompScope,
+    mapCompScope ---> ruleScope,
+    [[ binding ^ (mapCompScope) ]],
+    Map1 [[ mapcompexprs ^ (mapCompScope) ]].
+  
+  Expr [[ MapLookup(expr1, expr2) ^ (ruleScope) ]] :=
+    Expr [[ expr1 ^ (ruleScope) ]],
+    Expr [[ expr2 ^ (ruleScope) ]].
+
+  Expr [[ EmptySetOrMapLiteral() ^ (ruleScope) ]].
+  
+  [[ Predicate(expr) ^ (setCompScope) ]] :=
+    Expr [[ expr ^ (setCompScope) ]].
+  
+  [[ MatchPredicate(e, arms) ^ (setCompScope) ]] :=
+    Expr [[ e ^ (ruleScope) ]],
+    Map1 [[ arms ^ (ruleScope) ]].
+  
+  [[ SetSource(pattern, expr) ^ (setCompScope) ]] :=
+    Pattern [[ pattern ^ (setCompScope) ]],
+    Expr [[ expr ^ (setCompScope) ]].
+  
+  [[ MapSource(pattern1, pattern2, expr) ^ (setCompScope) ]] :=
+    Pattern [[ pattern1 ^ (setCompScope) ]],
+    Pattern [[ pattern2 ^ (setCompScope) ]],
+    Expr [[ expr ^ (setCompScope) ]].
+  
+  [[ MapBinding(expr1, expr2) ^ (setCompScope) ]] :=
+    Expr [[ expr1 ^ (setCompScope) ]],
+    Expr [[ expr2 ^ (setCompScope) ]].
+  
+  Expr [[ TermIndex(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+  
+  Expr [[ NaBL2Occurrence(Occurrence(namespace, Ref(var), FSNoIndex())) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+  
+  Expr [[ SetUnion(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ SetDifference(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ SetContains(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  Expr [[ SetIntersection(l, r) ^ (ruleScope) ]] :=
+    Expr [[ l ^ (ruleScope) ]],
+    Expr [[ r ^ (ruleScope) ]].
+  
+  [[ MatchArm(pattern, expr) ^ (ruleScope) ]] :=
+    new armScope,
+    armScope ---> ruleScope,
+    Pattern [[ pattern ^ (armScope) ]],
+    Expr [[ expr ^ (armScope) ]].
+  
+  [[ MatchArm(pattern) ^ (ruleScope) ]] :=
+    Pattern [[ pattern ^ (ruleScope) ]].
+
+  Expr [[ Int(_) ^ (ruleScope) ]].
+  Expr [[ String(_) ^ (ruleScope) ]].
+  Expr [[ True() ^ (ruleScope) ]].
+  Expr [[ False() ^ (ruleScope) ]].
+
+  Expr [[ QualRef(mod, var) ^ (ruleScope) ]] :=
+    Module { mod } -> ruleScope,
+//    Module { mod } |-> _,
+    Module { mod } <=== qualRefScope,
+    Variable { var } -> qualRefScope.
+//    Variable { var } |-> _.
+
+  FunRef [[ QualRef(mod, var) ^ (ruleScope) ]] :=
+    Module { mod } -> ruleScope,
+//    Module { mod } |-> _,
+    Module { mod } <=== qualRefScope,
+    Variable { var } -> qualRefScope.
+//    Variable { var } |-> _.
+
+  Expr [[ Ref(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+
+  FunRef [[ Ref(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope,
+    Variable { var } |-> _.
+
+  Expr [[ TopOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  Expr [[ BottomOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  FunRef [[ LubOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  FunRef [[ GlbOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  FunRef [[ LeqOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  FunRef [[ GeqOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.
+
+  FunRef [[ NLeqOf(var) ^ (ruleScope) ]] :=
+    Variable { var } -> ruleScope.
+//    Variable { var } |-> _.

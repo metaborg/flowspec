@@ -1,0 +1,121 @@
+module flowspec/static-semantics/type
+
+imports
+
+  signatures/flowspec/-
+
+  flowspec/static-semantics/signatures
+
+// Types
+rules
+
+  [[ TypeDef(name, vars, constrs) ^ (moduleScope) ]] :=
+    Type { name } <- moduleScope,
+    typeDefScope ---> moduleScope,
+    Type { name } ===> typeDefScope,
+    Map1(Var) [[ vars ^ (typeDefScope) ]],
+    Map1 [[ constrs ^ (typeDefScope) ]],
+    new typeDefScope.
+
+  Var [[ v ^ (typeDefScope) ]] :=
+    Type { v } -> typeDefScope,
+    Type { v } |-> _.
+
+  [[ ConsDef(name, tovs) ^ (typeDefScope) ]] :=
+    Constructor { name } <- typeDefScope,
+    Map1(Type) [[ tovs ^ (typeDefScope) ]].
+
+  Type [[ Var(v) ^ (typeDefScope) ]] :=
+    Type { v } -> typeDefScope,
+    Type { v } |-> _.
+
+  [[ LatticeDef(name, vars, latticeparts) ^ (moduleScope) ]] :=
+    Type { name } <- moduleScope,
+    latticeDefScope ---> moduleScope,
+    Type { name } ===> latticeDefScope,
+    Map1(Var) [[ vars ^ (latticeDefScope) ]],
+    Map1 [[ latticeparts ^ (latticeDefScope) ]],
+    new latticeDefScope.
+
+  [[ Type(type) ^ (latticeDefScope) ]] :=
+    Type [[ type ^ (latticeDefScope) ]],
+    Type { Type() } <- latticeDefScope.
+    // Type { Type() } : ty.
+
+  [[ Lub(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { Lub() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+    Expr [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ Glb(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { Glb() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+    Expr [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ Leq(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { Leq() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+    Expr [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ Geq(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { Geq() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+    Expr [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ NLeq(var1, var2, expr) ^ (latticeDefScope) ]] :=
+    Variable { NLeq() } <- latticeDefScope,
+    funScope ---> latticeDefScope,
+    Variable { var1 } <- funScope,
+    Variable { var2 } <- funScope,
+    Expr [[ expr ^ (funScope) ]],
+    new funScope.
+
+  [[ Top(expr) ^ (latticeDefScope) ]] :=
+    Variable { Top() } <- latticeDefScope,
+    Expr [[ expr ^ (latticeDefScope) ]].
+
+  [[ Bottom(expr) ^ (latticeDefScope) ]] :=
+    Variable { Bottom() } <- latticeDefScope,
+    Expr [[ expr ^ (latticeDefScope) ]].
+
+  Type [[ Name() ^ (moduleScope) ]].
+
+  Type [[ Term() ^ (moduleScope) ]].
+
+  Type [[ Index() ^ (moduleScope) ]].
+
+  Type [[ Int() ^ (moduleScope) ]].
+
+  Type [[ String() ^ (moduleScope) ]].
+
+  Type [[ Float() ^ (moduleScope) ]].
+
+  Type [[ Bool() ^ (moduleScope) ]].
+
+  Type [[ UserType(name, types) ^ (moduleScope) ]] :=
+    Type { name } -> moduleScope,
+//    Type { name } |-> dName,
+    Map1(Type) [[ types ^ (moduleScope) ]].
+
+  Type [[ Tuple(type1, type2) ^ (moduleScope) ]] :=
+    Type [[ type1 ^ (moduleScope) ]],
+    Type [[ type2 ^ (moduleScope) ]].
+
+  Type [[ Map(type1, type2) ^ (moduleScope) ]] :=
+    Type [[ type1 ^ (moduleScope) ]],
+    Type [[ type2 ^ (moduleScope) ]].
+
+  Type [[ Set(type) ^ (moduleScope) ]] :=
+    Type [[ type ^ (moduleScope) ]].

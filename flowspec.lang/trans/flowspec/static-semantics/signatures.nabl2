@@ -1,0 +1,23 @@
+module flowspec/static-semantics/signatures
+
+signature
+  name resolution
+    namespaces
+      Module Property Type Variable Constructor
+
+  constructors
+    Prop   : Type -> Type
+    Term   : Type
+    Map    : Type * Type -> Type
+    Set    : Type -> Type
+    Name   : Type
+    Origin : Type
+    Lub    : LatticeComponent
+    Glb    : LatticeComponent
+    Leq    : LatticeComponent
+    Geq    : LatticeComponent
+    NLeq   : LatticeComponent
+    Top    : LatticeComponent
+    Bottom : LatticeComponent
+    Normal   : PropKind
+    External : PropKind

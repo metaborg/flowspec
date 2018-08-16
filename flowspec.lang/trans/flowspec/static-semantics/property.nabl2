@@ -1,0 +1,41 @@
+module flowspec/static-semantics/property
+
+imports
+
+  signatures/flowspec/-
+
+  flowspec/static-semantics/signatures
+
+// Properties
+rules
+
+  [[ ExtPropDef(name, type) ^ (moduleScope) ]] :=
+    Property { name } <- moduleScope,
+    Property { name }.kind := External(),
+    Type [[ type ^ (moduleScope) ]].
+
+  [[ PropDef(name, type) ^ (moduleScope) ]] :=
+    Property { name } <- moduleScope,
+    Property { name }.kind := Normal(),
+    Type [[ type ^ (moduleScope) ]].
+
+// Property rules
+rules
+
+  [[ PropRule(prop, pattern, expr, whereclause) ^ (moduleScope) ]] :=
+    ruleScope ---> moduleScope,
+    PropPattern [[ pattern ^ (propDef, ruleScope) ]],
+    Property { prop } -> ruleScope,
+    Property { prop } |-> propDef,
+    propDef.kind := Normal() | error $[Cannot define rules of external property] @prop,
+    Expr [[ expr ^ (ruleScope) ]],
+    [[ whereclause ^ (ruleScope) ]],
+    new ruleScope.
+
+  [[ NoWhereClause() ^ (ruleScope) ]].
+  [[ WhereClause(bindings) ^ (ruleScope) ]] :=
+    Map1 [[ bindings ^ (ruleScope) ]].
+
+  [[ Binding(var, expr) ^ (ruleScope) ]] :=
+    Expr [[ expr ^ (ruleScope) ]],
+    Variable { var } <- ruleScope.

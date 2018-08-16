@@ -1,0 +1,21 @@
+module flowspec/static-semantics/main
+
+imports
+
+  signatures/flowspec/-
+
+  flowspec/static-semantics/signatures
+
+// Main
+rules
+
+  [[ FunDef(var, args, expr) ^ (moduleScope) ]] :=
+    Variable { var } <- moduleScope,
+    ruleScope ---> moduleScope,
+    Map1 [[ args ^ (ruleScope) ]],
+    Expr [[ expr ^ (ruleScope) ]],
+    new ruleScope.
+
+  [[ Arg(var, ty) ^ (ruleScope) ]] :=
+    Type [[ ty ^ (ruleScope) ]],
+    Variable { var } <- ruleScope.

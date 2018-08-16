@@ -1,0 +1,55 @@
+module flowspec/static-semantics/pattern
+
+imports
+
+  signatures/flowspec/-
+
+  flowspec/static-semantics/signatures
+
+// Pattern
+rules
+
+  PropPattern [[ Backward(patt, var) ^ (propDef, ruleScope) ]] :=
+    Variable { var } <- ruleScope,
+    propDef.direction := Bw(),
+    PropCFGNodePattern [[ patt ^ (ruleScope) ]].
+  PropPattern [[ Forward(var, patt) ^ (propDef, ruleScope) ]] :=
+    Variable { var } <- ruleScope,
+    propDef.direction := Fw(),
+    PropCFGNodePattern [[ patt ^ (ruleScope) ]].
+
+  PropPattern [[ Start(patt) ^ (propDef, ruleScope) ]] :=
+    propDef.direction := Fw(),
+    Pattern [[ patt ^ (ruleScope) ]].
+  PropPattern [[ End(patt) ^ (propDef, ruleScope) ]] :=
+    propDef.direction := Bw(),
+    Pattern [[ patt ^ (ruleScope) ]].
+
+  PropCFGNodePattern [[ Entry(patt) ^ (ruleScope) ]] :=
+    Pattern [[ patt ^ (ruleScope) ]].
+  PropCFGNodePattern [[ Exit(patt) ^ (ruleScope) ]] :=
+    Pattern [[ patt ^ (ruleScope) ]].
+  PropCFGNodePattern [[ patt ^ (ruleScope) ]] :=
+    Pattern [[ patt ^ (ruleScope) ]].
+
+  Pattern [[ Term(_, patterns) ^ (ruleScope) ]] :=
+    Map1(Pattern) [[ patterns ^ (ruleScope) ]].
+
+  Pattern [[ Tuple(patt1, patts) ^ (ruleScope) ]] :=
+    Pattern [[ patt1 ^ (ruleScope) ]],
+    Map1(Pattern) [[ patts ^ (ruleScope) ]].
+
+  Pattern [[ Wildcard() ^ (ruleScope) ]].
+
+  Pattern [[ Var(x) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope.
+
+  Pattern [[ At(x, pattern) ^ (ruleScope) ]] :=
+    Variable { x } <- ruleScope,
+    Pattern [[ pattern ^ (ruleScope) ]].
+
+  // Literals
+  Pattern [[ Int(_) ^ (_) ]].
+  Pattern [[ String(_) ^ (_) ]].
+  Pattern [[ True() ^ (_) ]].
+  Pattern [[ False() ^ (_) ]].

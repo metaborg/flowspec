@@ -1,0 +1,52 @@
+module flowspec/static-semantics/flow
+
+imports
+
+  signatures/flowspec/-
+
+  flowspec/static-semantics/signatures
+
+// Flow
+rules
+
+  [[ CFGRule(root, pattern, chains) ^ (moduleScope) ]] :=
+    ruleScope ---> moduleScope,
+    Pattern [[ pattern ^ (ruleScope) ]],
+    [[ root ^ (ruleScope) ]],
+    Variable { Start() } <- ruleScope,
+    Variable { End() } <- ruleScope,
+    Map1 [[ chains ^ (ruleScope) ]],
+    new ruleScope.
+
+  [[ NoRoot() ^ (ruleScope) ]] :=
+    Variable { Entry() } <- ruleScope,
+    Variable { Exit() } <- ruleScope.
+
+  [[ Root() ^ (ruleScope) ]].
+
+  [[ Chain(elements) ^ (ruleScope) ]] :=
+    Map1 [[ elements ^ (ruleScope) ]].
+
+  [[ Recurse(x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> _.
+
+  [[ Ref(x) ^ (ruleScope) ]] :=
+    Variable { x } -> ruleScope,
+    Variable { x } |-> _.
+
+  [[ e@Entry() ^ (ruleScope) ]] :=
+    Variable { e } -> ruleScope,
+    Variable { e } |-> _.
+
+  [[ e@Exit() ^ (ruleScope) ]] :=
+    Variable { e } -> ruleScope,
+    Variable { e } |-> _.
+
+  [[ e@Start() ^ (ruleScope) ]] :=
+    Variable { e } -> ruleScope,
+    Variable { e } |-> _.
+
+  [[ e@End() ^ (ruleScope) ]] :=
+    Variable { e } -> ruleScope,
+    Variable { e } |-> _.

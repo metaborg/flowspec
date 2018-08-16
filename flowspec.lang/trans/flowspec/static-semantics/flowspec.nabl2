@@ -1,0 +1,41 @@
+module flowspec/static-semantics/flowspec
+
+imports
+
+  signatures/flowspec/-
+
+  flowspec/static-semantics/signatures
+
+rules
+
+// flowspec
+
+  init ^ (global) :=
+    Type { "MaySet" } <- global,
+    Type { "MustSet" } <- global,
+    Module { "Set" } <- global,
+    Module { "Set" } ===> setScope,
+    Variable { "fromList" } <- setScope,
+    new setScope,
+    setScope ---> global,
+    new global.
+
+  [[ Module(module, imports, _, definitions) ^ (global) ]] :=
+    Module { module } <- global,
+    moduleScope ---> global,
+    Module { module } ===> moduleScope,
+    Map1 [[ imports ^ (moduleScope) ]],
+    Map1 [[ definitions ^ (moduleScope) ]],
+    distinct/name D(global)/Module,
+    distinct/name D(moduleScope)/Property,
+    distinct/name D(moduleScope)/Type,
+    distinct/name D(moduleScope)/Variable,
+    0 seteq (D(moduleScope)/Variable isect/name D(moduleScope)/Property) | error $[Property and function names may not overlap: [NAME]] @NAMES,
+    new moduleScope.
+
+  [[ Import(mod) ^ (moduleScope) ]] :=
+    Module { mod } -> moduleScope,
+    Module { mod } |-> _,
+    Module { mod } <=== moduleScope.
+
+  [[ ExtImport(mod) ^ (moduleScope) ]].
