@@ -19,7 +19,7 @@ import mb.nabl2.controlflow.terms.IFlowSpecSolution;
 import mb.nabl2.solver.ISolution;
 import mb.nabl2.solver.SolverCore;
 import mb.nabl2.solver.components.ControlFlowComponent;
-import mb.nabl2.spoofax.analysis.IScopeGraphUnit;
+import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.spoofax.primitives.AnalysisPrimitive;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.unification.PersistentUnifier;
@@ -32,21 +32,21 @@ public class FS_build_cfg extends AnalysisPrimitive {
     }
 
     @Override
-    protected Optional<? extends ITerm> call(IScopeGraphUnit unit, ITerm term,
+    protected Optional<? extends ITerm> call(IResult result, ITerm term,
             List<ITerm> terms) throws InterpreterException {
-        if(unit.solution().isPresent()) {
-            return call(unit, term).map(B::newBlob);
+        if(!result.partial()) {
+            return call(result, term).map(B::newBlob);
         } else {
             return Optional.empty();
         }
     }
 
-    private Optional<IScopeGraphUnit> call(IScopeGraphUnit unit, ITerm term) {
-        return M.listElems(ControlFlowConstraints.matcher(), (l, constraints) -> buildCfg(unit, constraints)).match(term);
+    private Optional<IResult> call(IResult result, ITerm term) {
+        return M.listElems(ControlFlowConstraints.matcher(), (l, constraints) -> buildCfg(result, constraints)).match(term);
     }
 
-    private IScopeGraphUnit buildCfg(IScopeGraphUnit unit, List<IControlFlowConstraint> constraints) {
-        ISolution solution = unit.solution().get();
+    private IResult buildCfg(IResult result, List<IControlFlowConstraint> constraints) {
+        ISolution solution = result.solution();
         SolverCore core = new SolverCore(null, new Ref<>(PersistentUnifier.Immutable.of()), null);
         ControlFlowComponent cfc = new ControlFlowComponent(core, solution.flowSpecSolution());
         for(IControlFlowConstraint flowConstraint : constraints) {
@@ -58,6 +58,6 @@ public class FS_build_cfg extends AnalysisPrimitive {
         logger.debug("CFG has {} nodes and {} edges", cfg.nodes().size(), cfg.edges().size());
 
         solution = solution.withFlowSpecSolution(fsSolution);
-        return unit.withSolution(solution);
+        return result.withSolution(solution);
     }
 }
