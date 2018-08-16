@@ -10,10 +10,11 @@ imports
   nabl2/shared/common/ScopeGraph
   nabl2/shared/constraints/AST
   flowspec/runtime/Nodes
+  flowspec/Common
 
 context-free syntax
 
-  FSConstraint.CTFAppl = <<NaBL2-TermIndex>.<NaBL2-AstPropertyId>:<NaBL2-INT> := [<{NaBL2-CTerm ", "}*>]>
+  FSConstraint.CTFAppl = <<NaBL2-TermIndex>.<NaBL2-AstPropertyId>:<ModuleName>.<NaBL2-INT> := [<{NaBL2-CTerm ", "}*>]>
 
   FSConstraint.CTFIdentityAppl = <<NaBL2-TermIndex>.<NaBL2-AstPropertyId> = identity>
 
