@@ -52,9 +52,10 @@ rules // Debugging
   generate-all =
     where(
       ?(m, _, _, _, _)
-    ; not(<nabl2-get-ast-analysis;nabl2-analysis-has-errors> m
-         ; !"NaBL2 errors keep transfer function file from updating. "
-         ; debug))
+//    ; not(<nabl2-get-ast-analysis;nabl2-analysis-has-errors> m
+//         ; !"NaBL2 errors keep transfer function file from updating. "
+//         ; debug)
+    )
   ; (post-desugar-all, id, id, id, id)
   ; where(generate-stratego';write-string-to-file)
   ; where(generate-static-info';write-string-to-file)
