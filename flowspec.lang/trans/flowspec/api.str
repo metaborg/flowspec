@@ -13,6 +13,10 @@ libspoofax/stratego/debug
 
 strategies
 
+/**
+ * Provides a strategy for a hover message with as much information as possible about name, type
+ * (from NaBl2) and FlowSpec properties. 
+ */
 flowspec-editor-hover(language-pp) = flowspec--editor-hover(language-pp)
 
 /**
@@ -38,12 +42,39 @@ flowspec-get-property-pre(|a, propname) = flowspec--get-property-pre(|a, propnam
 flowspec-get-property-post(|a, propname) = flowspec--get-property-post(|a, propname)
 
 /**
+ * Get the property of the control flow graph node associated with
+ * the given term. The value returned is the value of the property
+ * _after_ the effect of the control flow graph node. If no node
+ * is found the exit control flow graph node of the AST node is
+ * queried for its post-effect property value. 
+ *
+ * @param a : Analysis
+ * @param prop : String
+ * @type term:Term -> Term
+ */
+flowspec-get-property-post-or-exit-post(|analysis-result, analysis-name) =
+  flowspec-get-property-post(|analysis-result, analysis-name)
+  <+ ( flowspec-get-cfg-exit-node(|analysis-result)
+     ; flowspec-get-property-post(|analysis-result, analysis-name) )
+
+/**
  * Analyze the given AST with NaBL2 and FlowSpec
  *
  * @param resource:String
  * @type ast:Term -> (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage))
  */
-flowspec-analyze-ast(|resource) = flowspec-analyze-ast(|resource, <flowspec--prop-names>)
+flowspec-analyze-ast(|resource) = flowspec-analyze-ast(id,id|resource, <flowspec--prop-names>)
+
+/**
+ * Analyze the given AST with NaBL2 and FlowSpec.
+ * Transform the AST with pre before the FlowSpec analysis, and with post after the FlowSpec analysis.
+ *
+ * @param pre:Term -> Term
+ * @param post:Term -> Term
+ * @param resource:String
+ * @type ast:Term -> (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage))
+ */
+flowspec-analyze-ast(pre,post|resource) = flowspec-analyze-ast(pre,post|resource, <flowspec--prop-names>)
 
 /**
  * Analyze the given AST with NaBL2 and FlowSpec, but only the given FlowSpec properties.
@@ -52,12 +83,25 @@ flowspec-analyze-ast(|resource) = flowspec-analyze-ast(|resource, <flowspec--pro
  * @param propnames:String or List(String)
  * @type ast:Term -> (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage))
  */
-flowspec-analyze-ast(|resource, propnames) = where(<is-string> propnames); flowspec-analyze-ast(|resource, [propnames])
-flowspec-analyze-ast(|resource, propnames): ast -> (ast', analysis'', errors, warnings, notes)
+flowspec-analyze-ast(|resource, propname) = flowspec-analyze-ast(id,id|resource, propname)
+
+/**
+ * Analyze the given AST with NaBL2 and FlowSpec, but only the given FlowSpec properties.
+ * Transform the AST with pre before the FlowSpec analysis, and with post after the FlowSpec analysis.
+ *
+ * @param pre:Term -> Term
+ * @param post:Term -> Term
+ * @param resource:String
+ * @param propnames:String or List(String)
+ * @type ast:Term -> (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage))
+ */
+flowspec-analyze-ast(pre,post|resource, propname) = where(<is-string> propname); flowspec-analyze-ast(pre,post|resource, [propname])
+flowspec-analyze-ast(pre,post|resource, propnames): ast -> (<post> ast2, analysis2, errors, warnings, notes)
 where
-  ((ast', analysis, errors, warnings, notes), nabl2-time-diff) := <profile(nabl2-analyze-ast(|resource))> ast
-; (analysis', flowspec-cfg-time-diff) := <profile(flowspec--generate-cfg; flowspec--build-cfg(|analysis))> ast'
-; (analysis'', flowspec-prop-time-diff) := <profile(flowspec--solve(|analysis', propnames))> ast'
+  ((ast1, analysis, errors, warnings, notes), nabl2-time-diff) := <profile(nabl2-analyze-ast(|resource))> ast
+; ast2 := <pre> ast1
+; (analysis1, flowspec-cfg-time-diff) := <profile(flowspec--generate-cfg; flowspec--build-cfg(|analysis))> ast2
+; (analysis2, flowspec-prop-time-diff) := <profile(flowspec--solve(|analysis1, propnames))> ast2
 ; if flowspec-debug-profile then
     <debug> $[nabl2: [<ticks-to-seconds> nabl2-time-diff]]
     ;
@@ -66,6 +110,51 @@ where
     <debug> $[flowspec (property solving): [<ticks-to-seconds> flowspec-prop-time-diff]]
   end
 
+/**
+ * Take the analyze-ast 5-tuple output and return the result of applying the given strategy to the AST.
+ * Note that the strategy takes the analysis object as a term argument.
+ *
+ * @param s(|Analysis): Term -> Term
+ * @type ast: (ast:Term, Analysis, errors:List(EditorMessage), warnings:List(EditorMessage), notes:List(EditorMessage)) -> Term
+ */
+flowspec-then(s): (ast, analysis, _, _, _) -> <s(|analysis)> ast
+
+/**
+ * Analyze the given AST with NaBL2 and FlowSpec, but only the given FlowSpec properties.
+ * Then return the result of applying the given strategy to the AST. 
+ * Note that the strategy takes the analysis object as a term argument.
+ *
+ * @param s(|Analysis): Term -> Term
+ * @param resource:String
+ * @param propnames:String or List(String)
+ * @type ast:Term -> Term
+ */
+flowspec-analyze-ast-then(s|resource, propnames) =
+  flowspec-analyze-ast-then(id, id, s|resource, propnames)
+
+/**
+ * Analyze the given AST with NaBL2 and FlowSpec, but only the given FlowSpec properties.
+ * Transform the AST with pre before the FlowSpec analysis, and with post after the FlowSpec analysis.
+ * Then return the result of applying the given strategy to the AST. 
+ * Note that the strategy takes the analysis object as a term argument.
+ *
+ * @param pre:Term -> Term
+ * @param post:Term -> Term
+ * @param s(|Analysis): Term -> Term
+ * @param resource:String
+ * @param propnames:String or List(String)
+ * @type ast:Term -> Term
+ */
+flowspec-analyze-ast-then(pre, post, s|resource, propnames) =
+  flowspec-analyze-ast(pre, post|resource, propnames)
+; \(ast, analysis, _, _, _) -> <s(|analysis)> ast\
+// Note that using flowspec-then instead of the inlined rule doesn't work because of limited
+//  strategy argument support in Stratego
+
+/**
+ * If flowspec-debug-profile is extended to succeed, some timing information will be printed in
+ * stderr when using flowspec-analyze*.
+ */
 flowspec-debug-profile = false
 
 /**
@@ -162,7 +251,24 @@ flowspec-cfg-node-ast(parent|ast): CFGNode(pos, _, _) ->
 flowspec-pos-ast(parent|ast): pos ->
   <collect-one(where(parent;flowspec-get-position;?pos))> ast
 
+/**
+ * Get the position of an AST node.
+ *
+ * @type Term -> Position
+ */
 flowspec-get-position = nabl2-get-ast-index
+
+/**
+ * Check if a FlowSpec Set contains an element. Succeeds if the given strategy succeeds for at
+ * least one element.
+ *
+ * @param s: Term -?>
+ * @type FlowSpecSet -?> FlowSpecSet
+ */
+flowspec-set-contains(s):
+  Set(l) -> <where(getfirst(s))> l
+
+strategies // The following are used/extended by generated code
 
 flowspec--proprule-rec(flowspec--proprule) =
   flowspec--proprule <+ (!${Missing FlowSpec cfg rule for {<nabl2--pp-flat-term>}}; debug; ![])
@@ -173,16 +279,6 @@ where
 ; result := <flowspec--generate-cfg-inner> ast
 ; try(flowspec-debug-profile;length;debug(|"flowspec, cfg edge list size: "))
 
-strategies // The following are used/extended by generated code
-
-flowspec--generate-cfg-inner = fail
-
-flowspec--prop-names = fail
-
-flowspec--constraint-list-to-cconj(index) = constraint-list-to-cconj(index)
-
-flowspec--cfg-node(|index,kind): n -> CFGNode(index, n, kind)
-
 flowspec--proprule(|index): term -> constr*
 with (constr*, _) :=
   <repeat(\(constr, files) -> <flowspec--proprule(|index, constr, files)> term\)> ([], [])
@@ -190,5 +286,11 @@ with (constr*, _) :=
 flowspec--proprule(|index, constr, files) = fail
 
 flowspec--prop-names = <repeat(flowspec--add-prop-names)> []
+
+flowspec--cfg-node(|index,kind): n -> CFGNode(index, n, kind)
+
+flowspec--generate-cfg-inner = fail
+
+flowspec--prop-names = fail
 
 flowspec--add-prop-names = fail
