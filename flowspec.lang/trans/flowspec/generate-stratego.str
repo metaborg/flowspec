@@ -92,16 +92,16 @@ with
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*
 ; propnames := <retain-all(?PropDef(<id>, _))> def*
 ; matchpropsstring := <gen-match-prop-string> propnames
-; propoverlays := <map(\n -> ${  {n}() = "{n}"}\);lines_> propnames
+; propoverlays := <map(\n -> ${  flowspec-prop-{n}() = "{n}"}\);lines_> propnames
 ; propstring := <number-prop-rules(|a, <map(nabl2-mk-occurrence(|"Property"))> propnames);gen-prop-str(|modulename, propnames);lines_> proprule*
-; propnamesstring := <map(!${{<id>}()});csv-lines> propnames
+; propnamesstring := <map(!${flowspec-prop-{<id>}()});csv-lines> propnames
 
 gen-match-prop-string =
   let
     kinds = !["Start", "End", "Entry", "Exit", "Normal"]
   in
     map(\n ->
-      ${; if <getfirst(?{n}())> really-new* then
+      ${; if <getfirst(?flowspec-prop-{n}())> really-new* then
             {<kinds;map(\kind -> ${try(![ <flowspec--proprule-{n}-{kind}(|index)> term | <id> ])} \);semi-lines> n}
           end}
     \)
@@ -269,7 +269,7 @@ with id
 ; vars          := <pattern-vars(|"match")> pattern'
 ; rulestring    := ${flowspec--proprule-{name}-{kind}(|index):
   {patternstring} ->
-    CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", {name}(), "{mod-name}", {n}, [{<csv> vars}])}
+    CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", flowspec-prop-{name}(), "{mod-name}", {n}, [{<csv> vars}])}
 
 // utils
 
