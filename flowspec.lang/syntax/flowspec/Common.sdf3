@@ -51,6 +51,7 @@ PropName = "exit" {reject}
 PropName = "start" {reject}
 PropName = "end" {reject}
 PropName = "position" {reject}
+StrategoModName = "external" {reject}
 
 lexical restrictions
 

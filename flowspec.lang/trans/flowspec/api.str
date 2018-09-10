@@ -9,6 +9,7 @@ flowspec/menus
 signatures/flowspec/runtime/-
 
 nabl2/api
+nabl2/runtime/analysis/generation
 libspoofax/stratego/debug
 
 strategies
@@ -56,6 +57,30 @@ flowspec-get-property-post-or-exit-post(|analysis-result, analysis-name) =
   flowspec-get-property-post(|analysis-result, analysis-name)
   <+ ( flowspec-get-cfg-exit-node(|analysis-result)
      ; flowspec-get-property-post(|analysis-result, analysis-name) )
+
+/**
+ * Analyze the given AST with FlowSpec.
+ * The FlowSpec analysis is added to given NaBL2 analysis result and returned.
+ *
+ * @param analysis:Analysis
+ * @param propnames:String or List(String)
+ * @type ast:Term -> Analysis
+ */
+flowspec-analyze(|analysis) = flowspec-analyze(|analysis, <flowspec--prop-names>)
+
+/**
+ * Analyze the given AST with FlowSpec, but only the given FlowSpec properties.
+ * The FlowSpec analysis is added to given NaBL2 analysis result and returned.
+ *
+ * @param analysis:Analysis
+ * @param propnames:String or List(String)
+ * @type ast:Term -> Analysis
+ */
+flowspec-analyze(|analysis, propname) = where(<is-string> propname); flowspec-analyze(|analysis, [propname])
+flowspec-analyze(|analysis, propnames): ast -> analysis2
+where
+  analysis1 := <flowspec--generate-cfg; flowspec--build-cfg(|analysis)> ast
+; analysis2 := <flowspec--solve(|analysis1, <flowspec--prop-names>)> ast
 
 /**
  * Analyze the given AST with NaBL2 and FlowSpec
