@@ -18,7 +18,6 @@ import io.usethesource.capsule.Map;
 import io.usethesource.capsule.Set.Immutable;
 import mb.flowspec.graph.Algorithms;
 import mb.flowspec.runtime.interpreter.ImmutableInitValues;
-import mb.flowspec.runtime.interpreter.InitFunction;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.interpreter.UnreachableException;
@@ -172,7 +171,7 @@ public class FixedPoint {
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
         for (CFGNode n : initNodes) {
-            setProperty(n, prop, new Ref<>(callInit(prop, metadata, n)));
+            setProperty(n, prop, new Ref<>(callTF(prop, metadata, n)));
         }
         final Set<CFGNode> ignoredNodes = new HashSet<>();
         StreamSupport.stream(sccs.spliterator(), false)
@@ -256,24 +255,13 @@ public class FixedPoint {
         return Optional.empty();
     }
 
-    private ITerm callInit(String prop, Metadata<?> metadata, CFGNode node) {
-        TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
-        if(!metadata.initFunction().isPresent()) {
-            logger.warn("No initialisation rule found for property " + prop);
-            return getProperty(node, prop);
-        }
-        if (tfAppl == null) {
-            return getProperty(node, prop);
-        }
-        return InitFunction.call(tfAppl.args(), metadata.initFunction().get());
-    }
-
     private ITerm callTF(String prop, Metadata<?> metadata, CFGNode node) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
         if (tfAppl == null) {
             return getProperty(node, prop);
         }
-        return TransferFunction.call(tfAppl, metadata.transferFunctions(), node);
+        TransferFunction tf = TransferFunction.findFunction(metadata.transferFunctions(), tfAppl);
+        return tf.call(tfAppl, node);
     }
 
     protected static class TimingInfo {

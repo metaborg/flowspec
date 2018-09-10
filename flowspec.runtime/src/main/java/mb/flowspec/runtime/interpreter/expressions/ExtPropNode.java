@@ -17,7 +17,6 @@ import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.stratego.TermIndex;
-import mb.nabl2.terms.IListTerm;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 import mb.nabl2.terms.unification.PersistentUnifier;
@@ -38,10 +37,18 @@ public class ExtPropNode extends ExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         try {
-            Optional<ITerm> nabl2value = initValues.astProperties().getValue(TermIndex.get(rhs.executeITerm(frame)).get(), B.newAppl("Property", B.newString(propName))).map(initValues.unifier()::findRecursive);
-            List<Occurrence> value = nabl2value.flatMap(term -> M.listElems(Occurrence.matcher(), (t, list) -> list).match(term, PersistentUnifier.Immutable.of())).orElseGet(() -> ImmutableList.<Occurrence>builder().build());
-            IListTerm list = B.newList(value.stream().map(occ -> Name.fromOccurrence(initValues, occ)).collect(Collectors.toList()));
-            return list;
+            TermIndex rhsIndex = TermIndex.get(rhs.executeITerm(frame)).get();
+            Optional<ITerm> nabl2value = initValues.astProperties()
+                    .getValue(rhsIndex, B.newAppl("Property", B.newString(propName)))
+                    .map(initValues.unifier()::findRecursive);
+            List<Occurrence> value = nabl2value
+                    .flatMap(term -> M.listElems(Occurrence.matcher(), (t, list) -> list)
+                            .match(term, PersistentUnifier.Immutable.of()))
+                    .orElseGet(() -> ImmutableList.<Occurrence>builder().build());
+            List<Name> names = value.stream()
+                    .map(occ -> Name.fromOccurrence(initValues, occ))
+                    .collect(Collectors.toList());
+            return B.newList(names);
         } catch (UnexpectedResultException e) {
             throw new TypeErrorException(e);
         }

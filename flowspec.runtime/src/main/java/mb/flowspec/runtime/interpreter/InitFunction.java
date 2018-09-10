@@ -6,7 +6,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
-import mb.nabl2.controlflow.terms.ICFGNode;
+import mb.nabl2.controlflow.terms.TransferFunctionAppl;
 import mb.nabl2.terms.ITerm;
 
 public class InitFunction extends TransferFunction {
@@ -18,9 +18,10 @@ public class InitFunction extends TransferFunction {
         super(language, frameDescriptor, patternVariables, body);
     }
 
-    public static <N extends ICFGNode> ITerm call(Object[] args, InitFunction f) {
+    @Override
+    public ITerm call(TransferFunctionAppl appl, ITerm currentNode) {
         try {
-            return Types.expectITerm(Truffle.getRuntime().createCallTarget(f).call(args));
+            return Types.expectITerm(Truffle.getRuntime().createCallTarget(this).call(appl.args()));
         } catch (UnexpectedResultException e) {
             throw new RuntimeException(e);
         }

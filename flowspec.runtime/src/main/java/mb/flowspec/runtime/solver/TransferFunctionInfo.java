@@ -10,7 +10,6 @@ import org.immutables.value.Value.Parameter;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
-import mb.flowspec.runtime.interpreter.InitFunction;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 import mb.flowspec.runtime.lattice.MapLattice;
@@ -31,7 +30,13 @@ public abstract class TransferFunctionInfo {
     public TransferFunctionInfo addAll(TransferFunctionInfo other) {
         Map.Transient<String, Metadata<?>> propMetadata = this.metadata().asTransient();
         BinaryRelation.Transient<String, String> dependsOn = this.dependsOn().asTransient();
-        propMetadata.__putAll(other.metadata());
+        for(Entry<String, Metadata<?>> e : other.metadata().entrySet()) {
+            if(propMetadata.containsKey(e.getKey())) {
+                propMetadata.__put(e.getKey(), propMetadata.get(e.getKey()).addAll(e.getValue()));
+            } else {
+                propMetadata.__put(e.getKey(), e.getValue());
+            }
+        }
         for (Entry<String, String> e : other.dependsOn().entrySet()) {
             dependsOn.__insert(e.getKey(), e.getValue());
         }
@@ -44,12 +49,11 @@ public abstract class TransferFunctionInfo {
         return M.listElems(tupleMatcher(), (list, tuples) -> {
             Map.Transient<String, Metadata<?>> propMetadata = Map.Transient.of();
             BinaryRelation.Transient<String, String> dependsOn = BinaryRelation.Transient.of();
-            for (ImmutableTuple3<String, Direction, ImmutableTuple3<Type, Optional<InitFunction>, TransferFunction[]>> t4 : tuples) {
+            for (ImmutableTuple3<String, Direction, ImmutableTuple2<Type, TransferFunction[]>> t4 : tuples) {
                 String propName = t4._1();
                 Type type = t4._3()._1();
                 Direction dir = t4._2();
-                TransferFunction[] tfs = t4._3()._3();
-                Optional<InitFunction> init = t4._3()._2();
+                TransferFunction[] tfs = t4._3()._2();
                 
                 Map.Transient<Tuple2<String, Integer>, TransferFunction> tfMap = Map.Transient.of();
                 for(int i = 0; i < tfs.length; i++) {
@@ -57,7 +61,7 @@ public abstract class TransferFunctionInfo {
                     tfMap.__put(ImmutableTuple2.of(moduleName, i), tf);
                 }
 
-                propMetadata.__put(propName, ImmutableMetadata.of(dir, latticeFromType(latticeDefs, type), init, tfMap.freeze()));
+                propMetadata.__put(propName, ImmutableMetadata.of(dir, latticeFromType(latticeDefs, type), tfMap.freeze()));
             }
             return ImmutableTransferFunctionInfo.of(dependsOn.freeze(), propMetadata.freeze());
         });
@@ -76,7 +80,7 @@ public abstract class TransferFunctionInfo {
         return null;
     }
 
-    protected static IMatcher<ImmutableTuple3<String, Direction, ImmutableTuple3<Type, Optional<InitFunction>, TransferFunction[]>>> tupleMatcher() {
+    protected static IMatcher<ImmutableTuple3<String, Direction, ImmutableTuple2<Type, TransferFunction[]>>> tupleMatcher() {
         return (term, unifier) -> 
             Optional.of(
                 M.tuple2(M.stringValue(), M.tuple3(Type.matchType(), Direction.match(), TransferFunction.matchList(),
@@ -84,14 +88,7 @@ public abstract class TransferFunctionInfo {
                         Type type = t2._1();
                         Direction dir = t2._2();
                         TransferFunction[] tfs = t2._3();
-                        Optional<InitFunction> init = Optional.empty();
-                        for(TransferFunction tf : tfs) {
-                            if (tf instanceof InitFunction) {
-                                init = Optional.of((InitFunction) tf);
-                                break;
-                            }
-                        }
-                        return ImmutableTuple3.of(propName, dir, ImmutableTuple3.of(type, init, tfs));
+                        return ImmutableTuple3.of(propName, dir, ImmutableTuple2.of(type, tfs));
                     })
                     .match(term, unifier)
                     .orElseThrow(() -> new ParseException("Parse error on reading the transfer function tuple")));

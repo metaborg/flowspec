@@ -41,9 +41,17 @@ public class TransferFunction extends RootNode {
         }
         return body.execute(frame);
     }
-    
+
     public void init(InitValues initValues) {
         body.init(initValues);
+    }
+
+    public ITerm call(TransferFunctionAppl appl, ITerm currentNode) {
+        try {
+            return Types.expectITerm(Truffle.getRuntime().createCallTarget(this).call((Object[]) appl.args(currentNode)));
+        } catch (UnexpectedResultException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static IMatcher<TransferFunction> match(TruffleLanguage<Context> language, FrameDescriptor frameDescriptor) {
@@ -74,11 +82,7 @@ public class TransferFunction extends RootNode {
                 });
     }
 
-    public static <N extends ICFGNode> ITerm call(TransferFunctionAppl appl, Map.Immutable<Tuple2<String, Integer>, TransferFunction> tfs, ITerm arg) {
-        try {
-            return Types.expectITerm(Truffle.getRuntime().createCallTarget(tfs.get(ImmutableTuple2.of(appl.moduleName(), appl.offset()))).call((Object[]) appl.args(arg)));
-        } catch (UnexpectedResultException e) {
-            throw new RuntimeException(e);
-        }
+    public static <N extends ICFGNode> TransferFunction findFunction(Map.Immutable<Tuple2<String, Integer>, TransferFunction> tfs, TransferFunctionAppl appl) {
+        return tfs.get(ImmutableTuple2.of(appl.moduleName(), appl.offset()));
     }
 }
