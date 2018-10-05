@@ -48,7 +48,7 @@ public final class FlowSpec extends TruffleLanguage<Context> {
         ITermFactory f = new TermFactory();
         StrategoTerms strategoTerms = new StrategoTerms(f);
 
-        IStrategoTerm term = f.parseFromString(source.getCode());
+        IStrategoTerm term = f.parseFromString(source.getCharacters().toString());
 
         TransferFunction rootNode = TransferFunction.match(this, new FrameDescriptor()).match(strategoTerms.fromStratego(term), PersistentUnifier.Immutable.of()).get();
 

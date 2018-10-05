@@ -70,12 +70,6 @@
     </dependency>
     <dependency>
       <groupId>com.oracle.truffle</groupId>
-      <artifactId>truffle-tck</artifactId>
-      <version>${truffle-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.oracle.truffle</groupId>
       <artifactId>truffle-dsl-processor</artifactId>
       <version>${truffle-version}</version>
       <scope>provided</scope>
