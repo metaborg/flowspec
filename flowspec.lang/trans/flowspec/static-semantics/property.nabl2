@@ -27,7 +27,7 @@ rules
     PropPattern [[ pattern ^ (propDef, ruleScope) ]],
     Property { prop } -> ruleScope,
     Property { prop } |-> propDef,
-    propDef.kind := Normal() | error $[Cannot define rules of external property] @prop,
+    propDef.kind := Normal() | error $[Cannot define rules for external property] @prop,
     Expr [[ expr ^ (ruleScope) ]],
     [[ whereclause ^ (ruleScope) ]],
     new ruleScope.
