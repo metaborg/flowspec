@@ -1,47 +1,18 @@
 module flowspec/Main
 
 imports
-  
+
 flowspec/Common
 flowspec/Flow
 flowspec/Property
 flowspec/Type
 flowspec/Pattern
 flowspec/Expr
+flowspec/Function
 
 context-free syntax
-  
-  Module.Module =
-[module [ModuleName]
 
-[{Import "\n"}*]
-
-[{AstRoot "\n"}*]
-
-[{Definition "\n"}*]
-]
-
-Import.Import = [imports [ModuleName]] {prefer}
-Import.ExtImport = [imports external [StrategoModName]] {prefer}
-
-// TODO: remove, already ignored
-AstRoot.AstRoot = [ast root [ConsName]([{Wildcard ", "}*])]
-
-Definition = LatticeDef
-Definition = CFGRule
-Definition = PropDef
-Definition = PropRule
-Definition = TypeDef
-Definition = FunDef
-
-FunDef.FunDef = [fun [Var]([{FunArg ", "}+]) = [Expr]]
-AltFunDef.FunDef = [[Var]([{FunArg ", "}+]) = [Expr]]
-
-FunArg.Arg = [[Var]: [Type]]
-
-context-free syntax // Alternative syntax
-
-AltModule.Module =
+Module.Module =
 [module [ModuleName]
 
 [{Section "\n"}*]
@@ -60,24 +31,24 @@ ModuleName = "external" {reject}
 
 Section.CFGRules =
 [control-flow rules
-  [{AltCFGRule "\n"}*]]
+  [{CFGRule "\n"}*]]
 
 Section.LatticeDefs =
 [lattices
-  [{AltLatticeDef "\n"}*]]
+  [{LatticeDef "\n"}*]]
 
 Section.TypeDefs =
 [types
-  [{AltTypeDef "\n"}*]]
+  [{TypeDef "\n"}*]]
 
 Section.PropDefs =
 [properties
-  [{AltPropDef "\n"}*]
+  [{PropDef "\n"}*]
   [{PropDefExternalSection "\n"}*]]
 
 PropDefExternalSection.Externals =
 [external
-  [{AltPropDef "\n"}*]]
+  [{PropDef "\n"}*]]
 
 Section.PropRules =
 [property rules
@@ -85,7 +56,7 @@ Section.PropRules =
 
 Section.FunDefs =
 [functions
-  [{AltFunDef "\n"}*]]
+  [{FunDef "\n"}*]]
 
 template options
 

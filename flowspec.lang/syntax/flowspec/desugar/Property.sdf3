@@ -1,0 +1,13 @@
+module flowspec/desugar/Property
+
+imports
+
+flowspec/Property
+
+flowspec/Common
+flowspec/Type
+
+context-free syntax
+
+PropDef.PropDef = [prop [PropName]: [Type]]
+PropDef.ExtPropDef = [external prop [PropName]: [Type]]

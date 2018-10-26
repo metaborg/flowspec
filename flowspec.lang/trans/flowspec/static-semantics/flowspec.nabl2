@@ -20,7 +20,7 @@ rules
     setScope ---> global,
     new global.
 
-  [[ Module(module, imports, _, definitions) ^ (global) ]] :=
+  [[ Module(module, imports, definitions) ^ (global) ]] :=
     Module { module } <- global,
     moduleScope ---> global,
     Module { module } ===> moduleScope,

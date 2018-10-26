@@ -14,6 +14,8 @@ imports
 
 context-free syntax
 
+  NaBL2-AstProperty.CFGParams = "cfgparams"
+
   FSConstraint.CTFAppl = <<NaBL2-TermIndex>.<NaBL2-AstPropertyId>:<ModuleName>.<NaBL2-INT> := [<{NaBL2-CTerm ", "}*>]>
 
   FSConstraint.CTFIdentityAppl = <<NaBL2-TermIndex>.<NaBL2-AstPropertyId> = identity>

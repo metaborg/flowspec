@@ -23,7 +23,7 @@ signature
 rules
 
 // Module
-gen-str: Module(modulename, import*, _, def*) ->
+gen-str: Module(modulename, import*, def*) ->
 ${module flowspec/{modulename}
 
 imports

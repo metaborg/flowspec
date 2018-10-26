@@ -2,8 +2,9 @@ module flowspec/desugar/Expr
 
 imports
 
-flowspec/Pattern
 flowspec/Expr
+
+flowspec/Pattern
 flowspec/Common
 
 context-free syntax // expressions

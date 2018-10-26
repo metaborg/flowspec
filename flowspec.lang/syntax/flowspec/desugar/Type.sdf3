@@ -1,0 +1,28 @@
+module flowspec/desugar/Type
+
+imports
+
+flowspec/Type
+
+flowspec/Common
+flowspec/Pattern
+
+context-free syntax
+
+TypeDef.TypeDef =
+[type [TypeName]([{Var ", "}+]) =
+  [{ConsDef "\n"}+]]
+
+TypeDef.TypeDef =
+[type [TypeName] =
+  [{ConsDef "\n"}+]]
+
+context-free syntax // Lattice definitions
+
+LatticeDef.LatticeDef =
+[lattice [TypeName] where
+  [LatticePart+]]
+
+LatticeDef.LatticeDef =
+[lattice [TypeName]([{Var ", "}+]) where
+  [LatticePart+]]

@@ -3,6 +3,8 @@ module generate-transfers
 imports
 
 signatures/flowspec/-
+signatures/flowspec/runtime/IR-sig
+flowspec/static-semantics/signatures
 
 libspoofax/stratego/debug
 libspoofax/core/language
@@ -19,7 +21,7 @@ flowspec/static-semantics
 
 rules
 
-gen-tf: m@Module(_, _, _, def*) -> transfer-functions
+gen-tf: m@Module(_, _, def*) -> transfer-functions
 with
   a := <nabl2-get-ast-analysis>
 ; proprule* := <retain-all(?PropRule(_, _, _, _))> def*

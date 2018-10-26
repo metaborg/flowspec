@@ -1,4 +1,4 @@
-module flowspec/IR
+module flowspec/runtime/IR
 
 imports
 

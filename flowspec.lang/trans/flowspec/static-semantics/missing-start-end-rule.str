@@ -4,11 +4,13 @@ imports
 
   signatures/-
   signatures/flowspec/-
+  signatures/flowspec/desugar/-
+  signatures/flowspec/runtime/IR-sig
   nabl2/api
 
 rules
 
-  flowspec--missing-start-end-rule(|a): Module(name, _, [], definitions) -> messages
+  flowspec--missing-start-end-rule(|a): Module(name, _, definitions) -> messages
   with
     moduleDef := <nabl2-mk-occurrence(|"Module")> name
   ; [(_, moduleScope)] := <nabl2-get-assoc-edges(|a)> moduleDef

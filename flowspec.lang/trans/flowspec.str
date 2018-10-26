@@ -32,7 +32,7 @@ rules // Debugging
   generate-stratego = (post-desugar-all, id, id, id, id); generate-stratego'
 
   generate-stratego': 
-    (node@Module(name, _, _, _), _, _, path, project-path) -> (filename, result)
+    (node@Module(name, _, _), _, _, path, project-path) -> (filename, result)
     with
       filename := <src-gen-file(|project-path, "flowspec", ".str")> name
     ; result   := <gen-str> node
@@ -40,7 +40,7 @@ rules // Debugging
   generate-static-info = (post-desugar-all, id, id, id, id); generate-static-info'
 
   generate-static-info':
-    (node@Module(name, _, _, _), _, _, path, project-path) -> (filename, result)
+    (node@Module(name, _, _), _, _, path, project-path) -> (filename, result)
     with
       filename := <string-replace(|"/", "+"); target-file(|project-path, "flowspec-static-info", ".aterm")> name
     where
