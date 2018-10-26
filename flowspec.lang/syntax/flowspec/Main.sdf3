@@ -33,18 +33,30 @@ Section.CFGRules =
 [control-flow rules
   [{CFGRule "\n"}*]]
 
+ModuleName = "control-flow" {reject}
+StrategoModName = "control-flow" {reject}
+
 Section.LatticeDefs =
 [lattices
   [{LatticeDef "\n"}*]]
+
+ModuleName = "lattices" {reject}
+StrategoModName = "lattices" {reject}
 
 Section.TypeDefs =
 [types
   [{TypeDef "\n"}*]]
 
+ModuleName = "types" {reject}
+StrategoModName = "types" {reject}
+
 Section.PropDefs =
 [properties
   [{PropDef "\n"}*]
   [{PropDefExternalSection "\n"}*]]
+
+ModuleName = "properties" {reject}
+StrategoModName = "properties" {reject}
 
 PropDefExternalSection.Externals =
 [external
@@ -54,9 +66,15 @@ Section.PropRules =
 [property rules
   [{PropRule "\n"}*]]
 
+ModuleName = "property" {reject}
+StrategoModName = "property" {reject}
+
 Section.FunDefs =
 [functions
   [{FunDef "\n"}*]]
+
+ModuleName = "functions" {reject}
+StrategoModName = "functions" {reject}
 
 template options
 
