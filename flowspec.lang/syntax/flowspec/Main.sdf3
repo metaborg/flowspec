@@ -56,7 +56,7 @@ ImportExternalSection.Externals =
 [external
   [{StrategoModName "\n"}*]]
 
-StrategoModName = "external" {reject}
+ModuleName = "external" {reject}
 
 Section.CFGRules =
 [control-flow rules
