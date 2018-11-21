@@ -30,7 +30,7 @@ rules // Analysis
 
   // Extra errors/warnings
   nabl2-custom-analysis-final-hook(|a):
-    (resource, custom-initial-result, custom-unit-results) -> (errors, warnings, notes, ())
+    (resource, custom-initial-result, custom-unit-results) -> (errors, warnings, notes, a)
     with errors   := <mapconcat(flowspec--missing-start-end-rule(|a))> custom-unit-results
        ; warnings := []
        ; notes    := []

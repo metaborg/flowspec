@@ -38,7 +38,6 @@ imports
   nabl2/runtime/-
   nabl2/runtime/analysis/-
   nabl2/runtime/prelude/-
-  nabl2/runtime/stdlib/-
   nabl2/api
 
   flowspec/api
@@ -143,7 +142,7 @@ with
   // build normal pairs from the chains
 ; pairstr* := <map(gen-pair-to-edge-str)> pairs
 
-; indexdefstr := "fs_index := <nabl2--get-ast-index> fs_term"
+; indexdefstr := "fs_index := <flowspec--get-ast-index> fs_term"
 ; vardefstr* := [refvarsstr*, rrvarstr*]
 ; thisconstr* := [${<flowspec--proprule-rec(flowspec--proprule(|fs_index))> fs_term}]
 ; constraintstr* := [recursesstr*, thisconstr*, ${[{<csv> pairstr*}]}, refsstr*]
@@ -168,7 +167,7 @@ gen-cfg-entry-node-str = !${entry   := <flowspec--cfg-node(|fs_index,Entry());tr
 gen-cfg-exit-node-str  = !${exit    := <flowspec--cfg-node(|fs_index,Exit());try(nabl2--copy-origin(|fs_term));t_exit> "exit"}
 
 gen-cfg-node-str(|kind): (termname, nodename) ->
-  ${{nodename} := <flowspec--cfg-node(|<nabl2-get-ast-index> {termname},{kind}());try(nabl2--copy-origin(|{termname}))> "{nodename}"}
+  ${{nodename} := <flowspec--cfg-node(|<flowspec--get-ast-index> {termname},{kind}());try(nabl2--copy-origin(|{termname}))> "{nodename}"}
 
 gen-directed-edge-str: (lhs, rhs) ->
   ${CFDirectEdge({lhs}, {rhs}, fs_index)}
@@ -182,7 +181,7 @@ gen-recurse-str: Recurse(v) ->
 gen-ref-var-str: Ref(v) -> <gen-cfg-node-str> v
 
 gen-ref-str: Ref(v) ->
-  ${<flowspec--proprule-rec(flowspec--proprule(|<nabl2--get-ast-index> match{v}))> match{v}}
+  ${<flowspec--proprule-rec(flowspec--proprule(|<flowspec--get-ast-index> match{v}))> match{v}}
 
 gen-cfg-lhs-str: Recurse(v) -> ${exit{v}}
 gen-cfg-lhs-str: Entry()    -> ${entry}

@@ -59,6 +59,22 @@ flowspec-get-property-post-or-exit-post(|analysis-result, analysis-name) =
      ; flowspec-get-property-post(|analysis-result, analysis-name) )
 
 /**
+ * Get analysis for the given AST node. Includes flowspec analysis if custom final hook is set up
+ *  correctly.
+ *
+ * @type node:Term -> Analysis
+ */
+flowspec-get-ast-analysis = nabl2-get-ast-analysis; try(nabl2-get-custom-analysis)
+
+/**
+ * Get analysis for the given resource. Includes flowspec analysis if custom final hook is set up
+ *  correctly.
+ *
+ * @type filename:String -> Analysis
+ */
+flowspec-get-resource-analysis = nabl2-get-resource-analysis; try(nabl2-get-custom-analysis)
+
+/**
  * Analyze the given AST with FlowSpec.
  * The FlowSpec analysis is added to given NaBL2 analysis result and returned.
  *
@@ -281,7 +297,10 @@ flowspec-pos-ast(parent|ast): pos ->
  *
  * @type Term -> Position
  */
-flowspec-get-position = nabl2-get-ast-index
+flowspec-get-position =
+     nabl2-get-ast-index
+  <+ debug(|"Failed to find NaBL2 index annotation. Try using nabl2--repair-index-ast on the AST before running FlowSpec.")
+     ; fail
 
 /**
  * Check if a FlowSpec Set contains an element. Succeeds if the given strategy succeeds for at
@@ -294,6 +313,11 @@ flowspec-set-contains(s):
   Set(l) -> <where(getfirst(s))> l
 
 strategies // The following are used/extended by generated code
+
+flowspec--get-ast-index =
+     nabl2-get-ast-index
+  <+ debug(|"Failed to find NaBL2 index annotation. Try using nabl2--repair-index-ast on the AST before running FlowSpec.")
+     ; fail
 
 flowspec--proprule-rec(flowspec--proprule) =
   flowspec--proprule <+ (!${Missing FlowSpec cfg rule for {<nabl2--pp-flat-term>}}; debug; ![])

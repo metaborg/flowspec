@@ -13,8 +13,12 @@ imports
 
 rules
 
+  flowspec--show-file-control-flow-graph-helper(|a) =
+    a2 := <try(nabl2-get-custom-analysis)> a
+  ; flowspec--show-control-flow-graph(|a2)
+
   flowspec--show-file-control-flow-graph =
-    nabl2--debug-file-result(flowspec--show-control-flow-graph,id|"control-flow-graph.gv")
+    nabl2--debug-file-result(flowspec--show-file-control-flow-graph-helper,id|"control-flow-graph.gv")
 
   flowspec--show-project-control-flow-graph =
-    nabl2--debug-project-result(flowspec--show-control-flow-graph,id|"control-flow-graph.gv")
+    nabl2--debug-project-result(flowspec--show-file-control-flow-graph-helper,id|"control-flow-graph.gv")
