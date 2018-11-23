@@ -312,6 +312,25 @@ flowspec-get-position =
 flowspec-set-contains(s):
   Set(l) -> <where(getfirst(s))> l
 
+/**
+ * Look up elements in a FlowSpec Set of pairs. Returns the right elements of all pairs where
+ * the given strategy succeeds on the left element.
+ *
+ * @param s: Term -?>
+ * @type FlowSpecSet -?> List(Term)
+ */
+flowspec-set-lookup(s):
+  Set(l) -> <retain-all(\(l,r) -> r where <s> l\)> l
+
+/**
+ * Look up a key in a FlowSpec Map. Returns the element if the given key exists in the map.
+ *
+ * @param k: Term
+ * @type FlowSpecMap -?> Term
+ */
+flowspec-map-lookup(|k):
+  Map(l) -> <getfirst(?(k, <id>))> l
+
 strategies // The following are used/extended by generated code
 
 flowspec--get-ast-index =
