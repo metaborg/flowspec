@@ -48,6 +48,8 @@ imports
 
 rules
 
+flowspec--generate-cfg-root = fail
+
 flowspec--generate-cfg-inner =
   collect-om(flowspec--generate-cfg-root, conc)
 ; concat
