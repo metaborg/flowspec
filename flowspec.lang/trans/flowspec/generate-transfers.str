@@ -3,6 +3,7 @@ module generate-transfers
 imports
 
 signatures/flowspec/-
+signatures/flowspec/desugar/-
 signatures/flowspec/runtime/IR-sig
 flowspec/static-semantics/signatures
 
