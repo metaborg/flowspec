@@ -1,34 +1,46 @@
 module AvailableExpressions
 
-cfg root Root(s) = start -> cfg s -> end
+imports
+  
+  external
+    signatures/-
 
-cfg this@Assign(n, e) =
-  entry -> cfg e -> this -> exit
+control-flow rules
 
-cfg Skip() = entry -> exit
+root Root(s) = start -> s -> end
 
-cfg Seq(s1, s2) = entry -> cfg s1 -> cfg s2 -> exit
+Assign(n, e) =
+  entry -> e -> this -> exit
 
-cfg IfThenElse(c, t, e) =
-  entry -> c -> cfg t -> exit,
-           c -> cfg e -> exit
+Skip() = entry -> exit
 
-cfg While(e, s) =
-  entry -> e -> cfg s -> e -> exit
+Seq(s1, s2) = entry -> s1 -> s2 -> exit
 
-cfg binop@BinOp(_, e1, e2) =
-  entry -> cfg e1 -> cfg e2 -> binop -> exit
+IfThenElse(c, t, e) =
+  entry -> node c -> t -> exit,
+           node c -> e -> exit
 
-cfg unop@UnOp(_, e) =
-  entry -> cfg e -> unop -> exit
+While(e, s) =
+  entry -> node e -> s -> node e -> exit
 
-cfg int@Int(_) = entry -> int -> exit
-cfg true@True(_) = entry -> true -> exit
-cfg false@False(_) = entry -> false -> exit
+BinOp(_, e1, e2) =
+  entry -> e1 -> e2 -> this -> exit
 
-external prop reads: Set(name)
+UnOp(_, e) =
+  entry -> e -> this -> exit
 
-prop available: MustSet(term)
+node Int(_)
+node True()
+node False()
+
+properties
+  available: MustSet(term)
+  external
+    reads: Set(name)
+
+property rules
+
+available(_.start) = {}
 
 available(prev -> Assign(n, e)) =
   { expr |

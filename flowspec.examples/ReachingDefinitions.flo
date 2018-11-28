@@ -1,22 +1,38 @@
 module flow
 
-cfg root Root(s) = start -> cfg s -> end
+control-flow rules
 
-cfg this@Assign(n, e) =
-  entry -> cfg e -> this -> exit
+root Root(s) = start -> s -> end
 
-cfg Skip() = entry -> exit
+Assign(n, e) =
+  entry -> e -> this -> exit
 
-cfg Seq(s1,s2) = entry -> cfg s1 -> cfg s2 -> exit
+Skip() = entry -> exit
 
-cfg IfThenElse(c, t, e) =
-  entry -> c -> cfg t -> exit, 
-           c -> cfg e -> exit
+Seq(s1, s2) = entry -> s1 -> s2 -> exit
 
-cfg While(e, s) =
-  entry -> e -> cfg s -> e -> exit
+IfThenElse(c, t, e) =
+  entry -> node c -> t -> exit,
+           node c -> e -> exit
 
-prop definition: MaySet(name * Option(index))
+While(e, s) =
+  entry -> node e -> s -> node e -> exit
+
+BinOp(_, e1, e2) =
+  entry -> e1 -> e2 -> this -> exit
+
+UnOp(_, e) =
+  entry -> e -> this -> exit
+
+node Int(_)
+node True()
+node False()
+
+properties
+
+definition: MaySet(name * Option(index))
+
+property rules
 
 definition(prev -> this@Assign(n, e)) =
   { (n, Some(indexOf(this))) } \/
