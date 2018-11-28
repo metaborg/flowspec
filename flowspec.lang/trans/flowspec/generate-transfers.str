@@ -61,7 +61,7 @@ with vars' := <thread-map(try(\(Wildcard(), c) -> ($[wld_[c]], <inc> c)\));Fst> 
 
 bundle-tfs(|a, propnames): list -> result'
 with
-  namesmap := <map(bundle-tfs-helper3(|a))> propnames
+  namesmap := <retain-all(bundle-tfs-helper3(|a))> propnames
 ; result := <thread-map(bundle-tfs-helper1); Snd> (list, namesmap)
 ; result' := <map((nabl2-get-occurrence-name, id))> result
 
@@ -71,7 +71,7 @@ with
   map' := <map(try((?nm, (id, id, ![(n,tf)|<id>]))))> map
 
 bundle-tfs-helper3(|a): (n, ty) -> (n, (ty, d, []))
-with
+where
   d := <nabl2-get-property(|a, "direction")> n
 
 identify-ExtProp(|a): Prop(name, var) -> ExtProp(name, var)
