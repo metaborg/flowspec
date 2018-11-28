@@ -21,6 +21,9 @@ import mb.flowspec.runtime.interpreter.ImmutableInitValues;
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.interpreter.UnreachableException;
+import mb.flowspec.runtime.lattice.FullSetLattice;
+import mb.flowspec.runtime.lattice.Lattice;
+import mb.flowspec.runtime.lattice.CompleteLattice.Flipped;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph;
 import mb.nabl2.controlflow.terms.IFlowSpecSolution;
@@ -171,7 +174,7 @@ public class FixedPoint {
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
         for (CFGNode n : initNodes) {
-            setProperty(n, prop, new Ref<>(callTF(prop, metadata, n)));
+            setProperty(n, prop, new Ref<>(callTFInitial(prop, metadata, n)));
         }
         final Set<CFGNode> ignoredNodes = new HashSet<>();
         StreamSupport.stream(sccs.spliterator(), false)
@@ -253,6 +256,28 @@ public class FixedPoint {
             }
         }
         return Optional.empty();
+    }
+
+    /*
+     * The bottom value of a MustSet is a symbolic largest set. It's contents cannot be inspected.
+     * Therefore when a MustSet analysis is missing a rule for one of the extremal values of the
+     * graph, the bottom becomes visible. We patch that here with the empty set. Ugly, but better
+     * than RuntimeExceptions. To be replaced with a proper static analysis in FlowSpec. 
+     */
+    private ITerm callTFInitial(String prop, Metadata<?> metadata, CFGNode node) {
+        TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
+        if (tfAppl == null) {
+            Lattice<?> l = metadata.lattice();
+            if(l instanceof Flipped) {
+                l = ((Flipped) l).wrapped;
+            }
+            if(l instanceof FullSetLattice) {
+                return new mb.flowspec.runtime.interpreter.values.Set<>();
+            } else {
+                throw new RuntimeException("Missing extremal (start/end) rule for node: " + node);
+            }
+        }
+        return callTF(prop, metadata, node);
     }
 
     private ITerm callTF(String prop, Metadata<?> metadata, CFGNode node) {
