@@ -1,12 +1,14 @@
 package mb.flowspec.runtime.interpreter.values;
 
+import java.io.Serializable;
+
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import io.usethesource.capsule.Set.Immutable;
 import mb.nabl2.terms.IApplTerm;
 import mb.nabl2.terms.ITerm;
 
-public class Set<K extends ITerm> implements IApplTerm, ISet<K> {
+public class Set<K extends ITerm> implements IApplTerm, ISet<K>, Serializable {
     private final Immutable<K> set;
     private final ImmutableClassToInstanceMap<Object> attachments;
 

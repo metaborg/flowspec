@@ -1,5 +1,6 @@
 package mb.flowspec.runtime.interpreter.values;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ import mb.nabl2.terms.ITerm;
 import mb.nabl2.util.collections.IFunction;
 import mb.nabl2.util.collections.PSequence;
 
-public class Name extends Occurrence implements IResolutionPath<Scope, Label, Occurrence> {
+public class Name extends Occurrence implements IResolutionPath<Scope, Label, Occurrence>, Serializable {
     private final IResolutionPath<Scope, Label, Occurrence> resolutionPath;
 
     public Name(IResolutionPath<Scope, Label, Occurrence> resolutionPath) {

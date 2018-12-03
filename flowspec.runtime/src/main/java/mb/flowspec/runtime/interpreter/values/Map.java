@@ -2,6 +2,7 @@ package mb.flowspec.runtime.interpreter.values;
 
 import static mb.nabl2.terms.build.TermBuild.B;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +23,7 @@ import io.usethesource.capsule.util.EqualityComparator;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.ITermVar;
 
-public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
+public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V>, Serializable {
     private final Immutable<K, V> map;
     public final V topValue;
     private final ImmutableClassToInstanceMap<Object> attachments;

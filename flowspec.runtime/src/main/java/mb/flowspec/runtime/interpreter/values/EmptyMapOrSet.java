@@ -1,5 +1,6 @@
 package mb.flowspec.runtime.interpreter.values;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
@@ -10,7 +11,7 @@ import mb.nabl2.terms.ITermVar;
 import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Map;
 
-public class EmptyMapOrSet<K extends ITerm, V extends ITerm> implements ISet<K>, IMap<K, V> {
+public class EmptyMapOrSet<K extends ITerm, V extends ITerm> implements ISet<K>, IMap<K, V>, Serializable {
 
     private final Set.Immutable<K> set;
     private final Map.Immutable<K, V> map;
