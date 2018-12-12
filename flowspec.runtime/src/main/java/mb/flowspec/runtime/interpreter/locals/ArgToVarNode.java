@@ -5,7 +5,6 @@ import static mb.nabl2.terms.matching.TermMatch.M;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
-import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 
@@ -31,7 +30,8 @@ public class ArgToVarNode extends Node {
         return M.listElems(M.stringValue()).map(patternVars -> {
             ArgToVarNode[] patternVariables = new ArgToVarNode[patternVars.size()];
             for (int i = 0; i < patternVars.size(); i++) {
-                FrameSlot slot = frameDescriptor.addFrameSlot(patternVars.get(i), FrameSlotKind.Object);
+                final String name = patternVars.get(i);
+                FrameSlot slot = frameDescriptor.findOrAddFrameSlot(name);
                 patternVariables[i] = new ArgToVarNode(i, slot);
             }
             return patternVariables;
@@ -39,7 +39,7 @@ public class ArgToVarNode extends Node {
     }
     
     public static ArgToVarNode of(FrameDescriptor frameDescriptor, int offset, String name) {
-        FrameSlot slot = frameDescriptor.addFrameSlot(name, FrameSlotKind.Object);
+        FrameSlot slot = frameDescriptor.findOrAddFrameSlot(name);
         return new ArgToVarNode(offset, slot);
     }
 }

@@ -92,7 +92,7 @@ public class FixedPoint {
 
             return nabl2solution.withFlowSpecSolution(flowspecSolution);
         } catch (UnimplementedException | UnreachableException | ParseException | CyclicGraphException | FixedPointLimitException e) {
-            logger.error(e.getMessage());
+            logger.error("Exception during FlowSpec solving: ", e);
 
             return nabl2solution;
         }

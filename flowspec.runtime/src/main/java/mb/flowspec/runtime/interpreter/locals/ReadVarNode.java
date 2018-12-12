@@ -56,7 +56,8 @@ public abstract class ReadVarNode extends RefNode {
     }
     
     public static IMatcher<ReadVarNode> match(FrameDescriptor frameDescriptor) {
-        return M.stringValue().map(string -> ReadVarNodeGen.create(Objects.requireNonNull(frameDescriptor.findFrameSlot(string))));
+        return M.stringValue().map(string -> 
+            ReadVarNodeGen.create(Objects.requireNonNull(frameDescriptor.findFrameSlot(string))));
     }
 
     @Override

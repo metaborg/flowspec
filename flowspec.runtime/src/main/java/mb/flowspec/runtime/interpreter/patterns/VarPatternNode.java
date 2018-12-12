@@ -2,6 +2,8 @@ package mb.flowspec.runtime.interpreter.patterns;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
+import java.util.Optional;
+
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
@@ -26,9 +28,11 @@ public class VarPatternNode extends PatternNode {
 
     public static IMatcher<VarPatternNode> match(FrameDescriptor frameDescriptor) {
         return M.appl1("Var", M.stringValue(), (appl, name) -> {
-            FrameSlotKind slotKind = FrameSlotKind.Illegal; // TODO: getType(appl)
-            return new VarPatternNode(frameDescriptor.addFrameSlot(name, slotKind));
-        });
+            // TODO: getType(appl)
+            final FrameDescriptor frameDescriptor2 = frameDescriptor;
+            return Optional.of(new VarPatternNode(frameDescriptor2.findOrAddFrameSlot(name)));
+        })
+        .flatMap(o -> o);
     }
 
     @Override

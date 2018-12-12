@@ -28,7 +28,7 @@ public class Where extends Node {
         }
         return body.executeGeneric(frame);
     }
-    
+
     public void init(InitValues initValues) {
         body.init(initValues);
         for(WriteVarNode binding : bindings) {
@@ -39,10 +39,13 @@ public class Where extends Node {
     public static IMatcher<Where> match(FrameDescriptor frameDescriptor) {
         return M.appl2(
                 "Where", 
-                ExpressionNode.matchExpr(frameDescriptor),
+                M.term(),
                 M.listElems(WriteVarNode.match(frameDescriptor)), 
-                (appl, body, writeVars) -> {
-                    return new Where(writeVars.toArray(new WriteVarNode[writeVars.size()]), body);
-                });
+                (appl, bodyTerm, writeVars) -> {
+                    return ExpressionNode.matchExpr(frameDescriptor).match(bodyTerm).map(body -> {
+                        return new Where(writeVars.toArray(new WriteVarNode[writeVars.size()]), body);
+                    });
+                })
+                .flatMap(o -> o);
     }
 }

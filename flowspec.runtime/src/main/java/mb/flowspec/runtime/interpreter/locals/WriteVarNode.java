@@ -98,8 +98,7 @@ public abstract class WriteVarNode extends Node {
     public static IMatcher<WriteVarNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("Binding", M.stringValue(), ExpressionNode.matchExpr(frameDescriptor), (appl, name, expr) -> {
             // TODO: getType(appl)
-            FrameSlotKind slotKind = FrameSlotKind.Illegal;
-            WriteVarNode result = WriteVarNodeGen.create(expr, frameDescriptor.addFrameSlot(name, slotKind));
+            WriteVarNode result = WriteVarNodeGen.create(expr, frameDescriptor.findOrAddFrameSlot(name));
             result.expr = expr;
             return result;
         });

@@ -3,12 +3,14 @@ package mb.flowspec.runtime.interpreter.expressions;
 import static mb.nabl2.terms.matching.TermMatch.M;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.patterns.PatternNode;
+import mb.flowspec.runtime.solver.ParseException;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 import mb.nabl2.util.ImmutableTuple2;
 
@@ -52,7 +54,10 @@ public class MatchNode extends ExpressionNode {
     }
 
     public static IMatcher<ImmutableTuple2<PatternNode, ExpressionNode>> matchArm(FrameDescriptor frameDescriptor) {
-        return M.appl2("MatchArm", PatternNode.matchPattern(frameDescriptor),
-                ExpressionNode.matchExpr(frameDescriptor), (appl, p, e) -> ImmutableTuple2.of(p, e));
+        return (term, unifier) -> 
+            Optional.of(M.appl2("MatchArm", PatternNode.matchPattern(frameDescriptor),
+                ExpressionNode.matchExpr(frameDescriptor), (appl, p, e) -> ImmutableTuple2.of(p, e))
+            .match(term, unifier)
+            .orElseThrow(() -> new ParseException("Parse error on reading expression " + term)));
     }
 }
