@@ -31,6 +31,12 @@ exports:
   includes:
   - "flowspec/**/*.esv"
 
+  ## FlowSpec
+- language: FlowSpec
+  directory: trans
+  includes:
+  - "flowspec/**/*.flo"
+
 pardonedLanguages:
 - EditorService
 - Stratego-Sugar

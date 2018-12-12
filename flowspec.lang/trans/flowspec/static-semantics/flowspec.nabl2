@@ -16,6 +16,7 @@ rules
     Module { "Set" } <- global,
     Module { "Set" } ===> setScope,
     Variable { "fromList" } <- setScope,
+    Module { "flowspec/linear-list" } <- global,
     new setScope,
     setScope ---> global,
     new global.
