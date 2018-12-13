@@ -44,7 +44,7 @@ public class ConsPatternNode extends PatternNode {
 
     public static IMatcher<ConsPatternNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("Term", 
-                M.string(s -> Optionals.when(s.getValue().equals("Cons"))),
+                M.string(s -> Optionals.when(s.getValue().equals("Cons"))).flatMap(o -> o),
                 M.listElems(PatternNode.matchPattern(frameDescriptor))
                     .flatMap(l -> l.size() == 2 ? Optional.of(l) : Optional.empty()),
             (appl, consname, childPatterns) -> {

@@ -33,7 +33,7 @@ public class NilPatternNode extends PatternNode {
 
     public static IMatcher<NilPatternNode> match(FrameDescriptor frameDescriptor) {
         return M.appl2("Term", 
-                M.string(s -> Optionals.when(s.getValue().equals("Nil"))),
+                M.string(s -> Optionals.when(s.getValue().equals("Nil"))).flatMap(o -> o),
                 M.listElems(PatternNode.matchPattern(frameDescriptor))
                     .flatMap(l -> Optionals.when(l.isEmpty())),
             (appl, consname, childPatterns) -> {
