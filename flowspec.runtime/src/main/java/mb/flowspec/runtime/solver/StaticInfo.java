@@ -42,11 +42,12 @@ public abstract class StaticInfo {
     }
 
     public void init(InitValues initValues) {
+        this.functions().functions().values().stream().forEach(f -> f.init(initValues));
+        this.lattices().latticeDefs().values().stream().forEach(l -> l.init(initValues));
         for (Entry<String, Metadata<?>> e : metadata().entrySet()) {
             e.getValue().transferFunctions().valueIterator().forEachRemaining(tf -> {
                 tf.init(initValues);
             });
-            e.getValue().lattice().init(initValues);
         }
     }
 
