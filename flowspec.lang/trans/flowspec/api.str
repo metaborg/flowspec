@@ -335,7 +335,7 @@ strategies // The following are used/extended by generated code
 
 flowspec--get-ast-index =
      nabl2-get-ast-index
-  <+ debug(|"Failed to find NaBL2 index annotation. Try using nabl2--repair-index-ast on the AST before running FlowSpec.")
+  <+ debug(|"Failed to find NaBL2 index annotation. Try using nabl2--index-ast on the AST before running FlowSpec.")
      ; fail
 
 flowspec--proprule-rec(flowspec--proprule) =
