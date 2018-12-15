@@ -17,8 +17,9 @@ import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.Set.Immutable;
 import mb.flowspec.graph.Algorithms;
-import mb.flowspec.runtime.interpreter.ImmutableInitValues;
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.ImmutableInitValues;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.interpreter.InterpreterBuilder;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.interpreter.UnreachableException;
 import mb.flowspec.runtime.lattice.FullSetLattice;
@@ -49,8 +50,15 @@ public class FixedPoint {
         this.postProperties = Map.Transient.of();
         this.timingInfo = new FixedPoint.TimingInfo();
     }
-    public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo) {
+
+    public ISolution entryPoint(ISolution nabl2solution, InterpreterBuilder interpBuilder) {
+        StaticInfo staticInfo = interpBuilder.build(nabl2solution, preProperties);
         return entryPoint(nabl2solution, staticInfo, staticInfo.metadata().keySet());
+    }
+
+    public ISolution entryPoint(ISolution nabl2solution, InterpreterBuilder interpBuilder, Collection<String> propNames) {
+        StaticInfo staticInfo = interpBuilder.build(nabl2solution, preProperties);
+        return entryPoint(nabl2solution, staticInfo, propNames);
     }
 
     public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo, Collection<String> propNames) {

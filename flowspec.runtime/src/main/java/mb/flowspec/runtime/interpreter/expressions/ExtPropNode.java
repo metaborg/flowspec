@@ -12,7 +12,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.nabl2.scopegraph.terms.Occurrence;
@@ -21,7 +22,7 @@ import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 import mb.nabl2.terms.unification.PersistentUnifier;
 
-public class ExtPropNode extends ExpressionNode {
+public class ExtPropNode extends ExpressionNode implements Initializable {
     private InitValues initValues;
     private final String propName;
 

@@ -1,4 +1,4 @@
-package mb.flowspec.runtime.interpreter;
+package mb.flowspec.runtime;
 
 import java.util.Optional;
 
@@ -60,7 +60,6 @@ public abstract class InitValues {
     @Parameter
     public abstract Map<String, Function> functions();
 
-    @SuppressWarnings("rawtypes")
     @Parameter
     public abstract Map<String, CompleteLattice> lattices();
 }

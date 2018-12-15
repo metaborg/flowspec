@@ -10,7 +10,7 @@ import org.immutables.value.Value.Parameter;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @Immutable

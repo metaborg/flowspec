@@ -2,10 +2,11 @@ package mb.flowspec.runtime.interpreter.expressions;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 
-public class LatticeItemRefNode extends ExprRefNode {
+public class LatticeItemRefNode extends ExprRefNode implements Initializable {
     private LatticeItem item;
     private String name;
     private Object value;

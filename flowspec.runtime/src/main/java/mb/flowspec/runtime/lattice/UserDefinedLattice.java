@@ -2,7 +2,7 @@ package mb.flowspec.runtime.lattice;
 
 import com.oracle.truffle.api.Truffle;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.values.Function;
 import mb.flowspec.runtime.solver.UnimplementedException;
 

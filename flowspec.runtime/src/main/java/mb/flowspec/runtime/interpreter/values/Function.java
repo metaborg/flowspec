@@ -11,8 +11,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.Context;
-import mb.flowspec.runtime.interpreter.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
 import mb.flowspec.runtime.interpreter.expressions.ExpressionNode;
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;

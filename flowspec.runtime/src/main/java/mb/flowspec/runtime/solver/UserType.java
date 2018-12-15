@@ -9,10 +9,10 @@ import static mb.nabl2.terms.matching.TermMatch.M;
 @Immutable
 public abstract class UserType extends Type {
     @Parameter
-    abstract String name();
+    public abstract String name();
 
     @Parameter
-    abstract Type[] params();
+    public abstract Type[] params();
 
     public static IMatcher<UserType> match() {
         return M.appl2("UserType", M.stringValue(), M.listElems(Type.matchType()),

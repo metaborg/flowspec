@@ -13,7 +13,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import io.usethesource.capsule.Set.Immutable;
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.values.Set;
 import mb.nabl2.terms.IListTerm;
 import mb.nabl2.terms.ITerm;

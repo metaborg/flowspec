@@ -3,7 +3,7 @@ package mb.flowspec.runtime.lattice;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import io.usethesource.capsule.Set.Immutable;
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.SymbolicLargestSetException;
 import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Set;

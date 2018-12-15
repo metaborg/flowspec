@@ -7,7 +7,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 

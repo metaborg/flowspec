@@ -10,7 +10,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
 import mb.flowspec.runtime.interpreter.TypesGen;
 import mb.flowspec.runtime.interpreter.values.IMap;

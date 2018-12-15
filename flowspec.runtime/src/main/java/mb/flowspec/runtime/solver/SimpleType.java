@@ -26,7 +26,7 @@ public abstract class SimpleType extends Type {
         return match().map(ImmutableSimpleType::of);
     }
 
-    enum SimpleTypeEnum {
+    public enum SimpleTypeEnum {
         Name,
         Term,
         Index,

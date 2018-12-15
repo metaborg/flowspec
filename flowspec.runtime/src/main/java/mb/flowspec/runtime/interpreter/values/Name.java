@@ -7,7 +7,7 @@ import java.util.Objects;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import io.usethesource.capsule.Set;
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.nabl2.scopegraph.path.IResolutionPath;
 import mb.nabl2.scopegraph.path.IScopePath;
 import mb.nabl2.scopegraph.terms.Label;

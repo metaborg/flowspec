@@ -5,7 +5,7 @@ import static mb.nabl2.terms.matching.TermMatch.M;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.solver.UnimplementedException;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;

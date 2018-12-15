@@ -3,7 +3,7 @@ package mb.flowspec.runtime.lattice;
 import java.util.Optional;
 import java.util.Set;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 
 public interface CompleteLattice<E> extends Lattice<E> {
 

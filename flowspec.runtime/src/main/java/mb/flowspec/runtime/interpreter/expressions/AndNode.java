@@ -7,7 +7,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})

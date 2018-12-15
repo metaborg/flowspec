@@ -1,9 +1,10 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.interpreter.values.Function;
 
-public class FunRefRefNode extends FunRefNode {
+public class FunRefRefNode extends FunRefNode implements Initializable {
     public final String name;
     public Function function;
     

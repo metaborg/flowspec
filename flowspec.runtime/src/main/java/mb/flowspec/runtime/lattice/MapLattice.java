@@ -3,7 +3,7 @@ package mb.flowspec.runtime.lattice;
 import java.util.Map.Entry;
 
 import io.usethesource.capsule.Map.Transient;
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.values.Map;
 import mb.nabl2.terms.ITerm;
 

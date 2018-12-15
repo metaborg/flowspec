@@ -4,11 +4,11 @@ import static mb.nabl2.terms.matching.TermMatch.M;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.patterns.PatternNode;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
-class SetCompMatchPredicateNode extends CompPredicateNode {
+public class SetCompMatchPredicateNode extends CompPredicateNode {
     public final PatternNode[] arms;
 
     public SetCompMatchPredicateNode(ExpressionNode expr, PatternNode[] arms) {

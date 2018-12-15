@@ -2,10 +2,11 @@ package mb.flowspec.runtime.interpreter.expressions;
 
 import java.util.function.BiFunction;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 
-public class LatticeOpRefNode extends FunRefNode {
+public class LatticeOpRefNode extends FunRefNode implements Initializable {
     public final LatticeOp op;
     public final String name;
     @SuppressWarnings("rawtypes")

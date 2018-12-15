@@ -2,7 +2,7 @@ package mb.flowspec.runtime.interpreter.expressions;
 
 import static mb.nabl2.terms.matching.TermMatch.M;
 
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class QualRefNode extends FunRefNode {

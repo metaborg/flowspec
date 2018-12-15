@@ -10,7 +10,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import io.usethesource.capsule.Map;
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.controlflow.terms.ICFGNode.Kind;
@@ -22,7 +23,7 @@ import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
 @NodeChildren({@NodeChild("rhs")})
-public abstract class PropNode extends ExpressionNode {
+public abstract class PropNode extends ExpressionNode implements Initializable {
     private Map<Tuple2<CFGNode, String>, Ref<ITerm>> properties;
     protected final String propName;
 

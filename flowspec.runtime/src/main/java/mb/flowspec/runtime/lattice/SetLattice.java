@@ -1,7 +1,7 @@
 package mb.flowspec.runtime.lattice;
 
 import io.usethesource.capsule.Set;
-import mb.flowspec.runtime.interpreter.InitValues;
+import mb.flowspec.runtime.InitValues;
 
 public class SetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
     private final Set.Immutable<E> top;
