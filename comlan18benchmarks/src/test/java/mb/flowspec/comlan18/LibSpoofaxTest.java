@@ -27,18 +27,14 @@ public class LibSpoofaxTest {
         strategoBenchmark.setupInput();
     }
 
+    /*
+     * Ignored. Fails for libspoofax.ctree on 4 lines, each of which the FlowSpec solution gives
+     * (un)bound, and the Stratego solution gives bound.
+     */
     @Test
     @Ignore
     public void testBenchResults() throws MetaborgException, InterruptedException {
-        IStrategoTerm flowspecResult = flowspecBenchmark.bench();
-        IStrategoTerm strategoResult = strategoBenchmark.bench();
-        assertEquals(flowspecResult, strategoResult);
-    }
-
-    @Test
-    @Ignore
-    public void testBenchSmarterResults() throws MetaborgException, InterruptedException {
-        IStrategoTerm flowspecResult = flowspecBenchmark.benchSmarter();
+        IStrategoTerm flowspecResult = flowspecBenchmark.test();
         IStrategoTerm strategoResult = strategoBenchmark.bench();
         assertEquals(flowspecResult, strategoResult);
     }

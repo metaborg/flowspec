@@ -146,6 +146,10 @@ public class InterpreterBuilder {
         return this;
     }
 
+    /**
+     * Pass the NaBL2 solution to the interpreter AST so it can save references to the CFG and the
+     * resolution result in certain places
+     */
     public StaticInfo build(ISolution nabl2solution, Map.Transient<Tuple2<CFGNode, String>, Ref<ITerm>> preProperties) {
         InitValues initValues = ImmutableInitValues
             .of(nabl2solution.config(), nabl2solution.flowSpecSolution().controlFlowGraph(), preProperties,
@@ -404,7 +408,7 @@ public class InterpreterBuilder {
             case "Tuple": {
                 final IApplTerm appl = appl(term, 2);
                 final List<ITerm> exprTerms = list(n(appl, 1));
-                final ExpressionNode[] exprs = new ExpressionNode[exprTerms.size()];
+                final ExpressionNode[] exprs = new ExpressionNode[exprTerms.size() + 1];
                 exprs[0] = expressionNode(n(appl, 0));
                 int i = 1;
                 for(ITerm exprTerm : exprTerms) {
@@ -551,7 +555,7 @@ public class InterpreterBuilder {
                 final IApplTerm appl = appl(term, 2);
                 return new MapLookupNode(expressionNode(n(appl, 0)), expressionNode(n(appl, 1)));
             }
-            case "EmptySetOfMapLiteral": {
+            case "EmptySetOrMapLiteral": {
                 appl(term, 0);
                 return new EmptySetOrMapLiteral();
             }
@@ -623,7 +627,7 @@ public class InterpreterBuilder {
             case "Tuple": {
                 final IApplTerm appl = appl(term, 2);
                 final List<ITerm> patternTerms = list(n(appl, 1));
-                final PatternNode[] patterns = new PatternNode[patternTerms.size()];
+                final PatternNode[] patterns = new PatternNode[patternTerms.size() + 1];
                 patterns[0] = patternNode(n(appl, 0));
                 int i = 1;
                 for(ITerm exprTerm : patternTerms) {

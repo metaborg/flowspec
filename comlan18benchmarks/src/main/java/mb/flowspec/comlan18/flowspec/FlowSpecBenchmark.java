@@ -11,11 +11,7 @@ import org.metaborg.core.context.IContext;
 import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.Spoofax;
-import org.metaborg.spoofax.core.analysis.ISpoofaxAnalyzeResult;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
-import org.metaborg.spoofax.core.unit.ISpoofaxInputUnit;
-import org.metaborg.spoofax.core.unit.ISpoofaxParseUnit;
-import org.metaborg.spoofax.core.unit.ParseContrib;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
@@ -49,7 +45,6 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
 
     protected ILanguageImpl language;
     protected Spoofax spoofax;
-    private ISpoofaxParseUnit parseUnit;
     private FileObject inputFileObject;
     private IStrategoCommon strategoCommon;
     private IProject project;
@@ -64,9 +59,6 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
         project = spoofax.projectService.get(inputFileObject);
         language = spoofax.languageDiscoveryService.languageFromArchive(languageZip);
 
-        final ISpoofaxInputUnit inputUnit = spoofax.unitService.inputUnit(inputFileObject, "", language, null);
-        parseUnit = spoofax.unitService.parseUnit(inputUnit, new ParseContrib(ctree));
-
         strategoCommon = spoofax.strategoCommon;
 
         final StrategoBlob result = new StrategoBlob(emptyResult());
@@ -74,18 +66,16 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     }
 
     @Benchmark public IStrategoTerm bench() throws MetaborgException, InterruptedException {
-        IContext context =
-            spoofax.contextService.get(inputFileObject, spoofax.projectService.get(inputFileObject), language);
-        try(IClosableLock lock = context.write()) {
-            ISpoofaxAnalyzeResult analysisResult = spoofax.analysisService.analyze(parseUnit, context);
-            return analysisResult.result().ast();
-        }
-    }
-
-    @Benchmark public IStrategoTerm benchSmarter() throws MetaborgException, InterruptedException {
         final IContext context = spoofax.contextService.get(inputFileObject, project, language);
         try(IClosableLock lock = context.read()) {
             return strategoCommon.invoke(language, context, input, "benchmark-flowspec-analysis");
+        }
+    }
+
+    public IStrategoTerm test() throws MetaborgException, InterruptedException {
+        final IContext context = spoofax.contextService.get(inputFileObject, project, language);
+        try(IClosableLock lock = context.read()) {
+            return strategoCommon.invoke(language, context, input, "test-flowspec-analysis");
         }
     }
 

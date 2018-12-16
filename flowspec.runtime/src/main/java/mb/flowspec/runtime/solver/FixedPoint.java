@@ -17,14 +17,12 @@ import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.Set.Immutable;
 import mb.flowspec.graph.Algorithms;
-import mb.flowspec.runtime.ImmutableInitValues;
-import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.InterpreterBuilder;
 import mb.flowspec.runtime.interpreter.TransferFunction;
 import mb.flowspec.runtime.interpreter.UnreachableException;
+import mb.flowspec.runtime.lattice.CompleteLattice.Flipped;
 import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.flowspec.runtime.lattice.Lattice;
-import mb.flowspec.runtime.lattice.CompleteLattice.Flipped;
 import mb.nabl2.controlflow.terms.CFGNode;
 import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph;
 import mb.nabl2.controlflow.terms.IFlowSpecSolution;
@@ -72,17 +70,6 @@ public class FixedPoint {
         }
 
         timingInfo.recordStart();
-
-        /* Pass the NaBL2 solution to the interpreter AST so it can save references to the CFG and the
-         * resolution result in certain places
-         */
-        InitValues initValues = ImmutableInitValues.of(nabl2solution.config(), cfg, this.preProperties,
-                                                       nabl2solution.scopeGraph(), nabl2solution.unifier(),
-                                                       nabl2solution.astProperties(), 
-                                                       staticInfo.functions().functions(), 
-                                                       staticInfo.lattices().latticeDefs())
-                .withNameResolutionCache(nabl2solution.nameResolutionCache());
-        staticInfo.init(initValues);
 
         timingInfo.recordInterpInit();
 
