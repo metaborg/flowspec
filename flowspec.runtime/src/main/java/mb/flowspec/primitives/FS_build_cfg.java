@@ -45,7 +45,7 @@ public class FS_build_cfg extends AnalysisPrimitive {
         return M.listElems(ControlFlowConstraints.matcher(), (l, constraints) -> buildCfg(result, constraints)).match(term);
     }
 
-    private IResult buildCfg(IResult result, List<IControlFlowConstraint> constraints) {
+    public static IResult buildCfg(IResult result, List<IControlFlowConstraint> constraints) {
         ISolution solution = result.solution();
         SolverCore core = new SolverCore(null, new Ref<>(PersistentUnifier.Immutable.of()), null);
         ControlFlowComponent cfc = new ControlFlowComponent(core, solution.flowSpecSolution());

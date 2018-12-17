@@ -1,8 +1,12 @@
 package mb.flowspec.comlan18.flowspec;
 
+import static mb.nabl2.terms.matching.TermMatch.M;
+
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.vfs2.FileObject;
@@ -12,6 +16,7 @@ import org.metaborg.core.language.ILanguageImpl;
 import org.metaborg.core.project.IProject;
 import org.metaborg.spoofax.core.Spoofax;
 import org.metaborg.spoofax.core.stratego.IStrategoCommon;
+import org.metaborg.spoofax.core.stratego.primitive.flowspec.FS_solve;
 import org.metaborg.util.concurrent.IClosableLock;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
@@ -21,6 +26,10 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 import mb.flowspec.comlan18.BaseBenchmark;
 import mb.flowspec.comlan18.SpoofaxModuleExtension;
+import mb.flowspec.primitives.FS_build_cfg;
+import mb.flowspec.runtime.interpreter.InterpreterBuilder;
+import mb.flowspec.runtime.solver.FixedPoint;
+import mb.nabl2.constraints.controlflow.ControlFlowConstraints;
 import mb.nabl2.regexp.IAlphabet;
 import mb.nabl2.regexp.IRegExp;
 import mb.nabl2.regexp.impl.FiniteAlphabet;
@@ -39,6 +48,8 @@ import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.spoofax.analysis.ImmutableSingleUnitResult;
 import mb.nabl2.stratego.StrategoBlob;
 import mb.nabl2.stratego.StrategoTermIndices;
+import mb.nabl2.stratego.StrategoTerms;
+import mb.nabl2.terms.ITerm;
 
 public abstract class FlowSpecBenchmark extends BaseBenchmark {
     protected FlowSpecBenchmark(URL inputURL) {
@@ -51,8 +62,14 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     private IStrategoCommon strategoCommon;
     private IProject project;
     private IStrategoTuple input;
+    private IStrategoTerm annotated;
+    private ITerm cfgList;
+    private StrategoTerms strategoTerms;
+    private StrategoBlob result;
+    private IResult cfgBuilt;
+    private List<String> propertyNames;
 
-    @Setup public void setupSpoofax() throws MetaborgException, URISyntaxException {
+    @Setup public void setupSpoofax() throws MetaborgException, URISyntaxException, InterruptedException {
         spoofax = new Spoofax(new SpoofaxModuleExtension());
         FileObject languageZip = spoofax.resourceService
             .resolve(BaseBenchmark.class.getResource("/stratego.typed-0.1.0-SNAPSHOT.spoofax-language").toURI());
@@ -63,10 +80,34 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
 
         strategoCommon = spoofax.strategoCommon;
 
-        final StrategoBlob result = new StrategoBlob(emptyResult());
+        result = new StrategoBlob(emptyResult());
         final ITermFactory tf = spoofax.termFactoryService.getGeneric();
-        final IStrategoTerm annotated = StrategoTermIndices.index(ctree, "benchmarking", tf);
+        annotated = StrategoTermIndices.index(ctree, "benchmarking", tf);
         input = tf.makeTuple(annotated, result);
+        strategoTerms = new StrategoTerms(tf);
+        cfgList = strategoTerms.fromStratego(benchCFGStr());
+        cfgBuilt = benchCFGJava();
+        propertyNames = Arrays.asList("reachingDefinitions");
+    }
+
+    @Benchmark public IStrategoTerm benchCFGStr() throws MetaborgException, InterruptedException {
+        final IContext context = spoofax.contextService.get(inputFileObject, project, language);
+        try(IClosableLock lock = context.read()) {
+            return strategoCommon.invoke(language, context, annotated, "flowspec--generate-cfg");
+        }
+    }
+
+    @Benchmark public IResult benchCFGJava() throws MetaborgException, InterruptedException {
+        Optional<IResult> opt = M.listElems(ControlFlowConstraints.matcher(), (l, constraints) -> FS_build_cfg.buildCfg((IResult) result.value(), constraints)).match(cfgList);
+        return opt.get();
+    }
+
+    @Benchmark public IResult benchDFSolving() throws MetaborgException, InterruptedException {
+        ISolution sol = cfgBuilt.solution();
+        FixedPoint solver = new FixedPoint();
+        final InterpreterBuilder interpBuilder = spoofax.injector.getInstance(FS_solve.class).getFlowSpecInterpreterBuilder(language);
+        final ISolution solution = solver.entryPoint(sol, interpBuilder, propertyNames);
+        return cfgBuilt.withSolution(solution);
     }
 
     @Benchmark public IStrategoTerm bench() throws MetaborgException, InterruptedException {

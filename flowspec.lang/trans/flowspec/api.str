@@ -95,8 +95,16 @@ flowspec-analyze(|analysis) = flowspec-analyze(|analysis, <flowspec--prop-names>
 flowspec-analyze(|analysis, propname) = where(<is-string> propname); flowspec-analyze(|analysis, [propname])
 flowspec-analyze(|analysis, propnames): ast -> analysis2
 where
-  analysis1 := <flowspec--generate-cfg; flowspec--build-cfg(|analysis)> ast
-; analysis2 := <flowspec--solve(|analysis1, <flowspec--prop-names>)> ast
+  (edge-list, flowspec-cfg-str-time-diff) := <profile(flowspec--generate-cfg)> ast
+; (analysis1, flowspec-cfg-java-time-diff) := <profile(flowspec--build-cfg(|analysis))> edge-list
+; (analysis2, flowspec-prop-time-diff) := <profile(flowspec--solve(|analysis1, <flowspec--prop-names>))> ast
+; if flowspec-debug-profile then
+    <debug> $[flowspec (cfg building - Stratego): [<ticks-to-seconds> flowspec-cfg-str-time-diff]]
+    ;
+    <debug> $[flowspec (cfg building - Java): [<ticks-to-seconds> flowspec-cfg-java-time-diff]]
+    ;
+    <debug> $[flowspec (property solving): [<ticks-to-seconds> flowspec-prop-time-diff]]
+  end
 
 /**
  * Analyze the given AST with NaBL2 and FlowSpec
