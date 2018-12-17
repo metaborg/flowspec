@@ -1,0 +1,5 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"mb.flowspec.comlan18.flowspec.FSLibSpoofaxBenchmark.bench","avgt",1,5,1922.150582,510.716037,"ms/op"
+"mb.flowspec.comlan18.flowspec.FSLibSpoofaxBenchmark.benchCFGJava","avgt",1,5,762.829097,45.484186,"ms/op"
+"mb.flowspec.comlan18.flowspec.FSLibSpoofaxBenchmark.benchCFGStr","avgt",1,5,102.852201,18.003051,"ms/op"
+"mb.flowspec.comlan18.flowspec.FSLibSpoofaxBenchmark.benchDFSolving","avgt",1,5,195.505129,11.465781,"ms/op"

@@ -1,0 +1,2 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"mb.flowspec.comlan18.stratego.StrLibSpoofaxBenchmark.bench","avgt",1,5,4.670143,0.151323,"ms/op"
