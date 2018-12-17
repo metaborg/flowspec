@@ -49,7 +49,6 @@ import mb.nabl2.spoofax.analysis.ImmutableSingleUnitResult;
 import mb.nabl2.stratego.StrategoBlob;
 import mb.nabl2.stratego.StrategoTermIndices;
 import mb.nabl2.stratego.StrategoTerms;
-import mb.nabl2.terms.ITerm;
 
 public abstract class FlowSpecBenchmark extends BaseBenchmark {
     protected FlowSpecBenchmark(URL inputURL) {
@@ -63,7 +62,7 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     private IProject project;
     private IStrategoTuple input;
     private IStrategoTerm annotated;
-    private ITerm cfgList;
+    private IStrategoTerm cfgList;
     private StrategoTerms strategoTerms;
     private StrategoBlob result;
     private IResult cfgBuilt;
@@ -85,7 +84,7 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
         annotated = StrategoTermIndices.index(ctree, "benchmarking", tf);
         input = tf.makeTuple(annotated, result);
         strategoTerms = new StrategoTerms(tf);
-        cfgList = strategoTerms.fromStratego(benchCFGStr());
+        cfgList = benchCFGStr();
         cfgBuilt = benchCFGJava();
         propertyNames = Arrays.asList("reachingDefinitions");
     }
@@ -98,7 +97,7 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     }
 
     @Benchmark public IResult benchCFGJava() throws MetaborgException, InterruptedException {
-        Optional<IResult> opt = M.listElems(ControlFlowConstraints.matcher(), (l, constraints) -> FS_build_cfg.buildCfg((IResult) result.value(), constraints)).match(cfgList);
+        Optional<IResult> opt = M.listElems(ControlFlowConstraints.matcher(), (l, constraints) -> FS_build_cfg.buildCfg((IResult) result.value(), constraints)).match(strategoTerms.fromStratego(cfgList));
         return opt.get();
     }
 
