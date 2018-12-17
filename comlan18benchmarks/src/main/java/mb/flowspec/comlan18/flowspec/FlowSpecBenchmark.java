@@ -17,6 +17,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 import mb.flowspec.comlan18.BaseBenchmark;
 import mb.flowspec.comlan18.SpoofaxModuleExtension;
@@ -37,6 +38,7 @@ import mb.nabl2.solver.ImmutableSolverConfig;
 import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.spoofax.analysis.ImmutableSingleUnitResult;
 import mb.nabl2.stratego.StrategoBlob;
+import mb.nabl2.stratego.StrategoTermIndices;
 
 public abstract class FlowSpecBenchmark extends BaseBenchmark {
     protected FlowSpecBenchmark(URL inputURL) {
@@ -62,7 +64,9 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
         strategoCommon = spoofax.strategoCommon;
 
         final StrategoBlob result = new StrategoBlob(emptyResult());
-        input = spoofax.termFactoryService.getGeneric().makeTuple(ctree, result);
+        final ITermFactory tf = spoofax.termFactoryService.getGeneric();
+        final IStrategoTerm annotated = StrategoTermIndices.index(ctree, "benchmarking", tf);
+        input = tf.makeTuple(annotated, result);
     }
 
     @Benchmark public IStrategoTerm bench() throws MetaborgException, InterruptedException {
