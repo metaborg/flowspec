@@ -1,7 +1,5 @@
 package mb.flowspec.comlan18.flowspec;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
-
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -26,10 +24,13 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 import mb.flowspec.comlan18.BaseBenchmark;
 import mb.flowspec.comlan18.SpoofaxModuleExtension;
-import mb.flowspec.primitives.FS_build_cfg;
+import mb.flowspec.controlflow.ControlFlowGraphBuilder;
+import mb.flowspec.controlflow.FlowSpecSolution;
+import mb.flowspec.controlflow.IFlowSpecSolution;
+import mb.flowspec.primitives.AnalysisPrimitive;
 import mb.flowspec.runtime.interpreter.InterpreterBuilder;
 import mb.flowspec.runtime.solver.FixedPoint;
-import mb.nabl2.constraints.controlflow.ControlFlowConstraints;
+import mb.flowspec.terms.B;
 import mb.nabl2.regexp.IAlphabet;
 import mb.nabl2.regexp.IRegExp;
 import mb.nabl2.regexp.impl.FiniteAlphabet;
@@ -48,7 +49,6 @@ import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.spoofax.analysis.ImmutableSingleUnitResult;
 import mb.nabl2.stratego.StrategoBlob;
 import mb.nabl2.stratego.StrategoTermIndices;
-import mb.nabl2.stratego.StrategoTerms;
 
 public abstract class FlowSpecBenchmark extends BaseBenchmark {
     protected FlowSpecBenchmark(URL inputURL) {
@@ -63,8 +63,7 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     private IStrategoTuple input;
     private IStrategoTerm annotated;
     private IStrategoTerm cfgList;
-    private StrategoTerms strategoTerms;
-    private StrategoBlob result;
+    private IResult result;
     private IResult cfgBuilt;
     private List<String> propertyNames;
 
@@ -79,11 +78,10 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
 
         strategoCommon = spoofax.strategoCommon;
 
-        result = new StrategoBlob(emptyResult());
+        result = emptyResult();
         final ITermFactory tf = spoofax.termFactoryService.getGeneric();
         annotated = StrategoTermIndices.index(ctree, "benchmarking", tf);
-        input = tf.makeTuple(annotated, result);
-        strategoTerms = new StrategoTerms(tf);
+        input = B.tuple(annotated, new StrategoBlob(result));
         cfgList = benchCFGStr();
         cfgBuilt = benchCFGJava();
         propertyNames = Arrays.asList("reachingDefinitions");
@@ -97,12 +95,12 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     }
 
     @Benchmark public IResult benchCFGJava() throws MetaborgException, InterruptedException {
-        Optional<IResult> opt = M.listElems(ControlFlowConstraints.matcher(), (l, constraints) -> FS_build_cfg.buildCfg((IResult) result.value(), constraints)).match(strategoTerms.fromStratego(cfgList));
-        return opt.get();
+        ControlFlowGraphBuilder cfgBuilder = ControlFlowGraphBuilder.build(cfgList);
+        return result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), cfgBuilder.cfg(), cfgBuilder.tfAppls()));
     }
 
     @Benchmark public IResult benchDFSolving() throws MetaborgException, InterruptedException {
-        ISolution sol = cfgBuilt.solution();
+        IFlowSpecSolution sol = AnalysisPrimitive.getFSSolution(cfgBuilt).get();
         FixedPoint solver = new FixedPoint();
         final InterpreterBuilder interpBuilder = spoofax.injector.getInstance(FS_solve.class).getFlowSpecInterpreterBuilder(language);
         final ISolution solution = solver.entryPoint(sol, interpBuilder, propertyNames);

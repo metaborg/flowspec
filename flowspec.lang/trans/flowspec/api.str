@@ -96,13 +96,15 @@ flowspec-analyze(|analysis, propname) = where(<is-string> propname); flowspec-an
 flowspec-analyze(|analysis, propnames): ast -> analysis2
 where
   (edge-list, flowspec-cfg-str-time-diff) := <profile(flowspec--generate-cfg)> ast
-; (analysis1, flowspec-cfg-java-time-diff) := <profile(flowspec--build-cfg(|analysis))> edge-list
-; (analysis2, flowspec-prop-time-diff) := <profile(flowspec--solve(|analysis1, <flowspec--prop-names>))> ast
 ; if flowspec-debug-profile then
     <debug> $[flowspec (cfg building - Stratego): [<ticks-to-seconds> flowspec-cfg-str-time-diff]]
-    ;
+  end
+; (analysis1, flowspec-cfg-java-time-diff) := <profile(flowspec--build-cfg(|analysis))> edge-list
+; if flowspec-debug-profile then
     <debug> $[flowspec (cfg building - Java): [<ticks-to-seconds> flowspec-cfg-java-time-diff]]
-    ;
+  end
+; (analysis2, flowspec-prop-time-diff) := <profile(flowspec--solve(|analysis1, propnames))> ast
+; if flowspec-debug-profile then
     <debug> $[flowspec (property solving): [<ticks-to-seconds> flowspec-prop-time-diff]]
   end
 

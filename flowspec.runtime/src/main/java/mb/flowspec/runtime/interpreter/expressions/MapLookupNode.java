@@ -1,15 +1,11 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.UnreachableException;
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class MapLookupNode extends ExpressionNode {
     public final ExpressionNode mapExpr;
@@ -23,28 +19,16 @@ public class MapLookupNode extends ExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         try {
-            return executeITerm(frame);
+            return executeIStrategoTerm(frame);
         } catch (UnexpectedResultException e) {
             throw new UnreachableException(e);
         }
     }
 
     @Override
-    public ITerm executeITerm(VirtualFrame frame) throws UnexpectedResultException {
-        io.usethesource.capsule.Map.Immutable<ITerm, ITerm> map = mapExpr.executeIMap(frame).getMap();
-        ITerm key = keyExpr.executeITerm(frame);
+    public IStrategoTerm executeIStrategoTerm(VirtualFrame frame) throws UnexpectedResultException {
+        io.usethesource.capsule.Map.Immutable<IStrategoTerm, IStrategoTerm> map = mapExpr.executeIMap(frame).getMap();
+        IStrategoTerm key = keyExpr.executeIStrategoTerm(frame);
         return map.get(key);
-    }
-
-    public static IMatcher<MapLookupNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("MapLookup", 
-                ExpressionNode.matchExpr(frameDescriptor),
-                ExpressionNode.matchExpr(frameDescriptor),
-                (appl, mapExpr, keyExpr) -> new MapLookupNode(mapExpr, keyExpr));
-    }
-
-    public void init(InitValues initValues) {
-        mapExpr.init(initValues);
-        keyExpr.init(initValues);
     }
 }

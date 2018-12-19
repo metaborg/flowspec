@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.metaborg.core.MetaborgException;
 import org.spoofax.interpreter.terms.IStrategoTerm;

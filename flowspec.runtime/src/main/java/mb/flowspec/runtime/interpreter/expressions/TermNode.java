@@ -1,17 +1,13 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static mb.nabl2.terms.build.TermBuild.B;
-import static mb.nabl2.terms.matching.TermMatch.M;
-
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import mb.flowspec.runtime.InitValues;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.flowspec.terms.B;
 
 public class TermNode extends ExpressionNode {
     private final String consName;
@@ -22,31 +18,13 @@ public class TermNode extends ExpressionNode {
         this.children = children;
     }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return B.newAppl(consName, Arrays.stream(children)
-                                        .map(c -> {
-                                            try {
-                                                return c.executeITerm(frame);
-                                            } catch (UnexpectedResultException e) {
-                                                throw new RuntimeException(e);
-                                            }
-                                        })
-                                        .collect(Collectors.toList()));
-    }
-
-    public static IMatcher<TermNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("Term", M.stringValue(), M.listElems(ExpressionNode.matchExpr(frameDescriptor)),
-                (appl, consName, children) -> {
-                    ExpressionNode[] c = children.toArray(new ExpressionNode[children.size()]);
-                    return new TermNode(consName, c);
-                });
-    }
-
-    @Override
-    public void init(InitValues initValues) {
-        for (ExpressionNode child : children) {
-            child.init(initValues);
-        }
+    @Override public Object executeGeneric(VirtualFrame frame) {
+        return B.appl(consName, Arrays.stream(children).map(c -> {
+            try {
+                return c.executeIStrategoTerm(frame);
+            } catch(UnexpectedResultException e) {
+                throw new RuntimeException(e);
+            }
+        }).toArray(i -> new IStrategoTerm[i]));
     }
 }

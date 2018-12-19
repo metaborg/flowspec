@@ -15,30 +15,26 @@ public class LatticeItemRefNode extends ExprRefNode implements Initializable {
         this.item = item;
         this.name = name;
     }
-    
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
+
+    @Override public Object executeGeneric(VirtualFrame frame) {
         return value;
     }
 
-    @Override
-    public void init(InitValues initValues) {
-        @SuppressWarnings("rawtypes")
-        CompleteLattice lattice = initValues.lattices().get(name);
+    @Override public void init(InitValues initValues) {
+        @SuppressWarnings("rawtypes") CompleteLattice lattice = initValues.lattices().get(name);
         switch(this.item) {
-        case Top:
-            value = lattice.top();
-            break;
-        case Bottom:
-            value = lattice.bottom();
-            break;
-        default:
-            break;
+            case Top:
+                value = lattice.top();
+                break;
+            case Bottom:
+                value = lattice.bottom();
+                break;
+            default:
+                break;
         }
     }
-    
+
     public static enum LatticeItem {
-        Top,
-        Bottom
+        Top, Bottom
     }
 }

@@ -2,7 +2,6 @@ package mb.flowspec.runtime.lattice;
 
 import com.oracle.truffle.api.Truffle;
 
-import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.values.Function;
 import mb.flowspec.runtime.solver.UnimplementedException;
 
@@ -32,12 +31,5 @@ public final class UserDefinedLattice implements CompleteLattice<Object> {
     public Object lub(Object one, Object other) {
         return Truffle.getRuntime().createCallTarget(lub)
                 .call(new Object[] {one, other});
-    }
-
-    @Override
-    public void init(InitValues initValues) {
-        top_object.init(initValues);
-        bottom_object.init(initValues);
-        lub.init(initValues);
     }
 }

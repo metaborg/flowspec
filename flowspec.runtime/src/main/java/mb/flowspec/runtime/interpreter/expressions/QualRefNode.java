@@ -1,11 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
-
-import mb.flowspec.runtime.InitValues;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
-
-public class QualRefNode extends FunRefNode {
+public class QualRefNode implements FunRefNode {
     public final String[] modname;
     public final String var;
 
@@ -18,13 +13,4 @@ public class QualRefNode extends FunRefNode {
     public String toString() {
         return "QualRefNode [modname=" + String.join("/", modname) + ", var=" + var + "]";
     }
-
-    public static IMatcher<QualRefNode> match() {
-        return M.appl2("QualRef", M.stringValue(), M.stringValue(), (appl, modname, var) -> {
-            return new QualRefNode(modname, var);
-        });
-    }
-
-    @Override
-    public void init(InitValues initValues) {}
 }

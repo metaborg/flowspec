@@ -12,10 +12,15 @@ import java.util.stream.StreamSupport;
 import org.metaborg.util.Ref;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.Set.Immutable;
+import mb.flowspec.controlflow.ICFGNode;
+import mb.flowspec.controlflow.ICompleteControlFlowGraph;
+import mb.flowspec.controlflow.IFlowSpecSolution;
+import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.flowspec.graph.Algorithms;
 import mb.flowspec.runtime.interpreter.InterpreterBuilder;
 import mb.flowspec.runtime.interpreter.TransferFunction;
@@ -23,12 +28,6 @@ import mb.flowspec.runtime.interpreter.UnreachableException;
 import mb.flowspec.runtime.lattice.CompleteLattice.Flipped;
 import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.flowspec.runtime.lattice.Lattice;
-import mb.nabl2.controlflow.terms.CFGNode;
-import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph;
-import mb.nabl2.controlflow.terms.IFlowSpecSolution;
-import mb.nabl2.controlflow.terms.TransferFunctionAppl;
-import mb.nabl2.solver.ISolution;
-import mb.nabl2.terms.ITerm;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
@@ -38,10 +37,10 @@ public class FixedPoint {
     // TODO: Turn this into a config variable
     private static final int FIXPOINT_LIMIT = 500;
 
-    private IFlowSpecSolution<CFGNode> solution;
+    private IFlowSpecSolution solution;
     private final FixedPoint.TimingInfo timingInfo;
-    private final Map.Transient<Tuple2<CFGNode, String>, Ref<ITerm>> preProperties;
-    private final Map.Transient<Tuple2<CFGNode, String>, Ref<ITerm>> postProperties;
+    private final Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
+    private final Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
 
     public FixedPoint() {
         this.preProperties = Map.Transient.of();
@@ -49,19 +48,19 @@ public class FixedPoint {
         this.timingInfo = new FixedPoint.TimingInfo();
     }
 
-    public ISolution entryPoint(ISolution nabl2solution, InterpreterBuilder interpBuilder) {
+    public IFlowSpecSolution entryPoint(IFlowSpecSolution nabl2solution, InterpreterBuilder interpBuilder) {
         StaticInfo staticInfo = interpBuilder.build(nabl2solution, preProperties);
         return entryPoint(nabl2solution, staticInfo, staticInfo.metadata().keySet());
     }
 
-    public ISolution entryPoint(ISolution nabl2solution, InterpreterBuilder interpBuilder, Collection<String> propNames) {
+    public IFlowSpecSolution entryPoint(IFlowSpecSolution nabl2solution, InterpreterBuilder interpBuilder, Collection<String> propNames) {
         StaticInfo staticInfo = interpBuilder.build(nabl2solution, preProperties);
         return entryPoint(nabl2solution, staticInfo, propNames);
     }
 
-    public ISolution entryPoint(ISolution nabl2solution, StaticInfo staticInfo, Collection<String> propNames) {
-        this.solution = nabl2solution.flowSpecSolution();
-        final ICompleteControlFlowGraph.Immutable<CFGNode> cfg = solution.controlFlowGraph();
+    public IFlowSpecSolution entryPoint(IFlowSpecSolution nabl2solution, StaticInfo staticInfo, Collection<String> propNames) {
+        this.solution = nabl2solution;
+        final ICompleteControlFlowGraph.Immutable cfg = solution.controlFlowGraph();
         preProperties.__putAll(solution.preProperties());
         postProperties.__putAll(solution.postProperties());
 
@@ -81,11 +80,11 @@ public class FixedPoint {
             timingInfo.recordEnd();
             timingInfo.logReport(logger);
 
-            IFlowSpecSolution<CFGNode> flowspecSolution = nabl2solution.flowSpecSolution()
+            IFlowSpecSolution flowspecSolution = nabl2solution
                     .withPreProperties(this.preProperties.freeze())
                     .withPostProperties(this.postProperties.freeze());
 
-            return nabl2solution.withFlowSpecSolution(flowspecSolution);
+            return flowspecSolution;
         } catch (UnimplementedException | UnreachableException | ParseException | CyclicGraphException | FixedPointLimitException e) {
             logger.error("Exception during FlowSpec solving: ", e);
 
@@ -94,7 +93,7 @@ public class FixedPoint {
     }
 
     @SuppressWarnings("unchecked")
-    private void solve(ICompleteControlFlowGraph.Immutable<CFGNode> cfg, StaticInfo staticInfo, Collection<String> propNames)
+    private void solve(ICompleteControlFlowGraph.Immutable cfg, StaticInfo staticInfo, Collection<String> propNames)
             throws CyclicGraphException, FixedPointLimitException {
         // Check that all given property names exists, and meanwhile check if this is the full list of property names
         Set<String> allProps = new HashSet<>(staticInfo.metadata().keySet());
@@ -118,40 +117,40 @@ public class FixedPoint {
         for (String prop : propTopoOrder) {
             // remove artificial start used earlier to include all properties in the dependency graph
             if(prop != ARTIFICIAL_PROPERTY) {
-                solveFlowSensitiveProperty(cfg, prop, (Metadata<ITerm>) staticInfo.metadata().get(prop));
+                solveFlowSensitiveProperty(cfg, prop, (Metadata<IStrategoTerm>) staticInfo.metadata().get(prop));
                 timingInfo.recordProperty(prop);
             }
         }
     }
 
-    private void setProperty(CFGNode n, String prop, Ref<ITerm> value) {
+    private void setProperty(ICFGNode n, String prop, Ref<IStrategoTerm> value) {
         this.preProperties.__put(ImmutableTuple2.of(n, prop), value);
     }
 
-    private void setPostProperty(CFGNode n, String prop, ITerm value) {
+    private void setPostProperty(ICFGNode n, String prop, IStrategoTerm value) {
         this.postProperties.__put(ImmutableTuple2.of(n, prop), new Ref<>(value));
     }
 
-    private void setProperty(CFGNode n, String prop, ITerm value) {
+    private void setProperty(ICFGNode n, String prop, IStrategoTerm value) {
         getPropertyRef(n, prop).set(value);
     }
 
-    private ITerm getProperty(CFGNode n, String prop) {
+    private IStrategoTerm getProperty(ICFGNode n, String prop) {
         return getPropertyRef(n, prop).get();
     }
 
-    private Ref<ITerm> getPropertyRef(CFGNode n, String prop) {
+    private Ref<IStrategoTerm> getPropertyRef(ICFGNode n, String prop) {
         return this.preProperties.get(ImmutableTuple2.of(n, prop));
     }
 
-    private void solveFlowSensitiveProperty(ICompleteControlFlowGraph.Immutable<CFGNode> cfg,
-            String prop, Metadata<ITerm> metadata) throws FixedPointLimitException {
+    private void solveFlowSensitiveProperty(ICompleteControlFlowGraph.Immutable cfg,
+            String prop, Metadata<IStrategoTerm> metadata) throws FixedPointLimitException {
         // Phase 1: initialisation
 
-        final ITerm bottom = metadata.lattice().bottom();
-        final BinaryRelation<CFGNode, CFGNode> edges;
-        final Iterable<Set<CFGNode>> sccs;
-        final io.usethesource.capsule.Set<CFGNode> initNodes;
+        final IStrategoTerm bottom = metadata.lattice().bottom();
+        final BinaryRelation<ICFGNode, ICFGNode> edges;
+        final Iterable<Set<ICFGNode>> sccs;
+        final io.usethesource.capsule.Set<ICFGNode> initNodes;
         switch (metadata.dir()) {
             case Forward: {
                 initNodes = cfg.startNodes();
@@ -168,21 +167,21 @@ public class FixedPoint {
             default: 
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
-        for (CFGNode n : initNodes) {
+        for (ICFGNode n : initNodes) {
             setProperty(n, prop, new Ref<>(callTFInitial(prop, metadata, n)));
         }
-        final Set<CFGNode> ignoredNodes = new HashSet<>();
+        final Set<ICFGNode> ignoredNodes = new HashSet<>();
         StreamSupport.stream(sccs.spliterator(), false)
             .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
             .forEach(n -> {
-                Ref<ITerm> ref = perhapsIgnore(n, edges, ignoredNodes, prop)
+                Ref<IStrategoTerm> ref = perhapsIgnore(n, edges, ignoredNodes, prop)
                         .orElseGet(() -> new Ref<>(bottom));
                 setProperty(n, prop, ref);
             });
         logger.debug("Ignoring {} out of {} nodes", ignoredNodes.size(), cfg.nodes().size());
 
         // Phase 2: Fixpoint iteration
-        for(Set<CFGNode> scc : sccs) {
+        for(Set<ICFGNode> scc : sccs) {
             boolean done = false;
             int fixpointCount = 0;
             while (!done) {
@@ -191,11 +190,11 @@ public class FixedPoint {
                 }
                 done = true;
                 fixpointCount++;
-                for (CFGNode from : scc) {
-                    for (CFGNode to : edges.get(from)) {
+                for (ICFGNode from : scc) {
+                    for (ICFGNode to : edges.get(from)) {
                         if (!ignoredNodes.contains(to)) {
-                            ITerm afterFromTF = callTF(prop, metadata, from);
-                            ITerm beforeToTF = getProperty(to, prop);
+                            IStrategoTerm afterFromTF = callTF(prop, metadata, from);
+                            IStrategoTerm beforeToTF = getProperty(to, prop);
                             if (metadata.lattice().nleq(afterFromTF, beforeToTF)) {
                                 setProperty(to, prop, metadata.lattice().lub(beforeToTF, afterFromTF));
                                 if (scc.contains(to)) {
@@ -217,18 +216,18 @@ public class FixedPoint {
                 StreamSupport.stream(sccs.spliterator(), false)
                 .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
                 .forEach(n -> {
-                    ITerm value = callTF(prop, metadata, n);
+                    IStrategoTerm value = callTF(prop, metadata, n);
                     setPostProperty(n, prop, value);
                 });
                 break;
             }
             case Backward: {
-                HashMap<CFGNode, ITerm> temp = new HashMap<>();
+                HashMap<ICFGNode, IStrategoTerm> temp = new HashMap<>();
                 StreamSupport.stream(sccs.spliterator(), false)
                 .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
                 .forEach(n -> {
                     setPostProperty(n, prop, getProperty(n, prop));
-                    ITerm value = callTF(prop, metadata, n);
+                    IStrategoTerm value = callTF(prop, metadata, n);
                     temp.put(n, value);
                 });
                 temp.forEach((n, value) -> {
@@ -241,10 +240,10 @@ public class FixedPoint {
         }
     }
 
-    private Optional<Ref<ITerm>> perhapsIgnore(CFGNode n, BinaryRelation<CFGNode, CFGNode> edges, Set<CFGNode> ignoredNodes, String prop) {
-        Immutable<CFGNode> predecessors = edges.inverse().get(n);
+    private Optional<Ref<IStrategoTerm>> perhapsIgnore(ICFGNode n, BinaryRelation<ICFGNode, ICFGNode> edges, Set<ICFGNode> ignoredNodes, String prop) {
+        Immutable<ICFGNode> predecessors = edges.inverse().get(n);
         if(predecessors.size() == 1) {
-            CFGNode pred = predecessors.iterator().next();
+            ICFGNode pred = predecessors.iterator().next();
             if(solution.getTFAppl(pred, prop) == null) {
                 ignoredNodes.add(n);
                 return Optional.of(getPropertyRef(pred, prop));
@@ -259,7 +258,7 @@ public class FixedPoint {
      * graph, the bottom becomes visible. We patch that here with the empty set. Ugly, but better
      * than RuntimeExceptions. To be replaced with a proper static analysis in FlowSpec. 
      */
-    private ITerm callTFInitial(String prop, Metadata<?> metadata, CFGNode node) {
+    private IStrategoTerm callTFInitial(String prop, Metadata<?> metadata, ICFGNode node) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
         if (tfAppl == null) {
             Lattice<?> l = metadata.lattice();
@@ -275,7 +274,7 @@ public class FixedPoint {
         return callTF(prop, metadata, node);
     }
 
-    private ITerm callTF(String prop, Metadata<?> metadata, CFGNode node) {
+    private IStrategoTerm callTF(String prop, Metadata<?> metadata, ICFGNode node) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
         if (tfAppl == null) {
             return getProperty(node, prop);

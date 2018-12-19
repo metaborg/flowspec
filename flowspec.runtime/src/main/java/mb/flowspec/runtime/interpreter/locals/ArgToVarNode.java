@@ -1,7 +1,5 @@
 package mb.flowspec.runtime.interpreter.locals;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
-
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -9,7 +7,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 
 import mb.flowspec.runtime.interpreter.Types;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @TypeSystemReference(Types.class)
 public class ArgToVarNode extends Node {
@@ -25,19 +22,7 @@ public class ArgToVarNode extends Node {
     public void execute(VirtualFrame frame) {
         frame.setObject(slot, frame.getArguments()[argumentOffset]);
     }
-    
-    public static IMatcher<ArgToVarNode[]> matchList(FrameDescriptor frameDescriptor) {
-        return M.listElems(M.stringValue()).map(patternVars -> {
-            ArgToVarNode[] patternVariables = new ArgToVarNode[patternVars.size()];
-            for (int i = 0; i < patternVars.size(); i++) {
-                final String name = patternVars.get(i);
-                FrameSlot slot = frameDescriptor.findOrAddFrameSlot(name);
-                patternVariables[i] = new ArgToVarNode(i, slot);
-            }
-            return patternVariables;
-        });
-    }
-    
+
     public static ArgToVarNode of(FrameDescriptor frameDescriptor, int offset, String name) {
         FrameSlot slot = frameDescriptor.findOrAddFrameSlot(name);
         return new ArgToVarNode(offset, slot);

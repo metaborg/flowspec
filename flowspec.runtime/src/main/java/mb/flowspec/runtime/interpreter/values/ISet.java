@@ -1,50 +1,44 @@
 package mb.flowspec.runtime.interpreter.values;
 
-import static mb.nabl2.terms.build.TermBuild.B;
+import java.util.Arrays;
 
-import java.util.List;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultiset;
-import com.google.common.collect.Multiset;
+import io.usethesource.capsule.Set;
+import mb.flowspec.terms.B;
+import mb.flowspec.terms.IStrategoAppl2;
 
-import mb.nabl2.terms.IApplTerm;
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.ITermVar;
+public interface ISet<K extends IStrategoTerm> extends IStrategoAppl2 {
+    Set.Immutable<K> getSet();
 
-public interface ISet<K extends ITerm> extends IApplTerm {
-    io.usethesource.capsule.Set.Immutable<K> getSet();
-
-    default boolean isGround() {
-        return true;
-    }
-
-    default Multiset<ITermVar> getVars() {
-        return ImmutableMultiset.of();
-    }
-
-    ImmutableClassToInstanceMap<Object> getAttachments();
-
-    ISet<K> withAttachments(ImmutableClassToInstanceMap<Object> value);
-
-    default <T> T match(ITerm.Cases<T> cases) {
-        return cases.caseAppl(this);
-    }
-
-    default <T, E extends Throwable> T matchOrThrow(ITerm.CheckedCases<T, E> cases) throws E {
-        return cases.caseAppl(this);
-    }
-
-    default String getOp() {
+    @Override default String getName() {
         return "Set";
     }
 
-    default int getArity() {
+    @Override default int getSubtermCount() {
         return 1;
     }
 
-    default List<ITerm> getArgs() {
-        return new ImmutableList.Builder<ITerm>().add(B.newList(this.getSet())).build();
+    @Override default IStrategoTerm[] getAllSubterms() {
+        IStrategoTerm[] terms = getSet().stream().toArray(i -> new IStrategoTerm[i]);
+        return new IStrategoTerm[] { B.list(terms) };
+    }
+
+    @Override default boolean match(IStrategoTerm second) {
+        if(second == this) {
+            return true;
+        }
+        if(second == null) {
+            return false;
+        }
+        if(second instanceof ISet) {
+            return ((ISet<?>) second).getSet().equals(this.getSet());
+        }
+        if(second instanceof IStrategoNamed) {
+            return ((IStrategoNamed) second).getName().equals(getName())
+                && Arrays.equals(getAllSubterms(), second.getAllSubterms());
+        }
+        return false;
     }
 }

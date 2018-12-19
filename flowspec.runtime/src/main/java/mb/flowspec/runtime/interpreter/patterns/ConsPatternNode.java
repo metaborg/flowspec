@@ -1,17 +1,8 @@
 package mb.flowspec.runtime.interpreter.patterns;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
+import org.spoofax.interpreter.terms.IStrategoList;
 
-import java.util.Optional;
-
-import org.metaborg.util.optionals.Optionals;
-
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-
-import mb.flowspec.runtime.InitValues;
-import mb.nabl2.terms.IListTerm;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 public class ConsPatternNode extends PatternNode {
     private final PatternNode headPattern;
@@ -23,32 +14,16 @@ public class ConsPatternNode extends PatternNode {
     }
 
     @Override public boolean matchGeneric(VirtualFrame frame, Object value) {
-        if(!(value instanceof IListTerm)) {
+        if(!(value instanceof IStrategoList)) {
             return false;
         }
-        return matchList(frame, (IListTerm) value);
+        return matchList(frame, (IStrategoList) value);
     }
 
-    private boolean matchList(VirtualFrame frame, IListTerm value) {
-        return M.cons(
-            (h, u) -> Optionals.when(headPattern.matchGeneric(frame, h)), 
-            (t, u) -> Optionals.when(tailPattern.matchGeneric(frame, t)), 
-            (c, h, t) -> c
-        ).match(value).isPresent();
-    }
-
-    @Override public void init(InitValues initValues) {
-        headPattern.init(initValues);
-        tailPattern.init(initValues);
-    }
-
-    public static IMatcher<ConsPatternNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("Term", 
-                M.string(s -> Optionals.when(s.getValue().equals("Cons"))).flatMap(o -> o),
-                M.listElems(PatternNode.matchPattern(frameDescriptor))
-                    .flatMap(l -> l.size() == 2 ? Optional.of(l) : Optional.empty()),
-            (appl, consname, childPatterns) -> {
-                return new ConsPatternNode(childPatterns.get(0), childPatterns.get(1));
-            });
+    private boolean matchList(VirtualFrame frame, IStrategoList value) {
+        if(value.isEmpty()) {
+            return false;
+        }
+        return headPattern.matchGeneric(frame, value.head()) && tailPattern.matchGeneric(frame, value.tail());
     }
 }

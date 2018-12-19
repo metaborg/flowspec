@@ -1,32 +1,23 @@
 package mb.flowspec.runtime.interpreter.values;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Arrays;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.Multiset;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.ITermVar;
-import io.usethesource.capsule.Set;
 import io.usethesource.capsule.Map;
+import io.usethesource.capsule.Set;
+import mb.flowspec.terms.B;
 
-public class EmptyMapOrSet<K extends ITerm, V extends ITerm> implements ISet<K>, IMap<K, V>, Serializable {
+public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> implements ISet<K>, IMap<K, V>, Serializable {
 
     private final Set.Immutable<K> set;
     private final Map.Immutable<K, V> map;
-    private final ImmutableClassToInstanceMap<Object> attachments;
 
     public EmptyMapOrSet() {
         this.set = Set.Immutable.of();
         this.map = Map.Immutable.of();
-        this.attachments = ImmutableClassToInstanceMap.builder().build();
-    }
-
-    public EmptyMapOrSet(ImmutableClassToInstanceMap<Object> attachments) {
-        this.set = Set.Immutable.of();
-        this.map = Map.Immutable.of();
-        this.attachments = attachments;
     }
 
     @Override
@@ -37,51 +28,6 @@ public class EmptyMapOrSet<K extends ITerm, V extends ITerm> implements ISet<K>,
     @Override
     public Map.Immutable<K, V> getMap() {
         return map;
-    }
-
-    @Override
-    public ImmutableClassToInstanceMap<Object> getAttachments() {
-        return attachments;
-    }
-
-    @Override
-    public EmptyMapOrSet<K, V> withAttachments(ImmutableClassToInstanceMap<Object> value) {
-        return new EmptyMapOrSet<>(value);
-    }
-
-    @Override
-    public List<ITerm> getArgs() {
-        return IMap.super.getArgs();
-    }
-
-    @Override
-    public int getArity() {
-        return IMap.super.getArity();
-    }
-
-    @Override
-    public <T> T match(Cases<T> cases) {
-        return IMap.super.match(cases);
-    }
-
-    @Override
-    public boolean isGround() {
-        return IMap.super.isGround();
-    }
-
-    @Override
-    public Multiset<ITermVar> getVars() {
-        return IMap.super.getVars();
-    }
-
-    @Override
-    public <T, E extends Throwable> T matchOrThrow(CheckedCases<T, E> cases) throws E {
-        return IMap.super.matchOrThrow(cases);
-    }
-
-    @Override
-    public String getOp() {
-        return IMap.super.getOp();
     }
 
     @Override
@@ -124,5 +70,32 @@ public class EmptyMapOrSet<K extends ITerm, V extends ITerm> implements ISet<K>,
     @Override
     public String toString() {
         return set.toString();
+    }
+
+    @Override public boolean match(IStrategoTerm second) {
+        if(this == second) {
+            return true;
+        }
+        if(null == second) {
+            return false;
+        }
+        if(this.getTermType() == second.getTermType()) {
+            IStrategoAppl appl = (IStrategoAppl) second;
+            return this.getName().equals(appl.getName())
+                && Arrays.equals(this.getAllSubterms(), second.getAllSubterms());
+        }
+        return false;
+    }
+
+    @Override public int getSubtermCount() {
+        return 1;
+    }
+
+    @Override public IStrategoTerm[] getAllSubterms() {
+        return new IStrategoTerm[] { B.list() };
+    }
+
+    @Override public String getName() {
+        return ISet.super.getName();
     }
 }

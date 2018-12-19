@@ -1,21 +1,16 @@
 package mb.flowspec.runtime.interpreter.locals;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
-
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 
-import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.Types;
 import mb.flowspec.runtime.interpreter.expressions.ExpressionNode;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @TypeSystemReference(Types.class)
 @NodeChild(value = "valNode", type = ExpressionNode.class)
@@ -90,18 +85,4 @@ public abstract class WriteVarNode extends Node {
     protected boolean isBoolean(VirtualFrame frame) {
         return getSlot().getKind() == FrameSlotKind.Boolean || getSlot().getKind() == FrameSlotKind.Illegal;
     }
-
-    public void init(InitValues initValues) {
-        this.expr.init(initValues);
-    }
-
-    public static IMatcher<WriteVarNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("Binding", M.stringValue(), ExpressionNode.matchExpr(frameDescriptor), (appl, name, expr) -> {
-            // TODO: getType(appl)
-            WriteVarNode result = WriteVarNodeGen.create(expr, frameDescriptor.findOrAddFrameSlot(name));
-            result.expr = expr;
-            return result;
-        });
-    }
-
 }

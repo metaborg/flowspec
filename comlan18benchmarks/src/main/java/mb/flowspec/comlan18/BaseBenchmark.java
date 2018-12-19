@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
@@ -20,6 +21,7 @@ import org.spoofax.terms.TermFactory;
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
+@Fork(jvmArgsAppend = {"-Xms512m", "-Xmx1024m", "-Xss16m"})
 public abstract class BaseBenchmark {
     final protected URL inputURL;
     protected IStrategoTerm ctree;

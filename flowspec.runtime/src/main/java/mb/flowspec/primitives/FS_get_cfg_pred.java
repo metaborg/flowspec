@@ -1,16 +1,17 @@
 package mb.flowspec.primitives;
 
-import static mb.nabl2.terms.build.TermBuild.B;
-
 import java.util.List;
 import java.util.Optional;
 
 import org.spoofax.interpreter.core.InterpreterException;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import mb.nabl2.controlflow.terms.CFGNode;
-import mb.nabl2.solver.ISolution;
-import mb.nabl2.spoofax.primitives.AnalysisPrimitive;
-import mb.nabl2.terms.ITerm;
+import io.usethesource.capsule.Set;
+import mb.flowspec.controlflow.ControlFlowGraphBuilder;
+import mb.flowspec.controlflow.ICFGNode;
+import mb.flowspec.controlflow.IFlowSpecSolution;
+import mb.flowspec.terms.B;
+import mb.flowspec.terms.M;
 
 public class FS_get_cfg_pred extends AnalysisPrimitive {
 
@@ -19,10 +20,19 @@ public class FS_get_cfg_pred extends AnalysisPrimitive {
     }
 
     @Override
-    public Optional<? extends ITerm> call(ISolution solution, ITerm term, List<ITerm> terms)
+    public Optional<? extends IStrategoTerm> call(IFlowSpecSolution solution, IStrategoTerm term, List<IStrategoTerm> terms)
             throws InterpreterException {
-        Optional<CFGNode> node = CFGNode.matcher().match(term);
-        return node.<ITerm>map(n -> B.newList(solution.flowSpecSolution().controlFlowGraph().edges().inverse().get(n)));
+        return M.maybe(() -> {
+            ICFGNode node = ControlFlowGraphBuilder.cfgNode(term);
+            final Set.Immutable<ICFGNode> set = solution.controlFlowGraph().edges().inverse().get(node);
+            final IStrategoTerm[] nodes = new IStrategoTerm[set.size()];
+            int i = 0;
+            for(ICFGNode cfgNode : set) {
+                nodes[i] = cfgNode;
+                i++;
+            }
+            return B.list(nodes);
+        });
     }
 
 }

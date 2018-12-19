@@ -1,30 +1,25 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
-
 import org.metaborg.util.Ref;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import io.usethesource.capsule.Map;
+import mb.flowspec.controlflow.ICFGNode;
+import mb.flowspec.controlflow.ICFGNode.Kind;
+import mb.flowspec.controlflow.ImmutableCFGNode;
 import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.Initializable;
-import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
-import mb.nabl2.controlflow.terms.CFGNode;
-import mb.nabl2.controlflow.terms.ICFGNode.Kind;
-import mb.nabl2.controlflow.terms.ImmutableCFGNode;
-import mb.nabl2.stratego.TermIndex;
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.flowspec.terms.TermIndex;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
 @NodeChildren({@NodeChild("rhs")})
 public abstract class PropNode extends ExpressionNode implements Initializable {
-    private Map<Tuple2<CFGNode, String>, Ref<ITerm>> properties;
+    private Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> properties;
     protected final String propName;
 
     public PropNode(String propName) {
@@ -32,22 +27,15 @@ public abstract class PropNode extends ExpressionNode implements Initializable {
     }
 
     @Specialization
-    protected ITerm lookup(CFGNode rhs) {
+    protected IStrategoTerm lookup(ICFGNode rhs) {
         return properties.get(ImmutableTuple2.of(rhs, propName)).get();
     }
 
     @Specialization
-    protected ITerm lookup(ITerm rhs) {
+    protected IStrategoTerm lookup(IStrategoTerm rhs) {
         TermIndex index = TermIndex.get(rhs).get();
         final ImmutableCFGNode node = ImmutableCFGNode.of(index, null, Kind.Normal);
         return properties.get(ImmutableTuple2.of(node, propName)).get();
-    }
-
-    public static IMatcher<PropNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("Prop", 
-                M.stringValue(),
-                ReadVarNode.match(frameDescriptor), 
-                (appl, propName, rhs) -> PropNodeGen.create(propName, rhs));
     }
 
     @Override

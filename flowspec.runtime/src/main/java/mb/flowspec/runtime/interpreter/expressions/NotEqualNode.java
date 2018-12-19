@@ -1,22 +1,15 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
-
 import java.util.Objects;
+
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.FrameDescriptor;
-
-import mb.flowspec.runtime.InitValues;
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class NotEqualNode extends ExpressionNode {
-    protected ExpressionNode[] children;
-    
     @Specialization
     protected boolean nequal(int left, int right) {
         return left != right;
@@ -33,7 +26,7 @@ public abstract class NotEqualNode extends ExpressionNode {
     }
 
     @Specialization
-    protected boolean nequal(ITerm left, ITerm right) {
+    protected boolean nequal(IStrategoTerm left, IStrategoTerm right) {
         return !Objects.equals(left, right);
     }
 
@@ -54,22 +47,5 @@ public abstract class NotEqualNode extends ExpressionNode {
     protected boolean equal(Object left, Object right) {
         assert !left.equals(right);
         return true;
-    }
-
-    public static IMatcher<NotEqualNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("NEq", 
-                ExpressionNode.matchExpr(frameDescriptor), 
-                ExpressionNode.matchExpr(frameDescriptor),
-                (appl, e1, e2) -> {
-                    NotEqualNode result = NotEqualNodeGen.create(e1, e2);
-                    result.children = new ExpressionNode[] {e1,e2};
-                    return result;
-                });
-    }
-
-    public void init(InitValues initValues) {
-        for (ExpressionNode child : children) {
-            child.init(initValues);
-        }
     }
 }

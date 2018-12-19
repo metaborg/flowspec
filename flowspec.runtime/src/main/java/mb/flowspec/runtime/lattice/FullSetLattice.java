@@ -1,15 +1,13 @@
 package mb.flowspec.runtime.lattice;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.Set.Immutable;
-import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.interpreter.SymbolicLargestSetException;
 import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Set;
-import mb.nabl2.terms.ITerm;
 
-public class FullSetLattice<E extends ITerm> implements CompleteLattice<ISet<E>> {
+public class FullSetLattice<E extends IStrategoTerm> implements CompleteLattice<ISet<E>> {
     @SuppressWarnings("unchecked")
     @Override
     public ISet<E> top() {
@@ -53,24 +51,11 @@ public class FullSetLattice<E extends ITerm> implements CompleteLattice<ISet<E>>
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes" })
     public static final ISet TOP = new ISet() {
         @Override
         public Immutable getSet() {
             throw new SymbolicLargestSetException("Attempting to read symbolic set of all values");
         }
-
-        @Override
-        public ImmutableClassToInstanceMap getAttachments() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ISet withAttachments(ImmutableClassToInstanceMap value) {
-            throw new UnsupportedOperationException();
-        }
     };
-
-    @Override
-    public void init(InitValues initValues) {}
 }
