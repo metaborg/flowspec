@@ -1,8 +1,7 @@
 package mb.flowspec.terms;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static mb.flowspec.Assert.assertEquals;
+import static mb.flowspec.Assert.assertInstanceOf;
 
 import java.util.Optional;
 
@@ -16,7 +15,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public class M {
     public static IStrategoAppl appl(IStrategoTerm term) {
-        assertThat(term, instanceOf(IStrategoAppl.class));
+        assertInstanceOf(term, IStrategoAppl.class);
         return (IStrategoAppl) term;
     }
 
@@ -33,7 +32,7 @@ public class M {
     }
 
     public static IStrategoTuple tuple(IStrategoTerm term) {
-        assertThat(term, instanceOf(IStrategoTuple.class));
+        assertInstanceOf(term, IStrategoTuple.class);
         return (IStrategoTuple) term;
     }
 
@@ -44,17 +43,17 @@ public class M {
     }
 
     public static IStrategoList list(IStrategoTerm term) {
-        assertThat(term, instanceOf(IStrategoList.class));
+        assertInstanceOf(term, IStrategoList.class);
         return (IStrategoList) term;
     }
 
     public static String string(IStrategoTerm term) {
-        assertThat(term, instanceOf(IStrategoString.class));
+        assertInstanceOf(term, IStrategoString.class);
         return ((IStrategoString) term).stringValue();
     }
 
     public static int integer(IStrategoTerm term) {
-        assertThat(term, instanceOf(IStrategoInt.class));
+        assertInstanceOf(term, IStrategoInt.class);
         return ((IStrategoInt) term).intValue();
     }
 
