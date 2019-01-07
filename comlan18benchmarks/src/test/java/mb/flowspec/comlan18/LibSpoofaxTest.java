@@ -32,7 +32,7 @@ public class LibSpoofaxTest {
      */
     @Test
     public void testBenchResults() throws MetaborgException, InterruptedException {
-        IStrategoTerm flowspecResult = flowspecBenchmark.test();
+        IStrategoTerm flowspecResult = flowspecBenchmark.benchCFGPrimitive();
         IStrategoTerm strategoResult = strategoBenchmark.bench();
 //        assertEquals(flowspecResult, strategoResult);
     }
