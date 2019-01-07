@@ -6,10 +6,12 @@ import javax.annotation.Nullable;
 
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableClassToInstanceMap.Builder;
 
+import mb.flowspec.terms.B;
 import mb.flowspec.terms.TermIndex;
 
 @Value.Immutable
