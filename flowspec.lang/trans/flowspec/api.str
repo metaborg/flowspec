@@ -357,17 +357,29 @@ where
 ; result := <collect-om(flowspec--generate-cfg-root, conc); concat> ast
 ; try(flowspec-debug-profile;length;debug(|"flowspec, cfg edge list size: "))
 
+flowspec--register-cfg-toplevel(nstart, nend, nentry, nexit, nnormal, edge, appl): ast -> ast
+where
+  <alltd(flowspec--register-cfg-root(nstart, nend, nentry, nexit, nnormal, edge, appl))> ast
+
 flowspec--proprule(|index): term -> constr*
 with (constr*, _) :=
   <repeat(\(constr, files) -> <flowspec--proprule(|index, constr, files)> term\)> ([], [])
 
 flowspec--proprule(|index, constr, files) = fail
 
+flowspec--register-proprule-Start(appl|node) = fail
+flowspec--register-proprule-End(appl|node) = fail
+flowspec--register-proprule-Entry(appl|node) = fail
+flowspec--register-proprule-Exit(appl|node) = fail
+flowspec--register-proprule-Normal(appl|node) = fail
+
 flowspec--prop-names = <repeat(flowspec--add-prop-names)> []
 
 flowspec--cfg-node(|index,kind): n -> CFGNode(index, n, kind)
 
 flowspec--generate-cfg-root = fail
+
+flowspec--register-cfg-root(nstart, nend, nentry, nexit, nnormal, edge, appl) = fail
 
 flowspec--prop-names = fail
 
