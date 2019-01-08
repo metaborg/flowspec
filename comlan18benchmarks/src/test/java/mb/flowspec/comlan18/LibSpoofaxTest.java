@@ -12,6 +12,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import mb.flowspec.comlan18.flowspec.FSLibSpoofaxBenchmark;
 import mb.flowspec.comlan18.stratego.StrLibSpoofaxBenchmark;
+import mb.nabl2.spoofax.analysis.IResult;
+import mb.nabl2.stratego.StrategoBlob;
 
 public class LibSpoofaxTest {
     FSLibSpoofaxBenchmark flowspecBenchmark;
@@ -32,8 +34,15 @@ public class LibSpoofaxTest {
      */
     @Test
     public void testBenchResults() throws MetaborgException, InterruptedException {
-        IStrategoTerm flowspecResult = flowspecBenchmark.benchCFGPrimitive();
+        IStrategoTerm flowspecResult = flowspecBenchmark.test();
         IStrategoTerm strategoResult = strategoBenchmark.bench();
 //        assertEquals(flowspecResult, strategoResult);
+    }
+    
+    @Test
+    public void testBenchResults2() throws MetaborgException, InterruptedException {
+        IResult testResult = flowspecBenchmark.benchCFGJava();
+        IResult primResult = (IResult) ((StrategoBlob) flowspecBenchmark.benchCFGPrimitive()).value();
+//        assertEquals(testResult, primResult);
     }
 }
