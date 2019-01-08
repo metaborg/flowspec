@@ -1,7 +1,5 @@
 package mb.flowspec;
 
-import org.junit.ComparisonFailure;
-
 /**
  * Functionality copied from {@link org.junit.Assert} and added {@link Assert#assertInstanceOf(Object, Class)}
  * Copied so we don't have a dependency on junit in normal code, which would look strange.
@@ -25,7 +23,7 @@ public class Assert {
             return;
         } else if(expected instanceof String && actual instanceof String) {
             String cleanMessage = message == null ? "" : message;
-            throw new ComparisonFailure(cleanMessage, (String) expected, (String) actual);
+            throw new RuntimeException("ComparisonFailure: " + cleanMessage + ", expected: " + ((String) expected) + ", actual: " + ((String) actual));
         } else {
             failNotEquals(message, expected, actual);
         }
