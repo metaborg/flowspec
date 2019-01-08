@@ -6,8 +6,8 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.CallT;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.lang.Context;
 import org.strategoxt.lang.InteropCallT;
+import org.strategoxt.lang.InteropContext;
 
 import io.usethesource.capsule.Map;
 import mb.flowspec.controlflow.FlowSpecSolution;
@@ -40,21 +40,23 @@ public class FS_create_cfg extends AbstractPrimitive {
         final ICompleteControlFlowGraph.Transient cfg = ImmutableTransientCompleteControlFlowGraph.of();
         final Map.Transient<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls = Map.Transient.of();
 
+        final InteropContext context = (InteropContext) env;
+
         final Strategy[] strategyArgs = new Strategy[] {
             //nstart
-            new InteropCallT(new RegisterNode.RegisterStartNode(cfg), (Context) env),
+            new InteropCallT(new RegisterNode.RegisterStartNode(cfg), context.getContext()),
             //nend
-            new InteropCallT(new RegisterNode.RegisterEndNode(cfg), (Context) env),
+            new InteropCallT(new RegisterNode.RegisterEndNode(cfg), context.getContext()),
             //nentry
-            new InteropCallT(new RegisterNode.RegisterEntryNode(cfg), (Context) env),
+            new InteropCallT(new RegisterNode.RegisterEntryNode(cfg), context.getContext()),
             //nexit
-            new InteropCallT(new RegisterNode.RegisterExitNode(cfg), (Context) env),
+            new InteropCallT(new RegisterNode.RegisterExitNode(cfg), context.getContext()),
             //nnormal
-            new InteropCallT(new RegisterNode.RegisterNormalNode(cfg), (Context) env),
+            new InteropCallT(new RegisterNode.RegisterNormalNode(cfg), context.getContext()),
             //edge
-            new InteropCallT(new RegisterEdge(cfg), (Context) env),
+            new InteropCallT(new RegisterEdge(cfg), context.getContext()),
             //appl
-            new InteropCallT(new RegisterAppl(tfAppls), (Context) env),
+            new InteropCallT(new RegisterAppl(tfAppls), context.getContext()),
         };
         if(!((CallT) svars[0]).evaluateWithArgs(env, strategyArgs, new IStrategoTerm[0])) {
             return false;

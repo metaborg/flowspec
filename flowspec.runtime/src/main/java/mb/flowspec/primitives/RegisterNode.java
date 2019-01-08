@@ -9,9 +9,9 @@ import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
 import mb.flowspec.controlflow.ICFGNode;
-import mb.flowspec.controlflow.ImmutableCFGNode;
 import mb.flowspec.controlflow.ICFGNode.Kind;
 import mb.flowspec.controlflow.ICompleteControlFlowGraph.Transient;
+import mb.flowspec.controlflow.ImmutableCFGNode;
 import mb.flowspec.terms.TermIndex;
 
 abstract class RegisterNode extends Strategy {
@@ -31,7 +31,7 @@ abstract class RegisterNode extends Strategy {
         if(current instanceof IStrategoAppl) {
             name = ((IStrategoAppl) current).getName();
         } else {
-            name = current.toString(1);
+            name = current.toString(0);
         }
         final ImmutableCFGNode node = ImmutableCFGNode.of(index, name, kind);
         nodes().__insert(node);
@@ -108,9 +108,9 @@ abstract class RegisterNode extends Strategy {
             final TermIndex index = optIndex.get();
             final String name;
             if(targ1 instanceof IStrategoString) {
-                name = ((IStrategoString) targ1).stringValue();
+                name = ((IStrategoString) targ1).stringValue().replaceFirst("^_", "");
             } else {
-                name = targ1.toString(1);
+                name = targ1.toString(0);
             }
             final ImmutableCFGNode node = ImmutableCFGNode.of(index, name, kind);
             nodes().__insert(node);
