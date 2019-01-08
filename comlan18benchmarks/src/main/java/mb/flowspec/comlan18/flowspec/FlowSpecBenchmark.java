@@ -121,6 +121,13 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
         }
     }
 
+    @Benchmark public IStrategoTerm bench2() throws MetaborgException, InterruptedException {
+        final IContext context = spoofax.contextService.get(inputFileObject, project, language);
+        try(IClosableLock lock = context.read()) {
+            return strategoCommon.invoke(language, context, input, "benchmark-flowspec-analysis2");
+        }
+    }
+
     public IStrategoTerm test() throws MetaborgException, InterruptedException {
         final IContext context = spoofax.contextService.get(inputFileObject, project, language);
         try(IClosableLock lock = context.read()) {
