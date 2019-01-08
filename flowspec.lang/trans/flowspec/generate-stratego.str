@@ -174,14 +174,14 @@ cfg-root-related-varstr: NoRoot() -> [<gen-cfg-entry-node-str>, <gen-cfg-exit-no
 
 cfg-root-related-varstr2: Root()   ->
   [ ${t_start := <nstart> fs_term
-      ; <flowspec--register-proprule-Start(appl|t_start)> fs_term}
+      ; <flowspec--register-proprule-Start(appl|t_start) <+ id> fs_term}
   , ${t_end := <nend> fs_term
-      ; <flowspec--register-proprule-End(appl|t_end)> fs_term} ]
+      ; <flowspec--register-proprule-End(appl|t_end) <+ id> fs_term} ]
 cfg-root-related-varstr2: NoRoot() ->
   [ ${t_entry := <nentry> fs_term
-      ; <flowspec--register-proprule-Entry(appl|t_entry)> fs_term}
+      ; <flowspec--register-proprule-Entry(appl|t_entry) <+ id> fs_term}
   , ${t_exit := <nexit> fs_term
-      ; <flowspec--register-proprule-Exit(appl|t_exit)> fs_term} ]
+      ; <flowspec--register-proprule-Exit(appl|t_exit) <+ id> fs_term} ]
 
 gen-cfg-node-str: v -> <gen-cfg-node-str(|"Normal")> (${match{v}}, ${node{v}})
 
@@ -209,7 +209,7 @@ gen-ref-var-str: Ref(v) -> <gen-cfg-node-str> v
 
 gen-ref-var-str2: Ref(v) ->
   ${node{v} := <nnormal(|"{v}")> match{v}
-   ; <flowspec--register-proprule-Normal(appl|node{v})> match{v}}
+   ; <flowspec--register-proprule-Normal(appl|node{v}) <+ id> match{v}}
 
 gen-ref-str: Ref(v) ->
   ${<flowspec--proprule-rec(flowspec--proprule(|<flowspec--get-ast-index> match{v}))> match{v}}
