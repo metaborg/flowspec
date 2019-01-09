@@ -64,10 +64,6 @@ public class FixedPoint {
         preProperties.__putAll(solution.preProperties());
         postProperties.__putAll(solution.postProperties());
 
-        if (!cfg.deadEndNodes().isEmpty()) {
-            logger.error("Found dead ends in control flow graph: " + cfg.deadEndNodes());
-        }
-
         timingInfo.recordStart();
 
         timingInfo.recordInterpInit();
