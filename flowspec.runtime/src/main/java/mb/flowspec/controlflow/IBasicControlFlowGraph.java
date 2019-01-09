@@ -1,20 +1,21 @@
 package mb.flowspec.controlflow;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 
 import io.usethesource.capsule.BinaryRelation;
-import io.usethesource.capsule.Map;
-import io.usethesource.capsule.Set;
 import mb.flowspec.terms.TermIndex;
 
 public interface IBasicControlFlowGraph {
     static final ILogger logger = LoggerUtils.logger(IBasicControlFlowGraph.class);
 
     /**
-     * @return true if the graph is empty; i.e. has no nodes. 
+     * @return true if the graph is empty; i.e. has no nodes.
      */
     default boolean isEmpty() {
         return nodes().isEmpty();
@@ -56,52 +57,46 @@ public interface IBasicControlFlowGraph {
     Set<ICFGNode> normalNodes();
 
     interface Immutable extends IBasicControlFlowGraph {
-        @Override Set.Immutable<ICFGNode> nodes();
         @Override BinaryRelation.Immutable<ICFGNode, ICFGNode> edges();
-        @Override Set.Immutable<ICFGNode> startNodes();
-        @Override Set.Immutable<ICFGNode> normalNodes();
-        @Override Set.Immutable<ICFGNode> endNodes();
-        @Override Set.Immutable<ICFGNode> entryNodes();
-        @Override Set.Immutable<ICFGNode> exitNodes();
-        
-        default Map.Immutable<TermIndex, ICFGNode> startNodeMap() {
-            Map.Transient<TermIndex, ICFGNode> map = Map.Transient.of();
+
+        default Map<TermIndex, ICFGNode> startNodeMap() {
+            Map<TermIndex, ICFGNode> map = new HashMap<>(startNodes().size());
             startNodes().stream().forEach(node -> {
-                map.__put(node.getIndex(), node);
+                map.put(node.getIndex(), node);
             });
-            return map.freeze();
+            return map;
         }
-        
-        default Map.Immutable<TermIndex, ICFGNode> endNodeMap() {
-            Map.Transient<TermIndex, ICFGNode> map = Map.Transient.of();
+
+        default Map<TermIndex, ICFGNode> endNodeMap() {
+            Map<TermIndex, ICFGNode> map = new HashMap<>(endNodes().size());
             endNodes().stream().forEach(node -> {
-                map.__put(node.getIndex(), node);
+                map.put(node.getIndex(), node);
             });
-            return map.freeze();
+            return map;
         }
-        
-        default Map.Immutable<TermIndex, ICFGNode> entryNodeMap() {
-            Map.Transient<TermIndex, ICFGNode> map = Map.Transient.of();
+
+        default Map<TermIndex, ICFGNode> entryNodeMap() {
+            Map<TermIndex, ICFGNode> map = new HashMap<>(entryNodes().size());
             entryNodes().stream().forEach(node -> {
-                map.__put(node.getIndex(), node);
+                map.put(node.getIndex(), node);
             });
-            return map.freeze();
+            return map;
         }
-        
-        default Map.Immutable<TermIndex, ICFGNode> exitNodeMap() {
-            Map.Transient<TermIndex, ICFGNode> map = Map.Transient.of();
+
+        default Map<TermIndex, ICFGNode> exitNodeMap() {
+            Map<TermIndex, ICFGNode> map = new HashMap<>(exitNodes().size());
             exitNodes().stream().forEach(node -> {
-                map.__put(node.getIndex(), node);
+                map.put(node.getIndex(), node);
             });
-            return map.freeze();
+            return map;
         }
-        
-        default Map.Immutable<TermIndex, ICFGNode> normalNodeMap() {
-            Map.Transient<TermIndex, ICFGNode> map = Map.Transient.of();
+
+        default Map<TermIndex, ICFGNode> normalNodeMap() {
+            Map<TermIndex, ICFGNode> map = new HashMap<>(normalNodes().size());
             normalNodes().stream().forEach(node -> {
-                map.__put(node.getIndex(), node);
+                map.put(node.getIndex(), node);
             });
-            return map.freeze();
+            return map;
         }
 
         /**
@@ -126,8 +121,7 @@ public interface IBasicControlFlowGraph {
                     map = exitNodeMap();
                     break;
                 default:
-                    map = Map.Immutable.of();
-                    break;
+                    return Optional.empty();
             }
             return Optional.ofNullable(map.get(index));
         }
@@ -135,10 +129,5 @@ public interface IBasicControlFlowGraph {
 
     interface Transient extends IBasicControlFlowGraph {
         @Override BinaryRelation.Transient<ICFGNode, ICFGNode> edges();
-        @Override Set.Transient<ICFGNode> startNodes();
-        @Override Set.Transient<ICFGNode> normalNodes();
-        @Override Set.Transient<ICFGNode> endNodes();
-        @Override Set.Transient<ICFGNode> entryNodes();
-        @Override Set.Transient<ICFGNode> exitNodes();
     }
 }

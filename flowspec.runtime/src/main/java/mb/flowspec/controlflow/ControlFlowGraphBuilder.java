@@ -21,7 +21,7 @@ public class ControlFlowGraphBuilder {
     protected final Map.Transient<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls;
 
     protected ControlFlowGraphBuilder() {
-        this.cfg = ImmutableTransientCompleteControlFlowGraph.of();
+        this.cfg = TransientCompleteControlFlowGraph.of();
         this.tfAppls = Map.Transient.of();
     }
 
@@ -98,19 +98,19 @@ public class ControlFlowGraphBuilder {
     protected void addCFGNode(ICFGNode node) {
         switch(node.getKind()) {
             case Start:
-                cfg.startNodes().__insert(node);
+                cfg.startNodes().add(node);
                 break;
             case End:
-                cfg.endNodes().__insert(node);
+                cfg.endNodes().add(node);
                 break;
             case Entry:
-                cfg.entryNodes().__insert(node);
+                cfg.entryNodes().add(node);
                 break;
             case Exit:
-                cfg.exitNodes().__insert(node);
+                cfg.exitNodes().add(node);
                 break;
             case Normal:
-                cfg.normalNodes().__insert(node);
+                cfg.normalNodes().add(node);
                 break;
         }
     }

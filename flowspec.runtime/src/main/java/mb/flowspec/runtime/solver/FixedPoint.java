@@ -150,7 +150,7 @@ public class FixedPoint {
         final IStrategoTerm bottom = metadata.lattice().bottom();
         final BinaryRelation<ICFGNode, ICFGNode> edges;
         final Iterable<Set<ICFGNode>> sccs;
-        final io.usethesource.capsule.Set<ICFGNode> initNodes;
+        final Set<ICFGNode> initNodes;
         switch (metadata.dir()) {
             case Forward: {
                 initNodes = cfg.startNodes();

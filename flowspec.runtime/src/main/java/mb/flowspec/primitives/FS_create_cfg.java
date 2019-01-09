@@ -13,8 +13,8 @@ import io.usethesource.capsule.Map;
 import mb.flowspec.controlflow.FlowSpecSolution;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.ICompleteControlFlowGraph;
-import mb.flowspec.controlflow.ImmutableTransientCompleteControlFlowGraph;
 import mb.flowspec.controlflow.TransferFunctionAppl;
+import mb.flowspec.controlflow.TransientCompleteControlFlowGraph;
 import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.stratego.StrategoBlob;
 import mb.nabl2.util.Tuple2;
@@ -37,7 +37,7 @@ public class FS_create_cfg extends AbstractPrimitive {
         } catch(ClassCastException e) {
             throw new IllegalArgumentException("Not a valid analysis term.");
         }
-        final ICompleteControlFlowGraph.Transient cfg = ImmutableTransientCompleteControlFlowGraph.of();
+        final ICompleteControlFlowGraph.Transient cfg = TransientCompleteControlFlowGraph.of();
         final Map.Transient<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls = Map.Transient.of();
 
         final InteropContext context = (InteropContext) env;

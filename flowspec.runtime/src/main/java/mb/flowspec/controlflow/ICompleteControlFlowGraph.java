@@ -1,20 +1,14 @@
 package mb.flowspec.controlflow;
 
 import java.util.Map.Entry;
-
-import io.usethesource.capsule.Set;
+import java.util.Set;
 
 public interface ICompleteControlFlowGraph extends IBasicControlFlowGraph {
     interface Immutable extends ICompleteControlFlowGraph, IBasicControlFlowGraph.Immutable {
         /**
          * @return A set of unreachable nodes in the control flow graph(s)
          */
-        Set.Immutable<ICFGNode> unreachableNodes();
-
-        /**
-         * @return A set of nodes that reach a dead end (not ending in an end node) in the control flow graph(s)
-         */
-        Set.Immutable<ICFGNode> deadEndNodes();
+        Set<ICFGNode> unreachableNodes();
 
         /**
          * @return An *unmodifiable* iterable of *unmodifiable* sets. The iterable is topologically ordered.
@@ -24,7 +18,7 @@ public interface ICompleteControlFlowGraph extends IBasicControlFlowGraph {
          * order, you only need to initialise the data of the start nodes, every other node will have received
          * some data before being visited. 
          */
-        Iterable<java.util.Set<ICFGNode>> topoSCCs();
+        Iterable<Set<ICFGNode>> topoSCCs();
 
         /**
          * @return An *unmodifiable* iterable of *unmodifiable* sets. The iterable is reverse topologically
@@ -34,7 +28,7 @@ public interface ICompleteControlFlowGraph extends IBasicControlFlowGraph {
          * order, you only need to initialise the data of the end nodes, every other node will have received
          * some data before being visited.
          */
-        Iterable<java.util.Set<ICFGNode>> revTopoSCCs();
+        Iterable<Set<ICFGNode>> revTopoSCCs();
     }
 
     interface Transient extends ICompleteControlFlowGraph, IBasicControlFlowGraph.Transient {
@@ -43,15 +37,15 @@ public interface ICompleteControlFlowGraph extends IBasicControlFlowGraph {
              for (Entry<ICFGNode, ICFGNode> e : other.edges().entrySet()) {
                  change |= edges().__insert(e.getKey(), e.getValue());
              }
-             change |= startNodes().__insertAll(other.startNodes());
-             change |= normalNodes().__insertAll(other.normalNodes());
-             change |= endNodes().__insertAll(other.endNodes());
+             change |= startNodes().addAll(other.startNodes());
+             change |= normalNodes().addAll(other.normalNodes());
+             change |= endNodes().addAll(other.endNodes());
              return change;
          }
 
         default ICompleteControlFlowGraph.Immutable freeze() {
-            return CompleteControlFlowGraph.of(normalNodes().freeze(), edges().freeze(), startNodes().freeze(),
-                    endNodes().freeze(), entryNodes().freeze(), exitNodes().freeze());
+            return CompleteControlFlowGraph.of(normalNodes(), edges().freeze(), startNodes(),
+                    endNodes(), entryNodes(), exitNodes());
         }
     }
 }

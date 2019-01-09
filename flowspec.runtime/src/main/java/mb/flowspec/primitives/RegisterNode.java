@@ -1,6 +1,7 @@
 package mb.flowspec.primitives;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -34,11 +35,11 @@ abstract class RegisterNode extends Strategy {
             name = current.toString(0);
         }
         final ImmutableCFGNode node = ImmutableCFGNode.of(index, name, kind);
-        nodes().__insert(node);
+        nodes().add(node);
         return node;
     }
 
-    public abstract io.usethesource.capsule.Set.Transient<ICFGNode> nodes();
+    public abstract Set<ICFGNode> nodes();
 
     public static final class RegisterStartNode extends RegisterNode {
         private final Transient cfg;
@@ -48,7 +49,7 @@ abstract class RegisterNode extends Strategy {
             this.cfg = cfg;
         }
 
-        @Override public io.usethesource.capsule.Set.Transient<ICFGNode> nodes() {
+        @Override public Set<ICFGNode> nodes() {
             return cfg.startNodes();
         }
     }
@@ -61,7 +62,7 @@ abstract class RegisterNode extends Strategy {
             this.cfg = cfg;
         }
 
-        @Override public io.usethesource.capsule.Set.Transient<ICFGNode> nodes() {
+        @Override public Set<ICFGNode> nodes() {
             return cfg.endNodes();
         }
     }
@@ -74,7 +75,7 @@ abstract class RegisterNode extends Strategy {
             this.cfg = cfg;
         }
 
-        @Override public io.usethesource.capsule.Set.Transient<ICFGNode> nodes() {
+        @Override public Set<ICFGNode> nodes() {
             return cfg.entryNodes();
         }
     }
@@ -87,7 +88,7 @@ abstract class RegisterNode extends Strategy {
             this.cfg = cfg;
         }
 
-        @Override public io.usethesource.capsule.Set.Transient<ICFGNode> nodes() {
+        @Override public Set<ICFGNode> nodes() {
             return cfg.exitNodes();
         }
     }
@@ -113,11 +114,11 @@ abstract class RegisterNode extends Strategy {
                 name = targ1.toString(0);
             }
             final ImmutableCFGNode node = ImmutableCFGNode.of(index, name, kind);
-            nodes().__insert(node);
+            nodes().add(node);
             return node;
         }
 
-        public io.usethesource.capsule.Set.Transient<ICFGNode> nodes() {
+        public Set<ICFGNode> nodes() {
             return cfg.normalNodes();
         }
     }

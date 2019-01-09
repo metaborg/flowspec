@@ -1,13 +1,15 @@
 package mb.flowspec.controlflow;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.metaborg.util.Ref;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
+import com.google.common.collect.Sets;
+
 import io.usethesource.capsule.BinaryRelation;
 import io.usethesource.capsule.Map.Immutable;
-import io.usethesource.capsule.Set;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
@@ -27,9 +29,9 @@ public final class ControlFlowGraphTerms {
 
 
     private String toDot() {
-        final java.util.Set<String> properties = this.preProperties.keySet().stream().map(t -> t._2()).collect(Collectors.toSet());
+        final Set<String> properties = this.preProperties.keySet().stream().map(t -> t._2()).collect(Collectors.toSet());
 
-        final Set.Immutable<ICFGNode> entryExitNodes = Set.Immutable.union(controlFlowGraph.entryNodes(), controlFlowGraph.exitNodes());
+        final Set<ICFGNode> entryExitNodes = Sets.union(controlFlowGraph.entryNodes(), controlFlowGraph.exitNodes());
 
         final String starts = controlFlowGraph.startNodes().stream().map(node -> nodeToDot(node, properties)).collect(Collectors.joining());
         final String ends = controlFlowGraph.endNodes().stream().map(node -> nodeToDot(node, properties)).collect(Collectors.joining());
@@ -46,11 +48,11 @@ public final class ControlFlowGraphTerms {
              + "}";
     }
 
-    private BinaryRelation.Immutable<ICFGNode, ICFGNode> removeNodes(BinaryRelation.Immutable<ICFGNode, ICFGNode> edges, Set.Immutable<ICFGNode> toRemove) {
+    private BinaryRelation.Immutable<ICFGNode, ICFGNode> removeNodes(BinaryRelation.Immutable<ICFGNode, ICFGNode> edges, Set<ICFGNode> toRemove) {
         BinaryRelation.Transient<ICFGNode, ICFGNode> result = edges.asTransient();
         for(ICFGNode node : toRemove) {
-            Set.Immutable<ICFGNode> tos = result.get(node);
-            Set.Immutable<ICFGNode> froms = result.inverse().get(node);
+            Set<ICFGNode> tos = result.get(node);
+            Set<ICFGNode> froms = result.inverse().get(node);
             result.__remove(node); // remove node ->> tos
             for(ICFGNode from : froms) {
                 result.__remove(from, node); // remove froms ->> node
@@ -66,7 +68,7 @@ public final class ControlFlowGraphTerms {
         return "\"" + from.toString() + "\" -> \"" + to.toString() + "\";\n";
     }
 
-    private String nodeToDot(ICFGNode node, java.util.Set<String> properties) {
+    private String nodeToDot(ICFGNode node, Set<String> properties) {
         String propNames = "{" + properties.stream().map(n -> n.replaceAll(RECORD_RESERVED, ESCAPE_MATCH)).collect(Collectors.joining("|")) + "}";
         String prePropVals = "{" + properties.stream().map(n -> prePropValToDot(node, n)).collect(Collectors.joining("|")) + "}";
         String postPropVals = "{" + properties.stream().map(n -> postPropValToDot(node, n)).collect(Collectors.joining("|")) + "}";
