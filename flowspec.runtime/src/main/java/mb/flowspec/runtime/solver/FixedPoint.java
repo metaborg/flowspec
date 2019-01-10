@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
 import org.metaborg.util.Ref;
 import org.metaborg.util.log.ILogger;
@@ -68,7 +67,7 @@ public class FixedPoint {
 
         timingInfo.recordInterpInit();
 
-        logger.debug("SCCs:" + cfg.topoSCCs());
+        logger.debug("SCCs: {}", cfg.topoSCCs());
 
         try {
             solve(cfg, staticInfo, propNames);
@@ -167,13 +166,13 @@ public class FixedPoint {
             setProperty(n, prop, new Ref<>(callTFInitial(prop, metadata, n)));
         }
         final Set<ICFGNode> ignoredNodes = new HashSet<>();
-        StreamSupport.stream(sccs.spliterator(), false)
-            .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
-            .forEach(n -> {
+        for(Set<ICFGNode> set : sccs) {
+            for(ICFGNode n : set) {
                 Ref<IStrategoTerm> ref = perhapsIgnore(n, edges, ignoredNodes, prop)
-                        .orElseGet(() -> new Ref<>(bottom));
+                    .orElseGet(() -> new Ref<>(bottom));
                 setProperty(n, prop, ref);
-            });
+            }
+        }
         logger.debug("Ignoring {} out of {} nodes", ignoredNodes.size(), cfg.nodes().size());
 
         // Phase 2: Fixpoint iteration
@@ -202,30 +201,30 @@ public class FixedPoint {
                 }
             }
             if (fixpointCount > 1) {
-                logger.debug("Property '" + prop + "' took " + fixpointCount + " runs through an SCC to solve it. ");
+                logger.debug("Property '{}' took {} runs through an SCC to solve it. ", prop, fixpointCount);
             }
         }
 
         // Phase 3: Result calculation
         switch (metadata.dir()) {
             case Forward: {
-                StreamSupport.stream(sccs.spliterator(), false)
-                .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
-                .forEach(n -> {
-                    IStrategoTerm value = callTF(prop, metadata, n);
-                    setPostProperty(n, prop, value);
-                });
+                for(Set<ICFGNode> set : sccs) {
+                    for(ICFGNode n : set) {
+                        IStrategoTerm value = callTF(prop, metadata, n);
+                        setPostProperty(n, prop, value);
+                    }
+                }
                 break;
             }
             case Backward: {
                 HashMap<ICFGNode, IStrategoTerm> temp = new HashMap<>();
-                StreamSupport.stream(sccs.spliterator(), false)
-                .flatMap(set -> StreamSupport.stream(set.spliterator(), false))
-                .forEach(n -> {
-                    setPostProperty(n, prop, getProperty(n, prop));
-                    IStrategoTerm value = callTF(prop, metadata, n);
-                    temp.put(n, value);
-                });
+                for(Set<ICFGNode> set : sccs) {
+                    for(ICFGNode n : set) {
+                        setPostProperty(n, prop, getProperty(n, prop));
+                        IStrategoTerm value = callTF(prop, metadata, n);
+                        temp.put(n, value);
+                    }
+                }
                 temp.forEach((n, value) -> {
                     setProperty(n, prop, value);
                 });
