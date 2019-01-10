@@ -166,7 +166,7 @@ ${flowspec--register-cfg-root(nstart, nend, nentry, nexit, nnormal, edge, appl):
   fs_term@{patternstr} -> (t_start, t_end)}
 
 cfg-root-rule-header2(|patternstr): NoRoot() ->
-${flowspec--register-cfg(nstart, nend, nentry, nexit, nnormal, edge, appl|t_start, t_end):
+${flowspec--register-cfg(nentry, nexit, nnormal, edge, appl|t_start, t_end):
   fs_term@{patternstr} -> (t_entry, t_exit)}
 
 cfg-root-related-varstr: Root()   -> [<gen-cfg-start-node-str>, <gen-cfg-end-node-str>]
@@ -203,7 +203,7 @@ gen-recurse-str: Recurse(v) ->
   ${<flowspec--generate-cfg(?entry{v}, ?exit{v} | t_start, t_end)> match{v}}
 
 gen-recurse-str2: Recurse(v) ->
-  ${(entry{v}, exit{v}) := <flowspec--register-cfg(nstart, nend, nentry, nexit, nnormal, edge, appl|t_start, t_end)> match{v}}
+  ${(entry{v}, exit{v}) := <flowspec--register-cfg(nentry, nexit, nnormal, edge, appl|t_start, t_end)> match{v}}
 
 gen-ref-var-str: Ref(v) -> <gen-cfg-node-str> v
 
