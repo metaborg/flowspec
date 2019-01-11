@@ -1,15 +1,12 @@
 package mb.flowspec.controlflow;
 
-import java.util.Optional;
-
 import javax.annotation.Nullable;
 
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.spoofax.interpreter.terms.IStrategoList;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableClassToInstanceMap.Builder;
-
+import mb.flowspec.terms.B;
 import mb.flowspec.terms.TermIndex;
 
 @Value.Immutable
@@ -24,30 +21,11 @@ public abstract class CFGNode implements ICFGNode {
 
     @Value.Parameter @Override public abstract ICFGNode.Kind getKind();
 
-    // IApplTerm implementation
+    // IStrategoTerm implementation
 
-    @Value.Default public ImmutableClassToInstanceMap<Object> getAttachments() {
-        return ImmutableClassToInstanceMap.of();
+    @Value.Lazy @Override public IStrategoList getAnnotations() {
+        return B.list(this.getIndex());
     }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" }) @Value.Check protected CFGNode check() {
-        if(Optional.ofNullable(this.getAttachments().getInstance(TermIndex.class)).map(ti -> ti.equals(getIndex()))
-            .orElse(false)) {
-            return this;
-        }
-        Builder<Object> newAttachments = ImmutableClassToInstanceMap.builder();
-        this.getAttachments().entrySet().stream().filter(e -> e.getKey() != TermIndex.class).forEach(e -> {
-            newAttachments.put((Class) e.getKey(), e.getValue());
-        });
-        newAttachments.put(TermIndex.class, getIndex());
-        return this.withAttachments(newAttachments.build());
-    }
-
-    public abstract CFGNode withAttachments(ImmutableClassToInstanceMap<Object> value);
-
-    @Override public abstract boolean equals(Object other);
-
-    @Override public abstract int hashCode();
 
     @Override public String toString() {
         return "##" + getCFGNodeName() + this.getIndex().toString();

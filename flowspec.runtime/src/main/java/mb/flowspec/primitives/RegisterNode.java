@@ -9,9 +9,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
+import mb.flowspec.controlflow.ControlFlowGraphBuilder;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.ICFGNode.Kind;
-import mb.flowspec.controlflow.ICompleteControlFlowGraph.Transient;
 import mb.flowspec.controlflow.ImmutableCFGNode;
 import mb.flowspec.terms.TermIndex;
 
@@ -42,63 +42,63 @@ abstract class RegisterNode extends Strategy {
     public abstract Set<ICFGNode> nodes();
 
     public static final class RegisterStartNode extends RegisterNode {
-        private final Transient cfg;
+        private final ControlFlowGraphBuilder builder;
 
-        RegisterStartNode(Transient cfg) {
+        RegisterStartNode(ControlFlowGraphBuilder builder) {
             super(Kind.Start);
-            this.cfg = cfg;
+            this.builder = builder;
         }
 
         @Override public Set<ICFGNode> nodes() {
-            return cfg.startNodes();
+            return builder.startNodes();
         }
     }
 
     public static final class RegisterEndNode extends RegisterNode {
-        private final Transient cfg;
+        private final ControlFlowGraphBuilder builder;
 
-        RegisterEndNode(Transient cfg) {
+        RegisterEndNode(ControlFlowGraphBuilder builder) {
             super(Kind.End);
-            this.cfg = cfg;
+            this.builder = builder;
         }
 
         @Override public Set<ICFGNode> nodes() {
-            return cfg.endNodes();
+            return builder.endNodes();
         }
     }
 
     public static final class RegisterEntryNode extends RegisterNode {
-        private final Transient cfg;
+        private final ControlFlowGraphBuilder builder;
 
-        RegisterEntryNode(Transient cfg) {
+        RegisterEntryNode(ControlFlowGraphBuilder builder) {
             super(Kind.Entry);
-            this.cfg = cfg;
+            this.builder = builder;
         }
 
         @Override public Set<ICFGNode> nodes() {
-            return cfg.entryNodes();
+            return builder.entryNodes();
         }
     }
 
     public static final class RegisterExitNode extends RegisterNode {
-        private final Transient cfg;
+        private final ControlFlowGraphBuilder builder;
 
-        RegisterExitNode(Transient cfg) {
+        RegisterExitNode(ControlFlowGraphBuilder builder) {
             super(Kind.Exit);
-            this.cfg = cfg;
+            this.builder = builder;
         }
 
         @Override public Set<ICFGNode> nodes() {
-            return cfg.exitNodes();
+            return builder.exitNodes();
         }
     }
 
     public static final class RegisterNormalNode extends Strategy {
         private static final Kind kind = Kind.Normal;
-        private final Transient cfg;
+        private final ControlFlowGraphBuilder builder;
 
-        RegisterNormalNode(Transient cfg) {
-            this.cfg = cfg;
+        RegisterNormalNode(ControlFlowGraphBuilder builder) {
+            this.builder = builder;
         }
 
         @Override public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm targ1) {
@@ -119,7 +119,7 @@ abstract class RegisterNode extends Strategy {
         }
 
         public Set<ICFGNode> nodes() {
-            return cfg.normalNodes();
+            return builder.normalNodes();
         }
     }
 }

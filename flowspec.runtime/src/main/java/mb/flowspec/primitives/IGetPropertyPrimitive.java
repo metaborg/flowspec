@@ -9,7 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.Map.Immutable;
 import mb.flowspec.controlflow.CFGNode;
-import mb.flowspec.controlflow.ControlFlowGraphBuilder;
+import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.terms.M;
 import mb.flowspec.terms.TermIndex;
@@ -22,7 +22,7 @@ public interface IGetPropertyPrimitive {
         if(terms.size() != 1) {
             throw new InterpreterException("Need one term argument: key");
         }
-        final Optional<ICFGNode> optNode = M.maybe(() -> ControlFlowGraphBuilder.cfgNode(term)).map(Optional::of)
+        final Optional<ICFGNode> optNode = M.maybe(() -> ControlFlowGraphReader.cfgNode(term)).map(Optional::of)
             .orElseGet(() -> TermIndex.get(term).map(CFGNode::normal));
         return optNode.flatMap(node -> M.maybe(() -> {
             String key = M.string(terms.get(0));

@@ -19,7 +19,7 @@ public abstract class FlowSpecSolution implements IFlowSpecSolution, Serializabl
     
     @Override
     @Parameter
-    public abstract ICompleteControlFlowGraph.Immutable controlFlowGraph();
+    public abstract IControlFlowGraph controlFlowGraph();
 
     @Override
     @Parameter
@@ -33,11 +33,7 @@ public abstract class FlowSpecSolution implements IFlowSpecSolution, Serializabl
     @Parameter
     public abstract Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties();
 
-    public static IFlowSpecSolution of(ISolution solution, ICompleteControlFlowGraph.Immutable controlFlowGraph, Map.Immutable<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls) {
+    public static IFlowSpecSolution of(ISolution solution, IControlFlowGraph controlFlowGraph, Map.Immutable<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls) {
         return ImmutableFlowSpecSolution.of(solution, controlFlowGraph, tfAppls, Map.Immutable.of(), Map.Immutable.of());
-    }
-
-    public static IFlowSpecSolution of(ISolution solution) {
-        return ImmutableFlowSpecSolution.of(solution, CompleteControlFlowGraph.of(), Map.Immutable.of(), Map.Immutable.of(), Map.Immutable.of());
     }
 }

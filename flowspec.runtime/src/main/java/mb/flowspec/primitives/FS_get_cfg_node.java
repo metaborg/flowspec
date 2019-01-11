@@ -6,9 +6,10 @@ import java.util.Optional;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import mb.flowspec.controlflow.ControlFlowGraphBuilder;
+import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.IFlowSpecSolution;
+import mb.flowspec.controlflow.ImmutableCFGNode;
 import mb.flowspec.terms.M;
 import mb.flowspec.terms.TermIndex;
 
@@ -24,9 +25,9 @@ public class FS_get_cfg_node extends AnalysisPrimitive {
             throw new InterpreterException("Need one term argument: nodeKind");
         }
         return M.maybe(() -> {
-            final ICFGNode.Kind kind = ControlFlowGraphBuilder.kind(terms.get(0));
-            final TermIndex index = ControlFlowGraphBuilder.termIndex(term);
-            return solution.controlFlowGraph().findNode(index, kind).get();
+            final ICFGNode.Kind kind = ControlFlowGraphReader.kind(terms.get(0));
+            final TermIndex index = ControlFlowGraphReader.termIndex(term);
+            return ImmutableCFGNode.of(index, null, kind);
         });
     }
 

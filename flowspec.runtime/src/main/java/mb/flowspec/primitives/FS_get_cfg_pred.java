@@ -2,12 +2,12 @@ package mb.flowspec.primitives;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import io.usethesource.capsule.Set;
-import mb.flowspec.controlflow.ControlFlowGraphBuilder;
+import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.IFlowSpecSolution;
 import mb.flowspec.terms.B;
@@ -23,8 +23,8 @@ public class FS_get_cfg_pred extends AnalysisPrimitive {
     public Optional<? extends IStrategoTerm> call(IFlowSpecSolution solution, IStrategoTerm term, List<IStrategoTerm> terms)
             throws InterpreterException {
         return M.maybe(() -> {
-            ICFGNode node = ControlFlowGraphBuilder.cfgNode(term);
-            final Set.Immutable<ICFGNode> set = solution.controlFlowGraph().edges().inverse().get(node);
+            ICFGNode node = ControlFlowGraphReader.cfgNode(term);
+            final Set<ICFGNode> set = solution.controlFlowGraph().prevNodes(node);
             final IStrategoTerm[] nodes = new IStrategoTerm[set.size()];
             int i = 0;
             for(ICFGNode cfgNode : set) {

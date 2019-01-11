@@ -9,8 +9,8 @@ import org.metaborg.util.Ref;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.Map;
-import mb.flowspec.controlflow.IBasicControlFlowGraph;
 import mb.flowspec.controlflow.ICFGNode;
+import mb.flowspec.controlflow.IControlFlowGraph;
 import mb.flowspec.runtime.interpreter.values.Function;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 import mb.nabl2.scopegraph.esop.IEsopNameResolution;
@@ -32,7 +32,7 @@ public abstract class InitValues {
     @Parameter public abstract SolverConfig config();
 
     @Parameter
-    public abstract IBasicControlFlowGraph controlFlowGraph();
+    public abstract IControlFlowGraph controlFlowGraph();
 
     @Parameter
     public abstract Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> properties();

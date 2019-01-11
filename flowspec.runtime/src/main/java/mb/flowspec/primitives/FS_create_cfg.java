@@ -10,11 +10,10 @@ import org.strategoxt.lang.InteropCallT;
 import org.strategoxt.lang.InteropContext;
 
 import io.usethesource.capsule.Map;
+import mb.flowspec.controlflow.ControlFlowGraphBuilder;
 import mb.flowspec.controlflow.FlowSpecSolution;
 import mb.flowspec.controlflow.ICFGNode;
-import mb.flowspec.controlflow.ICompleteControlFlowGraph;
 import mb.flowspec.controlflow.TransferFunctionAppl;
-import mb.flowspec.controlflow.TransientCompleteControlFlowGraph;
 import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.stratego.StrategoBlob;
 import mb.nabl2.util.Tuple2;
@@ -37,24 +36,24 @@ public class FS_create_cfg extends AbstractPrimitive {
         } catch(ClassCastException e) {
             throw new IllegalArgumentException("Not a valid analysis term.");
         }
-        final ICompleteControlFlowGraph.Transient cfg = TransientCompleteControlFlowGraph.of();
+        final ControlFlowGraphBuilder builder = ControlFlowGraphBuilder.of();
         final Map.Transient<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls = Map.Transient.of();
 
         final InteropContext context = (InteropContext) env;
 
         final Strategy[] strategyArgs = new Strategy[] {
             //nstart
-            new InteropCallT(new RegisterNode.RegisterStartNode(cfg), context.getContext()),
+            new InteropCallT(new RegisterNode.RegisterStartNode(builder), context.getContext()),
             //nend
-            new InteropCallT(new RegisterNode.RegisterEndNode(cfg), context.getContext()),
+            new InteropCallT(new RegisterNode.RegisterEndNode(builder), context.getContext()),
             //nentry
-            new InteropCallT(new RegisterNode.RegisterEntryNode(cfg), context.getContext()),
+            new InteropCallT(new RegisterNode.RegisterEntryNode(builder), context.getContext()),
             //nexit
-            new InteropCallT(new RegisterNode.RegisterExitNode(cfg), context.getContext()),
+            new InteropCallT(new RegisterNode.RegisterExitNode(builder), context.getContext()),
             //nnormal
-            new InteropCallT(new RegisterNode.RegisterNormalNode(cfg), context.getContext()),
+            new InteropCallT(new RegisterNode.RegisterNormalNode(builder), context.getContext()),
             //edge
-            new InteropCallT(new RegisterEdge(cfg), context.getContext()),
+            new InteropCallT(new RegisterEdge(builder), context.getContext()),
             //appl
             new InteropCallT(new RegisterAppl(tfAppls), context.getContext()),
         };
@@ -62,7 +61,7 @@ public class FS_create_cfg extends AbstractPrimitive {
             return false;
         }
         env.setCurrent(new StrategoBlob(
-            result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), cfg.freeze(), tfAppls.freeze()))));
+            result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), builder.build(), tfAppls.freeze()))));
         return true;
     }
 }

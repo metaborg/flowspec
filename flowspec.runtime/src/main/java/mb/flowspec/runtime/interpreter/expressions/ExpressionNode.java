@@ -12,7 +12,6 @@ import mb.flowspec.runtime.interpreter.Types;
 import mb.flowspec.runtime.interpreter.TypesGen;
 import mb.flowspec.runtime.interpreter.values.IMap;
 import mb.flowspec.runtime.interpreter.values.ISet;
-import mb.flowspec.runtime.interpreter.values.IValue;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.nabl2.stratego.TermIndex;
 

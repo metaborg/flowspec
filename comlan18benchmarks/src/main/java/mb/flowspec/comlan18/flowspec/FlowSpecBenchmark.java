@@ -24,7 +24,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 import mb.flowspec.comlan18.BaseBenchmark;
 import mb.flowspec.comlan18.SpoofaxModuleExtension;
-import mb.flowspec.controlflow.ControlFlowGraphBuilder;
+import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.FlowSpecSolution;
 import mb.flowspec.controlflow.IFlowSpecSolution;
 import mb.flowspec.primitives.AnalysisPrimitive;
@@ -102,8 +102,8 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     }
 
     @Benchmark public IResult benchCFGJava() throws MetaborgException, InterruptedException {
-        ControlFlowGraphBuilder cfgBuilder = ControlFlowGraphBuilder.build(cfgList);
-        return result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), cfgBuilder.cfg(), cfgBuilder.tfAppls()));
+        ControlFlowGraphReader cfgReader = ControlFlowGraphReader.build(cfgList);
+        return result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), cfgReader.cfg(), cfgReader.tfAppls()));
     }
 
     @Benchmark public IResult benchDFSolving() throws MetaborgException, InterruptedException {

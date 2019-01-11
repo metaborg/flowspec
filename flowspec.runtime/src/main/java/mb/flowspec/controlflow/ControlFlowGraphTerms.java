@@ -17,12 +17,12 @@ public final class ControlFlowGraphTerms {
 
     private static final String ESCAPE_MATCH = "\\\\$0";
     private static final String RECORD_RESERVED = "[\"{}|]";
-    private final ICompleteControlFlowGraph.Immutable controlFlowGraph;
+    private final ControlFlowGraph controlFlowGraph;
     private final Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
     private final Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
 
     private ControlFlowGraphTerms(IFlowSpecSolution solution) {
-        this.controlFlowGraph = solution.controlFlowGraph();
+        this.controlFlowGraph = (ControlFlowGraph) solution.controlFlowGraph();
         this.preProperties = solution.preProperties();
         this.postProperties = solution.postProperties();
     }

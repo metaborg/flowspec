@@ -5,14 +5,14 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
+import mb.flowspec.controlflow.ControlFlowGraphBuilder;
 import mb.flowspec.controlflow.ICFGNode;
-import mb.flowspec.controlflow.ICompleteControlFlowGraph.Transient;
 
 public class RegisterEdge extends Strategy {
-    private final Transient cfg;
+    private final ControlFlowGraphBuilder builder;
 
-    RegisterEdge(Transient cfg) {
-        this.cfg = cfg;
+    RegisterEdge(ControlFlowGraphBuilder builder) {
+        this.builder = builder;
     }
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm current) {
@@ -27,7 +27,7 @@ public class RegisterEdge extends Strategy {
         if(!(right instanceof ICFGNode)) {
             return null;
         }
-        this.cfg.edges().__insert((ICFGNode) left, (ICFGNode) right);
+        this.builder.edges().__insert((ICFGNode) left, (ICFGNode) right);
         return current;
     }
 }

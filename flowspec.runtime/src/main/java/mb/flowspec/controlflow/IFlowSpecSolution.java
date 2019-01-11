@@ -38,7 +38,7 @@ import mb.nabl2.util.collections.IProperties;
 public interface IFlowSpecSolution extends ISolution, IApplTerm {
     ISolution solution();
 
-    ICompleteControlFlowGraph.Immutable controlFlowGraph();
+    IControlFlowGraph controlFlowGraph();
     // TODO: change to Map.Immutable<String, Map<CFGNode, ITerm>>?
     Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties();
     Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties();

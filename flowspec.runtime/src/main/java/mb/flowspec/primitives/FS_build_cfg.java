@@ -6,7 +6,7 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import mb.flowspec.controlflow.ControlFlowGraphBuilder;
+import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.FlowSpecSolution;
 import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.stratego.StrategoBlob;
@@ -26,7 +26,7 @@ public class FS_build_cfg extends AbstractPrimitive {
         } catch(ClassCastException e) {
             throw new IllegalArgumentException("Not a valid analysis term.");
         }
-        ControlFlowGraphBuilder builder = ControlFlowGraphBuilder.build(env.current());
+        ControlFlowGraphReader builder = ControlFlowGraphReader.build(env.current());
         env.setCurrent(new StrategoBlob(
             result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), builder.cfg(), builder.tfAppls()))));
         return true;

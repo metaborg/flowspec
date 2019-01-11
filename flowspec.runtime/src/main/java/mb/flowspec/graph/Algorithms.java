@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
@@ -113,17 +114,15 @@ public class Algorithms {
      * within the component. The basic algorithm is the SCC algorithm of Tarjan (1972), adapted so it doesn't give the
      * _reverse_ topological sorted SCCs.
      * 
-     * @return A tuple of the topologically sorted list of strongly connected components and the unreachable nodes.
+     * @return The topologically sorted list of strongly connected components.
      */
-    public static <N> TopoSCCResult<N> topoSCCs(Collection<N> nodes, Collection<N> startNodes, Collection<N> endNodes,
-        BinaryRelation.Immutable<N, N> edges) {
+    public static <N> Collection<Set<N>> topoSCCs(Collection<N> startNodes, Function<N, ? extends Set<N>> next) {
         int index = 0;
-        final HashMap<N, Integer> nodeIndex = new HashMap<>(nodes.size());
+        final HashMap<N, Integer> nodeIndex = new HashMap<>();
         final HashMap<N, Integer> nodeLowlink = new HashMap<>(nodeIndex);
         final Deque<N> sccStack = new ArrayDeque<>();
         final Set<N> stackSet = new HashSet<>();
         Deque<Set<N>> sccs = new ArrayDeque<>();
-        HashSet<N> unreachable = new HashSet<>();
 
         /*
          * Note these deviations: (1) We seed the traversal with the start nodes. (2) We use a deque of SCCs, so be can
@@ -133,33 +132,39 @@ public class Algorithms {
             // For each start node that hasn't been visited already,
             if(nodeIndex.get(node) == null) {
                 // do the recursive strong-connect
-                index = sccStrongConnect(edges, node, index, nodeIndex, nodeLowlink, sccStack, stackSet, sccs);
+                index = sccStrongConnect(next, node, index, nodeIndex, nodeLowlink, sccStack, stackSet, sccs);
             }
         }
 
-        for(N node : nodes) {
-            // Every node not yet visited from the start nodes is unreachable
-            if(nodeIndex.get(node) == null) {
-                unreachable.add(node);
-            }
-        }
+        return Collections.unmodifiableCollection(sccs);
+    }
 
+    /**
+     * The reverse topologically sorted list of strongly connected components of the control-flow graph. This is not
+     * just a reversal of the list of strongly connected components but also a recomputation of the order with the SCC,
+     * using a suitable depth-first spanning tree.
+     * 
+     * @param sccs
+     *            The topologically sorted list of strongly connected components, where the SCCs have an iteration order
+     *            in reverse postorder on the graph from the logical start node of the SCC.
+     * @return The reverse topologically sorted list of strongly connected components
+     */
+    public static <N> Collection<Set<N>> revTopoSCCs(Function<N, ? extends Set<N>> prev, Collection<Set<N>> sccs) {
         // Now the inverse graph
         Deque<Set<N>> revSCCs = new ArrayDeque<>(sccs.size());
         /*
-         * Reverse the order of the SCCs, and recompute the reverse postorder on the inverse graph
-         *  for SCCs with multiple nodes.
+         * Reverse the order of the SCCs, and recompute the reverse postorder on the inverse graph for SCCs with
+         * multiple nodes.
          */
         for(PeekingIterator<Set<N>> iterator = Iterators.peekingIterator(sccs.iterator()); iterator.hasNext();) {
             Set<N> scc = iterator.next();
             if(scc.size() != 1) {
                 /*
-                 * Find reasonable start node in SCC by picking one that has an edge to the next
-                 *  SCC's first node.
+                 * Find reasonable start node in SCC by picking one that has an edge to the next SCC's first node.
                  */
                 assert iterator.hasNext();
                 final N nextSCCsFirstNode = iterator.peek().iterator().next();
-                final Set<N> hasEdgeToNextSCCsFirstNode = edges.inverse().get(nextSCCsFirstNode);
+                final Set<N> hasEdgeToNextSCCsFirstNode = prev.apply(nextSCCsFirstNode);
                 N node = Sets.difference(hasEdgeToNextSCCsFirstNode, scc).iterator().next();
                 // Recompute reverse postorder for inverse graph
                 final Set<N> unvisited = new HashSet<>(scc);
@@ -169,13 +174,13 @@ public class Algorithms {
                 do {
                     visitingStack.addLast(node);
                     unvisited.remove(node);
-                    befores = Sets.intersection(edges.inverse().get(node), unvisited);
+                    befores = Sets.intersection(prev.apply(node), unvisited);
                     if(!befores.isEmpty()) {
                         // visiting all the children at once so we don't need _another_ list of things
                         visitingStack.addAll(befores);
                         /*
-                         * NOTE: Sets.intersection is a view that changes when the backing sets
-                         *        change, so we need a copy when we change unvisited!
+                         * NOTE: Sets.intersection is a view that changes when the backing sets change, so we need a
+                         * copy when we change unvisited!
                          */
                         unvisited.removeAll(Arrays.asList(befores.toArray()));
                         node = visitingStack.removeLast();
@@ -191,8 +196,7 @@ public class Algorithms {
             revSCCs.addFirst(scc);
         }
 
-        return new TopoSCCResult<>(Collections.unmodifiableCollection(sccs),
-            Collections.unmodifiableCollection(revSCCs), Collections.unmodifiableSet(unreachable));
+        return Collections.unmodifiableCollection(revSCCs);
     }
 
     /**
@@ -221,7 +225,7 @@ public class Algorithms {
      *            The list of SCCs
      * @return The new index value
      */
-    private static <N> int sccStrongConnect(BinaryRelation<N, N> edges, N from, int index,
+    private static <N> int sccStrongConnect(Function<N, ? extends Set<N>> next, N from, int index,
         HashMap<N, Integer> nodeIndex, HashMap<N, Integer> nodeLowlink, Deque<N> sccStack, Set<N> stackSet,
         Deque<Set<N>> sccs) {
         nodeIndex.put(from, index);
@@ -232,10 +236,10 @@ public class Algorithms {
         int stackSetSizeBefore = stackSet.size();
         stackSet.add(from);
 
-        for(N to : edges.get(from)) {
+        for(N to : next.apply(from)) {
             if(nodeIndex.get(to) == null) {
                 // Visit neighbours without an index. Propagate lowlink values backward.
-                index = sccStrongConnect(edges, to, index, nodeIndex, nodeLowlink, sccStack, stackSet, sccs);
+                index = sccStrongConnect(next, to, index, nodeIndex, nodeLowlink, sccStack, stackSet, sccs);
                 nodeLowlink.put(from, Integer.min(nodeLowlink.get(from), nodeLowlink.get(to)));
             } else if(stackSet.contains(to)) {
                 /*
@@ -263,17 +267,5 @@ public class Algorithms {
         }
 
         return index;
-    }
-
-    public static class TopoSCCResult<N> {
-        public final Iterable<Set<N>> topoSCCs;
-        public final Iterable<Set<N>> revTopoSCCs;
-        public final Set<N> unreachables;
-
-        public TopoSCCResult(Iterable<Set<N>> topoSCCs, Iterable<Set<N>> revTopoSCCs, Set<N> unreachables) {
-            this.topoSCCs = topoSCCs;
-            this.revTopoSCCs = revTopoSCCs;
-            this.unreachables = unreachables;
-        }
     }
 }
