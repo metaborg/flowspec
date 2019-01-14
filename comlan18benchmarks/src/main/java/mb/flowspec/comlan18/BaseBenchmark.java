@@ -39,7 +39,7 @@ public abstract class BaseBenchmark {
     /**
      * source: https://stackoverflow.com/a/35446009
      */
-    protected String readInputStream(InputStream inputStream) throws IOException {
+    public static String readInputStream(InputStream inputStream) throws IOException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         int length;

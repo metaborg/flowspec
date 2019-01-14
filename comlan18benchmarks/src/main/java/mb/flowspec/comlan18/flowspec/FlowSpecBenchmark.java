@@ -26,6 +26,7 @@ import mb.flowspec.comlan18.BaseBenchmark;
 import mb.flowspec.comlan18.SpoofaxModuleExtension;
 import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.FlowSpecSolution;
+import mb.flowspec.controlflow.IControlFlowGraph;
 import mb.flowspec.controlflow.IFlowSpecSolution;
 import mb.flowspec.primitives.AnalysisPrimitive;
 import mb.flowspec.runtime.interpreter.InterpreterBuilder;
@@ -90,7 +91,10 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     @Benchmark public IStrategoTerm benchCFGPrimitive() throws MetaborgException, InterruptedException {
         final IContext context = spoofax.contextService.get(inputFileObject, project, language);
         try(IClosableLock lock = context.read()) {
-            return strategoCommon.invoke(language, context, input, "benchmark-flowspec-cfg-create");
+            final IStrategoTerm blob = strategoCommon.invoke(language, context, input, "benchmark-flowspec-cfg-create");
+            // force SCC computation here to keep bench targets the same as before
+            ((IFlowSpecSolution) ((IResult) ((StrategoBlob) blob).value()).customAnalysis().get()).controlFlowGraph().revTopoSCCs();
+            return blob;
         }
     }
 
@@ -103,7 +107,10 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
 
     @Benchmark public IResult benchCFGJava() throws MetaborgException, InterruptedException {
         ControlFlowGraphReader cfgReader = ControlFlowGraphReader.build(cfgList);
-        return result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), cfgReader.cfg(), cfgReader.tfAppls()));
+        final IControlFlowGraph cfg = cfgReader.cfg();
+        // force SCC computation here to keep bench targets the same as before
+        cfg.revTopoSCCs();
+        return result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), cfg, cfgReader.tfAppls()));
     }
 
     @Benchmark public IResult benchDFSolving() throws MetaborgException, InterruptedException {
@@ -132,6 +139,13 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
         final IContext context = spoofax.contextService.get(inputFileObject, project, language);
         try(IClosableLock lock = context.read()) {
             return strategoCommon.invoke(language, context, input, "test-flowspec-analysis");
+        }
+    }
+
+    public IStrategoTerm test2() throws MetaborgException, InterruptedException {
+        final IContext context = spoofax.contextService.get(inputFileObject, project, language);
+        try(IClosableLock lock = context.read()) {
+            return strategoCommon.invoke(language, context, input, "test-flowspec-analysis2");
         }
     }
 

@@ -9,40 +9,38 @@ import org.junit.Before;
 import org.junit.Test;
 import org.metaborg.core.MetaborgException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.TermFactory;
 
 import mb.flowspec.comlan18.flowspec.FSLibSpoofaxBenchmark;
 import mb.flowspec.comlan18.stratego.StrLibSpoofaxBenchmark;
-import mb.nabl2.spoofax.analysis.IResult;
-import mb.nabl2.stratego.StrategoBlob;
 
 public class LibSpoofaxTest {
     FSLibSpoofaxBenchmark flowspecBenchmark;
     StrLibSpoofaxBenchmark strategoBenchmark;
+    IStrategoTerm expectedFromFlowSpec;
 
-    @Before
-    public void setup() throws IOException, MetaborgException, URISyntaxException, InterruptedException {
+    @Before public void setup() throws IOException, MetaborgException, URISyntaxException, InterruptedException {
         flowspecBenchmark = new FSLibSpoofaxBenchmark();
         strategoBenchmark = new StrLibSpoofaxBenchmark();
         flowspecBenchmark.setupInput();
         flowspecBenchmark.setupSpoofax();
         strategoBenchmark.setupInput();
+        expectedFromFlowSpec = new TermFactory().parseFromString(BaseBenchmark.readInputStream(FSLibSpoofaxBenchmark.class.getResource("/FSLibSpoofaxExpected.ctree").openStream()));
     }
 
-    /*
-     * Ignored. Fails for libspoofax.ctree on 4 lines, each of which the FlowSpec solution gives
-     * (un)bound, and the Stratego solution gives bound.
-     */
-    @Test
-    public void testBenchResults() throws MetaborgException, InterruptedException {
-        IStrategoTerm flowspecResult = flowspecBenchmark.test();
-        IStrategoTerm strategoResult = strategoBenchmark.bench();
-//        assertEquals(flowspecResult, strategoResult);
+    @Test public void regressionTestBench() throws MetaborgException, InterruptedException {
+        IStrategoTerm actual = flowspecBenchmark.test();
+        assertEquals(expectedFromFlowSpec, actual);
     }
-    
-    @Test
-    public void testBenchResults2() throws MetaborgException, InterruptedException {
-        IResult testResult = flowspecBenchmark.benchCFGJava();
-        IResult primResult = (IResult) ((StrategoBlob) flowspecBenchmark.benchCFGPrimitive()).value();
-//        assertEquals(testResult, primResult);
+
+    @Test public void regressionTestBench2() throws MetaborgException, InterruptedException {
+        IStrategoTerm expected = flowspecBenchmark.test();
+        IStrategoTerm actual = flowspecBenchmark.test2();
+        assertEquals(expected, actual);
+    }
+
+    @Test public void testBenchRuns() throws MetaborgException, InterruptedException {
+        flowspecBenchmark.benchCFGPrimitive();
+        flowspecBenchmark.benchDFSolving();
     }
 }
