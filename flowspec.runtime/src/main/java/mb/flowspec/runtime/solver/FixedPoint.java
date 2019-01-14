@@ -73,7 +73,9 @@ public class FixedPoint {
 
         timingInfo.recordInterpInit();
 
-        logger.debug("SCCs: {}", cfg.topoSCCs());
+        if(logger.debugEnabled()) {
+            logger.debug("SCCs: {}", cfg.topoSCCs());
+        }
 
         try {
             solve(cfg, staticInfo, propNames);
