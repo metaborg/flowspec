@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import io.usethesource.capsule.BinaryRelation;
 import mb.flowspec.graph.Algorithms;
 
@@ -22,7 +20,6 @@ public class ControlFlowGraph implements IControlFlowGraph, Serializable {
     private transient Collection<Set<IBasicBlock>> topoSCCs;
     private transient Collection<Set<IBasicBlock>> revTopoSCCs;
     private final int nodeCount;
-    private final int hashCode;
 
     private ControlFlowGraph(BinaryRelation.Immutable<ICFGNode, ICFGNode> edges,
         BinaryRelation.Immutable<IBasicBlock, IBasicBlock> blockEdges, Set<IBasicBlock> startBlocks,
@@ -38,7 +35,6 @@ public class ControlFlowGraph implements IControlFlowGraph, Serializable {
         this.exitNodes = exitNodes;
         this.normalNodes = normalNodes;
         this.nodeCount = computeNodeCount();
-        this.hashCode = computeHashCode();
     }
 
     /**
@@ -158,49 +154,6 @@ public class ControlFlowGraph implements IControlFlowGraph, Serializable {
 
     @Override public int blockEdgeCount() {
         return blockEdges().size();
-    }
-
-    /**
-     * This instance is equal to all instances of {@code CompleteControlFlowGraph} that have equal attribute values.
-     * 
-     * @return {@code true} if {@code this} is equal to {@code another} instance
-     */
-    @Override public boolean equals(@Nullable Object another) {
-        if(this == another)
-            return true;
-        return another instanceof ControlFlowGraph && equalTo((ControlFlowGraph) another);
-    }
-
-    private boolean equalTo(ControlFlowGraph another) {
-        if(hashCode != another.hashCode)
-            return false;
-        return edges.equals(another.edges) && startNodes.equals(another.startNodes) && endNodes.equals(another.endNodes)
-            && entryNodes.equals(another.entryNodes) && exitNodes.equals(another.exitNodes)
-            && normalNodes.equals(another.normalNodes);
-    }
-
-    /**
-     * Returns a precomputed-on-construction hash code from attributes: {@code edges}, {@code startNodes},
-     * {@code endNodes}, {@code entryNodes}, {@code exitNodes}, {@code normalNodes}.
-     * 
-     * @return hashCode value
-     */
-    @Override public int hashCode() {
-        return hashCode;
-    }
-
-    private int computeHashCode() {
-        int h = 5381;
-        h += (h << 5) + blockEdges.hashCode();
-        h += (h << 5) + startBlocks.hashCode();
-        h += (h << 5) + endBlocks.hashCode();
-        h += (h << 5) + edges.hashCode();
-        h += (h << 5) + startNodes.hashCode();
-        h += (h << 5) + endNodes.hashCode();
-        h += (h << 5) + entryNodes.hashCode();
-        h += (h << 5) + exitNodes.hashCode();
-        h += (h << 5) + normalNodes.hashCode();
-        return h;
     }
 
     public static IControlFlowGraph of(BinaryRelation.Immutable<ICFGNode, ICFGNode> edges,
