@@ -3,7 +3,9 @@ package mb.flowspec.controlflow;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import io.usethesource.capsule.BinaryRelation;
@@ -93,28 +95,76 @@ public class ControlFlowGraphBuilder {
             Collections.unmodifiableSet(endBlocks), startNodes, endNodes, entryNodes, exitNodes, normalNodes);
     }
 
-    private static IBasicBlock buildBlock(ICFGNode node, BinaryRelation.Immutable<ICFGNode, ICFGNode> edges,
+    private static IBasicBlock buildBlock(ICFGNode startNode, BinaryRelation.Immutable<ICFGNode, ICFGNode> edges,
         BinaryRelation.Transient<IBasicBlock, IBasicBlock> blockEdges, Set<IBasicBlock> endBlocks) {
-        final Deque<ICFGNode> block = new ArrayDeque<>();
-        final IBasicBlock result = new BasicBlock(block);
-        loop: while(true) {
-            block.addLast(node);
-            final Set<ICFGNode> nexts = edges.get(node);
-            switch(nexts.size()) {
-                case 0:
-                    assert node.getKind() == Kind.End;
-                    endBlocks.add(result);
-                    break loop;
-                case 1:
-                    node = nexts.iterator().next();
-                    break;
-                default:
-                    for(ICFGNode next : nexts) {
-                        blockEdges.__insert(result, buildBlock(next, edges, blockEdges, endBlocks));
+        final Map<ICFGNode, IBasicBlock> builtBlocks = new HashMap<>();
+        final Deque<BlockBuilder> workList = new ArrayDeque<>();
+        final BlockBuilder startState = new BlockBuilder(startNode);
+        workList.push(startState);
+
+        call: while(!workList.isEmpty()) {
+            final BlockBuilder bbs = workList.pop();
+
+            block: while(true) {
+                final Set<ICFGNode> nexts = edges.get(bbs.lastNode());
+                switch(nexts.size()) {
+                    case 0: { // final node: current block ends here
+                        assert bbs.lastNode().getKind() == Kind.End;
+                        endBlocks.add(bbs.block);
+                        continue call;
                     }
-                    break loop;
+                    case 1: { // straight ahead
+                        final ICFGNode next = nexts.iterator().next();
+                        if(edges.inverse().get(next).size() == 1) { // linear control flow: current block continues
+                            bbs.addNode(next);
+                            continue block;
+                        } else { // merge point: current block ends, next node is start of next block
+                            nextBlock(blockEdges, builtBlocks, workList, bbs, next);
+                            continue call;
+                        }
+                    }
+                    default: { // split point: current block ends, nodes in nexts each start next blocks
+                        for(ICFGNode next : nexts) {
+                            nextBlock(blockEdges, builtBlocks, workList, bbs, next);
+                        }
+                        continue call;
+                    }
+                }
             }
         }
-        return result;
+
+        return startState.block;
+    }
+
+    public static void nextBlock(BinaryRelation.Transient<IBasicBlock, IBasicBlock> blockEdges,
+        final Map<ICFGNode, IBasicBlock> mergePoints, final Deque<BlockBuilder> workList, final BlockBuilder bbs,
+        final ICFGNode next) {
+        IBasicBlock nextBlock = mergePoints.get(next); // check if already handled
+        if(nextBlock == null) { // if not seen before, start a new block
+            final BlockBuilder nextBbs = new BlockBuilder(next);
+            workList.push(nextBbs);
+            nextBlock = nextBbs.block;
+            mergePoints.put(next, nextBlock);
+        }
+        blockEdges.__insert(bbs.block, nextBlock);
+    }
+
+    private static final class BlockBuilder {
+        private final Deque<ICFGNode> blockDeque;
+        public final IBasicBlock block;
+
+        public BlockBuilder(ICFGNode node) {
+            this.blockDeque = new ArrayDeque<>();
+            this.block = new BasicBlock(blockDeque);
+            addNode(node);
+        }
+
+        public ICFGNode lastNode() {
+            return this.blockDeque.getLast();
+        }
+
+        public void addNode(ICFGNode node) {
+            this.blockDeque.addLast(node);
+        }
     }
 }
