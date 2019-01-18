@@ -154,7 +154,7 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
         final Label labelD = Label.D;
         final IAlphabet<Label> labels = new FiniteAlphabet<>(labelD);
         final IRegExp<Label> pathWf = new RegExpBuilder<>(labels).emptySet();
-        final IRelation.Immutable<Label> specificityOrder = Relation.Immutable.of(RelationDescription.PARTIAL_ORDER);
+        final IRelation.Immutable<Label> specificityOrder = Relation.Immutable.of(RelationDescription.STRICT_PARTIAL_ORDER);
         final ResolutionParameters resolutionParams =
             ImmutableResolutionParameters.of(labels, labelD, pathWf, specificityOrder);
         final ISolution solution = ImmutableSolution
