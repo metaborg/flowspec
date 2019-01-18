@@ -65,6 +65,7 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
     private IStrategoTerm annotated;
     private IStrategoTerm cfgList;
     private IResult result;
+    private ITermFactory tf;
     private IResult cfgBuilt;
     private List<String> propertyNames;
 
@@ -80,7 +81,7 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
         strategoCommon = spoofax.strategoCommon;
 
         result = emptyResult();
-        final ITermFactory tf = spoofax.termFactoryService.getGeneric();
+        tf = spoofax.termFactoryService.getGeneric();
         annotated = StrategoTermIndices.index(ctree, "benchmarking", tf);
         input = B.tuple(annotated, new StrategoBlob(result));
         cfgList = benchCFGStr();
@@ -117,7 +118,7 @@ public abstract class FlowSpecBenchmark extends BaseBenchmark {
         IFlowSpecSolution sol = AnalysisPrimitive.getFSSolution(cfgBuilt).get();
         FixedPoint solver = new FixedPoint();
         final InterpreterBuilder interpBuilder = spoofax.injector.getInstance(FS_solve.class).getFlowSpecInterpreterBuilder(language);
-        final ISolution solution = solver.entryPoint(sol, interpBuilder, propertyNames);
+        final ISolution solution = solver.entryPoint(tf, sol, interpBuilder, propertyNames);
         return cfgBuilt.withSolution(solution);
     }
 
