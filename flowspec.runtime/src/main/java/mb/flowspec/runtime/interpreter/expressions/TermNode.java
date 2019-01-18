@@ -33,6 +33,6 @@ public class TermNode extends ExpressionNode implements Initializable {
     }
 
     @Override public void init(InitValues initValues) {
-        cons = initValues.termBuilder().consShared(consName, children.length);
+        cons = initValues.termBuilder.consShared(consName, children.length);
     }
 }

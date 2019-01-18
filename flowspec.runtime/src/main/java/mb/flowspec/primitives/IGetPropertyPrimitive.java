@@ -1,13 +1,13 @@
 package mb.flowspec.primitives;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.metaborg.util.Ref;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import io.usethesource.capsule.Map.Immutable;
 import mb.flowspec.controlflow.CFGNode;
 import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.ICFGNode;
@@ -18,7 +18,7 @@ import mb.nabl2.util.Tuple2;
 
 public interface IGetPropertyPrimitive {
     default Optional<? extends IStrategoTerm> getProperty(IStrategoTerm term, List<IStrategoTerm> terms,
-        Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> properties) throws InterpreterException {
+        Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> properties) throws InterpreterException {
         if(terms.size() != 1) {
             throw new InterpreterException("Need one term argument: key");
         }

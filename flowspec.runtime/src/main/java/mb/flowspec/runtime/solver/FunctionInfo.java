@@ -1,20 +1,25 @@
 package mb.flowspec.runtime.solver;
 
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Parameter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import io.usethesource.capsule.Map;
 import mb.flowspec.runtime.interpreter.values.Function;
 
-@Immutable
-public abstract class FunctionInfo {
-    @Parameter public abstract Map.Immutable<String, Function> functions();
+public class FunctionInfo {
+    public final Map<String, Function> functions;
 
-    public static FunctionInfo of() {
-        return ImmutableFunctionInfo.of(Map.Immutable.of());
+    public FunctionInfo() {
+        this.functions = Collections.emptyMap();
+    }
+
+    public FunctionInfo(Map<String, Function> functions) {
+        this.functions = functions;
     }
 
     public FunctionInfo addAll(FunctionInfo functions) {
-        return ImmutableFunctionInfo.of(this.functions().__putAll(functions.functions()));
+        Map<String, Function> m = new HashMap<>(this.functions);
+        m.putAll(functions.functions);
+        return new FunctionInfo(Collections.unmodifiableMap(m));
     }
 }

@@ -2,6 +2,7 @@ package mb.flowspec.controlflow;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -14,7 +15,6 @@ import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
 
-import io.usethesource.capsule.Map;
 import mb.nabl2.constraints.IConstraint;
 import mb.nabl2.relations.variants.IVariantRelation;
 import mb.nabl2.scopegraph.esop.IEsopNameResolution;
@@ -40,19 +40,18 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
 
     IControlFlowGraph controlFlowGraph();
     // TODO: change to Map.Immutable<String, Map<CFGNode, ITerm>>?
-    Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties();
-    Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties();
+    Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties();
+    Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties();
     /**
      * @return The transfer functions associated with each node in the control flow graph(s) by property. 
      */
-    Map.Immutable<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls();
+    Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls();
 
     default @Nullable TransferFunctionAppl getTFAppl(ICFGNode node, String prop) {
         return tfAppls().get(ImmutableTuple2.of(node, prop));
     }
 
-    IFlowSpecSolution withPreProperties(Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> value);
-    IFlowSpecSolution withPostProperties(Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> value);
+    IFlowSpecSolution withProperties(Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties, Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties);
     IFlowSpecSolution withSolution(ISolution solution);
 
     // delegate method for ISolution

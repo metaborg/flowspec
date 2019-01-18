@@ -2,7 +2,10 @@ package mb.flowspec.runtime.interpreter;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -17,10 +20,8 @@ import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import io.usethesource.capsule.BinaryRelation;
-import io.usethesource.capsule.Map;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.IFlowSpecSolution;
-import mb.flowspec.runtime.ImmutableInitValues;
 import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.interpreter.expressions.AddNodeGen;
@@ -92,13 +93,9 @@ import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.flowspec.runtime.lattice.MapLattice;
 import mb.flowspec.runtime.lattice.UserDefinedLattice;
 import mb.flowspec.runtime.solver.FunctionInfo;
-import mb.flowspec.runtime.solver.ImmutableFunctionInfo;
-import mb.flowspec.runtime.solver.ImmutableLatticeInfo;
 import mb.flowspec.runtime.solver.ImmutableMapType;
-import mb.flowspec.runtime.solver.ImmutableMetadata;
 import mb.flowspec.runtime.solver.ImmutableSetType;
 import mb.flowspec.runtime.solver.ImmutableSimpleType;
-import mb.flowspec.runtime.solver.ImmutableStaticInfo;
 import mb.flowspec.runtime.solver.ImmutableTupleType;
 import mb.flowspec.runtime.solver.ImmutableUserType;
 import mb.flowspec.runtime.solver.LatticeInfo;
@@ -120,7 +117,7 @@ import mb.nabl2.util.Tuple2;
 
 public class InterpreterBuilder {
     protected final ArrayList<Initializable> initializable = new ArrayList<>();
-    protected StaticInfo staticInfo = StaticInfo.of();
+    protected StaticInfo staticInfo = new StaticInfo();
     protected final Deque<FrameDescriptor> frameStack = new ArrayDeque<>();
     protected String moduleName;
 
@@ -152,10 +149,10 @@ public class InterpreterBuilder {
      * @param termFactory 
      */
     public StaticInfo build(ITermFactory termFactory, IFlowSpecSolution solution,
-        Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties) {
-        InitValues initValues = ImmutableInitValues.of(solution.config(), solution.controlFlowGraph(), preProperties,
-            solution.scopeGraph(), solution.unifier(), solution.astProperties(), staticInfo.functions().functions(),
-            staticInfo.lattices().latticeDefs(), new B(termFactory)).withNameResolutionCache(solution.nameResolutionCache());
+        Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties) {
+        InitValues initValues = new InitValues(solution.config(), solution.controlFlowGraph(), preProperties,
+            solution.scopeGraph(), solution.nameResolutionCache(), solution.unifier(), solution.astProperties(), staticInfo.functions.functions,
+            staticInfo.lattices.latticeDefs, new B(termFactory));
 
         for(Initializable i : initializable) {
             i.init(initValues);
@@ -169,9 +166,9 @@ public class InterpreterBuilder {
         final IStrategoTuple appl = M.tuple(term, 3);
         final LatticeInfo latticeInfo = latticeInfo(M.at(appl, 1));
         final FunctionInfo functionInfo = functionInfo(M.at(appl, 2));
-        final Map.Immutable<String, CompleteLattice> latticeDefs = latticeInfo.latticeDefs();
+        final Map<String, CompleteLattice> latticeDefs = latticeInfo.latticeDefs;
 
-        final Map.Transient<String, Metadata<?>> propMetadata = Map.Transient.of();
+        final Map<String, Metadata<?>> propMetadata = new HashMap<>();
         final BinaryRelation.Transient<String, String> dependsOn = BinaryRelation.Transient.of();
 
         for(IStrategoTerm tfInfoTerm : M.list(M.at(appl, 0))) {
@@ -182,18 +179,18 @@ public class InterpreterBuilder {
             final Direction dir = direction(M.at(tfNestedTuple, 1));
             final IStrategoList funs = M.list(M.at(tfNestedTuple, 2));
 
-            final Map.Transient<Tuple2<String, Integer>, TransferFunction> tfMap = Map.Transient.of();
+            final Map<Tuple2<String, Integer>, TransferFunction> tfMap = new HashMap<>();
             for(IStrategoTerm funTerm : funs) {
                 final IStrategoTuple funTuple = M.tuple(funTerm, 2);
                 int index = M.integer(M.at(funTuple, 0));
                 final TransferFunction tf = transferFunction(M.at(funTuple, 1));
-                tfMap.__put(ImmutableTuple2.of(moduleName, index), tf);
+                tfMap.put(ImmutableTuple2.of(moduleName, index), tf);
             }
 
-            propMetadata.__put(propName, ImmutableMetadata.of(dir, latticeFromType(latticeDefs, type), tfMap.freeze()));
+            propMetadata.put(propName, new Metadata(dir, latticeFromType(latticeDefs, type), Collections.unmodifiableMap(tfMap)));
         }
 
-        return ImmutableStaticInfo.of(dependsOn.freeze(), propMetadata.freeze(), functionInfo, latticeInfo);
+        return new StaticInfo(dependsOn.freeze(), Collections.unmodifiableMap(propMetadata), functionInfo, latticeInfo);
     }
 
     public static Type type(IStrategoTerm term) {
@@ -286,7 +283,7 @@ public class InterpreterBuilder {
     }
 
     private FunctionInfo functionInfo(IStrategoTerm term) {
-        Map.Transient<String, Function> map = Map.Transient.of();
+        Map<String, Function> map = new HashMap<>();
 
         for(IStrategoTerm functionTerm : M.list(term)) {
             final IStrategoAppl appl = M.appl(functionTerm, "FunDef", 3);
@@ -310,16 +307,16 @@ public class InterpreterBuilder {
 
             final Function function = new Function(null, frameDescriptor, args, body);
 
-            map.__put(name, function);
+            map.put(name, function);
         }
 
-        return ImmutableFunctionInfo.of(map.freeze());
+        return new FunctionInfo(Collections.unmodifiableMap(map));
     }
 
     @SuppressWarnings("rawtypes") private LatticeInfo latticeInfo(IStrategoTerm term) {
-        final Map.Transient<String, CompleteLattice> latticeDefs = Map.Transient.of();
-        latticeDefs.__put("MaySet", new FullSetLattice<>());
-        latticeDefs.__put("MustSet", new FullSetLattice<>().flip());
+        final Map<String, CompleteLattice> latticeDefs = new HashMap<>();
+        latticeDefs.put("MaySet", new FullSetLattice<>());
+        latticeDefs.put("MustSet", new FullSetLattice<>().flip());
 
         for(IStrategoTerm tfTerm : M.list(term)) {
             final IStrategoTuple tfTuple = M.tuple(tfTerm, 4);
@@ -333,10 +330,10 @@ public class InterpreterBuilder {
             final Function bottom = nullaryFunction(M.at(latticeTuple, 2));
             final UserDefinedLattice udl = new UserDefinedLattice(top, bottom, lub);
 
-            latticeDefs.__put(name, udl);
+            latticeDefs.put(name, udl);
         }
 
-        return ImmutableLatticeInfo.of(latticeDefs.freeze());
+        return new LatticeInfo(Collections.unmodifiableMap(latticeDefs));
     }
 
     private Function nullaryFunction(IStrategoTerm term) {

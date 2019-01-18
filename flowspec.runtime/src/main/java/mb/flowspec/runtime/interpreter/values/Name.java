@@ -25,9 +25,9 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
 
     public static Name fromOccurrence(InitValues initValues, Occurrence occurrence) {
         java.util.Set<IResolutionPath<Scope, Label, Occurrence>> paths =
-            initValues.nameResolution().resolve(occurrence).orElse(Collections.emptySet());
+            initValues.nameResolution.resolve(occurrence).orElse(Collections.emptySet());
         if(paths.isEmpty()) {
-            final IFunction.Immutable<Occurrence, Scope> decls = initValues.scopeGraph().getDecls();
+            final IFunction.Immutable<Occurrence, Scope> decls = initValues.scopeGraph.getDecls();
             final Scope declScope = decls.get(occurrence)
                 .orElseThrow(() -> new RuntimeException("Name " + occurrence + " cannot be resolved"));
             final IResolutionPath<Scope, Label, Occurrence> path = Paths

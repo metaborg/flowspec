@@ -1,5 +1,6 @@
 package mb.flowspec.controlflow;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,7 +10,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import com.google.common.collect.Sets;
 
 import io.usethesource.capsule.BinaryRelation;
-import io.usethesource.capsule.Map.Immutable;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
@@ -18,8 +18,8 @@ public final class ControlFlowGraphTerms {
     private static final String ESCAPE_MATCH = "\\\\$0";
     private static final String RECORD_RESERVED = "[\"{}|]";
     private final ControlFlowGraph controlFlowGraph;
-    private final Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
-    private final Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
+    private final Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
+    private final Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
 
     private ControlFlowGraphTerms(IFlowSpecSolution solution) {
         this.controlFlowGraph = (ControlFlowGraph) solution.controlFlowGraph();

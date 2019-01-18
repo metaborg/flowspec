@@ -39,9 +39,9 @@ public class ExtPropNode extends ExpressionNode implements Initializable {
     public Object executeGeneric(VirtualFrame frame) {
         try {
             TermIndex rhsIndex = StrategoTermIndices.get(rhs.executeIStrategoTerm(frame)).get();
-            Optional<ITerm> nabl2value = initValues.astProperties()
+            Optional<ITerm> nabl2value = initValues.astProperties
                     .getValue(rhsIndex, TermBuild.B.newAppl("Property", TermBuild.B.newString(propName)))
-                    .map(initValues.unifier()::findRecursive);
+                    .map(initValues.unifier::findRecursive);
             List<Occurrence> value = nabl2value
                     .flatMap(term -> M.listElems(Occurrence.matcher(), (t, list) -> list)
                             .match(term, PersistentUnifier.Immutable.of()))

@@ -1,21 +1,26 @@
 package mb.flowspec.runtime.solver;
 
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Parameter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import io.usethesource.capsule.Map;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 
-@Immutable
 @SuppressWarnings("rawtypes")
-public abstract class LatticeInfo {
-    @Parameter public abstract Map.Immutable<String, CompleteLattice> latticeDefs();
+public class LatticeInfo {
+    public final Map<String, CompleteLattice> latticeDefs;
+
+    public LatticeInfo() {
+        this(Collections.emptyMap());
+    }
+
+    public LatticeInfo(Map<String, CompleteLattice> latticeDefs) {
+        this.latticeDefs = latticeDefs;
+    }
 
     public LatticeInfo addAll(LatticeInfo lattices) {
-        return ImmutableLatticeInfo.of(latticeDefs().__putAll(lattices.latticeDefs()));
-    }
-    
-    public static LatticeInfo of() {
-        return ImmutableLatticeInfo.of(Map.Immutable.of());
+        Map<String, CompleteLattice> m = new HashMap<>(this.latticeDefs);
+        m.putAll(lattices.latticeDefs);
+        return new LatticeInfo(Collections.unmodifiableMap(m));
     }
 }

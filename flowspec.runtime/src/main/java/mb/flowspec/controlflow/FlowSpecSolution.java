@@ -1,39 +1,63 @@
 package mb.flowspec.controlflow;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Parameter;
 import org.metaborg.util.Ref;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import io.usethesource.capsule.Map;
 import mb.nabl2.solver.ISolution;
 import mb.nabl2.util.Tuple2;
 
-@Immutable
-public abstract class FlowSpecSolution implements IFlowSpecSolution, Serializable {
-    @Override
-    @Parameter
-    public abstract ISolution solution();
-    
-    @Override
-    @Parameter
-    public abstract IControlFlowGraph controlFlowGraph();
+public class FlowSpecSolution implements IFlowSpecSolution, Serializable {
+    private ISolution solution;
+    private IControlFlowGraph controlFlowGraph;
+    private Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls;
+    private Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
+    private Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
 
-    @Override
-    @Parameter
-    public abstract Map.Immutable<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls();
+    public FlowSpecSolution(ISolution solution, IControlFlowGraph controlFlowGraph,
+        Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls, Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties,
+        Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties) {
+        this.solution = solution;
+        this.controlFlowGraph = controlFlowGraph;
+        this.tfAppls = tfAppls;
+        this.preProperties = preProperties;
+        this.postProperties = postProperties;
+    }
 
-    @Override
-    @Parameter
-    public abstract Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties();
+    @Override public ISolution solution() {
+        return solution;
+    }
 
-    @Override
-    @Parameter
-    public abstract Map.Immutable<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties();
+    @Override public IControlFlowGraph controlFlowGraph() {
+        return controlFlowGraph;
+    }
 
-    public static IFlowSpecSolution of(ISolution solution, IControlFlowGraph controlFlowGraph, Map.Immutable<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls) {
-        return ImmutableFlowSpecSolution.of(solution, controlFlowGraph, tfAppls, Map.Immutable.of(), Map.Immutable.of());
+    @Override public Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls() {
+        return tfAppls;
+    }
+
+    @Override public Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties() {
+        return preProperties;
+    }
+
+    @Override public Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties() {
+        return postProperties;
+    }
+
+    public static IFlowSpecSolution of(ISolution solution, IControlFlowGraph controlFlowGraph,
+        Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls) {
+        return new FlowSpecSolution(solution, controlFlowGraph, tfAppls, Collections.emptyMap(),
+            Collections.emptyMap());
+    }
+
+    @Override public IFlowSpecSolution withSolution(ISolution solution) {
+        return new FlowSpecSolution(solution, this.controlFlowGraph, this.tfAppls, this.preProperties, this.postProperties);
+    }
+
+    @Override public IFlowSpecSolution withProperties(Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties, Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties) {
+        return new FlowSpecSolution(this.solution, this.controlFlowGraph, this.tfAppls, preProperties, postProperties);
     }
 }

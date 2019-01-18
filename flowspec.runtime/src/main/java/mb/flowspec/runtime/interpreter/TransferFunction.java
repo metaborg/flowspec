@@ -1,5 +1,7 @@
 package mb.flowspec.runtime.interpreter;
 
+import java.util.Map;
+
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.Truffle;
@@ -10,7 +12,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import io.usethesource.capsule.Map;
 import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
 import mb.flowspec.terms.TermIndexed;
@@ -49,7 +50,7 @@ public class TransferFunction extends RootNode {
         }
     }
 
-    public static TransferFunction findFunction(Map.Immutable<Tuple2<String, Integer>, TransferFunction> tfs,
+    public static TransferFunction findFunction(Map<Tuple2<String, Integer>, TransferFunction> tfs,
         TransferFunctionAppl appl) {
         return tfs.get(ImmutableTuple2.of(appl.moduleName(), appl.offset()));
     }

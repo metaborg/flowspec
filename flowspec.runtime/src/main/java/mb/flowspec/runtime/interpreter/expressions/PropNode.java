@@ -1,5 +1,7 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
+import java.util.Map;
+
 import org.metaborg.util.Ref;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -7,7 +9,6 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 
-import io.usethesource.capsule.Map;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.ICFGNode.Kind;
 import mb.flowspec.controlflow.ImmutableCFGNode;
@@ -40,6 +41,6 @@ public abstract class PropNode extends ExpressionNode implements Initializable {
 
     @Override
     public void init(InitValues initValues) {
-        this.properties = initValues.properties();
+        this.properties = initValues.properties;
     }
 }

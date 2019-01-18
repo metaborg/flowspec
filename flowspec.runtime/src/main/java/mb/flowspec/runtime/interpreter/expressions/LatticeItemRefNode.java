@@ -21,7 +21,7 @@ public class LatticeItemRefNode extends ExprRefNode implements Initializable {
     }
 
     @Override public void init(InitValues initValues) {
-        @SuppressWarnings("rawtypes") CompleteLattice lattice = initValues.lattices().get(name);
+        @SuppressWarnings("rawtypes") CompleteLattice lattice = initValues.lattices.get(name);
         switch(this.item) {
             case Top:
                 value = lattice.top();

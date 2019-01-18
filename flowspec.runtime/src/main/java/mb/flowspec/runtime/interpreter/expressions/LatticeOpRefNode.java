@@ -17,7 +17,7 @@ public class LatticeOpRefNode implements Initializable, FunRefNode {
     }
 
     @SuppressWarnings("unchecked") @Override public void init(InitValues initValues) {
-        @SuppressWarnings("rawtypes") CompleteLattice lattice = initValues.lattices().get(name);
+        @SuppressWarnings("rawtypes") CompleteLattice lattice = initValues.lattices.get(name);
         switch(this.op) {
             case Lub:
                 function = lattice::lub;

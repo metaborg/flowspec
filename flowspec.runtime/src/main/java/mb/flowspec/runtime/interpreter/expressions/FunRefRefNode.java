@@ -13,6 +13,6 @@ public class FunRefRefNode implements Initializable, FunRefNode {
     }
 
     @Override public void init(InitValues initValues) {
-        this.function = initValues.functions().get(name);
+        this.function = initValues.functions.get(name);
     }
 }

@@ -32,7 +32,7 @@ public class BooleanLiteralNode extends ExpressionNode implements Initializable 
     }
 
     @Override public void init(InitValues initValues) {
-        BooleanLiteralNode.FALSE_TERM = initValues.termBuilder().applShared("False");
-        BooleanLiteralNode.TRUE_TERM = initValues.termBuilder().applShared("True");
+        BooleanLiteralNode.FALSE_TERM = initValues.termBuilder.applShared("False");
+        BooleanLiteralNode.TRUE_TERM = initValues.termBuilder.applShared("True");
     }
 }
