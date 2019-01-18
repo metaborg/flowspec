@@ -27,4 +27,8 @@ public class ArgToVarNode extends Node {
         FrameSlot slot = frameDescriptor.findOrAddFrameSlot(name);
         return new ArgToVarNode(offset, slot);
     }
+
+    @Override public String toString() {
+        return "ArgToVarNode [argumentOffset=" + argumentOffset + ", slot=" + slot + "]";
+    }
 }

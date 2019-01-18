@@ -10,7 +10,7 @@ final class StrategoArrayListIterator implements Iterator<IStrategoTerm> {
 
     StrategoArrayListIterator(StrategoArrayList strategoArrayList) {
         this.strategoArrayList = strategoArrayList;
-        this.position = strategoArrayList.offset;
+        this.position = 0;
     }
 
 
@@ -21,6 +21,6 @@ final class StrategoArrayListIterator implements Iterator<IStrategoTerm> {
     }
 
     @Override public boolean hasNext() {
-        return position >= this.strategoArrayList.getSubtermCount();
+        return position < this.strategoArrayList.getSubtermCount();
     }
 }

@@ -4,16 +4,25 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import javax.annotation.Nullable;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.StrategoConstructor;
+import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
-public interface IStrategoAppl2 extends IStrategoAppl {
+public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
+
+    // TermIndexed
+
+    @Override default @Nullable TermIndex termIndex() {
+        return null;
+    }
 
     // IStrategoNamed
 
@@ -64,8 +73,8 @@ public interface IStrategoAppl2 extends IStrategoAppl {
         return IStrategoTerm.SHARABLE;
     }
 
-    @Override default IStrategoList getAnnotations() {
-        return B.EMPTY_LIST;
+    @SuppressWarnings("deprecation") @Override default IStrategoList getAnnotations() {
+        return TermFactory.EMPTY_LIST;
     }
 
     @Override default boolean match(IStrategoTerm second) {

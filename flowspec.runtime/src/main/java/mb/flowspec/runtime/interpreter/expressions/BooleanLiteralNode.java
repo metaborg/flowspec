@@ -5,11 +5,12 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import mb.flowspec.terms.B;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.Initializable;
 
-public class BooleanLiteralNode extends ExpressionNode {
-    public static final IStrategoAppl FALSE_TERM = B.appl("False");
-    public static final IStrategoAppl TRUE_TERM = B.appl("True");
+public class BooleanLiteralNode extends ExpressionNode implements Initializable {
+    public static IStrategoAppl FALSE_TERM;
+    public static IStrategoAppl TRUE_TERM;
     private final boolean boolValue;
     private final IStrategoAppl value;
 
@@ -28,5 +29,10 @@ public class BooleanLiteralNode extends ExpressionNode {
 
     @Override public Object executeGeneric(VirtualFrame frame) {
         return executeBoolean(frame);
+    }
+
+    @Override public void init(InitValues initValues) {
+        BooleanLiteralNode.FALSE_TERM = initValues.termBuilder().applShared("False");
+        BooleanLiteralNode.TRUE_TERM = initValues.termBuilder().applShared("True");
     }
 }

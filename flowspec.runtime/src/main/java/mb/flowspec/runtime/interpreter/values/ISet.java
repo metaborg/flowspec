@@ -10,14 +10,17 @@ import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
 
 public interface ISet<K extends IStrategoTerm> extends IStrategoAppl2 {
+    public static final String NAME = "Set";
+    public static final int ARITY = 1;
+
     Set.Immutable<K> getSet();
 
     @Override default String getName() {
-        return "Set";
+        return NAME;
     }
 
     @Override default int getSubtermCount() {
-        return 1;
+        return ARITY;
     }
 
     @Override default IStrategoTerm[] getAllSubterms() {

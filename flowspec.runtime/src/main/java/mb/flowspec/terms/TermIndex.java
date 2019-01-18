@@ -3,7 +3,6 @@ package mb.flowspec.terms;
 import java.util.Optional;
 
 import org.immutables.value.Value;
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -46,10 +45,17 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
         return sb.toString();
     }
 
+    @Override public TermIndex termIndex() {
+        return this;
+    }
+
     public static Optional<TermIndex> get(IStrategoTerm term) {
-        for (IStrategoTerm anno : term.getAnnotations()) {
+        if(term instanceof TermIndexed) {
+            return Optional.ofNullable(((TermIndexed) term).termIndex());
+        }
+        for(IStrategoTerm anno : term.getAnnotations()) {
             Optional<TermIndex> index = matchTermIndex(anno);
-            if (index.isPresent()) {
+            if(index.isPresent()) {
                 return index;
             }
         }
@@ -57,14 +63,11 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
     }
 
     public static Optional<TermIndex> matchTermIndex(IStrategoTerm term) {
-        if (!(Tools.isTermAppl(term) && Tools.hasConstructor((IStrategoAppl) term, OP, ARITY))) {
-            return Optional.empty();
-        }
-        IStrategoTerm resourceTerm = term.getSubterm(0);
-        IStrategoTerm idTerm = term.getSubterm(1);
-        if (!(Tools.isTermString(resourceTerm) && Tools.isTermInt(idTerm))) {
-            return Optional.empty();
-        }
-        return Optional.of(ImmutableTermIndex.of(Tools.asJavaString(resourceTerm), Tools.asJavaInt(idTerm)));
+        return M.maybe(() -> {
+            IStrategoAppl appl = M.appl(term, OP, ARITY);
+            String resource = M.string(M.at(appl, 0));
+            int id = M.integer(M.at(appl, 1));
+            return ImmutableTermIndex.of(resource, id);
+        });
     }
 }

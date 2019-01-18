@@ -15,6 +15,7 @@ import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.ImmutableTransferFunctionAppl;
 import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.flowspec.terms.M;
+import mb.flowspec.terms.TermIndexed;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
@@ -37,7 +38,7 @@ public class RegisterAppl extends Strategy {
         final String modName = M.string(modNameArg);
         final int offset = M.integer(offsetArg);
         final IStrategoList argsList = M.list(argsArg);
-        final List<IStrategoTerm> args = Arrays.asList(argsList.getAllSubterms());
+        final List<IStrategoTerm> args = Arrays.asList(TermIndexed.excludeTermIndexFromEqual(argsList.getAllSubterms()));
 
         this.tfAppls.__put(ImmutableTuple2.of(node, propName), ImmutableTransferFunctionAppl.of(modName, offset, args));
         return current;

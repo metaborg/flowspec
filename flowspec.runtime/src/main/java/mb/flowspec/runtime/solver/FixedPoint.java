@@ -1,7 +1,6 @@
 package mb.flowspec.runtime.solver;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -13,6 +12,7 @@ import org.metaborg.util.Ref;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
@@ -42,8 +42,8 @@ public class FixedPoint {
 
     private IFlowSpecSolution solution;
     private final FixedPoint.TimingInfo timingInfo;
-    private final Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
-    private final Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
+    private Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
+    private Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
 
     public FixedPoint() {
         this.preProperties = Map.Transient.of();
@@ -51,14 +51,14 @@ public class FixedPoint {
         this.timingInfo = new FixedPoint.TimingInfo();
     }
 
-    public IFlowSpecSolution entryPoint(IFlowSpecSolution nabl2solution, InterpreterBuilder interpBuilder) {
-        StaticInfo staticInfo = interpBuilder.build(nabl2solution, preProperties);
+    public IFlowSpecSolution entryPoint(ITermFactory termFactory, IFlowSpecSolution nabl2solution, InterpreterBuilder interpBuilder) {
+        StaticInfo staticInfo = interpBuilder.build(termFactory, nabl2solution, preProperties);
         return entryPoint(nabl2solution, staticInfo, staticInfo.metadata().keySet());
     }
 
-    public IFlowSpecSolution entryPoint(IFlowSpecSolution nabl2solution, InterpreterBuilder interpBuilder,
+    public IFlowSpecSolution entryPoint(ITermFactory termFactory, IFlowSpecSolution nabl2solution, InterpreterBuilder interpBuilder,
         Collection<String> propNames) {
-        StaticInfo staticInfo = interpBuilder.build(nabl2solution, preProperties);
+        StaticInfo staticInfo = interpBuilder.build(termFactory, nabl2solution, preProperties);
         return entryPoint(nabl2solution, staticInfo, propNames);
     }
 
@@ -125,24 +125,38 @@ public class FixedPoint {
         }
     }
 
-    private void setProperty(ICFGNode n, String prop, Ref<IStrategoTerm> value) {
+    private void setPreProperty(ICFGNode n, String prop, Ref<IStrategoTerm> value) {
         this.preProperties.__put(ImmutableTuple2.of(n, prop), value);
     }
 
+    private void setPreProperty(ICFGNode n, String prop, IStrategoTerm value) {
+        getPrePropertyRef(n, prop).set(value);
+    }
+
+    private void setPostProperty(ICFGNode n, String prop, Ref<IStrategoTerm> value) {
+        this.postProperties.__put(ImmutableTuple2.of(n, prop), value);
+    }
+
     private void setPostProperty(ICFGNode n, String prop, IStrategoTerm value) {
-        this.postProperties.__put(ImmutableTuple2.of(n, prop), new Ref<>(value));
+        getPostPropertyRef(n, prop).set(value);
     }
 
-    private void setProperty(ICFGNode n, String prop, IStrategoTerm value) {
-        getPropertyRef(n, prop).set(value);
+    private IStrategoTerm getPreProperty(ICFGNode n, String prop) {
+        return getPrePropertyRef(n, prop).get();
     }
 
-    private IStrategoTerm getProperty(ICFGNode n, String prop) {
-        return getPropertyRef(n, prop).get();
-    }
-
-    private Ref<IStrategoTerm> getPropertyRef(ICFGNode n, String prop) {
+    private Ref<IStrategoTerm> getPrePropertyRef(ICFGNode n, String prop) {
         return this.preProperties.get(ImmutableTuple2.of(n, prop));
+    }
+
+    private Ref<IStrategoTerm> getPostPropertyRef(ICFGNode n, String prop) {
+        return this.postProperties.get(ImmutableTuple2.of(n, prop));
+    }
+
+    private void swapPrePostProperties() {
+        final Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> swap = this.preProperties;
+        this.preProperties = this.postProperties;
+        this.postProperties = swap;
     }
 
     private void solveFlowSensitiveProperty(IControlFlowGraph cfg, String prop, Metadata<IStrategoTerm> metadata)
@@ -177,7 +191,8 @@ public class FixedPoint {
 
         // 1.2: initial node values
         for(ICFGNode n : initialNodes) {
-            setProperty(n, prop, new Ref<>(callTFInitial(prop, metadata, n)));
+            setPreProperty(n, prop, new Ref<>(callTFInitial(prop, metadata, n)));
+            setPostProperty(n, prop, new Ref<>(metadata.lattice().bottom()));
         }
 
         // 1.3: other initial values bottom, while finding ignorable nodes (nodes without TF and only 1 predecessor)
@@ -192,7 +207,8 @@ public class FixedPoint {
                     final ICFGNode pred = blockDir.apply(prevBlocks.iterator().next()).last();
                     perhapsIgnored(prop, metadata, ignoredNodes, n, pred);
                 } else {
-                    setProperty(n, prop, new Ref<>(metadata.lattice().bottom()));
+                    setPreProperty(n, prop, new Ref<>(metadata.lattice().bottom()));
+                    setPostProperty(n, prop, new Ref<>(metadata.lattice().bottom()));
                 }
                 for(; iterator.hasNext();) {
                     final ICFGNode pred = n; // definitely only one predecessor
@@ -241,33 +257,22 @@ public class FixedPoint {
         }
 
         // Phase 3: Result calculation
-        // TODO use shared values / ignored nodes more in final result calculation
-        switch(metadata.dir()) {
-            case Forward: {
-                for(Set<IBasicBlock> scc : sccs) {
-                    for(IBasicBlock block : scc) {
-                        for(ICFGNode n : blockDir.apply(block)) {
-                            IStrategoTerm value = callTF(prop, metadata, n);
-                            setPostProperty(n, prop, value);
-                        }
+        for(Set<IBasicBlock> scc : sccs) {
+            for(IBasicBlock block : scc) {
+                for(ICFGNode n : blockDir.apply(block)) {
+                    if(!ignoredNodes.contains(n)) {
+                        IStrategoTerm value = callTF(prop, metadata, n);
+                        setPostProperty(n, prop, value);
                     }
                 }
+            }
+        }
+        switch(metadata.dir()) {
+            case Forward: {
                 break;
             }
             case Backward: {
-                final HashMap<ICFGNode, IStrategoTerm> temp = new HashMap<>();
-                for(Set<IBasicBlock> scc : sccs) {
-                    for(IBasicBlock block : scc) {
-                        for(ICFGNode n : blockDir.apply(block)) {
-                            setPostProperty(n, prop, getProperty(n, prop));
-                            IStrategoTerm value = callTF(prop, metadata, n);
-                            temp.put(n, value);
-                        }
-                    }
-                }
-                temp.forEach((n, value) -> {
-                    setProperty(n, prop, value);
-                });
+                swapPrePostProperties();
                 break;
             }
             default:
@@ -279,9 +284,11 @@ public class FixedPoint {
         ICFGNode n, final ICFGNode pred) {
         if(solution.getTFAppl(pred, prop) == null) {
             ignoredNodes.add(n);
-            setProperty(n, prop, getPropertyRef(pred, prop));
+            setPreProperty(n, prop, getPrePropertyRef(pred, prop));
+            setPostProperty(n, prop, getPostPropertyRef(pred, prop));
         } else {
-            setProperty(n, prop, new Ref<>(metadata.lattice().bottom()));
+            setPreProperty(n, prop, new Ref<>(metadata.lattice().bottom()));
+            setPostProperty(n, prop, new Ref<>(metadata.lattice().bottom()));
         }
     }
 
@@ -295,9 +302,9 @@ public class FixedPoint {
         final Set<ICFGNode> ignoredNodes) {
         if(!ignoredNodes.contains(to)) {
             IStrategoTerm afterFromTF = callTF(prop, metadata, from);
-            IStrategoTerm beforeToTF = getProperty(to, prop);
+            IStrategoTerm beforeToTF = getPreProperty(to, prop);
             if(metadata.lattice().nleq(afterFromTF, beforeToTF)) {
-                setProperty(to, prop, metadata.lattice().lub(beforeToTF, afterFromTF));
+                setPreProperty(to, prop, metadata.lattice().lub(beforeToTF, afterFromTF));
                 return true;
             }
         }
@@ -329,7 +336,7 @@ public class FixedPoint {
     private IStrategoTerm callTF(String prop, Metadata<?> metadata, ICFGNode node) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
         if(tfAppl == null) {
-            return getProperty(node, prop);
+            return getPreProperty(node, prop);
         }
         TransferFunction tf = TransferFunction.findFunction(metadata.transferFunctions(), tfAppl);
         return tf.call(tfAppl, node);

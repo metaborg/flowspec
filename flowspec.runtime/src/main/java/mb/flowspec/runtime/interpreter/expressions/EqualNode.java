@@ -3,6 +3,7 @@ package mb.flowspec.runtime.interpreter.expressions;
 import java.util.Objects;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.strategoxt.lang.TermEqualityUtil;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
@@ -23,7 +24,7 @@ public abstract class EqualNode extends ExpressionNode {
     }
 
     @Specialization protected boolean equal(IStrategoTerm left, IStrategoTerm right) {
-        return Objects.equals(left, right);
+        return TermEqualityUtil.equalsIgnoreAnnos(left, right, null);
     }
 
     /**

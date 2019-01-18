@@ -18,6 +18,7 @@ import mb.nabl2.stratego.StrategoBlob;
 
 public abstract class AnalysisPrimitive extends AbstractPrimitive {
     final protected int tvars;
+    private ITermFactory tf;
 
     public AnalysisPrimitive(String name, int tvars) {
         super(name, 0, tvars + 1); // + 1 for the analysisTerm argument
@@ -26,8 +27,9 @@ public abstract class AnalysisPrimitive extends AbstractPrimitive {
 
     @Override public final boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
         throws InterpreterException {
+        tf = env.getFactory();
         final List<IStrategoTerm> termArgs = Arrays.asList(Arrays.copyOfRange(tvars, 1, tvars.length));
-        return call(env.current(), tvars[0], termArgs, env.getFactory()).map(t -> {
+        return call(env.current(), tvars[0], termArgs, tf).map(t -> {
             env.setCurrent(t);
             return true;
         }).orElse(false);
@@ -73,5 +75,9 @@ public abstract class AnalysisPrimitive extends AbstractPrimitive {
             }
             return Optional.empty();
         });
+    }
+    
+    public ITermFactory getFactory() {
+        return tf;
     }
 }

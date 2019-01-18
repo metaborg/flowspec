@@ -11,6 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -52,7 +53,6 @@ import mb.flowspec.runtime.interpreter.expressions.ModNodeGen;
 import mb.flowspec.runtime.interpreter.expressions.MulNodeGen;
 import mb.flowspec.runtime.interpreter.expressions.NaBL2OccurrenceNode;
 import mb.flowspec.runtime.interpreter.expressions.NegNodeGen;
-import mb.flowspec.runtime.interpreter.expressions.NotEqualNodeGen;
 import mb.flowspec.runtime.interpreter.expressions.NotNodeGen;
 import mb.flowspec.runtime.interpreter.expressions.OrNodeGen;
 import mb.flowspec.runtime.interpreter.expressions.PropNode;
@@ -109,6 +109,7 @@ import mb.flowspec.runtime.solver.SimpleType;
 import mb.flowspec.runtime.solver.StaticInfo;
 import mb.flowspec.runtime.solver.Type;
 import mb.flowspec.runtime.solver.UserType;
+import mb.flowspec.terms.B;
 import mb.flowspec.terms.M;
 import mb.nabl2.scopegraph.terms.ImmutableNamespace;
 import mb.nabl2.scopegraph.terms.Namespace;
@@ -148,12 +149,13 @@ public class InterpreterBuilder {
     /**
      * Pass the solution to the interpreter AST so it can save references to the CFG and the resolution result in
      * certain places
+     * @param termFactory 
      */
-    public StaticInfo build(IFlowSpecSolution solution,
+    public StaticInfo build(ITermFactory termFactory, IFlowSpecSolution solution,
         Map.Transient<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties) {
         InitValues initValues = ImmutableInitValues.of(solution.config(), solution.controlFlowGraph(), preProperties,
             solution.scopeGraph(), solution.unifier(), solution.astProperties(), staticInfo.functions().functions(),
-            staticInfo.lattices().latticeDefs()).withNameResolutionCache(solution.nameResolutionCache());
+            staticInfo.lattices().latticeDefs(), new B(termFactory)).withNameResolutionCache(solution.nameResolutionCache());
 
         for(Initializable i : initializable) {
             i.init(initValues);
@@ -369,7 +371,9 @@ public class InterpreterBuilder {
                 final IStrategoAppl appl = M.appl(term, 2);
                 final String consName = M.string(M.at(appl, 0));
                 final ExpressionNode[] exprs = exprList(M.at(appl, 1));
-                return new TermNode(consName, exprs);
+                final TermNode termNode = new TermNode(consName, exprs);
+                initializable.add(termNode);
+                return termNode;
             }
             case "Ref": {
                 final IStrategoAppl appl = M.appl(term, 1);
@@ -427,11 +431,15 @@ public class InterpreterBuilder {
             }
             case "True": {
                 M.appl(term, 0);
-                return new BooleanLiteralNode(true);
+                final BooleanLiteralNode booleanLiteralNode = new BooleanLiteralNode(true);
+                initializable.add(booleanLiteralNode);
+                return booleanLiteralNode;
             }
             case "False": {
                 M.appl(term, 0);
-                return new BooleanLiteralNode(false);
+                final BooleanLiteralNode booleanLiteralNode = new BooleanLiteralNode(false);
+                initializable.add(booleanLiteralNode);
+                return booleanLiteralNode;
             }
             case "Type": {
                 final IStrategoAppl appl = M.appl(term, 1);
@@ -455,7 +463,7 @@ public class InterpreterBuilder {
             }
             case "Neq": {
                 final IStrategoAppl appl = M.appl(term, 2);
-                return NotEqualNodeGen.create(expressionNode(M.at(appl, 0)), expressionNode(M.at(appl, 1)));
+                return NotNodeGen.create(EqualNodeGen.create(expressionNode(M.at(appl, 0)), expressionNode(M.at(appl, 1))));
             }
             case "And": {
                 final IStrategoAppl appl = M.appl(term, 2);

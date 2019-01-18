@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.Map;
@@ -11,6 +12,11 @@ import io.usethesource.capsule.Set;
 import mb.flowspec.terms.B;
 
 public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> implements ISet<K>, IMap<K, V>, Serializable {
+    /**
+     * Stratego compiler assumes constructors are maximally shared and does identity comparison.
+     * So we initialize the constructors at runtime...
+     */
+    public static IStrategoConstructor CONS = null;
 
     private final Set.Immutable<K> set;
     private final Map.Immutable<K, V> map;
@@ -18,6 +24,14 @@ public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> imp
     public EmptyMapOrSet() {
         this.set = Set.Immutable.of();
         this.map = Map.Immutable.of();
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        if(CONS != null) {
+            return CONS;
+        } else {
+            return ISet.super.getConstructor();
+        }
     }
 
     @Override

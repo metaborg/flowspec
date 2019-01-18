@@ -5,9 +5,15 @@ import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.FlowSpecSolution;
+import mb.flowspec.runtime.interpreter.values.EmptyMapOrSet;
+import mb.flowspec.runtime.interpreter.values.IMap;
+import mb.flowspec.runtime.interpreter.values.ISet;
+import mb.flowspec.runtime.interpreter.values.Map;
+import mb.flowspec.runtime.interpreter.values.Set;
 import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.stratego.StrategoBlob;
 
@@ -17,6 +23,7 @@ public class FS_build_cfg extends AbstractPrimitive {
     }
 
     @Override public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
+        initRuntimeConstructors(env.getFactory());
         if(tvars.length != 1) {
             throw new IllegalArgumentException("Expected as first term argument: analysis");
         }
@@ -30,5 +37,15 @@ public class FS_build_cfg extends AbstractPrimitive {
         env.setCurrent(new StrategoBlob(
             result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), builder.cfg(), builder.tfAppls()))));
         return true;
+    }
+
+    /**
+     * Stratego compiler assumes constructors are maximally shared and does identity comparison.
+     * So we initialize the constructors at runtime...
+     */
+    private void initRuntimeConstructors(ITermFactory tf) {
+        Set.CONS = tf.makeConstructor(ISet.NAME, ISet.ARITY);
+        Map.CONS = tf.makeConstructor(IMap.NAME, IMap.ARITY);
+        EmptyMapOrSet.CONS = Set.CONS;
     }
 }

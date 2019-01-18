@@ -12,6 +12,7 @@ import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.IFlowSpecSolution;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.M;
+import mb.flowspec.terms.TermIndexed;
 
 public class FS_get_cfg_pred extends AnalysisPrimitive {
 
@@ -31,7 +32,7 @@ public class FS_get_cfg_pred extends AnalysisPrimitive {
                 nodes[i] = cfgNode;
                 i++;
             }
-            return B.list(nodes);
+            return TermIndexed.addTermIndexToAnnos(getFactory(), B.list(nodes));
         });
     }
 

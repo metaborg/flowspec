@@ -11,13 +11,14 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.StrategoTerm;
 
-public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess {
+public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess, TermIndexed {
     private final IStrategoTerm[] terms;
     final int offset;
     private final int subtermCount;
+    private final TermIndex termIndex;
 
     public StrategoArrayList(IStrategoTerm... terms) {
-        this(terms, new StrategoArrayList(), 0);
+        this(terms, null, 0);
     }
 
     public StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations) {
@@ -26,6 +27,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
     protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset) {
         super(annotations, IStrategoTerm.SHARABLE);
+        this.termIndex = TermIndexed.filterAnnos(this);
         this.terms = terms;
         this.offset = offset;
         this.subtermCount = terms.length - offset;
@@ -202,5 +204,9 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         }
 
         return result;
+    }
+
+    @Override public TermIndex termIndex() {
+        return termIndex;
     }
 }

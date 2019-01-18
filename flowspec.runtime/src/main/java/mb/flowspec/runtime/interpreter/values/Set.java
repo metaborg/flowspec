@@ -2,11 +2,18 @@ package mb.flowspec.runtime.interpreter.values;
 
 import java.io.Serializable;
 
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.Set.Immutable;
 
 public class Set<K extends IStrategoTerm> implements ISet<K>, Serializable {
+    /**
+     * Stratego compiler assumes constructors are maximally shared and does identity comparison.
+     * So we initialize the constructors at runtime...
+     */
+    public static IStrategoConstructor CONS = null;
+
     private final Immutable<K> set;
 
     public Set() {
@@ -15,6 +22,14 @@ public class Set<K extends IStrategoTerm> implements ISet<K>, Serializable {
 
     public Set(Immutable<K> set) {
         this.set = set;
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        if(CONS != null) {
+            return CONS;
+        } else {
+            return ISet.super.getConstructor();
+        }
     }
 
     @Override

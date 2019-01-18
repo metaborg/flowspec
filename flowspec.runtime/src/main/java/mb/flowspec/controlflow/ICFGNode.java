@@ -40,6 +40,10 @@ public interface ICFGNode extends IStrategoAppl2 {
 
     // IStrategoAppl2
 
+    @Override default TermIndex termIndex() {
+        return getIndex();
+    }
+
     @Override default String getName() {
         return OP;
     }

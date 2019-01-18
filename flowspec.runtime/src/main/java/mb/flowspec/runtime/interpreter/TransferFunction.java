@@ -13,6 +13,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import io.usethesource.capsule.Map;
 import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
+import mb.flowspec.terms.TermIndexed;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
@@ -42,7 +43,7 @@ public class TransferFunction extends RootNode {
     public IStrategoTerm call(TransferFunctionAppl appl, IStrategoTerm currentNode) {
         try {
             return Types.expectIStrategoTerm(
-                Truffle.getRuntime().createCallTarget(this).call((Object[]) appl.args(currentNode)));
+                Truffle.getRuntime().createCallTarget(this).call((Object[]) appl.args(TermIndexed.excludeTermIndexFromEqual(currentNode))));
         } catch(UnexpectedResultException e) {
             throw new RuntimeException(e);
         }

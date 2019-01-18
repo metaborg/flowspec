@@ -9,6 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import io.usethesource.capsule.Map.Immutable;
@@ -16,6 +17,12 @@ import io.usethesource.capsule.Map.Transient;
 import io.usethesource.capsule.util.EqualityComparator;
 
 public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IMap<K, V>, Serializable {
+    /**
+     * Stratego compiler assumes constructors are maximally shared and does identity comparison.
+     * So we initialize the constructors at runtime...
+     */
+    public static IStrategoConstructor CONS = null;
+
     private final Immutable<K, V> map;
     public final V topValue;
 
@@ -28,12 +35,19 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
         this.topValue = topValue;
     }
 
+    @Override public IStrategoConstructor getConstructor() {
+        if(CONS != null) {
+            return CONS;
+        } else {
+            return IMap.super.getConstructor();
+        }
+    }
+
     public Map<K, V> update(Immutable<K, V> map) {
         return new Map<>(map, topValue);
     }
 
-    @Override
-    public Immutable<K, V> getMap() {
+    @Override public Immutable<K, V> getMap() {
         return this.map;
     }
 
@@ -53,8 +67,7 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
         return map.containsKey(o);
     }
 
-    @Deprecated
-    public boolean containsKeyEquivalent(Object o, EqualityComparator<Object> cmp) {
+    @Deprecated public boolean containsKeyEquivalent(Object o, EqualityComparator<Object> cmp) {
         return map.containsKeyEquivalent(o, cmp);
     }
 
@@ -74,8 +87,7 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
         return map.valueIterator();
     }
 
-    @Deprecated
-    public boolean containsValueEquivalent(Object o, EqualityComparator<Object> cmp) {
+    @Deprecated public boolean containsValueEquivalent(Object o, EqualityComparator<Object> cmp) {
         return map.containsValueEquivalent(o, cmp);
     }
 
@@ -83,16 +95,14 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
         return map.entryIterator();
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         if(this == obj)
             return true;
         if(obj == null)
             return false;
         if(!(obj instanceof IMap))
             return false;
-        @SuppressWarnings("rawtypes")
-        IMap other = (IMap) obj;
+        @SuppressWarnings("rawtypes") IMap other = (IMap) obj;
         if(getMap() == null) {
             if(other.getMap() != null)
                 return false;
@@ -101,18 +111,15 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
         return true;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return map.hashCode();
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return map.toString();
     }
 
-    @Deprecated
-    public V getEquivalent(Object o, EqualityComparator<Object> cmp) {
+    @Deprecated public V getEquivalent(Object o, EqualityComparator<Object> cmp) {
         return map.getEquivalent(o, cmp);
     }
 
@@ -128,8 +135,7 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
         return update(this.map.__putAll(map));
     }
 
-    @Deprecated
-    public boolean equivalent(Object o, EqualityComparator<Object> cmp) {
+    @Deprecated public boolean equivalent(Object o, EqualityComparator<Object> cmp) {
         return map.equivalent(o, cmp);
     }
 
@@ -141,18 +147,16 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
         return map.asTransient();
     }
 
-    @Deprecated
-    public Map<K, V> __putEquivalent(K key, V val, EqualityComparator<Object> cmp) {
+    @Deprecated public Map<K, V> __putEquivalent(K key, V val, EqualityComparator<Object> cmp) {
         return update(map.__putEquivalent(key, val, cmp));
     }
 
-    @Deprecated
-    public Map<K, V> __removeEquivalent(K key, EqualityComparator<Object> cmp) {
+    @Deprecated public Map<K, V> __removeEquivalent(K key, EqualityComparator<Object> cmp) {
         return update(map.__removeEquivalent(key, cmp));
     }
 
-    @Deprecated
-    public Map<K, V> __putAllEquivalent(java.util.Map<? extends K, ? extends V> map, EqualityComparator<Object> cmp) {
+    @Deprecated public Map<K, V> __putAllEquivalent(java.util.Map<? extends K, ? extends V> map,
+        EqualityComparator<Object> cmp) {
         return update(this.map.__putAllEquivalent(map, cmp));
     }
 

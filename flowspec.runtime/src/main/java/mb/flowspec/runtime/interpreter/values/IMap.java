@@ -10,14 +10,17 @@ import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
 
 public interface IMap<K extends IStrategoTerm, V extends IStrategoTerm> extends IStrategoAppl2 {
+    public static final String NAME = "Map";
+    public static final int ARITY = 1;
+
     Map.Immutable<K, V> getMap();
 
     @Override default String getName() {
-        return "Map";
+        return NAME;
     }
 
     @Override default int getSubtermCount() {
-        return 1;
+        return ARITY;
     }
 
     @Override default IStrategoTerm[] getAllSubterms() {
