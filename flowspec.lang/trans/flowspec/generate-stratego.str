@@ -121,7 +121,7 @@ ${{ruleheader}
   with(result := {constraintstr})
 
 {ruleheader2}
-  with({<semi-lines> [refvarsstr2*, rrvarstr2*, recursesstr2*, pairstr2*]})
+  where({<semi-lines> [refvarsstr2*, rrvarstr2*, recursesstr2*, pairstr2*]})
 }
 with
   patternstr := <gen-match-pattern-str> pattern
