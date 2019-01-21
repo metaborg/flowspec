@@ -6,4 +6,10 @@ public interface IBasicBlock extends Iterable<ICFGNode> {
     ICFGNode last();
 
     IBasicBlock inverse();
+
+    boolean ignored(ICFGNode node);
+
+    void ignore(ICFGNode node);
+
+    void clearIgnored();
 }

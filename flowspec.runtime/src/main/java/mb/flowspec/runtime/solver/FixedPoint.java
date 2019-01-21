@@ -199,16 +199,16 @@ public class FixedPoint {
         }
 
         // 1.3: other initial values bottom, while finding ignorable nodes (nodes without TF and only 1 predecessor)
-        final Set<ICFGNode> ignoredNodes = new HashSet<>();
         for(Set<IBasicBlock> scc : sccs) {
             for(IBasicBlock b : scc) {
+                b.clearIgnored();
                 final IBasicBlock block = blockDir.apply(b);
                 final Iterator<ICFGNode> iterator = block.iterator();
                 ICFGNode n = iterator.next();
                 final Set<IBasicBlock> prevBlocks = prev.apply(block);
                 if(prevBlocks.size() == 1) {
                     final ICFGNode pred = blockDir.apply(prevBlocks.iterator().next()).last();
-                    perhapsIgnored(prop, metadata, ignoredNodes, n, pred);
+                    perhapsIgnored(prop, metadata, block, n, pred);
                 } else {
                     setPreProperty(n, prop, new Ref<>(metadata.lattice.bottom()));
                     setPostProperty(n, prop, new Ref<>(metadata.lattice.bottom()));
@@ -216,11 +216,10 @@ public class FixedPoint {
                 for(; iterator.hasNext();) {
                     final ICFGNode pred = n; // definitely only one predecessor
                     n = iterator.next();
-                    perhapsIgnored(prop, metadata, ignoredNodes, n, pred);
+                    perhapsIgnored(prop, metadata, block, n, pred);
                 }
             }
         }
-        logger.debug("Ignoring {} out of {} nodes", ignoredNodes.size(), cfg.nodeCount());
 
         // Phase 2: Fixpoint iteration
         for(Set<IBasicBlock> scc : sccs) {
@@ -238,14 +237,14 @@ public class FixedPoint {
                         .hasNext();) {
                         final ICFGNode from = iterator.next();
                         if(iterator.hasNext()) {
-                            if(compute(from, iterator.peek(), prop, metadata, ignoredNodes)) {
+                            if(compute(from, iterator.peek(), prop, metadata, block)) {
                                 done = false;
                             }
                         } else {
                             final Set<IBasicBlock> nextBlocks = next.apply(block);
                             for(IBasicBlock nextB : nextBlocks) {
                                 IBasicBlock nextBlock = blockDir.apply(nextB);
-                                if(compute(from, nextBlock.first(), prop, metadata, ignoredNodes)
+                                if(compute(from, nextBlock.first(), prop, metadata, nextBlock)
                                     && scc.contains(nextB)) {
                                     done = false;
                                 }
@@ -263,7 +262,7 @@ public class FixedPoint {
         for(Set<IBasicBlock> scc : sccs) {
             for(IBasicBlock block : scc) {
                 for(ICFGNode n : blockDir.apply(block)) {
-                    if(!ignoredNodes.contains(n)) {
+                    if(!block.ignored(n)) {
                         IStrategoTerm value = callTF(prop, metadata, n);
                         setPostProperty(n, prop, value);
                     }
@@ -283,10 +282,10 @@ public class FixedPoint {
         }
     }
 
-    public void perhapsIgnored(String prop, Metadata<IStrategoTerm> metadata, final Set<ICFGNode> ignoredNodes,
-        ICFGNode n, final ICFGNode pred) {
+    public void perhapsIgnored(String prop, Metadata<IStrategoTerm> metadata, IBasicBlock block,
+        ICFGNode n, ICFGNode pred) {
         if(solution.getTFAppl(pred, prop) == null) {
-            ignoredNodes.add(n);
+            block.ignore(n);
             setPreProperty(n, prop, getPrePropertyRef(pred, prop));
             setPostProperty(n, prop, getPostPropertyRef(pred, prop));
         } else {
@@ -302,8 +301,8 @@ public class FixedPoint {
      * @return true if there {@code to} was given a new value
      */
     public boolean compute(ICFGNode from, ICFGNode to, String prop, Metadata<IStrategoTerm> metadata,
-        final Set<ICFGNode> ignoredNodes) {
-        if(!ignoredNodes.contains(to)) {
+        IBasicBlock block) {
+        if(!block.ignored(to)) {
             IStrategoTerm afterFromTF = callTF(prop, metadata, from);
             IStrategoTerm beforeToTF = getPreProperty(to, prop);
             if(metadata.lattice.nleq(afterFromTF, beforeToTF)) {

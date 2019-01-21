@@ -2,11 +2,11 @@ package mb.flowspec.controlflow;
 
 import java.util.List;
 
-import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value;
 import org.immutables.value.Value.Parameter;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-@Immutable
+@Value.Immutable
 public abstract class TransferFunctionAppl {
     @Parameter public abstract String moduleName();
     @Parameter public abstract int offset();

@@ -1,5 +1,9 @@
 package mb.flowspec.primitives;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -9,7 +13,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.strategoxt.lang.InteropCallT;
 import org.strategoxt.lang.InteropContext;
 
-import io.usethesource.capsule.Map;
 import mb.flowspec.controlflow.ControlFlowGraphBuilder;
 import mb.flowspec.controlflow.FlowSpecSolution;
 import mb.flowspec.controlflow.ICFGNode;
@@ -37,7 +40,7 @@ public class FS_create_cfg extends AbstractPrimitive {
             throw new IllegalArgumentException("Not a valid analysis term.");
         }
         final ControlFlowGraphBuilder builder = ControlFlowGraphBuilder.of();
-        final Map.Transient<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls = Map.Transient.of();
+        final Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls = new HashMap<>();
 
         final InteropContext context = (InteropContext) env;
 
@@ -61,7 +64,7 @@ public class FS_create_cfg extends AbstractPrimitive {
             return false;
         }
         env.setCurrent(new StrategoBlob(
-            result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), builder.build(), tfAppls.freeze()))));
+            result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), builder.build(), Collections.unmodifiableMap(tfAppls)))));
         return true;
     }
 }

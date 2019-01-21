@@ -1,13 +1,15 @@
 package mb.flowspec.controlflow;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import io.usethesource.capsule.Map;
 import mb.flowspec.controlflow.ICFGNode.Kind;
 import mb.flowspec.terms.ImmutableTermIndex;
 import mb.flowspec.terms.M;
@@ -19,11 +21,11 @@ import mb.nabl2.util.Tuple2;
 
 public class ControlFlowGraphReader {
     protected final ControlFlowGraphBuilder cfg;
-    protected final Map.Transient<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls;
+    protected final Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls;
 
     protected ControlFlowGraphReader() {
         this.cfg = ControlFlowGraphBuilder.of();
-        this.tfAppls = Map.Transient.of();
+        this.tfAppls = new HashMap<>();
     }
 
     // Public API
@@ -38,8 +40,8 @@ public class ControlFlowGraphReader {
         return this.cfg.build();
     }
 
-    public Map.Immutable<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls() {
-        return this.tfAppls.freeze();
+    public Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls() {
+        return Collections.unmodifiableMap(this.tfAppls);
     }
 
     // Builder
@@ -65,7 +67,7 @@ public class ControlFlowGraphReader {
                     final int offset = M.integer(M.at(appl, 3));
                     final IStrategoList argsList = M.list(M.at(appl, 4));
                     final List<IStrategoTerm> args = Arrays.asList(TermIndexed.excludeTermIndexFromEqual(argsList.getAllSubterms()));
-                    tfAppls.__put(ImmutableTuple2.of(cfgNode, propName),
+                    tfAppls.put(ImmutableTuple2.of(cfgNode, propName),
                         ImmutableTransferFunctionAppl.of(modName, offset, args));
                     break;
                 }
