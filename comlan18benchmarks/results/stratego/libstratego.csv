@@ -1,0 +1,2 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"mb.flowspec.comlan18.stratego.StrLibStrategoBenchmark.bench","avgt",1,5,33.274093,0.549256,"ms/op"
