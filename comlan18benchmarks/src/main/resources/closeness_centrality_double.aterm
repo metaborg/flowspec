@@ -1,0 +1,373 @@
+Unit(
+  []
+, [ Proc(
+      "closeness_centrality_double_length"
+    , [ Decl(
+          "G"
+        , GraphTy(
+            Graph(
+              "G"
+            , URI(
+                Language("gm_lang")
+              , [ ID(NablNsVariable(), "G", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                , ID(NablNsProcedure(), "closeness_centrality_double_length", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                , Anonymous("eclipse:///gm_lang/closeness_centrality_double.gm/0")
+                ]
+              )
+            )
+          , Generic()
+          )
+        , InArg()
+        )
+      , Decl(
+          "_G_len"
+        , PropTy(
+            ItemTy(
+              Edge()
+            , Graph(
+                "G"
+              , URI(
+                  Language("gm_lang")
+                , [ ID(NablNsVariable(), "G", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                  , ID(NablNsProcedure(), "closeness_centrality_double_length", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                  , Anonymous("eclipse:///gm_lang/closeness_centrality_double.gm/0")
+                  ]
+                )
+              )
+            )
+          , DoubleTy()
+          )
+        , InArg()
+        )
+      , Decl(
+          "_G_CC"
+        , PropTy(
+            ItemTy(
+              Node()
+            , Graph(
+                "G"
+              , URI(
+                  Language("gm_lang")
+                , [ ID(NablNsVariable(), "G", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                  , ID(NablNsProcedure(), "closeness_centrality_double_length", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                  , Anonymous("eclipse:///gm_lang/closeness_centrality_double.gm/0")
+                  ]
+                )
+              )
+            )
+          , DoubleTy()
+          )
+        , OutArg()
+        )
+      ]
+    , BoolTy()
+    , Procedure()
+    , Block(
+        [ Decl(
+            "_G_updated"
+          , PropTy(
+              ItemTy(
+                Node()
+              , Graph(
+                  "G"
+                , URI(
+                    Language("gm_lang")
+                  , [ ID(NablNsVariable(), "G", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                    , ID(NablNsProcedure(), "closeness_centrality_double_length", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                    , Anonymous("eclipse:///gm_lang/closeness_centrality_double.gm/0")
+                    ]
+                  )
+                )
+              )
+            , BoolTy()
+            )
+          , Local()
+          )
+        , Decl(
+            "_G_updated_nxt"
+          , PropTy(
+              ItemTy(
+                Node()
+              , Graph(
+                  "G"
+                , URI(
+                    Language("gm_lang")
+                  , [ ID(NablNsVariable(), "G", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                    , ID(NablNsProcedure(), "closeness_centrality_double_length", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                    , Anonymous("eclipse:///gm_lang/closeness_centrality_double.gm/0")
+                    ]
+                  )
+                )
+              )
+            , BoolTy()
+            )
+          , Local()
+          )
+        , Decl(
+            "_G_dist"
+          , PropTy(
+              ItemTy(
+                Node()
+              , Graph(
+                  "G"
+                , URI(
+                    Language("gm_lang")
+                  , [ ID(NablNsVariable(), "G", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                    , ID(NablNsProcedure(), "closeness_centrality_double_length", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                    , Anonymous("eclipse:///gm_lang/closeness_centrality_double.gm/0")
+                    ]
+                  )
+                )
+              )
+            , DoubleTy()
+            )
+          , Local()
+          )
+        , Decl(
+            "_G_dist_nxt"
+          , PropTy(
+              ItemTy(
+                Node()
+              , Graph(
+                  "G"
+                , URI(
+                    Language("gm_lang")
+                  , [ ID(NablNsVariable(), "G", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                    , ID(NablNsProcedure(), "closeness_centrality_double_length", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                    , Anonymous("eclipse:///gm_lang/closeness_centrality_double.gm/0")
+                    ]
+                  )
+                )
+              )
+            , DoubleTy()
+            )
+          , Local()
+          )
+        , ForEach(
+            Parallel()
+          , IterBounds("grp_dist", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+          , Block(
+              [Assign(PropAssign(VarRef("grp_dist"), "_G_dist"), Inf(DoubleTy(), Pos()))]
+            )
+          )
+        , ForEach(
+            Sequential()
+          , IterBounds("root", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+          , Block(
+              [ ForEach(
+                  Parallel()
+                , IterBounds("grp_dist", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                , Block(
+                    [ Assign(
+                        PropAssign(VarRef("grp_dist"), "_G_dist")
+                      , TerIf(
+                          Eq(VarRef("grp_dist"), VarRef("root"))
+                        , DoubleLit("0.0")
+                        , Inf(DoubleTy(), Pos())
+                        )
+                      )
+                    ]
+                  )
+                )
+              , ForEach(
+                  Parallel()
+                , IterBounds("grp_updated", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                , Block(
+                    [ Assign(
+                        PropAssign(VarRef("grp_updated"), "_G_updated")
+                      , TerIf(Eq(VarRef("grp_updated"), VarRef("root")), True(), False())
+                      )
+                    ]
+                  )
+                )
+              , ForEach(
+                  Parallel()
+                , IterBounds("grp_dist_nxt", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                , Block(
+                    [Assign(
+                       PropAssign(VarRef("grp_dist_nxt"), "_G_dist_nxt")
+                     , PropRef(VarRef("grp_dist_nxt"), "_G_dist")
+                     )]
+                  )
+                )
+              , ForEach(
+                  Parallel()
+                , IterBounds("grp_updated_nxt", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                , Block(
+                    [Assign(
+                       PropAssign(VarRef("grp_updated_nxt"), "_G_updated_nxt")
+                     , PropRef(VarRef("grp_updated_nxt"), "_G_updated")
+                     )]
+                  )
+                )
+              , Decl("fin", BoolTy(), Local())
+              , Assign(VarAssign("fin"), False())
+              , While(
+                  Not(VarRef("fin"))
+                , Block(
+                    [ Assign(VarAssign("fin"), True())
+                    , ForEach(
+                        Parallel()
+                      , IterBounds("n156", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                      , Block(
+                          [ IfThenElse(
+                              PropRef(VarRef("n156"), "_G_updated")
+                            , Block(
+                                [ ForEach(
+                                    Parallel()
+                                  , IterBounds("s", NodeIterRange(VarRef("n156"), OutNbrs()), NoOrder())
+                                  , Block(
+                                      [ Decl(
+                                          "e"
+                                        , ItemTy(
+                                            Edge()
+                                          , Graph(
+                                              "G"
+                                            , URI(
+                                                Language("gm_lang")
+                                              , [ ID(NablNsVariable(), "G", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                                                , ID(NablNsProcedure(), "closeness_centrality_double_length", Unique("eclipse:///gm_lang/closeness_centrality_double.gm/0"))
+                                                , Anonymous("eclipse:///gm_lang/closeness_centrality_double.gm/0")
+                                                ]
+                                              )
+                                            )
+                                          )
+                                        , Local()
+                                        )
+                                      , Assign(VarAssign("e"), FuncCall(VarRef("s"), "edge", []))
+                                      , ArgMinMax(
+                                          PropAssign(VarRef("s"), "_G_dist_nxt")
+                                        , [PropAssign(VarRef("s"), "_G_updated_nxt")]
+                                        , ArgMin()
+                                        , Add(
+                                            PropRef(VarRef("n156"), "_G_dist")
+                                          , PropRef(VarRef("e"), "_G_len")
+                                          )
+                                        , [True()]
+                                        , IterRef("root")
+                                        )
+                                      ]
+                                    )
+                                  )
+                                ]
+                              )
+                            , Block([])
+                            )
+                          ]
+                        )
+                      )
+                    , ForEach(
+                        Parallel()
+                      , IterBounds("grp_dist", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                      , Block(
+                          [Assign(
+                             PropAssign(VarRef("grp_dist"), "_G_dist")
+                           , PropRef(VarRef("grp_dist"), "_G_dist_nxt")
+                           )]
+                        )
+                      )
+                    , ForEach(
+                        Parallel()
+                      , IterBounds("grp_updated", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                      , Block(
+                          [Assign(
+                             PropAssign(VarRef("grp_updated"), "_G_updated")
+                           , PropRef(VarRef("grp_updated"), "_G_updated_nxt")
+                           )]
+                        )
+                      )
+                    , ForEach(
+                        Parallel()
+                      , IterBounds("grp_updated_nxt", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                      , Block([Assign(PropAssign(VarRef("grp_updated_nxt"), "_G_updated_nxt"), False())])
+                      )
+                    , Decl("any_n0", BoolTy(), Local())
+                    , Assign(VarAssign("any_n0"), False())
+                    , ForEach(
+                        Parallel()
+                      , IterBounds("n157", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                      , Block(
+                          [ ReduceAssign(
+                              VarAssign("any_n0")
+                            , ReduceOr()
+                            , PropRef(VarRef("n157"), "_G_updated")
+                            , IterRef("n157")
+                            )
+                          ]
+                        )
+                      )
+                    , Assign(VarAssign("fin"), Not(VarRef("any_n0")))
+                    ]
+                  )
+                )
+              , Decl("b", BoolTy(), Local())
+              , Decl("any_v0", BoolTy(), Local())
+              , Assign(VarAssign("any_v0"), False())
+              , ForEach(
+                  Parallel()
+                , IterBounds("v45", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                , Block(
+                    [ ReduceAssign(
+                        VarAssign("any_v0")
+                      , ReduceOr()
+                      , Eq(PropRef(VarRef("v45"), "_G_dist"), Inf(DoubleTy(), Pos()))
+                      , IterRef("v45")
+                      )
+                    ]
+                  )
+                )
+              , Assign(VarAssign("b"), VarRef("any_v0"))
+              , Decl("levelSum", DoubleTy(), Local())
+              , Decl("sum_v0", DoubleTy(), Local())
+              , Assign(VarAssign("sum_v0"), DoubleLit("0.0"))
+              , ForEach(
+                  Parallel()
+                , IterBounds("v46", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                , Block(
+                    [ ReduceAssign(
+                        VarAssign("sum_v0")
+                      , ReduceAdd()
+                      , PropRef(VarRef("v46"), "_G_dist")
+                      , IterRef("v46")
+                      )
+                    ]
+                  )
+                )
+              , Assign(VarAssign("levelSum"), VarRef("sum_v0"))
+              , ForEach(
+                  Parallel()
+                , IterBounds("grp_dist", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                , Block(
+                    [Assign(PropAssign(VarRef("grp_dist"), "_G_dist"), Inf(DoubleTy(), Pos()))]
+                  )
+                )
+              , IfThenElse(
+                  VarRef("b")
+                , Block(
+                    [ ForEach(
+                        Parallel()
+                      , IterBounds("grp_CC", GraphIterRange(IGraphRef("G"), GraphNodes()), NoOrder())
+                      , Block(
+                          [Assign(PropAssign(VarRef("grp_CC"), "_G_CC"), DoubleLit("0.0"))]
+                        )
+                      )
+                    , ReturnWith(Ret(), False())
+                    ]
+                  )
+                , Block(
+                    [ Assign(
+                        PropAssign(VarRef("root"), "_G_CC")
+                      , Div(DoubleLit("1.0"), VarRef("levelSum"))
+                      )
+                    ]
+                  )
+                )
+              ]
+            )
+          )
+        , ReturnWith(Ret(), True())
+        ]
+      )
+    )
+  ]
+)
