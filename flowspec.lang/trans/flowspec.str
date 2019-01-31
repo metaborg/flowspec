@@ -12,7 +12,8 @@ imports
   flowspec/generate-lattices
   flowspec/generate-functions
   flowspec/editor-hover
-  signatures/flowspec/Main-sig
+  signatures/flowspec/desugar/Main-sig
+  nabl2/api
   libstratego-aterm
 
 rules // Debugging
