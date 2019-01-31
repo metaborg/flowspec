@@ -1,7 +1,7 @@
 package mb.flowspec.comlan18.flowspec;
 
-public class FSLibStrategoBenchmark extends FlowSpecBenchmark {
+public class FSLibStrategoBenchmark extends FlowSpecStrBenchmark {
     public FSLibStrategoBenchmark() {
-        super(FSLibStrategoBenchmark.class.getResource("/libstratego-lib.ctree"));
+        super("/libstratego-lib.ctree");
     }
 }

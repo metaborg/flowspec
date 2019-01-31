@@ -1,7 +1,7 @@
 package mb.flowspec.comlan18.flowspec;
 
-public class FSLibSpoofaxBenchmark extends FlowSpecBenchmark {
+public class FSLibSpoofaxBenchmark extends FlowSpecStrBenchmark {
     public FSLibSpoofaxBenchmark() {
-        super(FSLibSpoofaxBenchmark.class.getResource("/libspoofax.ctree"));
+        super("/libspoofax.ctree");
     }
 }
