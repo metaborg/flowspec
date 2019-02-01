@@ -458,7 +458,7 @@ public class InterpreterBuilder {
                 final IStrategoAppl appl = M.appl(term, 2);
                 return EqualNodeGen.create(expressionNode(M.at(appl, 0)), expressionNode(M.at(appl, 1)));
             }
-            case "Neq": {
+            case "NEq": {
                 final IStrategoAppl appl = M.appl(term, 2);
                 return NotNodeGen.create(EqualNodeGen.create(expressionNode(M.at(appl, 0)), expressionNode(M.at(appl, 1))));
             }
@@ -581,7 +581,7 @@ public class InterpreterBuilder {
                 final IStrategoAppl appl = M.appl(term, 2);
                 return SetUnionNodeGen.create(expressionNode(M.at(appl, 0)), expressionNode(M.at(appl, 1)));
             }
-            case "SetMinus": {
+            case "SetDifference": {
                 final IStrategoAppl appl = M.appl(term, 2);
                 return SetMinusNodeGen.create(expressionNode(M.at(appl, 0)), expressionNode(M.at(appl, 1)));
             }
@@ -589,7 +589,7 @@ public class InterpreterBuilder {
                 final IStrategoAppl appl = M.appl(term, 2);
                 return SetContainsNodeGen.create(expressionNode(M.at(appl, 0)), expressionNode(M.at(appl, 1)));
             }
-            case "SetIntersect": {
+            case "SetIntersection": {
                 final IStrategoAppl appl = M.appl(term, 2);
                 return SetIntersectNodeGen.create(expressionNode(M.at(appl, 0)), expressionNode(M.at(appl, 1)));
             }
