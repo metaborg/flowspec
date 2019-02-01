@@ -1,1 +1,2 @@
 "Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"mb.flowspec.comlan18.flowspec.FSLibStrcBenchmark.bench2","avgt",1,5,6322.164915,1517.502815,"ms/op"
