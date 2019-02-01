@@ -12,4 +12,6 @@ public interface IBasicBlock extends Iterable<ICFGNode> {
     void ignore(ICFGNode node);
 
     void clearIgnored();
+
+    int size();
 }

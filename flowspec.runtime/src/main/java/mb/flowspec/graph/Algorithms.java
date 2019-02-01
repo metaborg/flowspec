@@ -171,8 +171,9 @@ public class Algorithms {
                 final Deque<N> visitingStack = new ArrayDeque<>();
                 final Deque<N> revSCC = new ArrayDeque<>();
                 Set<N> befores;
+                visitingStack.addLast(node);
                 do {
-                    visitingStack.addLast(node);
+                    node = visitingStack.getLast();
                     unvisited.remove(node);
                     befores = Sets.intersection(prev.apply(node), unvisited);
                     if(!befores.isEmpty()) {
@@ -183,14 +184,12 @@ public class Algorithms {
                          * copy when we change unvisited!
                          */
                         unvisited.removeAll(Arrays.asList(befores.toArray()));
-                        node = visitingStack.removeLast();
                     } else {
                         visitingStack.removeLast();
                         revSCC.addFirst(node);
-                        node = visitingStack.removeLast();
                     }
                 } while(!visitingStack.isEmpty());
-                scc = new LinkedHashSet<>(revSCC);
+                scc = Collections.unmodifiableSet(new LinkedHashSet<>(revSCC));
             }
             // addFirst for reverse order of SCCs
             revSCCs.addFirst(scc);

@@ -1,5 +1,6 @@
 package mb.flowspec.controlflow;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -88,5 +89,19 @@ public class BasicBlock implements IBasicBlock {
         } else if(!nodes.equals(other.nodes))
             return false;
         return true;
+    }
+
+    @Override public String toString() {
+        ArrayList<ICFGNode> activeNodes = new ArrayList<>(nodes.size());
+        for(ICFGNode node : this) {
+            if(!ignored(node)) {
+                activeNodes.add(node);
+            }
+        }
+        return "BasicBlock " + activeNodes + ", inversed=" + inversed + ", nodes=" + nodes + "]";
+    }
+
+    @Override public int size() {
+        return nodes.size();
     }
 }

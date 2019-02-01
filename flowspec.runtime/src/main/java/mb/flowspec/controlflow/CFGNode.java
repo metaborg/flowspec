@@ -28,7 +28,7 @@ public abstract class CFGNode implements ICFGNode {
     }
 
     @Override public String toString() {
-        return "##" + getCFGNodeName() + this.getIndex().toString();
+        return "##" + getCFGNodeName() + "." + getKind() + this.getIndex().toString();
     }
 
     public static CFGNode normal(TermIndex index) {

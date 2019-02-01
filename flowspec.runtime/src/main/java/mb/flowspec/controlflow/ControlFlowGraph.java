@@ -122,6 +122,7 @@ public class ControlFlowGraph implements IControlFlowGraph, Serializable {
     @Override public Collection<Set<IBasicBlock>> topoSCCs() {
         if(topoSCCs == null) {
             topoSCCs = Algorithms.topoSCCs(startBlocks, blockEdges::get);
+            assert countNodesinSCCs(topoSCCs) == nodeCount : "Not all nodes found in topoSCCs, missing: " + (nodeCount - countNodesinSCCs(revTopoSCCs));
         }
         return topoSCCs;
     }
@@ -132,8 +133,19 @@ public class ControlFlowGraph implements IControlFlowGraph, Serializable {
     @Override public Collection<Set<IBasicBlock>> revTopoSCCs() {
         if(revTopoSCCs == null) {
             revTopoSCCs = Algorithms.revTopoSCCs(blockEdges.inverse()::get, topoSCCs());
+            assert countNodesinSCCs(revTopoSCCs) == nodeCount : "Not all nodes found in revTopoSCCs, missing: " + (nodeCount - countNodesinSCCs(revTopoSCCs));
         }
         return revTopoSCCs;
+    }
+
+    private static int countNodesinSCCs(Collection<Set<IBasicBlock>> sccs) {
+        int count = 0;
+        for(Set<IBasicBlock> scc : sccs) {
+            for(IBasicBlock b : scc) {
+                count += b.size();
+            }
+        }
+        return count;
     }
 
     @Override public int nodeCount() {
