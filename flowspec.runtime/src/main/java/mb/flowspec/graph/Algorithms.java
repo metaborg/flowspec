@@ -165,7 +165,7 @@ public class Algorithms {
                 assert iterator.hasNext();
                 final N nextSCCsFirstNode = iterator.peek().iterator().next();
                 final Set<N> hasEdgeToNextSCCsFirstNode = prev.apply(nextSCCsFirstNode);
-                N node = Sets.difference(hasEdgeToNextSCCsFirstNode, scc).iterator().next();
+                N node = Sets.intersection(hasEdgeToNextSCCsFirstNode, scc).iterator().next();
                 // Recompute reverse postorder for inverse graph
                 final Set<N> unvisited = new HashSet<>(scc);
                 final Deque<N> visitingStack = new ArrayDeque<>();
