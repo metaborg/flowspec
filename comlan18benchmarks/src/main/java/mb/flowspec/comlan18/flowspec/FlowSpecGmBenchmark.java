@@ -24,7 +24,7 @@ import mb.nabl2.stratego.StrategoBlob;
 import mb.nabl2.stratego.StrategoTermIndices;
 
 public abstract class FlowSpecGmBenchmark extends BaseBenchmark {
-    protected ILanguageImpl language;
+    protected ILanguageImpl backend;
     protected Spoofax spoofax;
     private FileObject inputFileObject;
     private IStrategoCommon strategoCommon;
@@ -32,6 +32,7 @@ public abstract class FlowSpecGmBenchmark extends BaseBenchmark {
     private IStrategoTerm annotated;
     private IResult result;
     private ITermFactory tf;
+    private ILanguageImpl frontend;
 
     protected FlowSpecGmBenchmark(String inputResource) {
         super(getResource(inputResource));
@@ -39,11 +40,14 @@ public abstract class FlowSpecGmBenchmark extends BaseBenchmark {
 
     @Setup public void setupSpoofax() throws MetaborgException, URISyntaxException, InterruptedException {
         spoofax = new Spoofax(new SpoofaxModuleExtension());
-        FileObject languageZip = spoofax.resourceService.resolve(getResource("/pgx_gm_java-0.1.0-BACKEND-SNAPSHOT.spoofax-language").toURI());
+        FileObject frontendZip = spoofax.resourceService.resolve(getResource("/gm_lang-0.1.0-FRONTEND-SNAPSHOT.spoofax-language").toURI());
+        FileObject backendZip = spoofax.resourceService.resolve(getResource("/pgx_gm_java-0.1.0-BACKEND-SNAPSHOT.spoofax-language").toURI());
 
         inputFileObject = spoofax.resourceService.resolve(inputURL.getPath());
         project = spoofax.projectService.get(inputFileObject);
-        language = spoofax.languageDiscoveryService.languageFromArchive(languageZip);
+        // load frontend first
+        frontend = spoofax.languageDiscoveryService.languageFromArchive(frontendZip);
+        backend = spoofax.languageDiscoveryService.languageFromArchive(backendZip);
 
         strategoCommon = spoofax.strategoCommon;
 
@@ -57,16 +61,16 @@ public abstract class FlowSpecGmBenchmark extends BaseBenchmark {
     }
 
     @Benchmark public IStrategoTerm benchReachingDefinitions() throws MetaborgException, InterruptedException {
-        final IContext context = spoofax.contextService.get(inputFileObject, project, language);
+        final IContext context = spoofax.contextService.get(inputFileObject, project, frontend);
         try(IClosableLock lock = context.read()) {
-            return strategoCommon.invoke(language, context, createInput("reaching"), "benchmark-flowspec-analysis");
+            return strategoCommon.invoke(backend, context, createInput("reaching"), "benchmark-flowspec-analysis");
         }
     }
 
     @Benchmark public IStrategoTerm benchLiveVariables() throws MetaborgException, InterruptedException {
-        final IContext context = spoofax.contextService.get(inputFileObject, project, language);
+        final IContext context = spoofax.contextService.get(inputFileObject, project, frontend);
         try(IClosableLock lock = context.read()) {
-            return strategoCommon.invoke(language, context, createInput("live"), "benchmark-flowspec-analysis");
+            return strategoCommon.invoke(backend, context, createInput("live"), "benchmark-flowspec-analysis");
         }
     }
 }

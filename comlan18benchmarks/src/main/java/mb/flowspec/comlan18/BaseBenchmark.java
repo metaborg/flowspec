@@ -40,7 +40,7 @@ import mb.nabl2.spoofax.analysis.ImmutableSingleUnitResult;
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-@Fork(jvmArgsAppend = { "-Xms512m", "-Xmx1024m", "-Xss16m" })
+@Fork(jvmArgsAppend = { "-Xms512m", "-Xmx2g", "-Xss16m" })
 public abstract class BaseBenchmark {
     final protected URL inputURL;
     protected IStrategoTerm ctree;

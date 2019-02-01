@@ -1,0 +1,7 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"mb.flowspec.comlan18.flowspec.GmBC.benchLiveVariables","avgt",1,5,1.315253,0.047312,"ms/op"
+"mb.flowspec.comlan18.flowspec.GmBC.benchReachingDefinitions","avgt",1,5,2.795810,0.009293,"ms/op"
+"mb.flowspec.comlan18.flowspec.GmCC.benchLiveVariables","avgt",1,5,0.903065,0.037406,"ms/op"
+"mb.flowspec.comlan18.flowspec.GmCC.benchReachingDefinitions","avgt",1,5,1.443168,0.012418,"ms/op"
+"mb.flowspec.comlan18.flowspec.GmCCDouble.benchLiveVariables","avgt",1,5,2.765082,0.067945,"ms/op"
+"mb.flowspec.comlan18.flowspec.GmCCDouble.benchReachingDefinitions","avgt",1,5,10.669124,0.336395,"ms/op"
