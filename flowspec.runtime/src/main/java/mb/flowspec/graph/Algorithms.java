@@ -53,7 +53,7 @@ public class Algorithms {
         List<V> result = new ArrayList<>(subgraph.size());
         // The frontier is initialised with nodes that have no incoming edges.
         frontier.removeAll(edges.values());
-        frontier.removeIf(v -> !subgraph.contains(v));
+        frontier.retainAll(subgraph);
         BinaryRelation.Transient<V, V> mutRel = edges.asTransient();
 
         // (1) Move the nodes from the frontier (no incoming edges) to the

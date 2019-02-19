@@ -102,9 +102,11 @@ public class FixedPoint {
         Collection<String> propNames) throws CyclicGraphException, FixedPointLimitException {
         // Check that all given property names exists, and meanwhile check if this is the full list of property names
         Set<String> allProps = new HashSet<>(staticInfo.metadata.keySet());
-        for(String propName : propNames) {
+        for(Iterator<String> iterator = propNames.iterator(); iterator.hasNext();) {
+            String propName = iterator.next();
             if(!allProps.contains(propName)) {
-                logger.warn("Given property {} cannot be found", propName);
+                logger.error("Given property {} cannot be found and will be ignored. ", propName);
+                iterator.remove();
             } else {
                 allProps.remove(propName);
             }
