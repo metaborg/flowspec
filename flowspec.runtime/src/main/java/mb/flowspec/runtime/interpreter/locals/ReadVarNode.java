@@ -35,7 +35,7 @@ public abstract class ReadVarNode extends RefNode {
 
     @Specialization(replaces = {"readInt", "readBoolean"})
     protected Object readObject(VirtualFrame frame) {
-        return FrameUtil.getObjectSafe(frame, getSlot());
+        return Types.typeSpecializeTerm(FrameUtil.getObjectSafe(frame, getSlot()));
     }
 
     protected boolean isInt(VirtualFrame frame) {

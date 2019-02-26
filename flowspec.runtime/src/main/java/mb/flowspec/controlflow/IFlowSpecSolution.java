@@ -40,8 +40,8 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
 
     IControlFlowGraph controlFlowGraph();
     // TODO: change to Map.Immutable<String, Map<CFGNode, ITerm>>?
-    Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties();
-    Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties();
+    Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> preProperties();
+    Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> postProperties();
     /**
      * @return The transfer functions associated with each node in the control flow graph(s) by property. 
      */
@@ -51,7 +51,7 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return tfAppls().get(ImmutableTuple2.of(node, prop));
     }
 
-    IFlowSpecSolution withProperties(Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties, Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties);
+    IFlowSpecSolution withProperties(Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> preProperties, Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> postProperties);
     IFlowSpecSolution withSolution(ISolution solution);
 
     // delegate method for ISolution

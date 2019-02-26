@@ -44,6 +44,9 @@ public interface TermIndexed {
         if(!(term instanceof TermIndexed)) {
             return term;
         }
+        if(term instanceof TermIndex) {
+            return term;
+        }
         final TermIndex index = ((TermIndexed) term).termIndex();
         final IStrategoList annotations = term.getAnnotations();
         final List<IStrategoTerm> annos = new ArrayList<>(annotations.size() + 1);

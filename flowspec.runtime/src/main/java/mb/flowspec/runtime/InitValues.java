@@ -23,12 +23,11 @@ import mb.nabl2.solver.SolverConfig;
 import mb.nabl2.stratego.TermIndex;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.unification.IUnifier;
-import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.collections.IProperties;
 
 public class InitValues {
     public final IControlFlowGraph controlFlowGraph;
-    public final Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> properties;
+    public final Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> properties;
     public final IEsopScopeGraph.Immutable<Scope, Label, Occurrence, ITerm> scopeGraph;
     public final IEsopNameResolution<Scope, Label, Occurrence> nameResolution;
     public final IUnifier.Immutable unifier;
@@ -38,7 +37,7 @@ public class InitValues {
     public final B termBuilder;
 
     public InitValues(SolverConfig config, IControlFlowGraph controlFlowGraph,
-        Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> properties,
+        Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> properties,
         Immutable<Scope, Label, Occurrence, ITerm> scopeGraph,
         Optional<ResolutionCache<Scope, Label, Occurrence>> nameResolutionCache,
         mb.nabl2.terms.unification.IUnifier.Immutable unifier,

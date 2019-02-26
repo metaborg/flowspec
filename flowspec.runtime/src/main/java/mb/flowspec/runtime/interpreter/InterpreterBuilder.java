@@ -149,7 +149,7 @@ public class InterpreterBuilder {
      * @param termFactory 
      */
     public StaticInfo build(ITermFactory termFactory, IFlowSpecSolution solution,
-        Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties) {
+        Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> preProperties) {
         InitValues initValues = new InitValues(solution.config(), solution.controlFlowGraph(), preProperties,
             solution.scopeGraph(), solution.nameResolutionCache(), solution.unifier(), solution.astProperties(), staticInfo.functions.functions,
             staticInfo.lattices.latticeDefs, new B(termFactory));
@@ -386,7 +386,9 @@ public class InterpreterBuilder {
             case "BottomOf": {
                 final IStrategoAppl appl = M.appl(term, 1);
                 final String name = M.string(M.at(appl, 0));
-                return new LatticeItemRefNode(LatticeItem.Bottom, name);
+                final LatticeItemRefNode latticeItemRefNode = new LatticeItemRefNode(LatticeItem.Bottom, name);
+                initializable.add(latticeItemRefNode);
+                return latticeItemRefNode;
             }
             case "Prop": {
                 final IStrategoAppl appl = M.appl(term, 2);

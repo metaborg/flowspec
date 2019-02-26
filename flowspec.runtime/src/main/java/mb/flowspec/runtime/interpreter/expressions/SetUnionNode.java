@@ -5,6 +5,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 
 import mb.flowspec.runtime.interpreter.SymbolicLargestSetException;
+import mb.flowspec.runtime.interpreter.values.EmptyMapOrSet;
 import mb.flowspec.runtime.interpreter.values.IMap;
 import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Map;
@@ -12,6 +13,12 @@ import mb.flowspec.runtime.interpreter.values.Set;
 
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class SetUnionNode extends ExpressionNode {
+    @SuppressWarnings({ "rawtypes" })
+    @Specialization
+    protected EmptyMapOrSet union(EmptyMapOrSet left, EmptyMapOrSet right) {
+        return left;
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
     protected ISet union(ISet left, ISet right) {

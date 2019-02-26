@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.util.Collections;
 
 import org.immutables.value.Value;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoConstructor;
 
 import mb.flowspec.runtime.InitValues;
 import mb.flowspec.terms.IStrategoAppl2;
@@ -17,6 +20,16 @@ import mb.nabl2.util.collections.IFunction;
 
 @Value.Immutable
 public abstract class Name implements Serializable, IStrategoAppl2 {
+    private static IStrategoConstructor cons;
+
+    public static void initializeConstructor(ITermFactory tf) {
+        cons = tf.makeConstructor("Occurrence", 3);
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
+    }
+
     @Value.Parameter @Value.Derived Occurrence declaration() {
         return resolutionPath().getDeclaration();
     }

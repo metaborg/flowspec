@@ -2,6 +2,8 @@ package mb.flowspec.runtime.interpreter.patterns;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import mb.flowspec.runtime.interpreter.Types;
+
 public class StringLiteralPatternNode extends PatternNode {
     private final String value;
 
@@ -10,10 +12,6 @@ public class StringLiteralPatternNode extends PatternNode {
     }
 
     @Override public boolean matchGeneric(VirtualFrame frame, Object value) {
-        return value instanceof Integer && executeString(frame, (String) value);
-    }
-
-    public boolean executeString(VirtualFrame frame, String value) {
-        return this.value == value;
+        return Types.isString(value) && Types.asString(value).equals(this.value);
     }
 }

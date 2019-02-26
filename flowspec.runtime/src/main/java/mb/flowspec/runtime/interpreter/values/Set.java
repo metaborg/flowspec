@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoConstructor;
 
 import io.usethesource.capsule.Set.Immutable;
 
@@ -12,7 +14,15 @@ public class Set<K extends IStrategoTerm> implements ISet<K>, Serializable {
      * Stratego compiler assumes constructors are maximally shared and does identity comparison.
      * So we initialize the constructors at runtime...
      */
-    public static IStrategoConstructor CONS = null;
+    public static IStrategoConstructor cons = null;
+
+    public static void initializeConstructor(ITermFactory tf) {
+        cons = tf.makeConstructor(ISet.NAME, ISet.ARITY);
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
+    }
 
     private final Immutable<K> set;
 
@@ -22,14 +32,6 @@ public class Set<K extends IStrategoTerm> implements ISet<K>, Serializable {
 
     public Set(Immutable<K> set) {
         this.set = set;
-    }
-
-    @Override public IStrategoConstructor getConstructor() {
-        if(CONS != null) {
-            return CONS;
-        } else {
-            return ISet.super.getConstructor();
-        }
     }
 
     @Override

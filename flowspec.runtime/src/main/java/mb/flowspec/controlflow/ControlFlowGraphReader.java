@@ -90,7 +90,7 @@ public class ControlFlowGraphReader {
         final IStrategoAppl appl = M.appl(term, "TermIndex", 2);
         final String resource = M.string(M.at(appl, 0));
         final int id = M.integer(M.at(appl, 1));
-        return ImmutableTermIndex.of(resource, id).withAttachments(StrategoTerms.getAttachments(term));
+        return ImmutableTermIndex.of(resource, id);
     }
 
     public static Kind kind(IStrategoTerm term) {

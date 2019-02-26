@@ -19,6 +19,20 @@ import mb.nabl2.stratego.TermIndex;
 @TypeSystem({ Function.class, ISet.class, IMap.class, TermIndex.class, Name.class, ICFGNode.class,
     IStrategoTerm.class })
 public abstract class Types {
+    public static Object typeSpecializeTerm(Object value) {
+        if(!(value instanceof IStrategoTerm)) {
+            return value;
+        }
+        if(isInteger(value)) {
+            return asInteger(value);
+        }
+        if(isBoolean(value)) {
+            return asBoolean(value);
+        }
+        // NB: don't specialize to String. That loses annotations from Term Strings from the AST. 
+        return value;
+    }
+
     public static boolean isInteger(Object value) {
         return value instanceof Integer || value instanceof IStrategoInt;
     }
@@ -60,15 +74,15 @@ public abstract class Types {
     }
 
     public static boolean isBoolean(Object value) {
-        return value instanceof Boolean || value == BooleanLiteralNode.TRUE_TERM || value == BooleanLiteralNode.FALSE_TERM;
+        return value instanceof Boolean || BooleanLiteralNode.isTrueTerm(value) || BooleanLiteralNode.isFalseTerm(value);
     }
 
     public static boolean asBoolean(Object value) {
-        assert isBoolean(value) : "Types.asInt: boolean or IApplTerm True() or False() expected";
+        assert isBoolean(value) : "Types.asBoolean: boolean or IApplTerm True() or False() expected";
         if(value instanceof Boolean) {
             return (Boolean) value;
         } else {
-            return value == BooleanLiteralNode.TRUE_TERM;
+            return BooleanLiteralNode.isTrueTerm(value);
         }
     }
 
@@ -80,21 +94,10 @@ public abstract class Types {
     }
 
     public static boolean isIStrategoTerm(Object value) {
-        return value instanceof IStrategoTerm || value instanceof Integer || value instanceof String;
+        return value instanceof IStrategoTerm || value instanceof Integer || value instanceof String || value instanceof Boolean;
     }
 
     public static IStrategoTerm asIStrategoTerm(Object value) {
-        assert isIStrategoTerm(value) : "Types.asInt: int or IIntTerm expected";
-        if(isInteger(value)) {
-            return B.integer(asInteger(value));
-        } else if(isString(value)) {
-            return B.string(asString(value));
-        } else {
-            return (IStrategoTerm) value;
-        }
-    }
-
-    public static IStrategoTerm expectIStrategoTerm(Object value) throws UnexpectedResultException {
         if(value instanceof IStrategoTerm) {
             return (IStrategoTerm) value;
         }
@@ -105,7 +108,14 @@ public abstract class Types {
             return B.string(asString(value));
         }
         if(isBoolean(value)) {
-            return asBoolean(value) ? BooleanLiteralNode.TRUE_TERM : BooleanLiteralNode.FALSE_TERM;
+            return BooleanLiteralNode.booleanToTerm(asBoolean(value));
+        }
+        return (IStrategoTerm) value;
+    }
+
+    public static IStrategoTerm expectIStrategoTerm(Object value) throws UnexpectedResultException {
+        if(isIStrategoTerm(value)) {
+            return asIStrategoTerm(value);
         }
         throw new UnexpectedResultException(value);
     }

@@ -10,16 +10,14 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import com.google.common.collect.Sets;
 
 import io.usethesource.capsule.BinaryRelation;
-import mb.nabl2.util.ImmutableTuple2;
-import mb.nabl2.util.Tuple2;
 
 public final class ControlFlowGraphTerms {
 
     private static final String ESCAPE_MATCH = "\\\\$0";
     private static final String RECORD_RESERVED = "[\"{}|]";
     private final ControlFlowGraph controlFlowGraph;
-    private final Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
-    private final Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
+    private final Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> preProperties;
+    private final Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> postProperties;
 
     private ControlFlowGraphTerms(IFlowSpecSolution solution) {
         this.controlFlowGraph = (ControlFlowGraph) solution.controlFlowGraph();
@@ -29,7 +27,7 @@ public final class ControlFlowGraphTerms {
 
 
     private String toDot() {
-        final Set<String> properties = this.preProperties.keySet().stream().map(t -> t._2()).collect(Collectors.toSet());
+        final Set<String> properties = this.preProperties.keySet();
 
         final Set<ICFGNode> entryExitNodes = Sets.union(controlFlowGraph.entryNodes(), controlFlowGraph.exitNodes());
 
@@ -77,12 +75,12 @@ public final class ControlFlowGraphTerms {
     }
 
     private String prePropValToDot(ICFGNode node, String prop) {
-        IStrategoTerm prePropVal = preProperties.get(ImmutableTuple2.of(node, prop)).get();
+        IStrategoTerm prePropVal = preProperties.get(prop).get(node).get();
         return prePropVal.toString().replaceAll(RECORD_RESERVED, ESCAPE_MATCH);
     }
 
     private String postPropValToDot(ICFGNode node, String prop) {
-        IStrategoTerm postPropVal = postProperties.get(ImmutableTuple2.of(node, prop)).get();
+        IStrategoTerm postPropVal = postProperties.get(prop).get(node).get();
         return postPropVal.toString().replaceAll(RECORD_RESERVED, ESCAPE_MATCH);
     }
 

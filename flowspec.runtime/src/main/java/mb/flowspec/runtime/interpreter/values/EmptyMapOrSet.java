@@ -6,6 +6,8 @@ import java.util.Arrays;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoConstructor;
 
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.Set;
@@ -16,7 +18,15 @@ public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> imp
      * Stratego compiler assumes constructors are maximally shared and does identity comparison.
      * So we initialize the constructors at runtime...
      */
-    public static IStrategoConstructor CONS = null;
+    private static IStrategoConstructor cons = null;
+
+    public static void initializeConstructor(ITermFactory tf) {
+        cons = tf.makeConstructor(ISet.NAME, ISet.ARITY);
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
+    }
 
     private final Set.Immutable<K> set;
     private final Map.Immutable<K, V> map;
@@ -24,14 +34,6 @@ public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> imp
     public EmptyMapOrSet() {
         this.set = Set.Immutable.of();
         this.map = Map.Immutable.of();
-    }
-
-    @Override public IStrategoConstructor getConstructor() {
-        if(CONS != null) {
-            return CONS;
-        } else {
-            return ISet.super.getConstructor();
-        }
     }
 
     @Override

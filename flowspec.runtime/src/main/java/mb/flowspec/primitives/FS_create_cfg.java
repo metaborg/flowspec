@@ -27,6 +27,7 @@ public class FS_create_cfg extends AbstractPrimitive {
     }
 
     @Override public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
+        FS_build_cfg.initRuntimeConstructors(env.getFactory());
         if(svars.length != 1 || !(svars[0] instanceof CallT)) {
             throw new IllegalArgumentException("Expected as first strategy argument: cfg register strategy with 7 sargs (nstart, nend, nentry, nexit, nnormal, edge, appl)");
         }

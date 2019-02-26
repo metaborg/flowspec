@@ -7,8 +7,8 @@ import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 
 public class LatticeItemRefNode extends ExprRefNode implements Initializable {
-    private LatticeItem item;
-    private String name;
+    private final LatticeItem item;
+    private final String name;
     private Object value;
 
     public LatticeItemRefNode(LatticeItem item, String name) {

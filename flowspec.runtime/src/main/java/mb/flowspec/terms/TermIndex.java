@@ -4,7 +4,10 @@ import java.util.Optional;
 
 import org.immutables.value.Value;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoConstructor;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
@@ -15,6 +18,7 @@ import mb.nabl2.terms.Terms;
 public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
     private static final String OP = "TermIndex";
     private static final int ARITY = 2;
+    private static IStrategoConstructor cons;
 
     @Override @Value.Parameter public abstract String getResource();
 
@@ -30,6 +34,14 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
 
     @Override public int getSubtermCount() {
         return ARITY;
+    }
+
+    public static void initializeConstructor(ITermFactory tf) {
+        cons = tf.makeConstructor(OP, ARITY);
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
     }
 
     @Override @Value.Lazy public IStrategoTerm[] getAllSubterms() {

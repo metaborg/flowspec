@@ -7,13 +7,16 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
+import mb.flowspec.controlflow.CFGNode;
 import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.FlowSpecSolution;
+import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.runtime.interpreter.values.EmptyMapOrSet;
-import mb.flowspec.runtime.interpreter.values.IMap;
-import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Map;
+import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.runtime.interpreter.values.Set;
+import mb.flowspec.runtime.lattice.FullSetLattice;
+import mb.flowspec.terms.TermIndex;
 import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.stratego.StrategoBlob;
 
@@ -43,9 +46,14 @@ public class FS_build_cfg extends AbstractPrimitive {
      * Stratego compiler assumes constructors are maximally shared and does identity comparison.
      * So we initialize the constructors at runtime...
      */
-    private void initRuntimeConstructors(ITermFactory tf) {
-        Set.CONS = tf.makeConstructor(ISet.NAME, ISet.ARITY);
-        Map.CONS = tf.makeConstructor(IMap.NAME, IMap.ARITY);
-        EmptyMapOrSet.CONS = Set.CONS;
+    static void initRuntimeConstructors(ITermFactory tf) {
+        CFGNode.initializeConstructor(tf);
+        ICFGNode.Kind.initializeConstructor(tf);
+        Set.initializeConstructor(tf);
+        Map.initializeConstructor(tf);
+        EmptyMapOrSet.initializeConstructor(tf);
+        Name.initializeConstructor(tf);
+        FullSetLattice.ISetImplementation.initializeConstructor(tf);
+        TermIndex.initializeConstructor(tf);
     }
 }

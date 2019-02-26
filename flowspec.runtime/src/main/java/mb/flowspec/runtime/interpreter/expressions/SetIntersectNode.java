@@ -11,7 +11,7 @@ import mb.flowspec.runtime.interpreter.values.Set;
 @NodeChildren({@NodeChild("left"), @NodeChild("right")})
 public abstract class SetIntersectNode extends ExpressionNode {
     protected ExpressionNode[] children;
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Specialization
     protected ISet intersect(ISet left, ISet right) {

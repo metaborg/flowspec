@@ -4,7 +4,10 @@ import javax.annotation.Nullable;
 
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoConstructor;
 
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.TermIndex;
@@ -12,6 +15,15 @@ import mb.flowspec.terms.TermIndex;
 @Value.Immutable
 @Serial.Version(value = 42L)
 public abstract class CFGNode implements ICFGNode {
+    private static IStrategoConstructor cons;
+
+    public static void initializeConstructor(ITermFactory tf) {
+        cons = tf.makeConstructor(ICFGNode.NAME, ICFGNode.ARITY);
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
+    }
     // ICFGNode implementation
 
     @Value.Parameter public abstract TermIndex getIndex();

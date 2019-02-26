@@ -25,7 +25,8 @@ public class TermNode extends ExpressionNode implements Initializable {
     @Override public Object executeGeneric(VirtualFrame frame) {
         return B.appl(cons, Arrays.stream(children).map(c -> {
             try {
-                return c.executeIStrategoTerm(frame);
+                final IStrategoTerm result = c.executeIStrategoTerm(frame);
+                return result;
             } catch(UnexpectedResultException e) {
                 throw new RuntimeException(e);
             }

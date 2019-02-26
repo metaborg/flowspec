@@ -23,7 +23,7 @@ public class Assert {
             return;
         } else if(expected instanceof String && actual instanceof String) {
             String cleanMessage = message == null ? "" : message;
-            throw new RuntimeException("ComparisonFailure: " + cleanMessage + ", expected: " + ((String) expected) + ", actual: " + ((String) actual));
+            fail("ComparisonFailure: " + cleanMessage + ", expected: " + ((String) expected) + ", actual: " + ((String) actual));
         } else {
             failNotEquals(message, expected, actual);
         }

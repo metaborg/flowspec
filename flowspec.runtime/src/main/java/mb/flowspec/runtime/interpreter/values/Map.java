@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoConstructor;
 
 import io.usethesource.capsule.Map.Immutable;
 import io.usethesource.capsule.Map.Transient;
@@ -21,7 +23,15 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
      * Stratego compiler assumes constructors are maximally shared and does identity comparison.
      * So we initialize the constructors at runtime...
      */
-    public static IStrategoConstructor CONS = null;
+    public static IStrategoConstructor cons = null;
+
+    public static void initializeConstructor(ITermFactory tf) {
+        cons = tf.makeConstructor(IMap.NAME, IMap.ARITY);
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
+    }
 
     private final Immutable<K, V> map;
     public final V topValue;
@@ -33,14 +43,6 @@ public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IM
     public Map(Immutable<K, V> map, V topValue) {
         this.map = map;
         this.topValue = topValue;
-    }
-
-    @Override public IStrategoConstructor getConstructor() {
-        if(CONS != null) {
-            return CONS;
-        } else {
-            return IMap.super.getConstructor();
-        }
     }
 
     public Map<K, V> update(Immutable<K, V> map) {

@@ -7,11 +7,9 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
-import org.spoofax.terms.StrategoConstructor;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
@@ -38,9 +36,10 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     // IStrategoAppl
 
-    @Override default IStrategoConstructor getConstructor() {
-        return new StrategoConstructor(getName(), getSubtermCount());
-    }
+    // Not this, it will interfere with constructor sharing assumed in Stratego code. 
+//    @Override default IStrategoConstructor getConstructor() {
+//        return new StrategoConstructor(getName(), getSubtermCount());
+//    }
 
     // ISimpleTerm
 

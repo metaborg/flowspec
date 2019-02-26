@@ -26,9 +26,12 @@ public class FS_get_cfg_node extends AnalysisPrimitive {
         }
         return M.maybe(() -> {
             final ICFGNode.Kind kind = ControlFlowGraphReader.kind(terms.get(0));
-            final TermIndex index = ControlFlowGraphReader.termIndex(term);
-            return ImmutableCFGNode.of(index, null, kind);
-        });
+            Optional<TermIndex> index = TermIndex.get(term);
+            if(!index.isPresent()) {
+                index = M.maybe(() -> ControlFlowGraphReader.termIndex(term));
+            }
+            return index.map(i -> ImmutableCFGNode.of(i, null, kind));
+        }).flatMap(o -> o);
     }
 
 }

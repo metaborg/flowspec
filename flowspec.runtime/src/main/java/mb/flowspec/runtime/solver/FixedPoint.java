@@ -32,8 +32,6 @@ import mb.flowspec.runtime.interpreter.UnreachableException;
 import mb.flowspec.runtime.lattice.CompleteLattice.Flipped;
 import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.flowspec.runtime.lattice.Lattice;
-import mb.nabl2.util.ImmutableTuple2;
-import mb.nabl2.util.Tuple2;
 
 public class FixedPoint {
     private static final ILogger logger = LoggerUtils.logger(FixedPoint.class);
@@ -44,8 +42,8 @@ public class FixedPoint {
 
     private IFlowSpecSolution solution;
     private final FixedPoint.TimingInfo timingInfo;
-    private Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> preProperties;
-    private Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> postProperties;
+    private Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> preProperties;
+    private Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> postProperties;
 
     public FixedPoint() {
         this.preProperties = new HashMap<>();
@@ -130,43 +128,18 @@ public class FixedPoint {
         }
     }
 
-    private void setPreProperty(ICFGNode n, String prop, Ref<IStrategoTerm> value) {
-        this.preProperties.put(ImmutableTuple2.of(n, prop), value);
-    }
-
-    private void setPreProperty(ICFGNode n, String prop, IStrategoTerm value) {
-        getPrePropertyRef(n, prop).set(value);
-    }
-
-    private void setPostProperty(ICFGNode n, String prop, Ref<IStrategoTerm> value) {
-        this.postProperties.put(ImmutableTuple2.of(n, prop), value);
-    }
-
-    private void setPostProperty(ICFGNode n, String prop, IStrategoTerm value) {
-        getPostPropertyRef(n, prop).set(value);
-    }
-
-    private IStrategoTerm getPreProperty(ICFGNode n, String prop) {
-        return getPrePropertyRef(n, prop).get();
-    }
-
-    private Ref<IStrategoTerm> getPrePropertyRef(ICFGNode n, String prop) {
-        return this.preProperties.get(ImmutableTuple2.of(n, prop));
-    }
-
-    private Ref<IStrategoTerm> getPostPropertyRef(ICFGNode n, String prop) {
-        return this.postProperties.get(ImmutableTuple2.of(n, prop));
-    }
-
-    private void swapPrePostProperties() {
-        final Map<Tuple2<ICFGNode, String>, Ref<IStrategoTerm>> swap = this.preProperties;
-        this.preProperties = this.postProperties;
-        this.postProperties = swap;
+    private void swapPrePostProperties(String prop, Map<ICFGNode, Ref<IStrategoTerm>> preProps, Map<ICFGNode, Ref<IStrategoTerm>> postProps) {
+        this.preProperties.put(prop, postProps);
+        this.postProperties.put(prop, preProps);
     }
 
     private void solveFlowSensitiveProperty(IControlFlowGraph cfg, String prop, Metadata<IStrategoTerm> metadata)
         throws FixedPointLimitException {
         // Phase 1: initialisation
+        final Map<ICFGNode, Ref<IStrategoTerm>> preProps = new HashMap<>();
+        preProperties.put(prop, preProps);
+        final Map<ICFGNode, Ref<IStrategoTerm>> postProps = new HashMap<>();
+        postProperties.put(prop, postProps);
         // 1.1: direction
         final Iterable<Set<IBasicBlock>> sccs;
         final Set<ICFGNode> initialNodes;
@@ -194,13 +167,7 @@ public class FixedPoint {
                 throw new RuntimeException("Unreachable: Dataflow property direction enum has unexpected value");
         }
 
-        // 1.2: initial node values
-        for(ICFGNode n : initialNodes) {
-            setPreProperty(n, prop, new Ref<>(callTFInitial(prop, metadata, n)));
-            setPostProperty(n, prop, new Ref<>(metadata.lattice.bottom()));
-        }
-
-        // 1.3: other initial values bottom, while finding ignorable nodes (nodes without TF and only 1 predecessor)
+        // 1.2: initial values bottom, while finding ignorable nodes (nodes without TF and only 1 predecessor)
         for(Set<IBasicBlock> scc : sccs) {
             for(IBasicBlock b : scc) {
                 b.clearIgnored();
@@ -210,17 +177,22 @@ public class FixedPoint {
                 final Set<IBasicBlock> prevBlocks = prev.apply(block);
                 if(prevBlocks.size() == 1) {
                     final ICFGNode pred = blockDir.apply(prevBlocks.iterator().next()).last();
-                    perhapsIgnored(prop, metadata, block, n, pred);
+                    perhapsIgnored(prop, metadata, block, n, pred, preProps, postProps);
                 } else {
-                    setPreProperty(n, prop, new Ref<>(metadata.lattice.bottom()));
-                    setPostProperty(n, prop, new Ref<>(metadata.lattice.bottom()));
+                    preProps.put(n, new Ref<>(metadata.lattice.bottom()));
+                    postProps.put(n, new Ref<>(metadata.lattice.bottom()));
                 }
                 for(; iterator.hasNext();) {
                     final ICFGNode pred = n; // definitely only one predecessor
                     n = iterator.next();
-                    perhapsIgnored(prop, metadata, block, n, pred);
+                    perhapsIgnored(prop, metadata, block, n, pred, preProps, postProps);
                 }
             }
+        }
+
+        // 1.3: initial node values
+        for(ICFGNode n : initialNodes) {
+            preProps.get(n).set(callTFInitial(prop, metadata, n, preProps));
         }
 
         // Phase 2: Fixpoint iteration
@@ -239,14 +211,14 @@ public class FixedPoint {
                         .hasNext();) {
                         final ICFGNode from = iterator.next();
                         if(iterator.hasNext()) {
-                            if(compute(from, iterator.peek(), prop, metadata, block)) {
+                            if(compute(from, iterator.peek(), prop, metadata, block, preProps)) {
                                 done = false;
                             }
                         } else {
                             final Set<IBasicBlock> nextBlocks = next.apply(block);
                             for(IBasicBlock nextB : nextBlocks) {
                                 IBasicBlock nextBlock = blockDir.apply(nextB);
-                                if(compute(from, nextBlock.first(), prop, metadata, nextBlock)
+                                if(compute(from, nextBlock.first(), prop, metadata, nextBlock, preProps)
                                     && scc.contains(nextB)) {
                                     done = false;
                                 }
@@ -264,10 +236,10 @@ public class FixedPoint {
         for(Set<IBasicBlock> scc : sccs) {
             for(IBasicBlock block : scc) {
                 for(ICFGNode n : blockDir.apply(block)) {
-                    if(!block.ignored(n)) {
-                        IStrategoTerm value = callTF(prop, metadata, n);
-                        setPostProperty(n, prop, value);
-                    }
+//                    if(!block.ignored(n)) {
+                        IStrategoTerm value = callTF(prop, metadata, n, preProps);
+                        postProps.put(n, new Ref<>(value));
+//                    }
                 }
             }
         }
@@ -276,7 +248,7 @@ public class FixedPoint {
                 break;
             }
             case Backward: {
-                swapPrePostProperties();
+                swapPrePostProperties(prop, preProps, postProps);
                 break;
             }
             default:
@@ -285,30 +257,31 @@ public class FixedPoint {
     }
 
     public void perhapsIgnored(String prop, Metadata<IStrategoTerm> metadata, IBasicBlock block,
-        ICFGNode n, ICFGNode pred) {
+        ICFGNode n, ICFGNode pred, Map<ICFGNode, Ref<IStrategoTerm>> preProps, Map<ICFGNode, Ref<IStrategoTerm>> postProps) {
         if(solution.getTFAppl(pred, prop) == null) {
             block.ignore(n);
-            setPreProperty(n, prop, getPrePropertyRef(pred, prop));
-            setPostProperty(n, prop, getPostPropertyRef(pred, prop));
+            preProps.put(n, preProps.get(pred));
+            postProps.put(n, postProps.get(pred));
         } else {
-            setPreProperty(n, prop, new Ref<>(metadata.lattice.bottom()));
-            setPostProperty(n, prop, new Ref<>(metadata.lattice.bottom()));
+            preProps.put(n, new Ref<>(metadata.lattice.bottom()));
+            postProps.put(n, new Ref<>(metadata.lattice.bottom()));
         }
     }
 
     /**
      * If {@code to} is not ignored, compute the new value for {@code to} from {@code from}'s transfer function. Join
      * the new value and old value of {@code to}.
+     * @param preProps 
      * 
      * @return true if there {@code to} was given a new value
      */
     public boolean compute(ICFGNode from, ICFGNode to, String prop, Metadata<IStrategoTerm> metadata,
-        IBasicBlock block) {
+        IBasicBlock block, Map<ICFGNode, Ref<IStrategoTerm>> preProps) {
         if(!block.ignored(to)) {
-            IStrategoTerm afterFromTF = callTF(prop, metadata, from);
-            IStrategoTerm beforeToTF = getPreProperty(to, prop);
+            IStrategoTerm afterFromTF = callTF(prop, metadata, from, preProps);
+            IStrategoTerm beforeToTF = preProps.get(to).get();
             if(metadata.lattice.nleq(afterFromTF, beforeToTF)) {
-                setPreProperty(to, prop, metadata.lattice.lub(beforeToTF, afterFromTF));
+                preProps.get(to).set(metadata.lattice.lub(beforeToTF, afterFromTF));
                 return true;
             }
         }
@@ -321,7 +294,7 @@ public class FixedPoint {
      * patch that here with the empty set. Ugly, but better than RuntimeExceptions. To be replaced with a proper static
      * analysis in FlowSpec.
      */
-    private IStrategoTerm callTFInitial(String prop, Metadata<?> metadata, ICFGNode node) {
+    private IStrategoTerm callTFInitial(String prop, Metadata<?> metadata, ICFGNode node, Map<ICFGNode, Ref<IStrategoTerm>> preProps) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
         if(tfAppl == null) {
             Lattice<?> l = metadata.lattice;
@@ -334,13 +307,13 @@ public class FixedPoint {
                 throw new RuntimeException("Missing extremal (start/end) rule for node: " + node);
             }
         }
-        return callTF(prop, metadata, node);
+        return callTF(prop, metadata, node, preProps);
     }
 
-    private IStrategoTerm callTF(String prop, Metadata<?> metadata, ICFGNode node) {
+    private IStrategoTerm callTF(String prop, Metadata<?> metadata, ICFGNode node, Map<ICFGNode, Ref<IStrategoTerm>> preProps) {
         TransferFunctionAppl tfAppl = solution.getTFAppl(node, prop);
         if(tfAppl == null) {
-            return getPreProperty(node, prop);
+            return preProps.get(node).get();
         }
         TransferFunction tf = TransferFunction.findFunction(metadata.transferFunctions, tfAppl);
         return tf.call(tfAppl, node);
