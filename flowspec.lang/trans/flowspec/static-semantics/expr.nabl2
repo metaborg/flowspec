@@ -191,6 +191,7 @@ rules
   Expr [[ False() ^ (ruleScope) ]].
 
   Expr [[ QualRef(mod, var) ^ (ruleScope) ]] :=
+    new qualRefScope,
     Module { mod } -> ruleScope,
 //    Module { mod } |-> _,
     Module { mod } <=== qualRefScope,
@@ -198,6 +199,7 @@ rules
 //    Variable { var } |-> _.
 
   FunRef [[ QualRef(mod, var) ^ (ruleScope) ]] :=
+    new qualRefScope,
     Module { mod } -> ruleScope,
 //    Module { mod } |-> _,
     Module { mod } <=== qualRefScope,
