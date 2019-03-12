@@ -1,59 +1,26 @@
 package mb.flowspec.runtime.solver;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Parameter;
-
-import io.usethesource.capsule.Map;
-import mb.flowspec.runtime.interpreter.values.Function;
 import mb.flowspec.runtime.lattice.CompleteLattice;
-import mb.flowspec.runtime.lattice.FullSetLattice;
-import mb.flowspec.runtime.lattice.UserDefinedLattice;
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
-import mb.nabl2.util.ImmutableTuple2;
 
-@Immutable
 @SuppressWarnings("rawtypes")
-public abstract class LatticeInfo {
-    @Parameter public abstract Map.Immutable<String, CompleteLattice> latticeDefs();
+public class LatticeInfo {
+    public final Map<String, CompleteLattice> latticeDefs;
 
-    public static IMatcher<LatticeInfo> match() {
-        return M.listElems(tupleMatcher(), (list, tuples) -> {
-            Map.Transient<String, CompleteLattice> latticeDefs = Map.Transient.of();
-            for (ImmutableTuple2<String, UserDefinedLattice> t2 : tuples) {
-                latticeDefs.__put(t2._1(), t2._2());
-            }
-            latticeDefs.__put("MaySet", new FullSetLattice());
-            latticeDefs.__put("MustSet", new FullSetLattice().flip());
-            return ImmutableLatticeInfo.of(latticeDefs.freeze());
-        });
+    public LatticeInfo() {
+        this(Collections.emptyMap());
     }
 
-    protected static IMatcher<ImmutableTuple2<String, UserDefinedLattice>> tupleMatcher() {
-        return (term, unifier) -> 
-                Optional.of(M.<String, List<String>, ITerm, UserDefinedLattice, ImmutableTuple2<String, UserDefinedLattice>>tuple4(
-                M.stringValue(), 
-                M.listElems(M.stringValue()), 
-                M.term(),
-                M.tuple3(Function.matchLUB(), Function.matchNullary(), Function.matchNullary(),
-                        (appl, lub, top, bottom) -> new UserDefinedLattice(top, bottom, lub)),
-                (appl, name, vars, type, udl) -> {
-                    return ImmutableTuple2.<String, UserDefinedLattice>of(name, udl);
-                })
-                .match(term, unifier)
-                .orElseThrow(() -> new ParseException("Parse error on reading function")));
+    public LatticeInfo(Map<String, CompleteLattice> latticeDefs) {
+        this.latticeDefs = latticeDefs;
     }
 
     public LatticeInfo addAll(LatticeInfo lattices) {
-        return ImmutableLatticeInfo.of(latticeDefs().__putAll(lattices.latticeDefs()));
-    }
-    
-    public static LatticeInfo of() {
-        return ImmutableLatticeInfo.of(Map.Immutable.of());
+        Map<String, CompleteLattice> m = new HashMap<>(this.latticeDefs);
+        m.putAll(lattices.latticeDefs);
+        return new LatticeInfo(Collections.unmodifiableMap(m));
     }
 }

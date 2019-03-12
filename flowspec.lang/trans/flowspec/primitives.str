@@ -2,26 +2,29 @@ module flowspec/primitives
 
 rules
 
+flowspec--create-cfg(s|a) =
+  prim("FS_create_cfg", s|a)
+
 flowspec--build-cfg(|a) =
-  prim("FS_build_cfg", a)
+  prim("FS_build_cfg", |a)
 
 flowspec--show-control-flow-graph(|a) =
-  prim("FS_show_control_flow_graph", a)
+  prim("FS_show_control_flow_graph", |a)
 
 flowspec--get-property-pre(|a, key) = 
-  prim("FS_get_property_pre", a, key)
+  prim("FS_get_property_pre", |a, key)
 
 flowspec--get-property-post(|a, key) = 
-  prim("FS_get_property_post", a, key)
+  prim("FS_get_property_post", |a, key)
 
 flowspec--solve(|a, props) =
-  prim("FS_solve", a, props)
+  prim("FS_solve", |a, props)
 
 flowspec--get-cfg-node(|a, kind) =
-  prim("FS_get_cfg_node", a, kind)
+  prim("FS_get_cfg_node", |a, kind)
 
 flowspec--get-cfg-prev-nodes(|a) =
-  prim("FS_get_cfg_pred", a)
+  prim("FS_get_cfg_pred", |a)
 
 flowspec--get-cfg-next-nodes(|a) =
-  prim("FS_get_cfg_succ", a)
+  prim("FS_get_cfg_succ", |a)

@@ -3,8 +3,6 @@ package mb.flowspec.runtime.lattice;
 import java.util.Optional;
 import java.util.Set;
 
-import mb.flowspec.runtime.interpreter.InitValues;
-
 public interface CompleteLattice<E> extends Lattice<E> {
 
     public E top();
@@ -48,8 +46,6 @@ public interface CompleteLattice<E> extends Lattice<E> {
         return new Flipped(this);
     }
 
-    public void init(InitValues initValues);
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final class Flipped implements CompleteLattice {
         public final CompleteLattice wrapped;
@@ -87,9 +83,6 @@ public interface CompleteLattice<E> extends Lattice<E> {
         public boolean geq(Object one, Object other) {
             return wrapped.leq(other, one);
         }
-
-        @Override
-        public void init(InitValues initValues) {}
     }
     
 }

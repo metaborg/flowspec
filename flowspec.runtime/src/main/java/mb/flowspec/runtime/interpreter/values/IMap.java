@@ -1,52 +1,48 @@
 package mb.flowspec.runtime.interpreter.values;
 
-import static mb.nabl2.terms.build.TermBuild.B;
+import java.util.Arrays;
 
-import java.util.List;
+import org.spoofax.interpreter.terms.IStrategoNamed;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultiset;
-import com.google.common.collect.Multiset;
-
-import mb.nabl2.terms.IApplTerm;
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.ITermVar;
 import io.usethesource.capsule.Map;
+import mb.flowspec.terms.B;
+import mb.flowspec.terms.IStrategoAppl2;
 
-public interface IMap<K extends ITerm, V extends ITerm> extends IApplTerm {
+public interface IMap<K extends IStrategoTerm, V extends IStrategoTerm> extends IStrategoAppl2 {
+    public static final String NAME = "Map";
+    public static final int ARITY = 1;
+
     Map.Immutable<K, V> getMap();
 
-    default boolean isGround() {
-        return true;
+    @Override default String getName() {
+        return NAME;
     }
 
-    default Multiset<ITermVar> getVars() {
-        return ImmutableMultiset.of();
+    @Override default int getSubtermCount() {
+        return ARITY;
     }
 
-    ImmutableClassToInstanceMap<Object> getAttachments();
-
-    IMap<K, V> withAttachments(ImmutableClassToInstanceMap<Object> value);
-
-    default <T> T match(ITerm.Cases<T> cases) {
-        return cases.caseAppl(this);
+    @Override default IStrategoTerm[] getAllSubterms() {
+        IStrategoTerm[] terms =
+            getMap().entrySet().stream().map(e -> B.tuple(e.getKey(), e.getValue())).toArray(i -> new IStrategoTerm[i]);
+        return new IStrategoTerm[] { B.list(terms) };
     }
 
-    default <T, E extends Throwable> T matchOrThrow(ITerm.CheckedCases<T, E> cases) throws E {
-        return cases.caseAppl(this);
-    }
-
-    default String getOp() {
-        return "Map";
-    }
-
-    default int getArity() {
-        return 1;
-    }
-
-    default List<ITerm> getArgs() {
-        return new ImmutableList.Builder<ITerm>().add(B.newList(() -> this.getMap().entrySet().stream()
-                .<ITerm>map(e -> B.newTuple(e.getKey(), e.getValue())).iterator())).build();
+    @Override default boolean match(IStrategoTerm second) {
+        if(second == this) {
+            return true;
+        }
+        if(second == null) {
+            return false;
+        }
+        if(second instanceof IMap) {
+            return ((IMap<?, ?>) second).getMap().equals(this.getMap());
+        }
+        if(second instanceof IStrategoNamed) {
+            return ((IStrategoNamed) second).getName().equals(getName())
+                && Arrays.equals(getAllSubterms(), second.getAllSubterms());
+        }
+        return false;
     }
 }

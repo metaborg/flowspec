@@ -1,0 +1,37 @@
+module flowspec/static-semantics/missing-start-end-rule
+
+imports
+
+  signatures/-
+  signatures/flowspec/-
+  signatures/flowspec/desugar/-
+  signatures/flowspec/runtime/IR-sig
+  nabl2/api
+
+rules
+
+  flowspec--missing-start-end-rule(|a): Module(name, _, definitions) -> messages
+  with
+    moduleDef := <nabl2-mk-occurrence(|"Module")> name
+  ; [(_, moduleScope)] := <nabl2-get-assoc-edges(|a)> moduleDef
+  ; propDefs := <nabl2-get-scope-decls(|a);retain-all(where(nabl2-get-occurrence-ns;?"Property"))> moduleScope
+  ; startEndPropRefs := <retain-all(flowspec--mser-start-end-propRef)> definitions
+  ; startEndPropDefs := <map(nabl2-get-resolved-name(|a);Fst)> startEndPropRefs
+  ; missingStartEnd := <diff> (propDefs, startEndPropDefs)
+  ; messages := <retain-all(flowspec--mser-missing-message(|a))> missingStartEnd
+
+  flowspec--mser-start-end-propRef:
+    PropRule(prop, Start(_), _, _) -> <nabl2-mk-occurrence(|"Property")> prop
+
+  flowspec--mser-start-end-propRef:
+    PropRule(prop, End(_), _, _) -> <nabl2-mk-occurrence(|"Property")> prop
+
+  flowspec--mser-missing-message(|a): propDef -> (name, "Missing <b>start</b> rule")
+  where
+    Fw() := <nabl2-get-property(|a,"direction")> propDef
+  ; name := <nabl2-get-occurrence-name> propDef
+
+  flowspec--mser-missing-message(|a): propDef -> (name, "Missing <b>end</b> rule")
+  where
+    Bw() := <nabl2-get-property(|a,"direction")> propDef
+  ; name := <nabl2-get-occurrence-name> propDef

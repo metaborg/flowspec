@@ -1,0 +1,9 @@
+/.classpath
+/.factorypath
+/.project
+/.settings
+/META-INF
+/target
+/bin/
+# Not checking in this, could contain compiled proprietary code
+/src/main/resources/pgx_gm_java-0.1.0-BACKEND-SNAPSHOT.spoofax-language

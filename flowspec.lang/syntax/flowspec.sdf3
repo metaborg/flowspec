@@ -3,7 +3,6 @@ module flowspec
 imports
 
   flowspec/Main
-  flowspec/Constraints
 
 context-free start-symbols
 
@@ -11,4 +10,4 @@ context-free start-symbols
 
 context-free syntax
 
-  Start = AltModule
+  Start = Module

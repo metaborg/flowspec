@@ -14,7 +14,7 @@ rules // Derived from https://github.com/MetaBorgCube/IceDust/blob/c21e7c6974565
 
 flowspec--editor-hover(language-pp): x@(target, position, ast, path, project-path) -> result
 where <not(flowspec--hover-parent-for)> target
-with analysis := <nabl2-get-resource-analysis> $[[project-path]/[path]]
+with analysis := <flowspec-get-resource-analysis> $[[project-path]/[path]]
 with result := <flowspec--get-editor-properties(language-pp;flowspec--truncate-string(|200) | analysis)
                 ;flowspec--properties-to-html> target
 

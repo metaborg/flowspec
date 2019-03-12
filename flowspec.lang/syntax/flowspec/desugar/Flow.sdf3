@@ -4,6 +4,19 @@ imports
 
 flowspec/Flow
 
+flowspec/Pattern
+flowspec/Common
+
 context-free syntax
 
 CFGChain.Chain = {CFGChainElement " -> "}+
+CFGRule.CFGRule = [cfg [Root] [Pattern]]
+CFGRule.CFGRule = [cfg [Root] [Pattern] = [{CFGChain ", "}+]]
+CFGChain.Chain = [[CFGChainElement] -> [{CFGChainElement " -> "}+]]
+CFGChainElement.Entry = [entry]
+CFGChainElement.Exit = [exit]
+CFGChainElement.Start = [start]
+CFGChainElement.End = [end]
+CFGChainElement.Recurse = [cfg [Var]]
+CFGChainElement.Prop = [[PropName] [Var]]
+CFGChainElement.Ref = Var

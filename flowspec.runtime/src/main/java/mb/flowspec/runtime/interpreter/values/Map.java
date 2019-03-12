@@ -1,57 +1,60 @@
 package mb.flowspec.runtime.interpreter.values;
 
-import static mb.nabl2.terms.build.TermBuild.B;
-
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultiset;
-import com.google.common.collect.Multiset;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoConstructor;
 
 import io.usethesource.capsule.Map.Immutable;
 import io.usethesource.capsule.Map.Transient;
 import io.usethesource.capsule.util.EqualityComparator;
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.ITermVar;
 
-public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
+public class Map<K extends IStrategoTerm, V extends IStrategoTerm> implements IMap<K, V>, Serializable {
+    /**
+     * Stratego compiler assumes constructors are maximally shared and does identity comparison.
+     * So we initialize the constructors at runtime...
+     */
+    public static IStrategoConstructor cons = null;
+
+    public static void initializeConstructor(ITermFactory tf) {
+        cons = tf.makeConstructor(IMap.NAME, IMap.ARITY);
+    }
+
+    @Override public IStrategoConstructor getConstructor() {
+        return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
+    }
+
     private final Immutable<K, V> map;
     public final V topValue;
-    private final ImmutableClassToInstanceMap<Object> attachments;
 
     public Map(Immutable<K, V> map) {
-        this(map, null, ImmutableClassToInstanceMap.builder().build());
+        this(map, null);
     }
 
     public Map(Immutable<K, V> map, V topValue) {
-        this(map, topValue, ImmutableClassToInstanceMap.builder().build());
-    }
-
-    public Map(Immutable<K, V> map, V topValue, ImmutableClassToInstanceMap<Object> attachments) {
         this.map = map;
         this.topValue = topValue;
-        this.attachments = attachments;
     }
 
     public Map<K, V> update(Immutable<K, V> map) {
-        return new Map<>(map, topValue, attachments);
+        return new Map<>(map, topValue);
     }
 
-    @Override
-    public Immutable<K, V> getMap() {
+    @Override public Immutable<K, V> getMap() {
         return this.map;
     }
 
-    public static <K extends ITerm, V extends ITerm> Map<K, V> of(V topValue) {
-        return new Map<>(Immutable.of(), topValue, ImmutableClassToInstanceMap.builder().build());
+    public static <K extends IStrategoTerm, V extends IStrategoTerm> Map<K, V> of(V topValue) {
+        return new Map<>(Immutable.of(), topValue);
     }
 
     public int size() {
@@ -66,8 +69,7 @@ public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
         return map.containsKey(o);
     }
 
-    @Deprecated
-    public boolean containsKeyEquivalent(Object o, EqualityComparator<Object> cmp) {
+    @Deprecated public boolean containsKeyEquivalent(Object o, EqualityComparator<Object> cmp) {
         return map.containsKeyEquivalent(o, cmp);
     }
 
@@ -87,8 +89,7 @@ public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
         return map.valueIterator();
     }
 
-    @Deprecated
-    public boolean containsValueEquivalent(Object o, EqualityComparator<Object> cmp) {
+    @Deprecated public boolean containsValueEquivalent(Object o, EqualityComparator<Object> cmp) {
         return map.containsValueEquivalent(o, cmp);
     }
 
@@ -96,16 +97,14 @@ public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
         return map.entryIterator();
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         if(this == obj)
             return true;
         if(obj == null)
             return false;
         if(!(obj instanceof IMap))
             return false;
-        @SuppressWarnings("rawtypes")
-        IMap other = (IMap) obj;
+        @SuppressWarnings("rawtypes") IMap other = (IMap) obj;
         if(getMap() == null) {
             if(other.getMap() != null)
                 return false;
@@ -114,18 +113,15 @@ public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
         return true;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return map.hashCode();
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return map.toString();
     }
 
-    @Deprecated
-    public V getEquivalent(Object o, EqualityComparator<Object> cmp) {
+    @Deprecated public V getEquivalent(Object o, EqualityComparator<Object> cmp) {
         return map.getEquivalent(o, cmp);
     }
 
@@ -141,8 +137,7 @@ public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
         return update(this.map.__putAll(map));
     }
 
-    @Deprecated
-    public boolean equivalent(Object o, EqualityComparator<Object> cmp) {
+    @Deprecated public boolean equivalent(Object o, EqualityComparator<Object> cmp) {
         return map.equivalent(o, cmp);
     }
 
@@ -154,18 +149,16 @@ public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
         return map.asTransient();
     }
 
-    @Deprecated
-    public Map<K, V> __putEquivalent(K key, V val, EqualityComparator<Object> cmp) {
+    @Deprecated public Map<K, V> __putEquivalent(K key, V val, EqualityComparator<Object> cmp) {
         return update(map.__putEquivalent(key, val, cmp));
     }
 
-    @Deprecated
-    public Map<K, V> __removeEquivalent(K key, EqualityComparator<Object> cmp) {
+    @Deprecated public Map<K, V> __removeEquivalent(K key, EqualityComparator<Object> cmp) {
         return update(map.__removeEquivalent(key, cmp));
     }
 
-    @Deprecated
-    public Map<K, V> __putAllEquivalent(java.util.Map<? extends K, ? extends V> map, EqualityComparator<Object> cmp) {
+    @Deprecated public Map<K, V> __putAllEquivalent(java.util.Map<? extends K, ? extends V> map,
+        EqualityComparator<Object> cmp) {
         return update(this.map.__putAllEquivalent(map, cmp));
     }
 
@@ -239,56 +232,5 @@ public class Map<K extends ITerm, V extends ITerm> implements IMap<K, V> {
 
     public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
         return map.merge(key, value, remappingFunction);
-    }
-
-    @Override
-    public boolean isGround() {
-        return true;
-    }
-
-    @Override
-    public Multiset<ITermVar> getVars() {
-        return ImmutableMultiset.of();
-    }
-
-    @Override
-    public ImmutableClassToInstanceMap<Object> getAttachments() {
-        return this.attachments;
-    }
-
-    @Override
-    public <T> T match(Cases<T> cases) {
-        return cases.caseAppl(this);
-    }
-
-    @Override
-    public <T, E extends Throwable> T matchOrThrow(CheckedCases<T, E> cases) throws E {
-        return cases.caseAppl(this);
-    }
-
-    @Override
-    public String getOp() {
-        return "Map";
-    }
-
-    @Override
-    public int getArity() {
-        return 1;
-    }
-
-    @Override
-    public List<ITerm> getArgs() {
-        return new ImmutableList.Builder<ITerm>()
-                .add(B.newList(
-                        this.map.entrySet()
-                            .stream()
-                            .map(e -> B.newTuple(e.getKey(), e.getValue()))
-                            .toArray(ITerm[]::new)))
-                .build();
-    }
-
-    @Override
-    public IMap<K, V> withAttachments(ImmutableClassToInstanceMap<Object> value) {
-        return new Map<>(this.map, this.topValue, value);
     }
 }

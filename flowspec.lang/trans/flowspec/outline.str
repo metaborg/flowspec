@@ -17,8 +17,8 @@ rules
   to-outline-label: Imports(_, _) -> "imports"
   to-outline-label: Externals(_) -> "external"
   to-outline-label: CFGRules(_) -> "control-flow"
-  to-outline-label: AltCFGRule(Root(), p, _) -> $[cfg root [<pp-partial-flowspec-string(|"Pattern")> p]]
-  to-outline-label: AltCFGRule(NoRoot(), p, _) -> $[cfg [<pp-partial-flowspec-string(|"Pattern")> p]]
+  to-outline-label: CFGRule(Root(), p, _) -> $[cfg root [<pp-partial-flowspec-string(|"Pattern")> p]]
+  to-outline-label: CFGRule(NoRoot(), p, _) -> $[cfg [<pp-partial-flowspec-string(|"Pattern")> p]]
   to-outline-label: CFGNode(p) -> $[node [<pp-partial-flowspec-string(|"Pattern")> p]]
   to-outline-label: PropDefs(_, _) -> "properties"
   to-outline-label: PropDef(name, type) -> $[[name]: [<pp-partial-flowspec-string(|"Type")> type]]

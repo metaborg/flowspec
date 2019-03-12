@@ -1,0 +1,2 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"mb.flowspec.comlan18.flowspec.FSLibStrategoBenchmark.bench2","avgt",1,5,1829.441696,777.260222,"ms/op"

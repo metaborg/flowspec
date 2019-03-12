@@ -68,7 +68,7 @@ desugar-typedef: TypeDef(n, c*) -> TypeDef(n, [], c*)
 
 desugar-latticedef: LatticeDef(n, b) -> LatticeDef(n, [], b)
 
-alt-syntax: Module(name, sections) -> Module(name, imports, [], definitions)
+alt-syntax: Module(name, sections) -> Module(name, imports, definitions)
 with imports := <extract-imports> sections
    ; definitions := <extract-definitions> sections
 
@@ -89,7 +89,7 @@ extract-definitions =
            + ?FunDefs(<id>)
            )
 
-alt-syntax: AltCFGRule(r, p, c*) -> CFGRule(r, p', c'*)
+alt-syntax: CFGRule(r, p, c*) -> CFGRule(r, p', c'*)
 where this := <extract-this-name> p
     ; p' := At(this, <topdown(try(origin-track-forced(alt-syntax(|this))))> p)
     ; c'* := <topdown(try(origin-track-forced(alt-syntax(|this))))> c*

@@ -1,7 +1,7 @@
 ---
 id: org.metaborg:flowspec.lang:${metaborgVersion}
 name: flowspec
-metaborgVersion: 2.5.1
+metaborgVersion: 2.6.0-SNAPSHOT
 #metaborgBaselineVersion: 2.4.0
 dependencies:
   compile:
@@ -30,6 +30,12 @@ exports:
   directory: editor
   includes:
   - "flowspec/**/*.esv"
+
+  ## FlowSpec
+- language: FlowSpec
+  directory: trans
+  includes:
+  - "flowspec/**/*.flo"
 
 pardonedLanguages:
 - EditorService

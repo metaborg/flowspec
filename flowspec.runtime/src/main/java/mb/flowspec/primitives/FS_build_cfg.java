@@ -1,63 +1,59 @@
 package mb.flowspec.primitives;
 
-import static mb.nabl2.terms.build.TermBuild.B;
-import static mb.nabl2.terms.matching.TermMatch.M;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.metaborg.util.Ref;
-import org.metaborg.util.log.ILogger;
-import org.metaborg.util.log.LoggerUtils;
+import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
+import org.spoofax.interpreter.library.AbstractPrimitive;
+import org.spoofax.interpreter.stratego.Strategy;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 
-import mb.nabl2.constraints.controlflow.ControlFlowConstraints;
-import mb.nabl2.constraints.controlflow.IControlFlowConstraint;
-import mb.nabl2.controlflow.terms.CFGNode;
-import mb.nabl2.controlflow.terms.ICompleteControlFlowGraph.Immutable;
-import mb.nabl2.controlflow.terms.IFlowSpecSolution;
-import mb.nabl2.solver.ISolution;
-import mb.nabl2.solver.SolverCore;
-import mb.nabl2.solver.components.ControlFlowComponent;
+import mb.flowspec.controlflow.CFGNode;
+import mb.flowspec.controlflow.ControlFlowGraphReader;
+import mb.flowspec.controlflow.FlowSpecSolution;
+import mb.flowspec.controlflow.ICFGNode;
+import mb.flowspec.runtime.interpreter.values.EmptyMapOrSet;
+import mb.flowspec.runtime.interpreter.values.Map;
+import mb.flowspec.runtime.interpreter.values.Name;
+import mb.flowspec.runtime.interpreter.values.Set;
+import mb.flowspec.runtime.lattice.FullSetLattice;
+import mb.flowspec.terms.TermIndex;
 import mb.nabl2.spoofax.analysis.IResult;
-import mb.nabl2.spoofax.primitives.AnalysisPrimitive;
-import mb.nabl2.terms.ITerm;
-import mb.nabl2.terms.unification.PersistentUnifier;
+import mb.nabl2.stratego.StrategoBlob;
 
-public class FS_build_cfg extends AnalysisPrimitive {
-    private static final ILogger logger = LoggerUtils.logger(FS_build_cfg.class);
-
+public class FS_build_cfg extends AbstractPrimitive {
     public FS_build_cfg() {
-        super(FS_build_cfg.class.getSimpleName());
+        super(FS_build_cfg.class.getSimpleName(), 0, 1);
     }
 
-    @Override
-    protected Optional<? extends ITerm> call(IResult result, ITerm term,
-            List<ITerm> terms) throws InterpreterException {
-        if(!result.partial()) {
-            return call(result, term).map(B::newBlob);
-        } else {
-            return Optional.empty();
+    @Override public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
+        initRuntimeConstructors(env.getFactory());
+        if(tvars.length != 1) {
+            throw new IllegalArgumentException("Expected as first term argument: analysis");
         }
-    }
-
-    private Optional<IResult> call(IResult result, ITerm term) {
-        return M.listElems(ControlFlowConstraints.matcher(), (l, constraints) -> buildCfg(result, constraints)).match(term);
-    }
-
-    private IResult buildCfg(IResult result, List<IControlFlowConstraint> constraints) {
-        ISolution solution = result.solution();
-        SolverCore core = new SolverCore(null, new Ref<>(PersistentUnifier.Immutable.of()), null);
-        ControlFlowComponent cfc = new ControlFlowComponent(core, solution.flowSpecSolution());
-        for(IControlFlowConstraint flowConstraint : constraints) {
-            cfc.solve(flowConstraint);
+        final IResult result;
+        try {
+            result = (IResult) ((StrategoBlob) tvars[0]).value();
+        } catch(ClassCastException e) {
+            throw new IllegalArgumentException("Not a valid analysis term.");
         }
-        IFlowSpecSolution<CFGNode> fsSolution = cfc.finish();
+        ControlFlowGraphReader builder = ControlFlowGraphReader.build(env.current());
+        env.setCurrent(new StrategoBlob(
+            result.withCustomAnalysis(FlowSpecSolution.of(result.solution(), builder.cfg(), builder.tfAppls()))));
+        return true;
+    }
 
-        Immutable<CFGNode> cfg = fsSolution.controlFlowGraph();
-        logger.debug("CFG has {} nodes and {} edges", cfg.nodes().size(), cfg.edges().size());
-
-        solution = solution.withFlowSpecSolution(fsSolution);
-        return result.withSolution(solution);
+    /**
+     * Stratego compiler assumes constructors are maximally shared and does identity comparison.
+     * So we initialize the constructors at runtime...
+     */
+    static void initRuntimeConstructors(ITermFactory tf) {
+        CFGNode.initializeConstructor(tf);
+        ICFGNode.Kind.initializeConstructor(tf);
+        Set.initializeConstructor(tf);
+        Map.initializeConstructor(tf);
+        EmptyMapOrSet.initializeConstructor(tf);
+        Name.initializeConstructor(tf);
+        FullSetLattice.ISetImplementation.initializeConstructor(tf);
+        TermIndex.initializeConstructor(tf);
     }
 }

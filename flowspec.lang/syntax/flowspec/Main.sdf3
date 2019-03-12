@@ -1,47 +1,18 @@
 module flowspec/Main
 
 imports
-  
+
 flowspec/Common
 flowspec/Flow
 flowspec/Property
 flowspec/Type
 flowspec/Pattern
 flowspec/Expr
+flowspec/Function
 
 context-free syntax
-  
-  Module.Module =
-[module [ModuleName]
 
-[{Import "\n"}*]
-
-[{AstRoot "\n"}*]
-
-[{Definition "\n"}*]
-]
-
-Import.Import = [imports [ModuleName]] {prefer}
-Import.ExtImport = [imports external [StrategoModName]] {prefer}
-
-// TODO: remove, already ignored
-AstRoot.AstRoot = [ast root [ConsName]([{Wildcard ", "}*])]
-
-Definition = LatticeDef
-Definition = CFGRule
-Definition = PropDef
-Definition = PropRule
-Definition = TypeDef
-Definition = FunDef
-
-FunDef.FunDef = [fun [Var]([{FunArg ", "}+]) = [Expr]]
-AltFunDef.FunDef = [[Var]([{FunArg ", "}+]) = [Expr]]
-
-FunArg.Arg = [[Var]: [Type]]
-
-context-free syntax // Alternative syntax
-
-AltModule.Module =
+Module.Module =
 [module [ModuleName]
 
 [{Section "\n"}*]
@@ -56,34 +27,54 @@ ImportExternalSection.Externals =
 [external
   [{StrategoModName "\n"}*]]
 
+ModuleName = "external" {reject}
+
 Section.CFGRules =
 [control-flow rules
-  [{AltCFGRule "\n"}*]]
+  [{CFGRule "\n"}*]]
+
+ModuleName = "control-flow" {reject}
+StrategoModName = "control-flow" {reject}
 
 Section.LatticeDefs =
 [lattices
-  [{AltLatticeDef "\n"}*]]
+  [{LatticeDef "\n"}*]]
+
+ModuleName = "lattices" {reject}
+StrategoModName = "lattices" {reject}
 
 Section.TypeDefs =
 [types
-  [{AltTypeDef "\n"}*]]
+  [{TypeDef "\n"}*]]
+
+ModuleName = "types" {reject}
+StrategoModName = "types" {reject}
 
 Section.PropDefs =
 [properties
-  [{AltPropDef "\n"}*]
+  [{PropDef "\n"}*]
   [{PropDefExternalSection "\n"}*]]
+
+ModuleName = "properties" {reject}
+StrategoModName = "properties" {reject}
 
 PropDefExternalSection.Externals =
 [external
-  [{AltPropDef "\n"}*]]
+  [{PropDef "\n"}*]]
 
 Section.PropRules =
 [property rules
   [{PropRule "\n"}*]]
 
+ModuleName = "property" {reject}
+StrategoModName = "property" {reject}
+
 Section.FunDefs =
 [functions
-  [{AltFunDef "\n"}*]]
+  [{FunDef "\n"}*]]
+
+ModuleName = "functions" {reject}
+StrategoModName = "functions" {reject}
 
 template options
 

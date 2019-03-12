@@ -1,70 +1,50 @@
 package mb.flowspec.runtime.solver;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
-
-import java.util.Optional;
-import java.util.Map.Entry;
-
-import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Parameter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.usethesource.capsule.BinaryRelation;
-import io.usethesource.capsule.Map;
-import mb.flowspec.runtime.interpreter.InitValues;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
 
-@Immutable
-public abstract class StaticInfo {
+public class StaticInfo {
     /// Strings are names of dataflow properties
-    @Parameter public abstract BinaryRelation.Immutable<String, String> dependsOn();
+    public final BinaryRelation.Immutable<String, String> dependsOn;
     /// String is dataflow property name
-    @Parameter public abstract Map.Immutable<String, Metadata<?>> metadata();
-    @Parameter public abstract FunctionInfo functions();
-    @Parameter public abstract LatticeInfo lattices();
+    public final Map<String, Metadata<?>> metadata;
+    public final FunctionInfo functions;
+    public final LatticeInfo lattices;
+
+    public StaticInfo() {
+        this.dependsOn = BinaryRelation.Immutable.of();
+        this.metadata = Collections.emptyMap();
+        this.functions = new FunctionInfo();
+        this.lattices = new LatticeInfo();
+    }
+
+    public StaticInfo(io.usethesource.capsule.BinaryRelation.Immutable<String, String> dependsOn,
+        Map<String, Metadata<?>> metadata, FunctionInfo functions, LatticeInfo lattices) {
+        this.dependsOn = dependsOn;
+        this.metadata = metadata;
+        this.functions = functions;
+        this.lattices = lattices;
+    }
 
     public StaticInfo addAll(StaticInfo other) {
-        BinaryRelation.Transient<String, String> dependsOn = this.dependsOn().asTransient();
-        other.dependsOn().entryIterator().forEachRemaining(e -> {
+        BinaryRelation.Transient<String, String> dependsOn = this.dependsOn.asTransient();
+        other.dependsOn.entryIterator().forEachRemaining(e -> {
             dependsOn.__insert(e.getKey(), e.getValue());
         });
-        Map.Transient<String, Metadata<?>> metadata = this.metadata().asTransient();
-        other.metadata().entryIterator().forEachRemaining(e -> {
+        Map<String, Metadata<?>> metadata = new HashMap<>(this.metadata);
+        other.metadata.entrySet().forEach(e -> {
             Metadata<?> md = metadata.get(e.getKey());
             if(md == null) {
-                metadata.__put(e.getKey(), e.getValue());
+                metadata.put(e.getKey(), e.getValue());
             } else {
-                metadata.__put(e.getKey(), md.addAll(e.getValue()));
+                metadata.put(e.getKey(), md.addAll(e.getValue()));
             }
         });
-        FunctionInfo functions = this.functions().addAll(other.functions());
-        LatticeInfo lattices = this.lattices().addAll(other.lattices());
-        return ImmutableStaticInfo.of(dependsOn.freeze(), metadata.freeze(), functions, lattices);
-    }
-
-    public void init(InitValues initValues) {
-        for (Entry<String, Metadata<?>> e : metadata().entrySet()) {
-            e.getValue().transferFunctions().valueIterator().forEachRemaining(tf -> {
-                tf.init(initValues);
-            });
-            e.getValue().lattice().init(initValues);
-        }
-    }
-
-    public static IMatcher<StaticInfo> match(String moduleName) {
-        return (term, unifier) ->
-            Optional.of(
-                M.tuple3(M.term(), LatticeInfo.match(), FunctionInfo.match(), (t, tf, l, f) ->
-                    TransferFunctionInfo.match(l, moduleName)
-                        .match(tf, unifier)
-                        .map(tf1 -> (StaticInfo) ImmutableStaticInfo.of(tf1.dependsOn(), tf1.metadata(), f, l))
-                )
-                .flatMap(i -> i)
-                .match(term, unifier)
-                .orElseThrow(() -> new ParseException("Parse error on reading Static Info"))
-            );
-    }
-
-    public static StaticInfo of() {
-        return ImmutableStaticInfo.of(BinaryRelation.Immutable.of(), Map.Immutable.of(), ImmutableFunctionInfo.of(), ImmutableLatticeInfo.of());
+        FunctionInfo functions = this.functions.addAll(other.functions);
+        LatticeInfo lattices = this.lattices.addAll(other.lattices);
+        return new StaticInfo(dependsOn.freeze(), Collections.unmodifiableMap(metadata), functions, lattices);
     }
 }

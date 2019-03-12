@@ -1,0 +1,32 @@
+module flowspec/desugar/Main
+
+imports
+
+flowspec/Common
+flowspec/desugar/Expr
+flowspec/desugar/Flow
+flowspec/desugar/Function
+flowspec/desugar/Property
+flowspec/desugar/Type
+flowspec/Pattern
+flowspec/Property
+
+context-free syntax
+
+Module.Module =
+[module [ModuleName]
+
+[{Import "\n"}*]
+
+[{Definition "\n"}*]
+]
+
+Import.Import = [imports [ModuleName]] {prefer}
+Import.ExtImport = [imports external [StrategoModName]] {prefer}
+
+Definition = LatticeDef
+Definition = CFGRule
+Definition = PropDef
+Definition = PropRule
+Definition = TypeDef
+Definition = FunDef

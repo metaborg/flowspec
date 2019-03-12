@@ -1,0 +1,13 @@
+module flowspec/Function
+
+imports
+
+flowspec/Common
+flowspec/Expr
+flowspec/Type
+
+context-free syntax
+
+FunDef.FunDef = [[Var]([{FunArg ", "}+]) = [Expr]]
+
+FunArg.Arg = [[Var]: [Type]]

@@ -95,19 +95,32 @@ FunRef.NLeqOf = [[TypeName].nleq]
 FunRef = Ref
 
 context-free priorities
+  Expr.Appl >
   Expr.MapLookup >
-  Expr.Not >
+  { Expr.Not
+    Expr.Neg } >
   { non-assoc:
     Expr.SetUnion
     Expr.SetIntersection
     Expr.SetContains
     Expr.SetDifference } >
   { left:
+    Expr.Mul
+    Expr.Div
+    Expr.Mod } >
+  { left:
+    Expr.Add
+    Expr.Sub } >
+  { left:
+    Expr.Lt
+    Expr.Lte
+    Expr.Gt
+    Expr.Gte } >
+  { left:
     Expr.Eq
     Expr.NEq } >
   Expr.And >
   Expr.Or > 
   { left:
-    Expr.Appl
     Expr.If
     Expr.Match }

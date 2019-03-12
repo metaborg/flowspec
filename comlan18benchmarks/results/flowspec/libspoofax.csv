@@ -1,0 +1,2 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"mb.flowspec.comlan18.flowspec.FSLibSpoofaxBenchmark.bench2","avgt",1,5,148.582097,60.692062,"ms/op"

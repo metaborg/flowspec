@@ -10,7 +10,10 @@ signatures/flowspec/runtime/-
 
 nabl2/api
 nabl2/runtime/analysis/generation
+nabl2/shared/ast
 libspoofax/stratego/debug
+libspoofax/term/annotation
+signatures/nabl2/runtime/common/AST-sig
 
 strategies
 
@@ -59,6 +62,22 @@ flowspec-get-property-post-or-exit-post(|analysis-result, analysis-name) =
      ; flowspec-get-property-post(|analysis-result, analysis-name) )
 
 /**
+ * Get analysis for the given AST node. Includes flowspec analysis if custom final hook is set up
+ *  correctly.
+ *
+ * @type node:Term -> Analysis
+ */
+flowspec-get-ast-analysis = nabl2-get-ast-analysis; try(nabl2-get-custom-analysis)
+
+/**
+ * Get analysis for the given resource. Includes flowspec analysis if custom final hook is set up
+ *  correctly.
+ *
+ * @type filename:String -> Analysis
+ */
+flowspec-get-resource-analysis = nabl2-get-resource-analysis; try(nabl2-get-custom-analysis)
+
+/**
  * Analyze the given AST with FlowSpec.
  * The FlowSpec analysis is added to given NaBL2 analysis result and returned.
  *
@@ -79,8 +98,18 @@ flowspec-analyze(|analysis) = flowspec-analyze(|analysis, <flowspec--prop-names>
 flowspec-analyze(|analysis, propname) = where(<is-string> propname); flowspec-analyze(|analysis, [propname])
 flowspec-analyze(|analysis, propnames): ast -> analysis2
 where
-  analysis1 := <flowspec--generate-cfg; flowspec--build-cfg(|analysis)> ast
-; analysis2 := <flowspec--solve(|analysis1, <flowspec--prop-names>)> ast
+  (edge-list, flowspec-cfg-str-time-diff) := <profile(flowspec--generate-cfg)> ast
+; if flowspec-debug-profile then
+    <debug> $[flowspec (cfg building - Stratego): [<ticks-to-seconds> flowspec-cfg-str-time-diff]]
+  end
+; (analysis1, flowspec-cfg-java-time-diff) := <profile(flowspec--build-cfg(|analysis))> edge-list
+; if flowspec-debug-profile then
+    <debug> $[flowspec (cfg building - Java): [<ticks-to-seconds> flowspec-cfg-java-time-diff]]
+  end
+; (analysis2, flowspec-prop-time-diff) := <profile(flowspec--solve(|analysis1, propnames))> ast
+; if flowspec-debug-profile then
+    <debug> $[flowspec (property solving): [<ticks-to-seconds> flowspec-prop-time-diff]]
+  end
 
 /**
  * Analyze the given AST with NaBL2 and FlowSpec
@@ -124,7 +153,7 @@ flowspec-analyze-ast(pre,post|resource, propname) = where(<is-string> propname);
 flowspec-analyze-ast(pre,post|resource, propnames): ast -> (<post> ast2, analysis2, errors, warnings, notes)
 where
   ((ast1, analysis, errors, warnings, notes), nabl2-time-diff) := <profile(nabl2-analyze-ast(|resource))> ast
-; ast2 := <pre> ast1
+; ast2 := <nabl2--index-ast(|resource);pre> ast1
 ; (analysis1, flowspec-cfg-time-diff) := <profile(flowspec--generate-cfg; flowspec--build-cfg(|analysis))> ast2
 ; (analysis2, flowspec-prop-time-diff) := <profile(flowspec--solve(|analysis1, propnames))> ast2
 ; if flowspec-debug-profile then
@@ -171,8 +200,8 @@ flowspec-analyze-ast-then(s|resource, propnames) =
  * @type ast:Term -> Term
  */
 flowspec-analyze-ast-then(pre, post, s|resource, propnames) =
-  flowspec-analyze-ast(pre, post|resource, propnames)
-; \(ast, analysis, _, _, _) -> <s(|analysis)> ast\
+  flowspec-analyze-ast(pre, id|resource, propnames)
+; \(ast, analysis, _, _, _) -> <s(|analysis);post> ast\
 // Note that using flowspec-then instead of the inlined rule doesn't work because of limited
 //  strategy argument support in Stratego
 
@@ -245,7 +274,7 @@ flowspec-get-cfg-next-nodes(|a) = flowspec--get-cfg-next-nodes(|a)
  * @type node:CFGNode -> Term
  */
 flowspec-cfg-node-ast(|ast): CFGNode(pos, _, _) ->
-  <collect-one(where(flowspec-get-position;?pos))> ast
+  <collect-one(where(flowspec-get-position;!(<id>, pos);eq))> ast
 
 /**
  * Find AST node corresponding to the CFGNode back again
@@ -254,7 +283,7 @@ flowspec-cfg-node-ast(|ast): CFGNode(pos, _, _) ->
  * @type pos:Position -> Term
  */
 flowspec-pos-ast(|ast): pos ->
-  <collect-one(where(flowspec-get-position;?pos))> ast
+  <collect-one(where(flowspec-get-position;!(<id>, pos);eq))> ast
 
 /**
  * Find parent of AST node corresponding to the CFGNode back again
@@ -264,7 +293,7 @@ flowspec-pos-ast(|ast): pos ->
  * @type node:CFGNode -> Term
  */
 flowspec-cfg-node-ast(parent|ast): CFGNode(pos, _, _) ->
-  <collect-one(where(parent;flowspec-get-position;?pos))> ast
+  <collect-one(where(parent;flowspec-get-position;!(<id>, pos);eq))> ast
 
 /**
  * Find parent of AST node corresponding to the CFGNode back again
@@ -274,14 +303,17 @@ flowspec-cfg-node-ast(parent|ast): CFGNode(pos, _, _) ->
  * @type pos:Position -> Term
  */
 flowspec-pos-ast(parent|ast): pos ->
-  <collect-one(where(parent;flowspec-get-position;?pos))> ast
+  <collect-one(where(parent;flowspec-get-position;!(<id>, pos);eq))> ast
 
 /**
  * Get the position of an AST node.
  *
  * @type Term -> Position
  */
-flowspec-get-position = nabl2-get-ast-index
+flowspec-get-position =
+     nabl2-get-ast-index
+  <+ debug(|"Failed to find NaBL2 index annotation. Try using nabl2--index-ast on the AST before running FlowSpec.")
+     ; fail
 
 /**
  * Check if a FlowSpec Set contains an element. Succeeds if the given strategy succeeds for at
@@ -293,7 +325,49 @@ flowspec-get-position = nabl2-get-ast-index
 flowspec-set-contains(s):
   Set(l) -> <where(getfirst(s))> l
 
+/**
+ * Look up elements in a FlowSpec Set of pairs. Returns the right elements of all pairs where
+ * the given strategy succeeds on the left element.
+ *
+ * @param s: Term -?>
+ * @type FlowSpecSet -?> List(Term)
+ */
+flowspec-set-lookup(s):
+  Set(l) -> <retain-all(\(l,r) -> r where <s> l\)> l
+
+/**
+ * Look up a key in a FlowSpec Map. Returns the element if the given key exists in the map.
+ *
+ * @param k: Term
+ * @type FlowSpecMap -?> Term
+ */
+flowspec-map-lookup(|k):
+  Map(l) -> <getfirst(?(k, <id>))> l
+
+/**
+ * Turn a FlowSpec Map into a Stratego list of pairs.
+ *
+ * @param k: Term
+ * @type FlowSpecMap -?> Term
+ */
+flowspec-map-to-list =
+  ?Map(<id>) <+ \Set([]) -> []\
+
+/**
+ * Turn a FlowSpec Set into a Stratego list.
+ *
+ * @param k: Term
+ * @type FlowSpecMap -?> Term
+ */
+flowspec-set-to-list =
+  ?Set(<id>)
+
 strategies // The following are used/extended by generated code
+
+flowspec--get-ast-index =
+     nabl2-get-ast-index
+  <+ debug(|"Failed to find NaBL2 index annotation. Try using nabl2--index-ast on the AST before running FlowSpec.")
+     ; fail
 
 flowspec--proprule-rec(flowspec--proprule) =
   flowspec--proprule <+ (!${Missing FlowSpec cfg rule for {<nabl2--pp-flat-term>}}; debug; ![])
@@ -301,8 +375,12 @@ flowspec--proprule-rec(flowspec--proprule) =
 flowspec--generate-cfg: ast -> result
 where
   try(flowspec-debug-profile;where(term-size;debug(|"flowspec, ast input size: ")))
-; result := <flowspec--generate-cfg-inner> ast
+; result := <collect-om(flowspec--generate-cfg-root, conc); concat> ast
 ; try(flowspec-debug-profile;length;debug(|"flowspec, cfg edge list size: "))
+
+flowspec--register-cfg-toplevel(nstart, nend, nentry, nexit, nnormal, edge, appl): ast -> ast
+where
+  <alltd(flowspec--register-cfg-root(nstart, nend, nentry, nexit, nnormal, edge, appl))> ast
 
 flowspec--proprule(|index): term -> constr*
 with (constr*, _) :=
@@ -310,11 +388,19 @@ with (constr*, _) :=
 
 flowspec--proprule(|index, constr, files) = fail
 
+flowspec--register-proprule-Start(appl|node) = fail
+flowspec--register-proprule-End(appl|node) = fail
+flowspec--register-proprule-Entry(appl|node) = fail
+flowspec--register-proprule-Exit(appl|node) = fail
+flowspec--register-proprule-Normal(appl|node) = fail
+
 flowspec--prop-names = <repeat(flowspec--add-prop-names)> []
 
 flowspec--cfg-node(|index,kind): n -> CFGNode(index, n, kind)
 
-flowspec--generate-cfg-inner = fail
+flowspec--generate-cfg-root = fail
+
+flowspec--register-cfg-root(nstart, nend, nentry, nexit, nnormal, edge, appl) = fail
 
 flowspec--prop-names = fail
 

@@ -1,0 +1,6 @@
+module flowspec/linear-list
+
+control-flow rules
+
+  Cons(h, t) = entry -> h -> t -> exit
+  Nil() = entry -> exit

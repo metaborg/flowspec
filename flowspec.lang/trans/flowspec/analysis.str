@@ -3,15 +3,16 @@ module flowspec/analysis
 imports
   flowspec/desugar
   signatures/flowspec/-
-  
+
   nabl2/api
   nabl2shared
   nabl2runtime
-  
+
   flowspec/static-semantics
+  flowspec/static-semantics/missing-start-end-rule
 
   pp
-  
+
   libspoofax/stratego/debug
 
 rules // Analysis
@@ -24,13 +25,13 @@ rules // Analysis
   nabl2-debug-analysis-hook = id
 
   // pass AST to final hook
-  nabl2-custom-analysis-init-hook:
-    (resource, ast) -> ast
+  nabl2-custom-analysis-unit-hook:
+    (resource, ast, custom-initial-result) -> ast
 
   // Extra errors/warnings
   nabl2-custom-analysis-final-hook(|a):
-    (resource, custom-initial-result, custom-unit-results) -> (errors, warnings, notes, ())
-    with errors   := []
+    (resource, custom-initial-result, custom-unit-results) -> (errors, warnings, notes, a)
+    with errors   := <mapconcat(flowspec--missing-start-end-rule(|a))> custom-unit-results
        ; warnings := []
        ; notes    := []
 

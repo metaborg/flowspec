@@ -1,52 +1,39 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static mb.nabl2.terms.build.TermBuild.B;
-import static mb.nabl2.terms.matching.TermMatch.M;
-
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-import mb.flowspec.runtime.interpreter.InitValues;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.Initializable;
+import mb.flowspec.terms.B;
 
-public class TermNode extends ExpressionNode {
+public class TermNode extends ExpressionNode implements Initializable {
     private final String consName;
     private final ExpressionNode[] children;
+    private IStrategoConstructor cons;
 
     public TermNode(String consName, ExpressionNode[] children) {
         this.consName = consName;
         this.children = children;
     }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return B.newAppl(consName, Arrays.stream(children)
-                                        .map(c -> {
-                                            try {
-                                                return c.executeITerm(frame);
-                                            } catch (UnexpectedResultException e) {
-                                                throw new RuntimeException(e);
-                                            }
-                                        })
-                                        .collect(Collectors.toList()));
+    @Override public Object executeGeneric(VirtualFrame frame) {
+        return B.appl(cons, Arrays.stream(children).map(c -> {
+            try {
+                final IStrategoTerm result = c.executeIStrategoTerm(frame);
+                return result;
+            } catch(UnexpectedResultException e) {
+                throw new RuntimeException(e);
+            }
+        }).toArray(i -> new IStrategoTerm[i]));
     }
 
-    public static IMatcher<TermNode> match(FrameDescriptor frameDescriptor) {
-        return M.appl2("Term", M.stringValue(), M.listElems(ExpressionNode.matchExpr(frameDescriptor)),
-                (appl, consName, children) -> {
-                    ExpressionNode[] c = children.toArray(new ExpressionNode[children.size()]);
-                    return new TermNode(consName, c);
-                });
-    }
-
-    @Override
-    public void init(InitValues initValues) {
-        for (ExpressionNode child : children) {
-            child.init(initValues);
-        }
+    @Override public void init(InitValues initValues) {
+        cons = initValues.termBuilder.consShared(consName, children.length);
     }
 }

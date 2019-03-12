@@ -23,7 +23,7 @@ signature
 rules
 
 // Module
-gen-str: Module(modulename, import*, _, def*) ->
+gen-str: Module(modulename, import*, def*) ->
 ${module flowspec/{modulename}
 
 imports
@@ -38,7 +38,6 @@ imports
   nabl2/runtime/-
   nabl2/runtime/analysis/-
   nabl2/runtime/prelude/-
-  nabl2/runtime/stdlib/-
   nabl2/api
 
   flowspec/api
@@ -48,10 +47,6 @@ imports
   {importstring}
 
 rules
-
-flowspec--generate-cfg-inner =
-  collect-om(flowspec--generate-cfg-root, conc)
-; concat
 
 {cfgstring}
 
@@ -124,6 +119,9 @@ gen-str: CFGRule(r, pattern, chain*) ->
 ${{ruleheader}
   with({<semi-lines> [indexdefstr, vardefstr*]})
   with(result := {constraintstr})
+
+{ruleheader2}
+  where({<semi-lines> [refvarsstr2*, rrvarstr2*, recursesstr2*, pairstr2*]})
 }
 with
   patternstr := <gen-match-pattern-str> pattern
@@ -143,11 +141,17 @@ with
   // build normal pairs from the chains
 ; pairstr* := <map(gen-pair-to-edge-str)> pairs
 
-; indexdefstr := "fs_index := <nabl2--get-ast-index> fs_term"
+; indexdefstr := "fs_index := <flowspec--get-ast-index> fs_term"
 ; vardefstr* := [refvarsstr*, rrvarstr*]
 ; thisconstr* := [${<flowspec--proprule-rec(flowspec--proprule(|fs_index))> fs_term}]
 ; constraintstr* := [recursesstr*, thisconstr*, ${[{<csv> pairstr*}]}, refsstr*]
 ; constraintstr := <constraint-str-list-to-list> constraintstr*
+
+; ruleheader2 := <cfg-root-rule-header2(|patternstr)> r
+; rrvarstr2* := <cfg-root-related-varstr2> r
+; recursesstr2* := <map(gen-recurse-str2)> recurses
+; refvarsstr2* := <map(gen-ref-var-str2)> refs
+; pairstr2* := <map(gen-pair-to-edge-str2)> pairs
 
 cfg-root-rule-header(|patternstr): Root() ->
 ${flowspec--generate-cfg-root:
@@ -157,18 +161,37 @@ cfg-root-rule-header(|patternstr): NoRoot() ->
 ${flowspec--generate-cfg(t_entry, t_exit | t_start, t_end):
   fs_term@{patternstr} -> result}
 
+cfg-root-rule-header2(|patternstr): Root() ->
+${flowspec--register-cfg-root(nstart, nend, nentry, nexit, nnormal, edge, appl):
+  fs_term@{patternstr} -> (t_start, t_end)}
+
+cfg-root-rule-header2(|patternstr): NoRoot() ->
+${flowspec--register-cfg(nentry, nexit, nnormal, edge, appl|t_start, t_end):
+  fs_term@{patternstr} -> (t_entry, t_exit)}
+
 cfg-root-related-varstr: Root()   -> [<gen-cfg-start-node-str>, <gen-cfg-end-node-str>]
 cfg-root-related-varstr: NoRoot() -> [<gen-cfg-entry-node-str>, <gen-cfg-exit-node-str>]
+
+cfg-root-related-varstr2: Root()   ->
+  [ ${t_start := <nstart> fs_term
+      ; <flowspec--register-proprule-Start(appl|t_start) <+ id> fs_term}
+  , ${t_end := <nend> fs_term
+      ; <flowspec--register-proprule-End(appl|t_end) <+ id> fs_term} ]
+cfg-root-related-varstr2: NoRoot() ->
+  [ ${t_entry := <nentry> fs_term
+      ; <flowspec--register-proprule-Entry(appl|t_entry) <+ id> fs_term}
+  , ${t_exit := <nexit> fs_term
+      ; <flowspec--register-proprule-Exit(appl|t_exit) <+ id> fs_term} ]
 
 gen-cfg-node-str: v -> <gen-cfg-node-str(|"Normal")> (${match{v}}, ${node{v}})
 
 gen-cfg-start-node-str = !${t_start := <flowspec--cfg-node(|fs_index,Start());try(nabl2--copy-origin(|fs_term))> "t_start"}
 gen-cfg-end-node-str   = !${t_end   := <flowspec--cfg-node(|fs_index,End());try(nabl2--copy-origin(|fs_term))> "t_end"}
-gen-cfg-entry-node-str = !${entry   := <flowspec--cfg-node(|fs_index,Entry());try(nabl2--copy-origin(|fs_term));t_entry> "entry"}
-gen-cfg-exit-node-str  = !${exit    := <flowspec--cfg-node(|fs_index,Exit());try(nabl2--copy-origin(|fs_term));t_exit> "exit"}
+gen-cfg-entry-node-str = !${t_entry := <flowspec--cfg-node(|fs_index,Entry());try(nabl2--copy-origin(|fs_term));t_entry> "entry"}
+gen-cfg-exit-node-str  = !${t_exit  := <flowspec--cfg-node(|fs_index,Exit());try(nabl2--copy-origin(|fs_term));t_exit> "exit"}
 
 gen-cfg-node-str(|kind): (termname, nodename) ->
-  ${{nodename} := <flowspec--cfg-node(|<nabl2-get-ast-index> {termname},{kind}());try(nabl2--copy-origin(|{termname}))> "{nodename}"}
+  ${{nodename} := <flowspec--cfg-node(|<flowspec--get-ast-index> {termname},{kind}());try(nabl2--copy-origin(|{termname}))> "{nodename}"}
 
 gen-directed-edge-str: (lhs, rhs) ->
   ${CFDirectEdge({lhs}, {rhs}, fs_index)}
@@ -179,13 +202,20 @@ gen-equal-str: (lhs, rhs) ->
 gen-recurse-str: Recurse(v) ->
   ${<flowspec--generate-cfg(?entry{v}, ?exit{v} | t_start, t_end)> match{v}}
 
+gen-recurse-str2: Recurse(v) ->
+  ${(entry{v}, exit{v}) := <flowspec--register-cfg(nentry, nexit, nnormal, edge, appl|t_start, t_end)> match{v}}
+
 gen-ref-var-str: Ref(v) -> <gen-cfg-node-str> v
 
+gen-ref-var-str2: Ref(v) ->
+  ${node{v} := <nnormal(|"{v}")> match{v}
+   ; <flowspec--register-proprule-Normal(appl|node{v}) <+ id> match{v}}
+
 gen-ref-str: Ref(v) ->
-  ${<flowspec--proprule-rec(flowspec--proprule(|<nabl2--get-ast-index> match{v}))> match{v}}
+  ${<flowspec--proprule-rec(flowspec--proprule(|<flowspec--get-ast-index> match{v}))> match{v}}
 
 gen-cfg-lhs-str: Recurse(v) -> ${exit{v}}
-gen-cfg-lhs-str: Entry()    -> ${entry}
+gen-cfg-lhs-str: Entry()    -> ${t_entry}
 gen-cfg-lhs-str: Start()    -> ${t_start}
 gen-cfg-lhs-str: Ref(v)     -> ${node{v}}
 gen-cfg-lhs-str: Prop(p, v) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
@@ -193,7 +223,7 @@ gen-cfg-lhs-str: Exit()     -> <with(fail|"Error: exit on rhs of arrow")>
 gen-cfg-lhs-str: End()      -> <with(fail|"Error: end on rhs of arrow")>
 
 gen-cfg-rhs-str: Recurse(v) -> ${entry{v}}
-gen-cfg-rhs-str: Exit()     -> ${exit}
+gen-cfg-rhs-str: Exit()     -> ${t_exit}
 gen-cfg-rhs-str: End()      -> ${t_end}
 gen-cfg-rhs-str: Ref(v)     -> ${node{v}}
 gen-cfg-rhs-str: Prop(p, v) -> <with(fail|"Sorry, stubbing out prop support in CFG for now")>
@@ -201,6 +231,7 @@ gen-cfg-rhs-str: Entry()    -> <with(fail|"Error: entry on rhs of arrow")>
 gen-cfg-rhs-str: Start()    -> <with(fail|"Error: start on rhs of arrow")>
 
 gen-pair-to-edge-str = (gen-cfg-lhs-str, gen-cfg-rhs-str); gen-directed-edge-str
+gen-pair-to-edge-str2 = (gen-cfg-lhs-str, gen-cfg-rhs-str); !${<edge> ({<Fst>}, {<Snd>})}
 
 // Pattern - Pattern, Wildcard
 
@@ -253,7 +284,7 @@ pattern-in-dir = ?End(<id>)
 gen-prop-str(|mod-name, propnames): list -> [rule*, def*]
 with id
 ; def*  := <map(gen-prop-default-str)> propnames
-; rule* := <map(gen-str(|mod-name))> list
+; rule* := <mapconcat(gen-str(|mod-name))> list
 
 gen-prop-default-str: name -> ${flowspec--proprule-{name}-Start(|index) = fail
 flowspec--proprule-{name}-End(|index) = fail
@@ -261,7 +292,7 @@ flowspec--proprule-{name}-Entry(|index) = fail
 flowspec--proprule-{name}-Exit(|index) = fail
 flowspec--proprule-{name}-Normal(|index) = fail}
 
-gen-str(|mod-name): (n, PropRule(name, pattern, _, _)) -> rulestring
+gen-str(|mod-name): (n, PropRule(name, pattern, _, _)) -> [rulestring, regstring]
 with id
 ; kind          := <pattern-to-kind> pattern
 ; pattern'      := <pattern-in-dir> pattern
@@ -269,7 +300,12 @@ with id
 ; vars          := <pattern-vars(|"match")> pattern'
 ; rulestring    := ${flowspec--proprule-{name}-{kind}(|index):
   {patternstring} ->
-    CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", flowspec-prop-{name}(), "{mod-name}", {n}, [{<csv> vars}])}
+    CTFAppl(<flowspec--cfg-node(|index, {kind}())> "irrelevant", flowspec-prop-{name}(), "{mod-name}", {n}, [{<csv> vars}])
+}
+; regstring     := ${flowspec--register-proprule-{kind}(appl|node):
+  {patternstring} -> <fail>
+where appl(|node, flowspec-prop-{name}(), "{mod-name}", {n}, [{<csv> vars}])
+}
 
 // utils
 

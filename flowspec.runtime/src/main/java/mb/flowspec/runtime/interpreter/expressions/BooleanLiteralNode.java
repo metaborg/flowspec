@@ -1,49 +1,61 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import static mb.nabl2.terms.matching.TermMatch.M;
+import org.spoofax.interpreter.core.Tools;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import mb.flowspec.runtime.interpreter.InitValues;
-import mb.nabl2.terms.IApplTerm;
-import mb.nabl2.terms.ITerm;
-import static mb.nabl2.terms.build.TermBuild.B;
-import mb.nabl2.terms.matching.TermMatch.IMatcher;
+import mb.flowspec.runtime.InitValues;
+import mb.flowspec.runtime.Initializable;
 
-public class BooleanLiteralNode extends ExpressionNode {
-    public static final IApplTerm FALSE_TERM = B.newAppl("False");
-    public static final IApplTerm TRUE_TERM = B.newAppl("True");
-    private final boolean value;
+public class BooleanLiteralNode extends ExpressionNode implements Initializable {
+    private static IStrategoAppl FALSE_TERM;
+    private static IStrategoAppl TRUE_TERM;
+    private final boolean boolValue;
+    private IStrategoAppl value;
 
     public BooleanLiteralNode(boolean value) {
-        this.value = value;
-    }
-    
-    @Override
-    public ITerm executeITerm(VirtualFrame frame) {
-        return value ? TRUE_TERM : FALSE_TERM;
+        this.boolValue = value;
     }
 
-    @Override
-    public boolean executeBoolean(VirtualFrame frame) {
+    @Override public IStrategoTerm executeIStrategoTerm(VirtualFrame frame) {
+        if(value == null) {
+            value = booleanToTerm(boolValue);
+        }
         return value;
     }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
+    @Override public boolean executeBoolean(VirtualFrame frame) {
+        return boolValue;
+    }
+
+    @Override public Object executeGeneric(VirtualFrame frame) {
         return executeBoolean(frame);
     }
 
-    public static IMatcher<BooleanLiteralNode> match(FrameDescriptor frameDescriptor) {
-        return M.cases(
-                M.appl0("True", (appl) -> new BooleanLiteralNode(true)),
-                M.appl0("False", (appl) -> new BooleanLiteralNode(false)));
+    @Override public void init(InitValues initValues) {
+        BooleanLiteralNode.FALSE_TERM = initValues.termBuilder.applShared("False");
+        BooleanLiteralNode.TRUE_TERM = initValues.termBuilder.applShared("True");
     }
 
-    @Override
-    public void init(InitValues initValues) {
-        // do nothing
+    public static IStrategoAppl booleanToTerm(boolean b) {
+        return b ? TRUE_TERM : FALSE_TERM;
     }
 
+    public static boolean isTrueTerm(Object o) {
+        if(!(o instanceof IStrategoAppl)) {
+            return false;
+        }
+        IStrategoAppl a = (IStrategoAppl) o;
+        return Tools.hasConstructor(a, "True", 0);
+    }
+
+    public static boolean isFalseTerm(Object o) {
+        if(!(o instanceof IStrategoAppl)) {
+            return false;
+        }
+        IStrategoAppl a = (IStrategoAppl) o;
+        return Tools.hasConstructor(a, "False", 0);
+    }
 }

@@ -1,4 +1,3 @@
-#alt-syntax
 module flow
 
 control-flow rules
@@ -22,6 +21,8 @@ properties
   constProp: CP
 
 property rules
+
+  constProp(_.start) = M({})
 
   constProp(prev -> Assign(n, e)) =
     match constProp(prev) with
