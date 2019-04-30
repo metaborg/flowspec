@@ -13,6 +13,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 
 import mb.nabl2.constraints.IConstraint;
@@ -21,6 +22,7 @@ import mb.nabl2.scopegraph.esop.IEsopNameResolution;
 import mb.nabl2.scopegraph.esop.IEsopScopeGraph;
 import mb.nabl2.scopegraph.terms.Label;
 import mb.nabl2.scopegraph.terms.Occurrence;
+import mb.nabl2.scopegraph.terms.OccurrenceIndex;
 import mb.nabl2.scopegraph.terms.Scope;
 import mb.nabl2.solver.ISolution;
 import mb.nabl2.solver.SolverConfig;
@@ -70,6 +72,14 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
 
     default IEsopScopeGraph.Immutable<Scope, Label, Occurrence, ITerm> scopeGraph() {
         return solution().scopeGraph();
+    }
+
+    default @Override Multimap<OccurrenceIndex, Occurrence> astDecls() {
+        return solution().astDecls();
+    }
+
+    default @Override Multimap<OccurrenceIndex, Occurrence> astRefs() {
+        return solution().astRefs();
     }
 
     default ISolution withScopeGraph(IEsopScopeGraph.Immutable<Scope, Label, Occurrence, ITerm> scopeGraph) {
