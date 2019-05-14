@@ -13,7 +13,7 @@ import mb.flowspec.runtime.interpreter.TypesGen;
 import mb.flowspec.runtime.interpreter.values.IMap;
 import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Name;
-import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.stratego.TermIndex;
 
 @TypeSystemReference(Types.class)
 public abstract class ExpressionNode extends Node {

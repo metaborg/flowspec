@@ -12,9 +12,9 @@ import mb.nabl2.scopegraph.terms.ImmutableOccurrence;
 import mb.nabl2.scopegraph.terms.Namespace;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.OccurrenceIndex;
-import mb.nabl2.stratego.StrategoTermIndices;
-import mb.nabl2.stratego.StrategoTerms;
-import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.stratego.StrategoTermIndices;
+import mb.nabl2.terms.stratego.StrategoTerms;
+import mb.nabl2.terms.stratego.TermIndex;
 
 public class NaBL2OccurrenceNode extends ExpressionNode {
     private final Namespace namespace;

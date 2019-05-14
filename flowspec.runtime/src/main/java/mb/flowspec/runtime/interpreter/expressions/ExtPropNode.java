@@ -16,10 +16,10 @@ import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.terms.B;
 import mb.nabl2.scopegraph.terms.Occurrence;
-import mb.nabl2.stratego.StrategoTermIndices;
-import mb.nabl2.stratego.TermIndex;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.build.TermBuild;
+import mb.nabl2.terms.stratego.StrategoTermIndices;
+import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.PersistentUnifier;
 
 public class ExtPropNode extends ExpressionNode implements Initializable {

@@ -110,8 +110,8 @@ import mb.flowspec.terms.B;
 import mb.flowspec.terms.M;
 import mb.nabl2.scopegraph.terms.ImmutableNamespace;
 import mb.nabl2.scopegraph.terms.Namespace;
-import mb.nabl2.stratego.StrategoTermIndices;
-import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.stratego.StrategoTermIndices;
+import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 

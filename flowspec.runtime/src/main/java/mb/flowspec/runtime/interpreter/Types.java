@@ -14,7 +14,7 @@ import mb.flowspec.runtime.interpreter.values.IMap;
 import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.terms.B;
-import mb.nabl2.stratego.TermIndex;
+import mb.nabl2.terms.stratego.TermIndex;
 
 @TypeSystem({ Function.class, ISet.class, IMap.class, TermIndex.class, Name.class, ICFGNode.class,
     IStrategoTerm.class })

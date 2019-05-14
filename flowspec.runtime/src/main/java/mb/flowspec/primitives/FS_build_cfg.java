@@ -18,7 +18,7 @@ import mb.flowspec.runtime.interpreter.values.Set;
 import mb.flowspec.runtime.lattice.FullSetLattice;
 import mb.flowspec.terms.TermIndex;
 import mb.nabl2.spoofax.analysis.IResult;
-import mb.nabl2.stratego.StrategoBlob;
+import mb.nabl2.terms.stratego.StrategoBlob;
 
 public class FS_build_cfg extends AbstractPrimitive {
     public FS_build_cfg() {

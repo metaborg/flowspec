@@ -14,7 +14,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import mb.flowspec.controlflow.IFlowSpecSolution;
 import mb.nabl2.solver.ISolution;
 import mb.nabl2.spoofax.analysis.IResult;
-import mb.nabl2.stratego.StrategoBlob;
+import mb.nabl2.terms.stratego.StrategoBlob;
 
 public abstract class AnalysisPrimitive extends AbstractPrimitive {
     final protected int tvars;
