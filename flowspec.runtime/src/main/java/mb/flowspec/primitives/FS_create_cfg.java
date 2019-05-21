@@ -18,7 +18,7 @@ import mb.flowspec.controlflow.FlowSpecSolution;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.nabl2.spoofax.analysis.IResult;
-import mb.nabl2.stratego.StrategoBlob;
+import mb.nabl2.terms.stratego.StrategoBlob;
 import mb.nabl2.util.Tuple2;
 
 public class FS_create_cfg extends AbstractPrimitive {

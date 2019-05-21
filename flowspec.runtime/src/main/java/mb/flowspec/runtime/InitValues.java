@@ -20,8 +20,8 @@ import mb.nabl2.scopegraph.terms.Label;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.Scope;
 import mb.nabl2.solver.SolverConfig;
-import mb.nabl2.stratego.TermIndex;
 import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.IUnifier;
 import mb.nabl2.util.collections.IProperties;
 

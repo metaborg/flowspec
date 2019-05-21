@@ -11,8 +11,8 @@ import org.spoofax.terms.StrategoConstructor;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
-import mb.nabl2.stratego.ITermIndex;
 import mb.nabl2.terms.Terms;
+import mb.nabl2.terms.stratego.ITermIndex;
 
 @Value.Immutable
 public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {

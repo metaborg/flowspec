@@ -13,7 +13,7 @@ import org.spoofax.terms.StrategoInt;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.StrategoTuple;
 
-import mb.nabl2.stratego.StrategoBlob;
+import mb.nabl2.terms.stratego.StrategoBlob;
 
 public class B {
     private final ITermFactory tf;
