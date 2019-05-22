@@ -12,7 +12,7 @@ import mb.nabl2.scopegraph.terms.ImmutableOccurrence;
 import mb.nabl2.scopegraph.terms.Namespace;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.OccurrenceIndex;
-import mb.nabl2.terms.stratego.StrategoTermIndices;
+import mb.nabl2.terms.stratego.StrategoTermIndex;
 import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.terms.stratego.TermIndex;
 
@@ -36,7 +36,8 @@ public class NaBL2OccurrenceNode extends ExpressionNode {
 
     @Override public Name executeName(VirtualFrame frame) throws UnexpectedResultException {
         final IStrategoTerm name = ref.executeIStrategoTerm(frame);
-        final TermIndex termIndex = StrategoTermIndices.get(name).get();
+        StrategoTerms strategoTerms = new StrategoTerms();
+        final TermIndex termIndex = strategoTerms.fromStratego(StrategoTermIndex.get(name).get());
         final Occurrence occurrence =
             ImmutableOccurrence.of(this.namespace, new StrategoTerms(null).fromStratego(name), new OccurrenceIndex(termIndex.getResource(), termIndex));
         return Name.fromOccurrence(initValues, occurrence);

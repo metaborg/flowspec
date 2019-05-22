@@ -12,17 +12,16 @@ import org.spoofax.terms.StrategoConstructor;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import mb.nabl2.terms.Terms;
-import mb.nabl2.terms.stratego.ITermIndex;
 
 @Value.Immutable
-public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
+public abstract class TermIndex implements IStrategoAppl2 {
     private static final String OP = "TermIndex";
     private static final int ARITY = 2;
     private static IStrategoConstructor cons;
 
-    @Override @Value.Parameter public abstract String getResource();
+    @Value.Parameter public abstract IStrategoTerm getResource();
 
-    @Override @Value.Parameter public abstract int getId();
+    @Value.Parameter public abstract int getId();
 
     @Value.Auxiliary @Value.Default public ImmutableClassToInstanceMap<Object> getAttachments() {
         return Terms.NO_ATTACHMENTS;
@@ -45,7 +44,7 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
     }
 
     @Override @Value.Lazy public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[] { B.string(getResource()), B.integer(getId()) };
+        return new IStrategoTerm[] { getResource(), B.integer(getId()) };
     }
 
     @Override public String toString() {
@@ -77,7 +76,7 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
     public static Optional<TermIndex> matchTermIndex(IStrategoTerm term) {
         return M.maybe(() -> {
             IStrategoAppl appl = M.appl(term, OP, ARITY);
-            String resource = M.string(M.at(appl, 0));
+            IStrategoTerm resource = M.at(appl, 0);
             int id = M.integer(M.at(appl, 1));
             return ImmutableTermIndex.of(resource, id);
         });

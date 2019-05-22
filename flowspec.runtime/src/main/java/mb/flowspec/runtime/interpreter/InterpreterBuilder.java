@@ -110,7 +110,8 @@ import mb.flowspec.terms.B;
 import mb.flowspec.terms.M;
 import mb.nabl2.scopegraph.terms.ImmutableNamespace;
 import mb.nabl2.scopegraph.terms.Namespace;
-import mb.nabl2.terms.stratego.StrategoTermIndices;
+import mb.nabl2.terms.stratego.StrategoTermIndex;
+import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
@@ -616,10 +617,11 @@ public class InterpreterBuilder {
                 throw new AssertionError("Unrecognised Namespace: " + term);
             }
         }
-        Optional<TermIndex> optTI = StrategoTermIndices.get(term);
+        Optional<StrategoTermIndex> optTI = StrategoTermIndex.get(term);
         if(optTI.isPresent()) {
+            StrategoTerms strategoTerms = new StrategoTerms();
             return ImmutableNamespace.of(ns)
-                .withAttachments(ImmutableClassToInstanceMap.of(TermIndex.class, optTI.get()));
+                .withAttachments(ImmutableClassToInstanceMap.of(TermIndex.class, strategoTerms.fromStratego(optTI.get())));
         } else {
             return ImmutableNamespace.of(ns);
         }
