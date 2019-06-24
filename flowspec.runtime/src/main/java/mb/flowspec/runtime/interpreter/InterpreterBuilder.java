@@ -602,12 +602,12 @@ public class InterpreterBuilder {
     public static Namespace namespace(IStrategoTerm term) {
         final String ns;
         switch(M.appl(term).getName()) {
-            case "DefaultNameSpace": {
+            case "DefaultNamespace": {
                 M.appl(term, 0);
                 ns = "";
                 break;
             }
-            case "NameSpace": {
+            case "Namespace": {
                 IStrategoAppl appl = M.appl(term, 1);
                 ns = M.string(M.at(appl, 0));
                 break;
