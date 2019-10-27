@@ -3,6 +3,7 @@ package mb.flowspec.terms;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Collection;
 import java.util.RandomAccess;
 
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -31,6 +32,10 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         this.terms = terms;
         this.offset = offset;
         this.subtermCount = terms.length - offset;
+    }
+
+    public static StrategoArrayList fromList(Collection<IStrategoTerm> terms) {
+        return new StrategoArrayList(terms.toArray(new IStrategoTerm[terms.size()]));
     }
 
     @Override public int getSubtermCount() {
