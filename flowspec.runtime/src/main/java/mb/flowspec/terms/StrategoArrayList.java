@@ -34,7 +34,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         this.subtermCount = terms.length - offset;
     }
 
-    public static StrategoArrayList fromList(Collection<IStrategoTerm> terms) {
+    public static StrategoArrayList fromList(Collection<? extends IStrategoTerm> terms) {
         return new StrategoArrayList(terms.toArray(new IStrategoTerm[terms.size()]));
     }
 
