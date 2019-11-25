@@ -15,11 +15,10 @@ import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.terms.B;
+import mb.flowspec.terms.TermIndex;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.build.TermBuild;
-import mb.nabl2.terms.stratego.StrategoTermIndices;
-import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.PersistentUnifier;
 
 public class ExtPropNode extends ExpressionNode implements Initializable {
@@ -38,7 +37,7 @@ public class ExtPropNode extends ExpressionNode implements Initializable {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         try {
-            TermIndex rhsIndex = StrategoTermIndices.get(rhs.executeIStrategoTerm(frame)).get();
+            mb.nabl2.terms.stratego.TermIndex rhsIndex = TermIndex.get(rhs.executeIStrategoTerm(frame)).get().toNaBL2TermIndex();
             Optional<ITerm> nabl2value = initValues.astProperties
                     .getValue(rhsIndex, TermBuild.B.newAppl("Property", TermBuild.B.newString(propName)))
                     .map(initValues.unifier::findRecursive);

@@ -2,28 +2,40 @@ package mb.flowspec.runtime.interpreter.values;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.immutables.value.Value;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.ImploderOriginTermFactory;
 import org.spoofax.terms.StrategoConstructor;
+import org.spoofax.terms.TermFactory;
 
 import mb.flowspec.runtime.InitValues;
+import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
+import mb.flowspec.terms.ImmutableTermIndex;
 import mb.nabl2.scopegraph.path.IResolutionPath;
 import mb.nabl2.scopegraph.terms.Label;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.Scope;
 import mb.nabl2.scopegraph.terms.path.Paths;
+import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.stratego.StrategoTerms;
+import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.util.collections.IFunction;
 
 @Value.Immutable
 public abstract class Name implements Serializable, IStrategoAppl2 {
     private static IStrategoConstructor cons;
+    private static IStrategoConstructor namespaceCons;
+    private static final StrategoTerms strategoTerms = new StrategoTerms(new ImploderOriginTermFactory(new TermFactory()));;
 
     public static void initializeConstructor(ITermFactory tf) {
         cons = tf.makeConstructor("Occurrence", 3);
+        namespaceCons = tf.makeConstructor("Namespace", 1);
     }
 
     @Override public IStrategoConstructor getConstructor() {
@@ -61,6 +73,17 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
     }
 
     @Override public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[] {};
+        final String namespace = declaration().getNamespace().getName();
+        final ITerm name = declaration().getName();
+        final IStrategoAppl namespaceTerm = B.appl(namespaceCons, B.string(namespace));
+        final IStrategoTerm nameTerm = strategoTerms.toStratego(name);
+        final Optional<mb.nabl2.terms.stratego.TermIndex> optTermIndex = mb.nabl2.terms.stratego.TermIndex.get(name);
+        final mb.nabl2.terms.stratego.TermIndex termIndex;
+        if(optTermIndex.isPresent()) {
+            termIndex = optTermIndex.get();
+        } else {
+            termIndex = TermIndex.matcher().match(declaration().getIndex()).get();
+        }
+        return new IStrategoTerm[] {namespaceTerm, nameTerm, ImmutableTermIndex.of(termIndex.getResource(), termIndex.getId())};
     }
 }

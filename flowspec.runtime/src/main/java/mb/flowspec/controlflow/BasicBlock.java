@@ -1,12 +1,13 @@
 package mb.flowspec.controlflow;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class BasicBlock implements IBasicBlock {
+public class BasicBlock implements IBasicBlock, Serializable {
     private final Deque<ICFGNode> nodes;
     private final boolean inversed;
     private BasicBlock inverse = null;

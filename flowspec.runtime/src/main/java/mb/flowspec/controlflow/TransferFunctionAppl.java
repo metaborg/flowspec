@@ -1,5 +1,6 @@
 package mb.flowspec.controlflow;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.immutables.value.Value;
@@ -7,7 +8,7 @@ import org.immutables.value.Value.Parameter;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 @Value.Immutable
-public abstract class TransferFunctionAppl {
+public abstract class TransferFunctionAppl implements Serializable {
     @Parameter public abstract String moduleName();
     @Parameter public abstract int offset();
     @Parameter protected abstract List<IStrategoTerm> otherArgs();

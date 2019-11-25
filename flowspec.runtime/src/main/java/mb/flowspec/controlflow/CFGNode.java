@@ -1,5 +1,7 @@
 package mb.flowspec.controlflow;
 
+import java.io.Serializable;
+
 import javax.annotation.Nullable;
 
 import org.immutables.serial.Serial;
@@ -14,7 +16,7 @@ import mb.flowspec.terms.TermIndex;
 
 @Value.Immutable
 @Serial.Version(value = 42L)
-public abstract class CFGNode implements ICFGNode {
+public abstract class CFGNode implements ICFGNode, Serializable {
     private static IStrategoConstructor cons;
 
     public static void initializeConstructor(ITermFactory tf) {

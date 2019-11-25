@@ -82,4 +82,8 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
             return ImmutableTermIndex.of(resource, id);
         });
     }
+
+    public mb.nabl2.terms.stratego.TermIndex toNaBL2TermIndex() {
+        return mb.nabl2.terms.stratego.TermIndex.of(getResource(), getId());
+    }
 }
