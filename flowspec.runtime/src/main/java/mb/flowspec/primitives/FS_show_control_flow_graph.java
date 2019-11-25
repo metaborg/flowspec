@@ -23,7 +23,7 @@ public class FS_show_control_flow_graph extends AnalysisPrimitive {
             return Optional.empty();
         }
         final Optional<IFlowSpecSolution> solution = getFSSolution(result);
-        return Optional.of(B.string(ControlFlowGraphTerms.toDot(solution.get())));
+        return solution.map(sol -> B.string(ControlFlowGraphTerms.toDot(sol)));
     }
 
 }

@@ -23,6 +23,7 @@ import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.Scope;
 import mb.nabl2.scopegraph.terms.path.Paths;
 import mb.nabl2.terms.ITerm;
+import mb.nabl2.terms.stratego.StrategoTermIndices;
 import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.util.collections.IFunction;
@@ -31,7 +32,8 @@ import mb.nabl2.util.collections.IFunction;
 public abstract class Name implements Serializable, IStrategoAppl2 {
     private static IStrategoConstructor cons;
     private static IStrategoConstructor namespaceCons;
-    private static final StrategoTerms strategoTerms = new StrategoTerms(new ImploderOriginTermFactory(new TermFactory()));;
+    private static final ITermFactory factory = new ImploderOriginTermFactory(new TermFactory());
+    private static final StrategoTerms strategoTerms = new StrategoTerms(factory);
 
     public static void initializeConstructor(ITermFactory tf) {
         cons = tf.makeConstructor("Occurrence", 3);
@@ -76,13 +78,14 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
         final String namespace = declaration().getNamespace().getName();
         final ITerm name = declaration().getName();
         final IStrategoAppl namespaceTerm = B.appl(namespaceCons, B.string(namespace));
-        final IStrategoTerm nameTerm = strategoTerms.toStratego(name);
+        IStrategoTerm nameTerm = strategoTerms.toStratego(name);
         final Optional<mb.nabl2.terms.stratego.TermIndex> optTermIndex = mb.nabl2.terms.stratego.TermIndex.get(name);
         final mb.nabl2.terms.stratego.TermIndex termIndex;
         if(optTermIndex.isPresent()) {
             termIndex = optTermIndex.get();
         } else {
             termIndex = TermIndex.matcher().match(declaration().getIndex()).get();
+            nameTerm = StrategoTermIndices.put(termIndex, nameTerm, factory);
         }
         return new IStrategoTerm[] {namespaceTerm, nameTerm, ImmutableTermIndex.of(termIndex.getResource(), termIndex.getId())};
     }
