@@ -14,6 +14,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import mb.flowspec.controlflow.IFlowSpecSolution;
 import mb.nabl2.solver.ISolution;
 import mb.nabl2.spoofax.analysis.IResult;
+import mb.nabl2.terms.Terms;
 import mb.nabl2.terms.stratego.StrategoBlob;
 
 public abstract class AnalysisPrimitive extends AbstractPrimitive {
@@ -69,11 +70,25 @@ public abstract class AnalysisPrimitive extends AbstractPrimitive {
         if(solution instanceof IFlowSpecSolution) {
             return Optional.of((IFlowSpecSolution) solution);
         }
-        return result.customAnalysis().flatMap(t -> {
-            if(t instanceof IFlowSpecSolution) {
-                return Optional.of((IFlowSpecSolution) t);
+        return result.customAnalysis().flatMap(customAnalysis -> {
+            if(customAnalysis instanceof IFlowSpecSolution) {
+                return Optional.of((IFlowSpecSolution) customAnalysis);
+            } else {
+                return customAnalysis.match(Terms.<Optional<IFlowSpecSolution>>cases()
+                    .blob(blob -> {
+                        Object blobValue = blob.getValue();
+                        if(blobValue instanceof IFlowSpecSolution) {
+                            return Optional.of((IFlowSpecSolution) blobValue);
+                        } else {
+                            if(blobValue instanceof IResult && blobValue != result) {
+                                return getFSSolution((IResult) blobValue);
+                            } else {
+                                return Optional.empty();
+                            }
+                        }
+                    })
+                    .otherwise(t -> Optional.empty()));
             }
-            return Optional.empty();
         });
     }
     
