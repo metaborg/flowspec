@@ -44,19 +44,19 @@ public class B {
 
     public static IStrategoAppl appl(IStrategoConstructor cons, IStrategoTerm... children) {
         assert cons.getArity() == children.length : "Expected constructor with arity " + children.length + ", but got arity " + cons.getArity();
-        return new StrategoAppl(cons, children, null, IStrategoTerm.SHARABLE);
+        return new StrategoAppl(cons, children, null, IStrategoTerm.MUTABLE);
     }
 
     public static IStrategoTuple tuple(IStrategoTerm... children) {
-        return new StrategoTuple(children, null, IStrategoTerm.SHARABLE);
+        return new StrategoTuple(children, null, IStrategoTerm.MUTABLE);
     }
 
     public static IStrategoString string(String value) {
-        return new StrategoString(value, null, IStrategoTerm.SHARABLE);
+        return new StrategoString(value, null, IStrategoTerm.MUTABLE);
     }
 
     public static IStrategoInt integer(int value) {
-        return new StrategoInt(value, null, IStrategoTerm.SHARABLE);
+        return new StrategoInt(value, null, IStrategoTerm.MUTABLE);
     }
 
     public static IStrategoList list(IStrategoTerm... terms) {
