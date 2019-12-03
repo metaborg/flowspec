@@ -32,7 +32,7 @@ import mb.nabl2.terms.IApplTerm;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.ITermVar;
 import mb.nabl2.terms.stratego.TermIndex;
-import mb.nabl2.terms.unification.IUnifier;
+import mb.nabl2.terms.unification.u.IUnifier;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.collections.IProperties;
