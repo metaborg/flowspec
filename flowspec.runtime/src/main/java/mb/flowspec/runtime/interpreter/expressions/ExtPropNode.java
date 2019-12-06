@@ -19,7 +19,7 @@ import mb.flowspec.terms.TermIndex;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.build.TermBuild;
-import mb.nabl2.terms.unification.PersistentUnifier;
+import mb.nabl2.terms.unification.u.PersistentUnifier;
 
 public class ExtPropNode extends ExpressionNode implements Initializable {
     private InitValues initValues;
