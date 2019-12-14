@@ -79,6 +79,9 @@ public class ControlFlowGraphReader {
     }
 
     public static ICFGNode cfgNode(IStrategoTerm term) {
+        if(term instanceof ICFGNode) {
+            return (ICFGNode) term;
+        }
         final IStrategoAppl appl = M.appl(term, "CFGNode", 3);
         final TermIndex index = termIndex(M.at(appl, 0));
         final String name = M.string(M.at(appl, 1));
@@ -87,6 +90,9 @@ public class ControlFlowGraphReader {
     }
 
     public static TermIndex termIndex(IStrategoTerm term) {
+        if(term instanceof TermIndex) {
+            return (TermIndex) term;
+        }
         final IStrategoAppl appl = M.appl(term, "TermIndex", 2);
         final String resource = M.string(M.at(appl, 0));
         final int id = M.integer(M.at(appl, 1));

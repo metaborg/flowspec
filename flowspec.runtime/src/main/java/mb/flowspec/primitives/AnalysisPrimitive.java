@@ -57,7 +57,7 @@ public abstract class AnalysisPrimitive extends AbstractPrimitive {
         if(solution.isPresent()) {
             return call(solution.get(), term, terms);
         }
-        return Optional.empty();
+        throw new IllegalArgumentException("Cannot find FlowSpec solution in analysis term.");
     }
 
     protected Optional<? extends IStrategoTerm> call(IFlowSpecSolution solution, IStrategoTerm term, List<IStrategoTerm> terms)

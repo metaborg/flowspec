@@ -46,7 +46,7 @@ language:
     sdf2table: java
     pretty-print: flowspec
   stratego:
-    format: ctree
+    format: jar
     args:
     - -la
     - stratego-lib
