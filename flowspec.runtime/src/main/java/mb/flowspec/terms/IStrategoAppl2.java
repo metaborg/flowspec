@@ -68,10 +68,6 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
         return IStrategoTerm.APPL;
     }
 
-    @Override default int getStorageType() {
-        return IStrategoTerm.SHARABLE;
-    }
-
     @SuppressWarnings("deprecation") @Override default IStrategoList getAnnotations() {
         return TermFactory.EMPTY_LIST;
     }
