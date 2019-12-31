@@ -7,8 +7,8 @@ import org.spoofax.terms.StrategoTuple;
 public class FSTuple extends StrategoTuple implements TermIndexed {
     protected TermIndex termIndex;
 
-    public FSTuple(IStrategoTerm[] kids, IStrategoList annotations, int storageType) {
-        super(kids, annotations, storageType);
+    public FSTuple(IStrategoTerm[] kids, IStrategoList annotations) {
+        super(kids, annotations);
         termIndex = TermIndexed.filterAnnos(this);
     }
 

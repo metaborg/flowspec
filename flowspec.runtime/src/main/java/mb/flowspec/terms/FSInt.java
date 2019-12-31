@@ -6,8 +6,8 @@ import org.spoofax.terms.StrategoInt;
 public class FSInt extends StrategoInt implements TermIndexed {
     protected TermIndex termIndex;
 
-    public FSInt(int value, IStrategoList annotations, int storageType) {
-        super(value, annotations, storageType);
+    public FSInt(int value, IStrategoList annotations) {
+        super(value, annotations);
         termIndex = TermIndexed.filterAnnos(this);
     }
 

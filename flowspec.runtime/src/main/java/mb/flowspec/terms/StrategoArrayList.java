@@ -27,7 +27,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset) {
-        super(annotations, IStrategoTerm.SHARABLE);
+        super(annotations);
         this.termIndex = TermIndexed.filterAnnos(this);
         this.terms = terms;
         this.offset = offset;
@@ -109,7 +109,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Deprecated @Override public IStrategoList prepend(IStrategoTerm prefix) {
-        return new StrategoList(prefix, this, null, Math.min(prefix.getStorageType(), this.getStorageType()));
+        return new StrategoList(prefix, this, null);
     }
 
     @Override public IStrategoTerm head() {
@@ -124,7 +124,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         return getSubtermCount() == 0;
     }
 
-    @Override protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
+    @Override protected boolean doSlowMatch(IStrategoTerm second) {
         if(this == second) {
             return true;
         }
@@ -188,14 +188,8 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         IStrategoList secondAnnotations = second.getAnnotations();
         if(annotations == secondAnnotations) {
             return true;
-        } else if(annotations.match(secondAnnotations)) {
-            if(commonStorageType == SHARABLE) {
-                internalSetAnnotations(secondAnnotations);
-            }
-            return true;
-        } else {
-            return false;
-        }
+        } else
+            return annotations.match(secondAnnotations);
     }
 
     @Override protected int hashFunction() {

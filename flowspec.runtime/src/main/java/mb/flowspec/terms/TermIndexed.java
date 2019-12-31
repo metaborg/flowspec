@@ -92,17 +92,15 @@ public interface TermIndexed {
         switch(term.getTermType()) {
             case IStrategoTerm.APPL:
                 return new FSAppl(((IStrategoAppl) term).getConstructor(),
-                    excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations(), term.getStorageType());
+                    excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
             case IStrategoTerm.LIST:
                 return new StrategoArrayList(excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
             case IStrategoTerm.INT:
-                return new FSInt(((IStrategoInt) term).intValue(), term.getAnnotations(), term.getStorageType());
+                return new FSInt(((IStrategoInt) term).intValue(), term.getAnnotations());
             case IStrategoTerm.STRING:
-                return new FSString(((IStrategoString) term).stringValue(), term.getAnnotations(),
-                    term.getStorageType());
+                return new FSString(((IStrategoString) term).stringValue(), term.getAnnotations());
             case IStrategoTerm.TUPLE:
-                return new FSTuple(excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations(),
-                    term.getStorageType());
+                return new FSTuple(excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
             default:
                 return term;
         }
