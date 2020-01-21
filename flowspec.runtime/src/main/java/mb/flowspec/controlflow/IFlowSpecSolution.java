@@ -90,11 +90,7 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return solution().nameResolution();
     }
 
-    default IEsopNameResolution<Scope, Label, Occurrence> nameResolution(Predicate2<Scope, Label> isEdgeComplete) {
-        return solution().nameResolution(isEdgeComplete);
-    }
-
-    default Optional<IEsopNameResolution.ResolutionCache<Scope, Label, Occurrence>> nameResolutionCache() {
+    default IEsopNameResolution.ResolutionCache<Scope, Label, Occurrence> nameResolutionCache() {
         return solution().nameResolutionCache();
     }
 

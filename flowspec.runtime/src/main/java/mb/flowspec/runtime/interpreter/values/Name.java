@@ -17,6 +17,7 @@ import mb.flowspec.runtime.InitValues;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
 import mb.flowspec.terms.ImmutableTermIndex;
+import mb.nabl2.scopegraph.esop.CriticalEdgeException;
 import mb.nabl2.scopegraph.path.IResolutionPath;
 import mb.nabl2.scopegraph.terms.Label;
 import mb.nabl2.scopegraph.terms.Occurrence;
@@ -51,8 +52,12 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
     @Value.Parameter @Value.Auxiliary abstract IResolutionPath<Scope, Label, Occurrence> resolutionPath();
 
     public static Name fromOccurrence(InitValues initValues, Occurrence occurrence) {
-        java.util.Set<IResolutionPath<Scope, Label, Occurrence>> paths =
-            initValues.nameResolution.resolve(occurrence).orElse(Collections.emptySet());
+        java.util.Set<IResolutionPath<Scope, Label, Occurrence>> paths;
+        try {
+            paths = initValues.nameResolution.resolve(occurrence);
+        } catch (CriticalEdgeException e) {
+            paths = Collections.emptySet();
+        }
         if(paths.isEmpty()) {
             final IFunction.Immutable<Occurrence, Scope> decls = initValues.scopeGraph.getDecls();
             final Scope declScope = decls.get(occurrence)
