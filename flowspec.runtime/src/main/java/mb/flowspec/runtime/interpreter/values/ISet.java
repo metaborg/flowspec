@@ -1,6 +1,7 @@
 package mb.flowspec.runtime.interpreter.values;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -8,6 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import io.usethesource.capsule.Set;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
+import org.spoofax.terms.TermList;
 
 public interface ISet<K extends IStrategoTerm> extends IStrategoAppl2 {
     public static final String NAME = "Set";

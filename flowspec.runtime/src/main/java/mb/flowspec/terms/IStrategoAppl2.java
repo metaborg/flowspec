@@ -3,6 +3,7 @@ package mb.flowspec.terms;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -11,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.TermList;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
@@ -33,6 +35,10 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
     // IStrategoTerm
 
     IStrategoTerm[] getAllSubterms();
+
+    @Override default List<IStrategoTerm> getSubterms() {
+        return TermList.of(getAllSubterms());
+    }
 
     // IStrategoAppl
 

@@ -8,6 +8,10 @@ import org.spoofax.terms.StrategoConstructor;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
 import mb.flowspec.terms.TermIndex;
+import org.spoofax.terms.TermList;
+
+import java.util.Collections;
+import java.util.List;
 
 public interface ICFGNode extends IStrategoAppl2 {
     public static final int ARITY = 3;
@@ -38,6 +42,11 @@ public interface ICFGNode extends IStrategoAppl2 {
 
         @Override public IStrategoTerm[] getAllSubterms() {
             return new IStrategoTerm[0];
+        }
+
+        @Override
+        public List<IStrategoTerm> getSubterms() {
+            return Collections.emptyList();
         }
 
         @Override public boolean match(IStrategoTerm second) {

@@ -2,6 +2,7 @@ package mb.flowspec.runtime.interpreter.values;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -12,6 +13,7 @@ import org.spoofax.terms.StrategoConstructor;
 import io.usethesource.capsule.Map;
 import io.usethesource.capsule.Set;
 import mb.flowspec.terms.B;
+import org.spoofax.terms.TermList;
 
 public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> implements ISet<K>, IMap<K, V>, Serializable {
     /**
@@ -109,6 +111,11 @@ public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> imp
 
     @Override public IStrategoTerm[] getAllSubterms() {
         return new IStrategoTerm[] { B.list() };
+    }
+
+    @Override
+    public List<IStrategoTerm> getSubterms() {
+        return TermList.of(getAllSubterms());
     }
 
     @Override public String getName() {
