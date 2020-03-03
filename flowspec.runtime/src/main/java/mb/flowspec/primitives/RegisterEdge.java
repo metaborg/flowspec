@@ -2,6 +2,7 @@ package mb.flowspec.primitives;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -16,7 +17,7 @@ public class RegisterEdge extends Strategy {
     }
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm current) {
-        if(!(current instanceof IStrategoTuple) || current.getSubtermCount() != 2) {
+        if(!(TermUtils.isTuple(current)) || current.getSubtermCount() != 2) {
             return null;
         }
         final IStrategoTerm left = current.getSubterm(0);

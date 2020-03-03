@@ -25,7 +25,7 @@ public interface TermIndexed {
         IStrategoList annotations = term.getAnnotations();
         if(!annotations.isEmpty()) {
             ArrayList<IStrategoTerm> annos = new ArrayList<>(annotations.size());
-            for(IStrategoTerm anno : annotations) {
+            for(IStrategoTerm anno : annotations.getSubterms()) {
                 Optional<TermIndex> index = TermIndex.matchTermIndex(anno);
                 if(index.isPresent()) {
                     termIndex = index.get();

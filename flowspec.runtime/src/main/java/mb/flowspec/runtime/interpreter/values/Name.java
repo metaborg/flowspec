@@ -2,6 +2,7 @@ package mb.flowspec.runtime.interpreter.values;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.immutables.value.Value;
@@ -28,6 +29,7 @@ import mb.nabl2.terms.stratego.StrategoTermIndices;
 import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.util.collections.IFunction;
+import org.spoofax.terms.TermList;
 
 @Value.Immutable
 public abstract class Name implements Serializable, IStrategoAppl2 {
@@ -79,7 +81,8 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
         return declaration().getArity();
     }
 
-    @Override public IStrategoTerm[] getAllSubterms() {
+    @Override
+    public List<IStrategoTerm> getSubterms() {
         final String namespace = declaration().getNamespace().getName();
         final ITerm name = declaration().getName();
         final IStrategoAppl namespaceTerm = B.appl(namespaceCons, B.string(namespace));
@@ -92,6 +95,6 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
             termIndex = TermIndex.matcher().match(declaration().getIndex()).get();
             nameTerm = StrategoTermIndices.put(termIndex, nameTerm, factory);
         }
-        return new IStrategoTerm[] {namespaceTerm, nameTerm, ImmutableTermIndex.of(termIndex.getResource(), termIndex.getId())};
+        return TermList.of(namespaceTerm, nameTerm, ImmutableTermIndex.of(termIndex.getResource(), termIndex.getId()));
     }
 }

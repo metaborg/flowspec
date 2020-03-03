@@ -34,23 +34,12 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     // IStrategoTerm
 
-    IStrategoTerm[] getAllSubterms();
-
-    @Override default List<IStrategoTerm> getSubterms() {
-        return TermList.of(getAllSubterms());
-    }
-
     // IStrategoAppl
-
-    // Not this, it will interfere with constructor sharing assumed in Stratego code. 
-//    @Override default IStrategoConstructor getConstructor() {
-//        return new StrategoConstructor(getName(), getSubtermCount());
-//    }
 
     // ISimpleTerm
 
     @Override default IStrategoTerm getSubterm(int i) {
-        return getAllSubterms()[i];
+        return getSubterms().get(i);
     }
 
     @Override default <T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type) {
@@ -140,7 +129,4 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     // Iterable<IStrategoTerm>
 
-    @Override default Iterator<IStrategoTerm> iterator() {
-        return Arrays.asList(getAllSubterms()).iterator();
-    }
 }

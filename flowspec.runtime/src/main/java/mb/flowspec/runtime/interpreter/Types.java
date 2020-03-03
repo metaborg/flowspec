@@ -15,6 +15,7 @@ import mb.flowspec.runtime.interpreter.values.ISet;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.terms.B;
 import mb.nabl2.terms.stratego.TermIndex;
+import org.spoofax.terms.util.TermUtils;
 
 @TypeSystem({ Function.class, ISet.class, IMap.class, TermIndex.class, Name.class, ICFGNode.class,
     IStrategoTerm.class })
@@ -34,7 +35,7 @@ public abstract class Types {
     }
 
     public static boolean isInteger(Object value) {
-        return value instanceof Integer || value instanceof IStrategoInt;
+        return value instanceof Integer || (value instanceof IStrategoTerm && TermUtils.isInt((IStrategoTerm)value));
     }
 
     public static int asInteger(Object value) {
@@ -54,7 +55,7 @@ public abstract class Types {
     }
 
     public static boolean isString(Object value) {
-        return value instanceof String || value instanceof IStrategoString;
+        return value instanceof String || (value instanceof IStrategoTerm && TermUtils.isString((IStrategoTerm)value));
     }
 
     public static String asString(Object value) {

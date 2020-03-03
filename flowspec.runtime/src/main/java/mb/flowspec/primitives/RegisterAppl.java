@@ -8,6 +8,7 @@ import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -28,9 +29,9 @@ public class RegisterAppl extends Strategy {
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm nodeArg,
         IStrategoTerm propNameArg, IStrategoTerm modNameArg, IStrategoTerm offsetArg, IStrategoTerm argsArg) {
-        if(!(nodeArg instanceof ICFGNode && propNameArg instanceof IStrategoString
-            && modNameArg instanceof IStrategoString && offsetArg instanceof IStrategoInt
-            && argsArg instanceof IStrategoList)) {
+        if(!(nodeArg instanceof ICFGNode && TermUtils.isString(propNameArg)
+            && TermUtils.isString(modNameArg) && TermUtils.isInt(offsetArg)
+            && TermUtils.isList(argsArg))) {
             return null;
         }
         final ICFGNode node = (ICFGNode) nodeArg;

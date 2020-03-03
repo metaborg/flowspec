@@ -40,10 +40,6 @@ public interface ICFGNode extends IStrategoAppl2 {
             return 0;
         }
 
-        @Override public IStrategoTerm[] getAllSubterms() {
-            return new IStrategoTerm[0];
-        }
-
         @Override
         public List<IStrategoTerm> getSubterms() {
             return Collections.emptyList();
@@ -95,8 +91,8 @@ public interface ICFGNode extends IStrategoAppl2 {
         return ARITY;
     }
 
-    @Override default IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[] { getIndex(), B.string(getName()), getKind() };
+    @Override default List<IStrategoTerm> getSubterms() {
+        return TermList.of(getIndex(), B.string(getName()), getKind());
     }
 
     @Override default boolean match(IStrategoTerm second) {

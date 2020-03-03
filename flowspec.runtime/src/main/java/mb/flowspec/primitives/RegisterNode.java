@@ -6,6 +6,7 @@ import java.util.Set;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -29,7 +30,7 @@ abstract class RegisterNode extends Strategy {
         }
         final TermIndex index = optIndex.get();
         final String name;
-        if(current instanceof IStrategoAppl) {
+        if(TermUtils.isAppl(current)) {
             name = ((IStrategoAppl) current).getName();
         } else {
             name = current.toString(0);
@@ -108,7 +109,7 @@ abstract class RegisterNode extends Strategy {
             }
             final TermIndex index = optIndex.get();
             final String name;
-            if(targ1 instanceof IStrategoString) {
+            if(TermUtils.isString(targ1)) {
                 name = ((IStrategoString) targ1).stringValue().replaceFirst("^_", "");
             } else {
                 name = targ1.toString(0);

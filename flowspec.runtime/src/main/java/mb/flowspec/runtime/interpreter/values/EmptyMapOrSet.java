@@ -109,13 +109,13 @@ public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> imp
         return 1;
     }
 
-    @Override public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[] { B.list() };
-    }
+//    @Override public IStrategoTerm[] getAllSubterms() {
+//        return new IStrategoTerm[] { B.list() };
+//    }
 
     @Override
     public List<IStrategoTerm> getSubterms() {
-        return TermList.of(getAllSubterms());
+        return TermList.of(B.list());
     }
 
     @Override public String getName() {

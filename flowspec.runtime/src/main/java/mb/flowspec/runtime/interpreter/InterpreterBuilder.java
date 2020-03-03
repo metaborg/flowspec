@@ -170,7 +170,7 @@ public class InterpreterBuilder {
         final Map<String, Metadata<?>> propMetadata = new HashMap<>();
         final BinaryRelation.Transient<String, String> dependsOn = BinaryRelation.Transient.of();
 
-        for(IStrategoTerm tfInfoTerm : M.list(M.at(appl, 0))) {
+        for(IStrategoTerm tfInfoTerm : M.list(M.at(appl, 0)).getSubterms()) {
             final IStrategoTuple tfInfoTuple = M.tuple(tfInfoTerm, 2);
             final String propName = M.string(M.at(tfInfoTuple, 0));
             final IStrategoTuple tfNestedTuple = M.tuple(M.at(tfInfoTuple, 1), 3);
@@ -179,7 +179,7 @@ public class InterpreterBuilder {
             final IStrategoList funs = M.list(M.at(tfNestedTuple, 2));
 
             final Map<Tuple2<String, Integer>, TransferFunction> tfMap = new HashMap<>();
-            for(IStrategoTerm funTerm : funs) {
+            for(IStrategoTerm funTerm : funs.getSubterms()) {
                 final IStrategoTuple funTuple = M.tuple(funTerm, 2);
                 int index = M.integer(M.at(funTuple, 0));
                 final TransferFunction tf = transferFunction(M.at(funTuple, 1));
@@ -211,7 +211,7 @@ public class InterpreterBuilder {
                 IStrategoList typeTerms = M.list(M.at(appl, 1));
                 Type[] types = new Type[typeTerms.size()];
                 int i = 0;
-                for(IStrategoTerm typeTerm : typeTerms) {
+                for(IStrategoTerm typeTerm : typeTerms.getSubterms()) {
                     types[i] = type(typeTerm);
                     i++;
                 }
@@ -254,7 +254,7 @@ public class InterpreterBuilder {
         final WriteVarNode[] writeVars = new WriteVarNode[varList.size()];
 
         int i = 0;
-        for(IStrategoTerm varTerm : varList) {
+        for(IStrategoTerm varTerm : varList.getSubterms()) {
             final IStrategoAppl varAppl = M.appl(varTerm, "Binding", 2);
             final String name = M.string(M.at(varAppl, 0));
             final ExpressionNode expr = expressionNode(M.at(varAppl, 1));
@@ -284,7 +284,7 @@ public class InterpreterBuilder {
     private FunctionInfo functionInfo(IStrategoTerm term) {
         Map<String, Function> map = new HashMap<>();
 
-        for(IStrategoTerm functionTerm : M.list(term)) {
+        for(IStrategoTerm functionTerm : M.list(term).getSubterms()) {
             final IStrategoAppl appl = M.appl(functionTerm, "FunDef", 3);
             final String name = M.string(M.at(appl, 0));
             final IStrategoList argsList = M.list(M.at(appl, 1));
@@ -293,7 +293,7 @@ public class InterpreterBuilder {
             final FrameDescriptor frameDescriptor = new FrameDescriptor();
             final ArgToVarNode[] args = new ArgToVarNode[argsList.size()];
             int i = 0;
-            for(IStrategoTerm argTerm : argsList) {
+            for(IStrategoTerm argTerm : argsList.getSubterms()) {
                 final IStrategoAppl arg = M.appl(argTerm, "Arg", 2);
                 args[i] = ArgToVarNode.of(frameDescriptor, i, M.string(M.at(arg, 0)));
                 // M.at(arg, 1): Type
@@ -317,7 +317,7 @@ public class InterpreterBuilder {
         latticeDefs.put("MaySet", new FullSetLattice<>());
         latticeDefs.put("MustSet", new FullSetLattice<>().flip());
 
-        for(IStrategoTerm tfTerm : M.list(term)) {
+        for(IStrategoTerm tfTerm : M.list(term).getSubterms()) {
             final IStrategoTuple tfTuple = M.tuple(tfTerm, 4);
             final String name = M.string(M.at(tfTuple, 0));
             // TODO vars: List<String>
@@ -411,7 +411,7 @@ public class InterpreterBuilder {
                 final ExpressionNode[] exprs = new ExpressionNode[exprTerms.size() + 1];
                 exprs[0] = expressionNode(M.at(appl, 0));
                 int i = 1;
-                for(IStrategoTerm exprTerm : exprTerms) {
+                for(IStrategoTerm exprTerm : exprTerms.getSubterms()) {
                     exprs[i] = expressionNode(exprTerm);
                     i++;
                 }
@@ -522,7 +522,7 @@ public class InterpreterBuilder {
                 final PatternNode[] patterns = new PatternNode[arms.size()];
                 final ExpressionNode[] bodies = new ExpressionNode[arms.size()];
                 int i = 0;
-                for(IStrategoTerm arm : arms) {
+                for(IStrategoTerm arm : arms.getSubterms()) {
                     final IStrategoAppl armAppl = M.appl(arm, "MatchArm", 2);
                     patterns[i] = patternNode(M.at(armAppl, 0));
                     bodies[i] = expressionNode(M.at(armAppl, 1));
@@ -659,7 +659,7 @@ public class InterpreterBuilder {
                 final PatternNode[] patterns = new PatternNode[patternTerms.size() + 1];
                 patterns[0] = patternNode(M.at(appl, 0));
                 int i = 1;
-                for(IStrategoTerm exprTerm : patternTerms) {
+                for(IStrategoTerm exprTerm : patternTerms.getSubterms()) {
                     patterns[i] = patternNode(exprTerm);
                     i++;
                 }
@@ -760,7 +760,7 @@ public class InterpreterBuilder {
         final IStrategoList argTerms = M.list(term);
         final ArgToVarNode[] args = new ArgToVarNode[argTerms.size()];
         int i = 0;
-        for(IStrategoTerm argTerm : argTerms) {
+        for(IStrategoTerm argTerm : argTerms.getSubterms()) {
             final String name = M.string(argTerm);
             final FrameDescriptor fd = frameStack.peek();
             args[i] = new ArgToVarNode(i, fd.findOrAddFrameSlot(name));
@@ -773,7 +773,7 @@ public class InterpreterBuilder {
         final IStrategoList exprTerms = M.list(term);
         final ExpressionNode[] exprs = new ExpressionNode[exprTerms.size()];
         int i = 0;
-        for(IStrategoTerm exprTerm : exprTerms) {
+        for(IStrategoTerm exprTerm : exprTerms.getSubterms()) {
             exprs[i] = expressionNode(exprTerm);
             i++;
         }
@@ -784,7 +784,7 @@ public class InterpreterBuilder {
         final IStrategoList patternTerms = M.list(term);
         final PatternNode[] patterns = new PatternNode[patternTerms.size()];
         int i = 0;
-        for(IStrategoTerm patternTerm : patternTerms) {
+        for(IStrategoTerm patternTerm : patternTerms.getSubterms()) {
             patterns[i] = patternNode(patternTerm);
             i++;
         }
@@ -795,7 +795,7 @@ public class InterpreterBuilder {
         final IStrategoList predTerms = M.list(term);
         final CompPredicateNode[] preds = new CompPredicateNode[predTerms.size()];
         int i = 0;
-        for(IStrategoTerm predTerm : predTerms) {
+        for(IStrategoTerm predTerm : predTerms.getSubterms()) {
             preds[i] = compPredicateNode(predTerm);
             i++;
         }

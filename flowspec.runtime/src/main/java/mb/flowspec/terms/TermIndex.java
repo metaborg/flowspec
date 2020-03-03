@@ -1,5 +1,6 @@
 package mb.flowspec.terms;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.immutables.value.Value;
@@ -13,6 +14,7 @@ import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import mb.nabl2.terms.Terms;
 import mb.nabl2.terms.stratego.ITermIndex;
+import org.spoofax.terms.TermList;
 
 @Value.Immutable
 public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
@@ -44,8 +46,8 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
         return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
     }
 
-    @Override @Value.Lazy public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[] { B.string(getResource()), B.integer(getId()) };
+    @Override @Value.Lazy public List<IStrategoTerm> getSubterms() {
+        return TermList.of(B.string(getResource()), B.integer(getId()));
     }
 
     @Override public String toString() {
@@ -65,7 +67,7 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
         if(term instanceof TermIndexed) {
             return Optional.ofNullable(((TermIndexed) term).termIndex());
         }
-        for(IStrategoTerm anno : term.getAnnotations()) {
+        for(IStrategoTerm anno : term.getAnnotations().getSubterms()) {
             Optional<TermIndex> index = matchTermIndex(anno);
             if(index.isPresent()) {
                 return index;

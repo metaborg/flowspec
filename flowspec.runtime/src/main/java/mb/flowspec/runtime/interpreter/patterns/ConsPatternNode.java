@@ -3,6 +3,8 @@ package mb.flowspec.runtime.interpreter.patterns;
 import org.spoofax.interpreter.terms.IStrategoList;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.TermUtils;
 
 public class ConsPatternNode extends PatternNode {
     private final PatternNode headPattern;
@@ -14,7 +16,7 @@ public class ConsPatternNode extends PatternNode {
     }
 
     @Override public boolean matchGeneric(VirtualFrame frame, Object value) {
-        if(!(value instanceof IStrategoList)) {
+        if(!(value instanceof IStrategoTerm) || !TermUtils.isList((IStrategoTerm)value)) {
             return false;
         }
         return matchList(frame, (IStrategoList) value);

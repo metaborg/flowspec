@@ -1,16 +1,15 @@
 package mb.flowspec.terms;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Collection;
-import java.util.RandomAccess;
+import java.util.*;
 
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.StrategoTerm;
+import org.spoofax.terms.TermList;
+import org.spoofax.terms.util.TermUtils;
 
 public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess, TermIndexed {
     private final IStrategoTerm[] terms;
@@ -46,8 +45,9 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         return terms[offset + index];
     }
 
-    @Override public IStrategoTerm[] getAllSubterms() {
-        return Arrays.copyOfRange(terms, offset, terms.length);
+    @Override
+    public List<IStrategoTerm> getSubterms() {
+        return TermList.of(Arrays.copyOfRange(terms, offset, terms.length));
     }
 
     @Override public int getTermType() {
@@ -58,7 +58,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         if(!isEmpty()) {
             pp.println("[");
             pp.indent(2);
-            Iterator<IStrategoTerm> iter = iterator();
+            Iterator<IStrategoTerm> iter = getSubterms().iterator();
             iter.next().prettyPrint(pp);
             while(iter.hasNext()) {
                 IStrategoTerm element = iter.next();
@@ -83,7 +83,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
             if(maxDepth == 0) {
                 output.append("...");
             } else {
-                Iterator<IStrategoTerm> iter = iterator();
+                Iterator<IStrategoTerm> iter = getSubterms().iterator();
                 iter.next().writeAsString(output, maxDepth - 1);
                 while(iter.hasNext()) {
                     IStrategoTerm element = iter.next();
@@ -94,10 +94,6 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         }
         output.append(']');
         appendAnnotations(output, maxDepth);
-    }
-
-    @Override public Iterator<IStrategoTerm> iterator() {
-        return new StrategoArrayListIterator(this);
     }
 
     @Deprecated @Override public IStrategoTerm get(int index) {
@@ -128,7 +124,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         if(this == second) {
             return true;
         }
-        if(second.getTermType() != IStrategoTerm.LIST) {
+        if(!TermUtils.isList(second)) {
             return false;
         }
         if(this.getSubtermCount() != second.getSubtermCount()) {
@@ -146,8 +142,8 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
                 return this.offset == other.offset;
             }
 
-            Iterator<IStrategoTerm> termsThis = this.iterator();
-            Iterator<IStrategoTerm> termsOther = other.iterator();
+            Iterator<IStrategoTerm> termsThis = this.getSubterms().iterator();
+            Iterator<IStrategoTerm> termsOther = other.getSubterms().iterator();
 
             if(!this.isEmpty()) {
                 for(IStrategoTerm thisNext = termsThis.next(), otherNext = termsOther.next()

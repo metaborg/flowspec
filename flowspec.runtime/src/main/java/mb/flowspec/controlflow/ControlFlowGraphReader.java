@@ -48,7 +48,7 @@ public class ControlFlowGraphReader {
 
     protected void process(IStrategoTerm current) {
         IStrategoList list = M.list(current);
-        for(IStrategoTerm term : list) {
+        for(IStrategoTerm term : list.getSubterms()) {
             switch(M.appl(term).getName()) {
                 case "CFDirectEdge": {
                     final IStrategoAppl appl = M.appl(term, 3);
