@@ -10,6 +10,7 @@ import mb.flowspec.terms.IStrategoAppl2;
 import mb.flowspec.terms.TermIndex;
 import org.spoofax.terms.TermList;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +39,11 @@ public interface ICFGNode extends IStrategoAppl2 {
 
         @Override public int getSubtermCount() {
             return 0;
+        }
+
+        @Override
+        public IStrategoTerm[] getAllSubterms() {
+            return new IStrategoTerm[0];
         }
 
         @Override
@@ -91,8 +97,12 @@ public interface ICFGNode extends IStrategoAppl2 {
         return ARITY;
     }
 
+    @Override default IStrategoTerm[] getAllSubterms() {
+        return new IStrategoTerm[]{ getIndex(), B.string(getName()), getKind() };
+    }
+
     @Override default List<IStrategoTerm> getSubterms() {
-        return TermList.of(getIndex(), B.string(getName()), getKind());
+        return TermList.ofUnsafe(getIndex(), B.string(getName()), getKind());
     }
 
     @Override default boolean match(IStrategoTerm second) {

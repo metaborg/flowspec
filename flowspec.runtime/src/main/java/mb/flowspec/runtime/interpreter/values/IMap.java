@@ -25,10 +25,12 @@ public interface IMap<K extends IStrategoTerm, V extends IStrategoTerm> extends 
         return ARITY;
     }
 
+    @Override default IStrategoTerm[] getAllSubterms() {
+        return getMap().entrySet().stream().map(e -> B.tuple(e.getKey(), e.getValue())).toArray(IStrategoTerm[]::new);
+    }
+
     @Override default List<IStrategoTerm> getSubterms() {
-        IStrategoTerm[] terms =
-                getMap().entrySet().stream().map(e -> B.tuple(e.getKey(), e.getValue())).toArray(IStrategoTerm[]::new);
-        return TermList.of(terms);
+        return TermList.ofUnsafe(getAllSubterms());
     }
 
     @Override default boolean match(IStrategoTerm second) {

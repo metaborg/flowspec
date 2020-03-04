@@ -59,7 +59,7 @@ public class ApplicationNode extends ExpressionNode {
 
     private static Immutable<IStrategoTerm> listTermToSet(IStrategoList list) {
         final Transient<IStrategoTerm> terms = Transient.of();
-        for(IStrategoTerm term : list.getSubterms()) {
+        for(IStrategoTerm term : list) {
             terms.__insert(term);
         }
         return terms.freeze();

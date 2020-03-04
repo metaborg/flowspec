@@ -25,15 +25,13 @@ public interface ISet<K extends IStrategoTerm> extends IStrategoAppl2 {
         return ARITY;
     }
 
-//    @Override default IStrategoTerm[] getAllSubterms() {
-//        IStrategoTerm[] terms = getSet().stream().toArray(i -> new IStrategoTerm[i]);
-//        return new IStrategoTerm[] { B.list(terms) };
-//    }
+    @Override default IStrategoTerm[] getAllSubterms() {
+        return new IStrategoTerm[] { B.list(getSet().toArray(new IStrategoTerm[0])) };
+    }
 
     @Override
     default List<IStrategoTerm> getSubterms() {
-        IStrategoTerm[] terms = getSet().stream().toArray(i -> new IStrategoTerm[i]);
-        return TermList.of(terms);
+        return TermList.ofUnsafe(getAllSubterms());
     }
 
     @Override default boolean match(IStrategoTerm second) {

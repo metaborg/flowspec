@@ -46,8 +46,13 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override
+    public IStrategoTerm[] getAllSubterms() {
+        return Arrays.copyOfRange(terms, offset, terms.length);
+    }
+
+    @Override
     public List<IStrategoTerm> getSubterms() {
-        return TermList.of(Arrays.copyOfRange(terms, offset, terms.length));
+        return TermList.ofUnsafe(getAllSubterms());
     }
 
     @Override public int getTermType() {
@@ -142,8 +147,8 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
                 return this.offset == other.offset;
             }
 
-            Iterator<IStrategoTerm> termsThis = this.getSubterms().iterator();
-            Iterator<IStrategoTerm> termsOther = other.getSubterms().iterator();
+            Iterator<IStrategoTerm> termsThis = this.iterator();
+            Iterator<IStrategoTerm> termsOther = other.iterator();
 
             if(!this.isEmpty()) {
                 for(IStrategoTerm thisNext = termsThis.next(), otherNext = termsOther.next()

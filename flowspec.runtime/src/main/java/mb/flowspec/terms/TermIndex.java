@@ -46,8 +46,13 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
         return cons != null ? cons : new StrategoConstructor(getName(), getSubtermCount());
     }
 
+    @Override
+    public IStrategoTerm[] getAllSubterms() {
+        return new IStrategoTerm[] { B.string(getResource()), B.integer(getId()) };
+    }
+
     @Override @Value.Lazy public List<IStrategoTerm> getSubterms() {
-        return TermList.of(B.string(getResource()), B.integer(getId()));
+        return TermList.ofUnsafe(getAllSubterms());
     }
 
     @Override public String toString() {
@@ -67,7 +72,7 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
         if(term instanceof TermIndexed) {
             return Optional.ofNullable(((TermIndexed) term).termIndex());
         }
-        for(IStrategoTerm anno : term.getAnnotations().getSubterms()) {
+        for(IStrategoTerm anno : term.getAnnotations()) {
             Optional<TermIndex> index = matchTermIndex(anno);
             if(index.isPresent()) {
                 return index;
