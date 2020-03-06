@@ -15,7 +15,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
 import org.spoofax.terms.StrategoTerm;
-import org.spoofax.terms.TermFactory;
+
+import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
 public interface TermIndexed {
 
@@ -34,7 +35,7 @@ public interface TermIndexed {
                     annos.add(anno);
                 }
             }
-            annotations = new StrategoArrayList(annos.toArray(new IStrategoTerm[0]));
+            annotations = new StrategoArrayList(annos.toArray(EMPTY_TERM_ARRAY));
             term.internalSetAnnotations(annotations);
         }
         return termIndex;
@@ -60,7 +61,7 @@ public interface TermIndexed {
         if(annos.isEmpty()) {
             annotations2 = AbstractTermFactory.EMPTY_LIST;
         } else {
-            annotations2 = new StrategoArrayList(annos.toArray(TermFactory.EMPTY_TERM_ARRAY));
+            annotations2 = new StrategoArrayList(annos.toArray(EMPTY_TERM_ARRAY));
         }
         switch(term.getTermType()) {
             case IStrategoTerm.APPL:

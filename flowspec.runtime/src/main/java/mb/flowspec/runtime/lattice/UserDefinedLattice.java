@@ -17,11 +17,11 @@ public final class UserDefinedLattice implements CompleteLattice<Object> {
     }
 
     public Object top() {
-        return Truffle.getRuntime().createCallTarget(top_object).call(new Object[0]);
+        return Truffle.getRuntime().createCallTarget(top_object).call();
     }
 
     public Object bottom() {
-        return Truffle.getRuntime().createCallTarget(bottom_object).call(new Object[0]);
+        return Truffle.getRuntime().createCallTarget(bottom_object).call();
     }
 
     public Object glb(Object one, Object other) {
@@ -30,6 +30,6 @@ public final class UserDefinedLattice implements CompleteLattice<Object> {
 
     public Object lub(Object one, Object other) {
         return Truffle.getRuntime().createCallTarget(lub)
-                .call(new Object[] {one, other});
+                .call(one, other);
     }
 }
