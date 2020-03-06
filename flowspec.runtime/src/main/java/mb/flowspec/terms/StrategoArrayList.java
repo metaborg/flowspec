@@ -209,4 +209,8 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     @Override public TermIndex termIndex() {
         return termIndex;
     }
+
+    @Override public Iterator<IStrategoTerm> iterator() {
+        return new StrategoArrayListIterator(this);
+    }
 }

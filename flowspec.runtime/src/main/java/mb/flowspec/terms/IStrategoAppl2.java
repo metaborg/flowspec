@@ -129,4 +129,8 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     // Iterable<IStrategoTerm>
 
+    @Override default Iterator<IStrategoTerm> iterator() {
+        return Arrays.asList(getAllSubterms()).iterator();
+    }
+
 }
