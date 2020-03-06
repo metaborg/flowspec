@@ -8,6 +8,7 @@ import org.spoofax.terms.StrategoConstructor;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
 import mb.flowspec.terms.TermIndex;
+import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.TermList;
 
 import java.util.Arrays;
@@ -43,7 +44,7 @@ public interface ICFGNode extends IStrategoAppl2 {
 
         @Override
         public IStrategoTerm[] getAllSubterms() {
-            return new IStrategoTerm[0];
+            return TermFactory.EMPTY_TERM_ARRAY;
         }
 
         @Override

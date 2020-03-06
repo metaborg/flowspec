@@ -9,6 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import io.usethesource.capsule.Set;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
+import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.TermList;
 
 public interface ISet<K extends IStrategoTerm> extends IStrategoAppl2 {
@@ -26,7 +27,7 @@ public interface ISet<K extends IStrategoTerm> extends IStrategoAppl2 {
     }
 
     @Override default IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[] { B.list(getSet().toArray(new IStrategoTerm[0])) };
+        return new IStrategoTerm[] { B.list(getSet().toArray(TermFactory.EMPTY_TERM_ARRAY)) };
     }
 
     @Override

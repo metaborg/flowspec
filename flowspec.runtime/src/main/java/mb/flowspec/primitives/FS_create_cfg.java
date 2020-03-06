@@ -10,6 +10,7 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.CallT;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.TermFactory;
 import org.strategoxt.lang.InteropCallT;
 import org.strategoxt.lang.InteropContext;
 
@@ -61,7 +62,7 @@ public class FS_create_cfg extends AbstractPrimitive {
             //appl
             new InteropCallT(new RegisterAppl(tfAppls), context.getContext()),
         };
-        if(!((CallT) svars[0]).evaluateWithArgs(env, strategyArgs, new IStrategoTerm[0])) {
+        if(!((CallT) svars[0]).evaluateWithArgs(env, strategyArgs, TermFactory.EMPTY_TERM_ARRAY)) {
             return false;
         }
         env.setCurrent(new StrategoBlob(
