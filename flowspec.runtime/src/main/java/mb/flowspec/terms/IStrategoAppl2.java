@@ -84,7 +84,7 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     @Deprecated @Override default void prettyPrint(ITermPrinter pp) {
         try {
-            writeAsString(pp, IStrategoTerm.INFINITE);
+            writeAsString(pp, -1);
         } catch(IOException e) {
         }
     }
