@@ -10,7 +10,7 @@ import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.IFlowSpecSolution;
 import mb.flowspec.controlflow.ImmutableCFGNode;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 
 public class FS_get_cfg_node extends AnalysisPrimitive {

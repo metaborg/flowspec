@@ -4,9 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.Context;
@@ -15,7 +13,7 @@ import org.strategoxt.lang.Strategy;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.ImmutableTransferFunctionAppl;
 import mb.flowspec.controlflow.TransferFunctionAppl;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndexed;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;

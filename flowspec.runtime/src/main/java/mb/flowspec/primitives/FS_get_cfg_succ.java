@@ -11,7 +11,7 @@ import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.IFlowSpecSolution;
 import mb.flowspec.terms.B;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndexed;
 
 public class FS_get_cfg_succ extends AnalysisPrimitive {

@@ -12,10 +12,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import mb.flowspec.controlflow.ICFGNode.Kind;
 import mb.flowspec.terms.ImmutableTermIndex;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 import mb.flowspec.terms.TermIndexed;
-import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 

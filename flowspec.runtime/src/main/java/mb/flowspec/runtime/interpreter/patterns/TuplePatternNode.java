@@ -11,7 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.interpreter.Types;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 
 public class TuplePatternNode extends PatternNode {
     @Children private final PatternNode[] children;

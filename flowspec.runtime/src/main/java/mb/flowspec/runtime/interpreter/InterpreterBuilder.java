@@ -107,7 +107,7 @@ import mb.flowspec.runtime.solver.StaticInfo;
 import mb.flowspec.runtime.solver.Type;
 import mb.flowspec.runtime.solver.UserType;
 import mb.flowspec.terms.B;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 import mb.nabl2.scopegraph.terms.ImmutableNamespace;
 import mb.nabl2.scopegraph.terms.Namespace;
