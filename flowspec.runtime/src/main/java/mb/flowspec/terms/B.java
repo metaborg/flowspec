@@ -9,6 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoAppl;
+import org.spoofax.terms.StrategoArrayList;
 import org.spoofax.terms.StrategoInt;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.StrategoTuple;

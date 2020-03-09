@@ -14,6 +14,7 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
+import org.spoofax.terms.StrategoArrayList;
 import org.spoofax.terms.StrategoTerm;
 
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
