@@ -1,9 +1,6 @@
 package mb.flowspec.controlflow;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
@@ -160,6 +157,14 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return this;
     }
 
+    default boolean equals(Object other, boolean compareAttachments) {
+        if (this == other) return true;
+        if (!(other instanceof ITerm)) return false;
+        // @formatter:off
+        return equals(other)
+            && (!compareAttachments || Objects.equals(this.getAttachments(), ((ITerm)other).getAttachments()));
+        // @formatter:on
+    }
 
     default <T> T match(Cases<T> cases) {
         return cases.caseAppl(this);
