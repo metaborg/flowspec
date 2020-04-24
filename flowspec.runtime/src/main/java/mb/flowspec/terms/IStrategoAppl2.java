@@ -3,6 +3,7 @@ package mb.flowspec.terms;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -11,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.TermList;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
@@ -32,19 +34,12 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     // IStrategoTerm
 
-    IStrategoTerm[] getAllSubterms();
-
     // IStrategoAppl
-
-    // Not this, it will interfere with constructor sharing assumed in Stratego code. 
-//    @Override default IStrategoConstructor getConstructor() {
-//        return new StrategoConstructor(getName(), getSubtermCount());
-//    }
 
     // ISimpleTerm
 
     @Override default IStrategoTerm getSubterm(int i) {
-        return getAllSubterms()[i];
+        return getSubterms().get(i);
     }
 
     @Override default <T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type) {
@@ -68,10 +63,6 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
         return IStrategoTerm.APPL;
     }
 
-    @Override default int getStorageType() {
-        return IStrategoTerm.SHARABLE;
-    }
-
     @SuppressWarnings("deprecation") @Override default IStrategoList getAnnotations() {
         return TermFactory.EMPTY_LIST;
     }
@@ -93,7 +84,7 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     @Deprecated @Override default void prettyPrint(ITermPrinter pp) {
         try {
-            writeAsString(pp, IStrategoTerm.INFINITE);
+            writeAsString(pp, -1);
         } catch(IOException e) {
         }
     }
@@ -141,4 +132,5 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
     @Override default Iterator<IStrategoTerm> iterator() {
         return Arrays.asList(getAllSubterms()).iterator();
     }
+
 }

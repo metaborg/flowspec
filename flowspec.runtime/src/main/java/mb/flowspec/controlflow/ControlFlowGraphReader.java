@@ -12,10 +12,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import mb.flowspec.controlflow.ICFGNode.Kind;
 import mb.flowspec.terms.ImmutableTermIndex;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 import mb.flowspec.terms.TermIndexed;
-import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
@@ -79,6 +78,9 @@ public class ControlFlowGraphReader {
     }
 
     public static ICFGNode cfgNode(IStrategoTerm term) {
+        if(term instanceof ICFGNode) {
+            return (ICFGNode) term;
+        }
         final IStrategoAppl appl = M.appl(term, "CFGNode", 3);
         final TermIndex index = termIndex(M.at(appl, 0));
         final String name = M.string(M.at(appl, 1));
@@ -87,6 +89,9 @@ public class ControlFlowGraphReader {
     }
 
     public static TermIndex termIndex(IStrategoTerm term) {
+        if(term instanceof TermIndex) {
+            return (TermIndex) term;
+        }
         final IStrategoAppl appl = M.appl(term, "TermIndex", 2);
         final String resource = M.string(M.at(appl, 0));
         final int id = M.integer(M.at(appl, 1));

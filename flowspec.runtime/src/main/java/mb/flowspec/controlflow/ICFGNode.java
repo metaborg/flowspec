@@ -8,6 +8,12 @@ import org.spoofax.terms.StrategoConstructor;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
 import mb.flowspec.terms.TermIndex;
+import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.TermList;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public interface ICFGNode extends IStrategoAppl2 {
     public static final int ARITY = 3;
@@ -36,8 +42,14 @@ public interface ICFGNode extends IStrategoAppl2 {
             return 0;
         }
 
-        @Override public IStrategoTerm[] getAllSubterms() {
-            return new IStrategoTerm[0];
+        @Override
+        public IStrategoTerm[] getAllSubterms() {
+            return TermFactory.EMPTY_TERM_ARRAY;
+        }
+
+        @Override
+        public List<IStrategoTerm> getSubterms() {
+            return Collections.emptyList();
         }
 
         @Override public boolean match(IStrategoTerm second) {
@@ -87,7 +99,11 @@ public interface ICFGNode extends IStrategoAppl2 {
     }
 
     @Override default IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[] { getIndex(), B.string(getName()), getKind() };
+        return new IStrategoTerm[]{ getIndex(), B.string(getName()), getKind() };
+    }
+
+    @Override default List<IStrategoTerm> getSubterms() {
+        return TermList.ofUnsafe(getIndex(), B.string(getName()), getKind());
     }
 
     @Override default boolean match(IStrategoTerm second) {

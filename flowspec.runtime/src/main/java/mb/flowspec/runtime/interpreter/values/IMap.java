@@ -1,6 +1,7 @@
 package mb.flowspec.runtime.interpreter.values;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -8,6 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import io.usethesource.capsule.Map;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
+import org.spoofax.terms.TermList;
 
 public interface IMap<K extends IStrategoTerm, V extends IStrategoTerm> extends IStrategoAppl2 {
     public static final String NAME = "Map";
@@ -24,9 +26,11 @@ public interface IMap<K extends IStrategoTerm, V extends IStrategoTerm> extends 
     }
 
     @Override default IStrategoTerm[] getAllSubterms() {
-        IStrategoTerm[] terms =
-            getMap().entrySet().stream().map(e -> B.tuple(e.getKey(), e.getValue())).toArray(i -> new IStrategoTerm[i]);
-        return new IStrategoTerm[] { B.list(terms) };
+        return getMap().entrySet().stream().map(e -> B.tuple(e.getKey(), e.getValue())).toArray(IStrategoTerm[]::new);
+    }
+
+    @Override default List<IStrategoTerm> getSubterms() {
+        return TermList.ofUnsafe(getAllSubterms());
     }
 
     @Override default boolean match(IStrategoTerm second) {

@@ -1,9 +1,6 @@
 package mb.flowspec.controlflow;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
@@ -32,7 +29,7 @@ import mb.nabl2.terms.IApplTerm;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.ITermVar;
 import mb.nabl2.terms.stratego.TermIndex;
-import mb.nabl2.terms.unification.IUnifier;
+import mb.nabl2.terms.unification.u.IUnifier;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.collections.IProperties;
@@ -90,11 +87,7 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return solution().nameResolution();
     }
 
-    default IEsopNameResolution<Scope, Label, Occurrence> nameResolution(Predicate2<Scope, Label> isEdgeComplete) {
-        return solution().nameResolution(isEdgeComplete);
-    }
-
-    default Optional<IEsopNameResolution.ResolutionCache<Scope, Label, Occurrence>> nameResolutionCache() {
+    default IEsopNameResolution.ResolutionCache<Scope, Label, Occurrence> nameResolutionCache() {
         return solution().nameResolutionCache();
     }
 
@@ -164,6 +157,14 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return this;
     }
 
+    default boolean equals(Object other, boolean compareAttachments) {
+        if (this == other) return true;
+        if (!(other instanceof ITerm)) return false;
+        // @formatter:off
+        return equals(other)
+            && (!compareAttachments || Objects.equals(this.getAttachments(), ((ITerm)other).getAttachments()));
+        // @formatter:on
+    }
 
     default <T> T match(Cases<T> cases) {
         return cases.caseAppl(this);

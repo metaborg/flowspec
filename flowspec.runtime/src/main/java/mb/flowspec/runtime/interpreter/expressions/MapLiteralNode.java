@@ -8,7 +8,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import mb.flowspec.runtime.interpreter.values.IMap;
 import mb.flowspec.runtime.interpreter.values.Map;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 
 public class MapLiteralNode extends ExpressionNode {
     private final ExpressionNode[] values;

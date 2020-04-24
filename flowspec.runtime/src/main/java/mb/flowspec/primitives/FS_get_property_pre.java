@@ -17,7 +17,8 @@ public class FS_get_property_pre extends AnalysisPrimitive implements IGetProper
 
     @Override public Optional<? extends IStrategoTerm> call(IFlowSpecSolution solution, IStrategoTerm term,
         List<IStrategoTerm> terms) throws InterpreterException {
-        return getProperty(term, terms, solution.preProperties()).map(t -> TermIndexed.addTermIndexToAnnos(getFactory(), t));
+        final Optional<? extends IStrategoTerm> lookupResult = getProperty(term, terms, solution.preProperties());
+        return lookupResult.map(t -> TermIndexed.addTermIndexToAnnos(getFactory(), t));
     }
 
 }

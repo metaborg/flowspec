@@ -13,6 +13,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import io.usethesource.capsule.Set.Immutable;
 import io.usethesource.capsule.Set.Transient;
 import mb.flowspec.runtime.interpreter.values.Set;
+import org.spoofax.terms.util.TermUtils;
 
 public class ApplicationNode extends ExpressionNode {
     private static ILogger logger = LoggerUtils.logger(ApplicationNode.class);
@@ -44,7 +45,7 @@ public class ApplicationNode extends ExpressionNode {
                     case "fromList":
                         assert arguments.length == 1;
                         Object arg0 = arguments[0].executeGeneric(frame);
-                        assert arg0 instanceof IStrategoList;
+                        assert arg0 instanceof IStrategoTerm && TermUtils.isList((IStrategoTerm)arg0);
                         return new Set<>(listTermToSet((IStrategoList) arg0));
                     default:
                         logger.warn("Don't know reference " + qualRef.var);

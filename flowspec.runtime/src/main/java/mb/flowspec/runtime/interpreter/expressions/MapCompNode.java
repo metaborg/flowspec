@@ -10,7 +10,7 @@ import mb.flowspec.runtime.interpreter.UnreachableException;
 import mb.flowspec.runtime.interpreter.patterns.PatternNode;
 import mb.flowspec.runtime.interpreter.values.Map;
 import mb.flowspec.terms.B;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 
 public class MapCompNode extends ExpressionNode {
     public final ExpressionNode expression;

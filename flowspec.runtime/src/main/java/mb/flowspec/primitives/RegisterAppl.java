@@ -4,17 +4,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.ImmutableTransferFunctionAppl;
 import mb.flowspec.controlflow.TransferFunctionAppl;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndexed;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
@@ -28,9 +27,9 @@ public class RegisterAppl extends Strategy {
 
     @Override public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm nodeArg,
         IStrategoTerm propNameArg, IStrategoTerm modNameArg, IStrategoTerm offsetArg, IStrategoTerm argsArg) {
-        if(!(nodeArg instanceof ICFGNode && propNameArg instanceof IStrategoString
-            && modNameArg instanceof IStrategoString && offsetArg instanceof IStrategoInt
-            && argsArg instanceof IStrategoList)) {
+        if(!(nodeArg instanceof ICFGNode && TermUtils.isString(propNameArg)
+            && TermUtils.isString(modNameArg) && TermUtils.isInt(offsetArg)
+            && TermUtils.isList(argsArg))) {
             return null;
         }
         final ICFGNode node = (ICFGNode) nodeArg;

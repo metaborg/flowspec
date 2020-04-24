@@ -1,7 +1,6 @@
 package mb.flowspec.runtime;
 
 import java.util.Map;
-import java.util.Optional;
 
 import org.metaborg.util.Ref;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -22,7 +21,7 @@ import mb.nabl2.scopegraph.terms.Scope;
 import mb.nabl2.solver.SolverConfig;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.stratego.TermIndex;
-import mb.nabl2.terms.unification.IUnifier;
+import mb.nabl2.terms.unification.u.IUnifier;
 import mb.nabl2.util.collections.IProperties;
 
 public class InitValues {
@@ -39,16 +38,15 @@ public class InitValues {
     public InitValues(SolverConfig config, IControlFlowGraph controlFlowGraph,
         Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> properties,
         Immutable<Scope, Label, Occurrence, ITerm> scopeGraph,
-        Optional<ResolutionCache<Scope, Label, Occurrence>> nameResolutionCache,
-        mb.nabl2.terms.unification.IUnifier.Immutable unifier,
+        ResolutionCache<Scope, Label, Occurrence> nameResolutionCache,
+        mb.nabl2.terms.unification.u.IUnifier.Immutable unifier,
         mb.nabl2.util.collections.IProperties.Immutable<TermIndex, ITerm, ITerm> astProperties,
         Map<String, Function> functions, @SuppressWarnings("rawtypes") Map<String, CompleteLattice> lattices,
         B termBuilder) {
         this.controlFlowGraph = controlFlowGraph;
         this.properties = properties;
         this.scopeGraph = scopeGraph;
-        this.nameResolution = EsopNameResolution.of(config.getResolutionParams(), scopeGraph, (s, l) -> true);
-        nameResolutionCache.ifPresent(this.nameResolution::addAll);
+        this.nameResolution = EsopNameResolution.of(config.getResolutionParams(), scopeGraph, (s, l) -> true, nameResolutionCache);
         this.unifier = unifier;
         this.astProperties = astProperties;
         this.functions = functions;

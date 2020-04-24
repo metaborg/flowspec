@@ -11,7 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import mb.flowspec.controlflow.CFGNode;
 import mb.flowspec.controlflow.ControlFlowGraphReader;
 import mb.flowspec.controlflow.ICFGNode;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 
 public interface IGetPropertyPrimitive {

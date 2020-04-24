@@ -4,6 +4,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import org.spoofax.terms.util.TermUtils;
 
 public class TermPatternNode extends PatternNode {
     private final String consName;
@@ -15,7 +16,7 @@ public class TermPatternNode extends PatternNode {
     }
 
     @Override public boolean matchGeneric(VirtualFrame frame, Object value) {
-        if(!(value instanceof IStrategoAppl)) {
+        if(!(value instanceof IStrategoTerm) || !TermUtils.isAppl((IStrategoTerm)value)) {
             return false;
         }
         return matchAppl(frame, (IStrategoAppl) value);

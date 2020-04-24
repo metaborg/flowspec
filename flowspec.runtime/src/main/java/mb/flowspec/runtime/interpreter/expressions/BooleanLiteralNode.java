@@ -8,6 +8,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 import mb.flowspec.runtime.InitValues;
 import mb.flowspec.runtime.Initializable;
+import org.spoofax.terms.util.TermUtils;
 
 public class BooleanLiteralNode extends ExpressionNode implements Initializable {
     private static IStrategoAppl FALSE_TERM;
@@ -44,18 +45,12 @@ public class BooleanLiteralNode extends ExpressionNode implements Initializable 
     }
 
     public static boolean isTrueTerm(Object o) {
-        if(!(o instanceof IStrategoAppl)) {
-            return false;
-        }
-        IStrategoAppl a = (IStrategoAppl) o;
-        return Tools.hasConstructor(a, "True", 0);
+        if(!(o instanceof IStrategoTerm)) return false;
+        return TermUtils.isAppl((IStrategoTerm)o, "True", 0);
     }
 
     public static boolean isFalseTerm(Object o) {
-        if(!(o instanceof IStrategoAppl)) {
-            return false;
-        }
-        IStrategoAppl a = (IStrategoAppl) o;
-        return Tools.hasConstructor(a, "False", 0);
+        if(!(o instanceof IStrategoTerm)) return false;
+        return TermUtils.isAppl((IStrategoTerm)o, "False", 0);
     }
 }

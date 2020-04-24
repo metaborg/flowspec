@@ -14,7 +14,10 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
+import org.spoofax.terms.StrategoArrayList;
 import org.spoofax.terms.StrategoTerm;
+
+import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
 public interface TermIndexed {
 
@@ -33,7 +36,7 @@ public interface TermIndexed {
                     annos.add(anno);
                 }
             }
-            annotations = new StrategoArrayList(annos.toArray(new IStrategoTerm[0]));
+            annotations = new StrategoArrayList(annos.toArray(EMPTY_TERM_ARRAY));
             term.internalSetAnnotations(annotations);
         }
         return termIndex;
@@ -59,7 +62,7 @@ public interface TermIndexed {
         if(annos.isEmpty()) {
             annotations2 = AbstractTermFactory.EMPTY_LIST;
         } else {
-            annotations2 = new StrategoArrayList(annos.toArray(new IStrategoTerm[0]));
+            annotations2 = new StrategoArrayList(annos.toArray(EMPTY_TERM_ARRAY));
         }
         switch(term.getTermType()) {
             case IStrategoTerm.APPL:
@@ -92,17 +95,15 @@ public interface TermIndexed {
         switch(term.getTermType()) {
             case IStrategoTerm.APPL:
                 return new FSAppl(((IStrategoAppl) term).getConstructor(),
-                    excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations(), term.getStorageType());
+                    excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
             case IStrategoTerm.LIST:
                 return new StrategoArrayList(excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
             case IStrategoTerm.INT:
-                return new FSInt(((IStrategoInt) term).intValue(), term.getAnnotations(), term.getStorageType());
+                return new FSInt(((IStrategoInt) term).intValue(), term.getAnnotations());
             case IStrategoTerm.STRING:
-                return new FSString(((IStrategoString) term).stringValue(), term.getAnnotations(),
-                    term.getStorageType());
+                return new FSString(((IStrategoString) term).stringValue(), term.getAnnotations());
             case IStrategoTerm.TUPLE:
-                return new FSTuple(excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations(),
-                    term.getStorageType());
+                return new FSTuple(excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
             default:
                 return term;
         }

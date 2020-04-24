@@ -8,8 +8,8 @@ import org.spoofax.terms.StrategoAppl;
 public class FSAppl extends StrategoAppl implements TermIndexed {
     protected final TermIndex termIndex;
 
-    public FSAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, IStrategoList annotations, int storageType) {
-        super(ctor, kids, annotations, storageType);
+    public FSAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, IStrategoList annotations) {
+        super(ctor, kids, annotations);
         termIndex = TermIndexed.filterAnnos(this);
     }
 

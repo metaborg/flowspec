@@ -107,11 +107,10 @@ import mb.flowspec.runtime.solver.StaticInfo;
 import mb.flowspec.runtime.solver.Type;
 import mb.flowspec.runtime.solver.UserType;
 import mb.flowspec.terms.B;
-import mb.flowspec.terms.M;
+import org.spoofax.terms.util.M;
+import mb.flowspec.terms.TermIndex;
 import mb.nabl2.scopegraph.terms.ImmutableNamespace;
 import mb.nabl2.scopegraph.terms.Namespace;
-import mb.nabl2.terms.stratego.StrategoTermIndices;
-import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
@@ -577,7 +576,9 @@ public class InterpreterBuilder {
                 final IStrategoAppl refAppl = M.appl(M.at(occurrenceAppl, 1), "Ref", 1);
                 M.appl(M.at(occurrenceAppl, 2), "FSNoIndex", 0);
                 final ReadVarNode rvn = readVarNode(M.at(refAppl, 0));
-                return new NaBL2OccurrenceNode(ns, rvn);
+                final NaBL2OccurrenceNode naBL2OccurrenceNode = new NaBL2OccurrenceNode(ns, rvn);
+                initializable.add(naBL2OccurrenceNode);
+                return naBL2OccurrenceNode;
             }
             case "SetUnion": {
                 final IStrategoAppl appl = M.appl(term, 2);
@@ -616,10 +617,10 @@ public class InterpreterBuilder {
                 throw new AssertionError("Unrecognised Namespace: " + term);
             }
         }
-        Optional<TermIndex> optTI = StrategoTermIndices.get(term);
+        Optional<mb.nabl2.terms.stratego.TermIndex> optTI = TermIndex.get(term).map(TermIndex::toNaBL2TermIndex);
         if(optTI.isPresent()) {
             return ImmutableNamespace.of(ns)
-                .withAttachments(ImmutableClassToInstanceMap.of(TermIndex.class, optTI.get()));
+                .withAttachments(ImmutableClassToInstanceMap.of(mb.nabl2.terms.stratego.TermIndex.class, optTI.get()));
         } else {
             return ImmutableNamespace.of(ns);
         }
