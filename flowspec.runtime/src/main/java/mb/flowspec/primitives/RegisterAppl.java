@@ -15,7 +15,7 @@ import mb.flowspec.controlflow.ImmutableTransferFunctionAppl;
 import mb.flowspec.controlflow.TransferFunctionAppl;
 import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndexed;
-import mb.nabl2.util.ImmutableTuple2;
+import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.Tuple2;
 
 public class RegisterAppl extends Strategy {
@@ -39,7 +39,7 @@ public class RegisterAppl extends Strategy {
         final IStrategoList argsList = M.list(argsArg);
         final List<IStrategoTerm> args = Arrays.asList(TermIndexed.excludeTermIndexFromEqual(argsList.getAllSubterms()));
 
-        this.tfAppls.put(ImmutableTuple2.of(node, propName), ImmutableTransferFunctionAppl.of(modName, offset, args));
+        this.tfAppls.put(Tuple2.of(node, propName), ImmutableTransferFunctionAppl.of(modName, offset, args));
         return current;
     }
 }

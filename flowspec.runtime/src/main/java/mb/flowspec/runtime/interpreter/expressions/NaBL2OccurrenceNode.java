@@ -10,7 +10,7 @@ import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.terms.TermIndex;
-import mb.nabl2.scopegraph.terms.ImmutableOccurrence;
+import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.Namespace;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.OccurrenceIndex;
@@ -38,7 +38,7 @@ public class NaBL2OccurrenceNode extends ExpressionNode implements Initializable
         final IStrategoTerm name = ref.executeIStrategoTerm(frame);
         final mb.nabl2.terms.stratego.TermIndex termIndex = TermIndex.get(name).get().toNaBL2TermIndex();
         final Occurrence occurrence =
-            ImmutableOccurrence.of(this.namespace, new StrategoTerms(null).fromStratego(name), new OccurrenceIndex(termIndex.getResource(), termIndex));
+            Occurrence.of(this.namespace, new StrategoTerms(null).fromStratego(name), new OccurrenceIndex(termIndex.getResource(), termIndex));
         return Name.fromOccurrence(initValues, occurrence);
     }
 

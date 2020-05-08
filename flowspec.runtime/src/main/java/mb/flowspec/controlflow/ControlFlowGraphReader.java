@@ -15,7 +15,7 @@ import mb.flowspec.terms.ImmutableTermIndex;
 import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 import mb.flowspec.terms.TermIndexed;
-import mb.nabl2.util.ImmutableTuple2;
+import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.Tuple2;
 
 public class ControlFlowGraphReader {
@@ -66,7 +66,7 @@ public class ControlFlowGraphReader {
                     final int offset = M.integer(M.at(appl, 3));
                     final IStrategoList argsList = M.list(M.at(appl, 4));
                     final List<IStrategoTerm> args = Arrays.asList(TermIndexed.excludeTermIndexFromEqual(argsList.getAllSubterms()));
-                    tfAppls.put(ImmutableTuple2.of(cfgNode, propName),
+                    tfAppls.put(Tuple2.of(cfgNode, propName),
                         ImmutableTransferFunctionAppl.of(modName, offset, args));
                     break;
                 }

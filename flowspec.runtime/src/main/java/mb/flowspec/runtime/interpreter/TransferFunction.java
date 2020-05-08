@@ -15,7 +15,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
 import mb.flowspec.terms.TermIndexed;
-import mb.nabl2.util.ImmutableTuple2;
+import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.Tuple2;
 
 @TypeSystemReference(Types.class)
@@ -52,6 +52,6 @@ public class TransferFunction extends RootNode {
 
     public static TransferFunction findFunction(Map<Tuple2<String, Integer>, TransferFunction> tfs,
         TransferFunctionAppl appl) {
-        return tfs.get(ImmutableTuple2.of(appl.moduleName(), appl.offset()));
+        return tfs.get(Tuple2.of(appl.moduleName(), appl.offset()));
     }
 }
