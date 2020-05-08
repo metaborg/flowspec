@@ -1,7 +1,7 @@
 package mb.flowspec.runtime.interpreter.values;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +14,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderOriginTermFactory;
 import org.spoofax.terms.StrategoConstructor;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.TermList;
 
 import mb.flowspec.runtime.InitValues;
 import mb.flowspec.terms.B;
@@ -30,7 +31,6 @@ import mb.nabl2.terms.stratego.StrategoTermIndices;
 import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.util.collections.IFunction;
-import org.spoofax.terms.TermList;
 
 @Value.Immutable
 public abstract class Name implements Serializable, IStrategoAppl2 {
@@ -55,7 +55,7 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
     @Value.Parameter @Value.Auxiliary abstract IResolutionPath<Scope, Label, Occurrence> resolutionPath();
 
     public static Name fromOccurrence(InitValues initValues, Occurrence occurrence) {
-        java.util.Set<IResolutionPath<Scope, Label, Occurrence>> paths;
+        Collection<IResolutionPath<Scope, Label, Occurrence>> paths;
         try {
             paths = initValues.nameResolution.resolve(occurrence);
         } catch (CriticalEdgeException e) {
