@@ -58,7 +58,7 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
         Collection<IResolutionPath<Scope, Label, Occurrence>> paths;
         try {
             paths = initValues.nameResolution.resolve(occurrence);
-        } catch (CriticalEdgeException e) {
+        } catch (CriticalEdgeException | InterruptedException e) {
             paths = Collections.emptySet();
         }
         if(paths.isEmpty()) {
