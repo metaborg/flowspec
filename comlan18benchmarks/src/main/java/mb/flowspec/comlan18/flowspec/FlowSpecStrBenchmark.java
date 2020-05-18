@@ -64,7 +64,7 @@ public abstract class FlowSpecStrBenchmark extends BaseBenchmark {
         strategoCommon = spoofax.strategoCommon;
 
         result = emptyResult();
-        tf = spoofax.termFactoryService.getGeneric();
+        tf = spoofax.termFactory;
         annotated = StrategoTermIndices.index(ctree, "benchmarking", tf);
         input = B.tuple(annotated, new StrategoBlob(result));
         cfgList = benchCFGStr();
