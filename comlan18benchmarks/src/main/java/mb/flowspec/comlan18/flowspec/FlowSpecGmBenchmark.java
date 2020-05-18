@@ -52,7 +52,7 @@ public abstract class FlowSpecGmBenchmark extends BaseBenchmark {
         strategoCommon = spoofax.strategoCommon;
 
         result = emptyResult();
-        tf = spoofax.termFactoryService.getGeneric();
+        tf = spoofax.termFactory;
         annotated = StrategoTermIndices.index(ctree, "benchmarking", tf);
     }
 
