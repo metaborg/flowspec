@@ -76,7 +76,7 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
         if(null == second) {
             return false;
         }
-        if(this.getTermType() == second.getTermType()) {
+        if(this.getType() == second.getType()) {
             IStrategoAppl appl = (IStrategoAppl) second;
             return this.getName().equals(appl.getName())
                 && Arrays.equals(this.getAllSubterms(), second.getAllSubterms());

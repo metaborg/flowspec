@@ -98,7 +98,7 @@ public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> imp
         if(null == second) {
             return false;
         }
-        if(this.getTermType() == second.getTermType()) {
+        if(this.getType() == second.getType()) {
             IStrategoAppl appl = (IStrategoAppl) second;
             return this.getName().equals(appl.getName())
                 && Arrays.equals(this.getAllSubterms(), second.getAllSubterms());
