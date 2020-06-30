@@ -7,10 +7,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.TermList;
 import org.spoofax.terms.attachments.ITermAttachment;
@@ -59,8 +56,13 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     // IStrategoTerm
 
+    @Deprecated
     @Override default int getTermType() {
-        return IStrategoTerm.APPL;
+        return getType().getValue();
+    }
+
+    @Override default TermType getType() {
+        return TermType.APPL;
     }
 
     @SuppressWarnings("deprecation") @Override default IStrategoList getAnnotations() {
