@@ -16,7 +16,6 @@ import mb.flowspec.controlflow.TransferFunctionAppl;
 import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndexed;
 import mb.nabl2.util.Tuple2;
-import mb.nabl2.util.Tuple2;
 
 public class RegisterAppl extends Strategy {
     private final Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls;

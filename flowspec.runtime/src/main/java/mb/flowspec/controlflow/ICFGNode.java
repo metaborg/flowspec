@@ -11,7 +11,6 @@ import mb.flowspec.terms.TermIndex;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.TermList;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

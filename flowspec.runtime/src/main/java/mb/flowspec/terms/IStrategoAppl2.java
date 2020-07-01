@@ -3,7 +3,6 @@ package mb.flowspec.terms;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -11,8 +10,8 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.TermList;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
@@ -59,8 +58,13 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
 
     // IStrategoTerm
 
+    @Deprecated
     @Override default int getTermType() {
-        return IStrategoTerm.APPL;
+        return getType().getValue();
+    }
+
+    @Override default TermType getType() {
+        return TermType.APPL;
     }
 
     @SuppressWarnings("deprecation") @Override default IStrategoList getAnnotations() {
@@ -74,7 +78,7 @@ public interface IStrategoAppl2 extends IStrategoAppl, TermIndexed {
         if(null == second) {
             return false;
         }
-        if(this.getTermType() == second.getTermType()) {
+        if(this.getType() == second.getType()) {
             IStrategoAppl appl = (IStrategoAppl) second;
             return this.getName().equals(appl.getName())
                 && Arrays.equals(this.getAllSubterms(), second.getAllSubterms());

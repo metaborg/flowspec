@@ -64,16 +64,16 @@ public interface TermIndexed {
         } else {
             annotations2 = new StrategoArrayList(annos.toArray(EMPTY_TERM_ARRAY));
         }
-        switch(term.getTermType()) {
-            case IStrategoTerm.APPL:
+        switch(term.getType()) {
+            case APPL:
                 return tf.makeAppl(((IStrategoAppl) term).getConstructor(), addTermIndexToAnnos(tf, children), annotations2);
-            case IStrategoTerm.LIST:
+            case LIST:
                 return tf.makeList(addTermIndexToAnnos(tf, children), annotations2);
-            case IStrategoTerm.INT:
+            case INT:
                 return tf.annotateTerm(tf.makeInt(((IStrategoInt) term).intValue()), annotations2);
-            case IStrategoTerm.STRING:
+            case STRING:
                 return tf.annotateTerm(tf.makeString(((IStrategoString) term).stringValue()), annotations2);
-            case IStrategoTerm.TUPLE:
+            case TUPLE:
                 return tf.makeTuple(addTermIndexToAnnos(tf, children), annotations2);
             default:
                 return term;
@@ -92,17 +92,17 @@ public interface TermIndexed {
         if(term instanceof TermIndexed) {
             return term;
         }
-        switch(term.getTermType()) {
-            case IStrategoTerm.APPL:
+        switch(term.getType()) {
+            case APPL:
                 return new FSAppl(((IStrategoAppl) term).getConstructor(),
                     excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
-            case IStrategoTerm.LIST:
+            case LIST:
                 return new StrategoArrayList(excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
-            case IStrategoTerm.INT:
+            case INT:
                 return new FSInt(((IStrategoInt) term).intValue(), term.getAnnotations());
-            case IStrategoTerm.STRING:
+            case STRING:
                 return new FSString(((IStrategoString) term).stringValue(), term.getAnnotations());
-            case IStrategoTerm.TUPLE:
+            case TUPLE:
                 return new FSTuple(excludeTermIndexFromEqual(term.getAllSubterms()), term.getAnnotations());
             default:
                 return term;

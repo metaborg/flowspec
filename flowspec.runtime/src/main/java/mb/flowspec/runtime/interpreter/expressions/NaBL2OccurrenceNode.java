@@ -10,7 +10,6 @@ import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.terms.TermIndex;
-import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.Namespace;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.OccurrenceIndex;
