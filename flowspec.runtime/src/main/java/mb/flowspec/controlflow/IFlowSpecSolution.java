@@ -30,7 +30,6 @@ import mb.nabl2.terms.ITermVar;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.u.IUnifier;
 import mb.nabl2.util.Tuple2;
-import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.collections.IProperties;
 
 public interface IFlowSpecSolution extends ISolution, IApplTerm {

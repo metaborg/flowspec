@@ -16,7 +16,6 @@ import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 import mb.flowspec.terms.TermIndexed;
 import mb.nabl2.util.Tuple2;
-import mb.nabl2.util.Tuple2;
 
 public class ControlFlowGraphReader {
     protected final ControlFlowGraphBuilder cfg;

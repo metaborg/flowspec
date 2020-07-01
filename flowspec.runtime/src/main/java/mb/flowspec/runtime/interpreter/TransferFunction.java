@@ -16,7 +16,6 @@ import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
 import mb.flowspec.terms.TermIndexed;
 import mb.nabl2.util.Tuple2;
-import mb.nabl2.util.Tuple2;
 
 @TypeSystemReference(Types.class)
 public class TransferFunction extends RootNode {
