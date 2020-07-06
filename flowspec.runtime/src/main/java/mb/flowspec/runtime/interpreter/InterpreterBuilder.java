@@ -109,9 +109,7 @@ import mb.flowspec.runtime.solver.UserType;
 import mb.flowspec.terms.B;
 import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
-import mb.nabl2.scopegraph.terms.ImmutableNamespace;
 import mb.nabl2.scopegraph.terms.Namespace;
-import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 
 public class InterpreterBuilder {
@@ -183,7 +181,7 @@ public class InterpreterBuilder {
                 final IStrategoTuple funTuple = M.tuple(funTerm, 2);
                 int index = M.integer(M.at(funTuple, 0));
                 final TransferFunction tf = transferFunction(M.at(funTuple, 1));
-                tfMap.put(ImmutableTuple2.of(moduleName, index), tf);
+                tfMap.put(Tuple2.of(moduleName, index), tf);
             }
 
             propMetadata.put(propName, new Metadata(dir, latticeFromType(latticeDefs, type), Collections.unmodifiableMap(tfMap)));
@@ -619,10 +617,10 @@ public class InterpreterBuilder {
         }
         Optional<mb.nabl2.terms.stratego.TermIndex> optTI = TermIndex.get(term).map(TermIndex::toNaBL2TermIndex);
         if(optTI.isPresent()) {
-            return ImmutableNamespace.of(ns)
+            return Namespace.of(ns)
                 .withAttachments(ImmutableClassToInstanceMap.of(mb.nabl2.terms.stratego.TermIndex.class, optTI.get()));
         } else {
-            return ImmutableNamespace.of(ns);
+            return Namespace.of(ns);
         }
     }
 

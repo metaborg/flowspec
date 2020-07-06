@@ -5,7 +5,6 @@ import java.util.*;
 import javax.annotation.Nullable;
 
 import org.metaborg.util.Ref;
-import org.metaborg.util.functions.Predicate2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
@@ -30,7 +29,6 @@ import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.ITermVar;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.u.IUnifier;
-import mb.nabl2.util.ImmutableTuple2;
 import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.collections.IProperties;
 
@@ -47,7 +45,7 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
     Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls();
 
     default @Nullable TransferFunctionAppl getTFAppl(ICFGNode node, String prop) {
-        return tfAppls().get(ImmutableTuple2.of(node, prop));
+        return tfAppls().get(Tuple2.of(node, prop));
     }
 
     IFlowSpecSolution withProperties(Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> preProperties, Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> postProperties);

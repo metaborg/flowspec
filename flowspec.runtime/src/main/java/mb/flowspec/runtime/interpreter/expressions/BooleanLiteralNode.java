@@ -1,6 +1,5 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 

@@ -2,7 +2,6 @@ package mb.flowspec.runtime.interpreter.values;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -98,7 +97,7 @@ public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> imp
         if(null == second) {
             return false;
         }
-        if(this.getTermType() == second.getTermType()) {
+        if(this.getType() == second.getType()) {
             IStrategoAppl appl = (IStrategoAppl) second;
             return this.getName().equals(appl.getName())
                 && Arrays.equals(this.getAllSubterms(), second.getAllSubterms());
