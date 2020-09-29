@@ -85,7 +85,7 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return solution().nameResolution();
     }
 
-    default IEsopNameResolution.ResolutionCache<Scope, Label, Occurrence> nameResolutionCache() {
+    default IEsopNameResolution.IResolutionCache<Scope, Label, Occurrence> nameResolutionCache() {
         return solution().nameResolutionCache();
     }
 
