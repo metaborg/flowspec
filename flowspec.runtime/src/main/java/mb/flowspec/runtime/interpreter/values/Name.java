@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.immutables.value.Value;
+import org.metaborg.util.task.NullCancel;
+import org.metaborg.util.task.NullProgress;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -58,7 +60,7 @@ public abstract class Name implements Serializable, IStrategoAppl2 {
     public static Name fromOccurrence(InitValues initValues, Occurrence occurrence) {
         Collection<IResolutionPath<Scope, Label, Occurrence>> paths;
         try {
-            paths = initValues.nameResolution.resolve(occurrence);
+            paths = initValues.nameResolution.resolve(occurrence, new NullCancel(), new NullProgress());
         } catch (CriticalEdgeException | StuckException | InterruptedException e) {
             paths = Collections.emptySet();
         }

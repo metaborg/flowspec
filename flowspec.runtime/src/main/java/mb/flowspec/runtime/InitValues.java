@@ -14,7 +14,6 @@ import mb.nabl2.scopegraph.esop.IEsopNameResolution;
 import mb.nabl2.scopegraph.esop.IEsopNameResolution.IResolutionCache;
 import mb.nabl2.scopegraph.esop.IEsopScopeGraph;
 import mb.nabl2.scopegraph.esop.IEsopScopeGraph.Immutable;
-import mb.nabl2.scopegraph.esop.lazy.EsopNameResolution;
 import mb.nabl2.scopegraph.terms.Label;
 import mb.nabl2.scopegraph.terms.Occurrence;
 import mb.nabl2.scopegraph.terms.Scope;
@@ -46,7 +45,7 @@ public class InitValues {
         this.controlFlowGraph = controlFlowGraph;
         this.properties = properties;
         this.scopeGraph = scopeGraph;
-        this.nameResolution = EsopNameResolution.of(config.getResolutionParams(), scopeGraph, (s, l) -> true, nameResolutionCache);
+        this.nameResolution = IEsopNameResolution.of(config.getResolutionParams(), scopeGraph, (s, l) -> true, nameResolutionCache);
         this.unifier = unifier;
         this.astProperties = astProperties;
         this.functions = functions;
