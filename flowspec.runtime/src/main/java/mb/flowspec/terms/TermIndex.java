@@ -9,13 +9,12 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoConstructor;
-
-import com.google.common.collect.ImmutableClassToInstanceMap;
-
-import mb.nabl2.terms.Terms;
-import mb.nabl2.terms.stratego.ITermIndex;
 import org.spoofax.terms.TermList;
 import org.spoofax.terms.util.M;
+
+import mb.nabl2.terms.IAttachments;
+import mb.nabl2.terms.build.Attachments;
+import mb.nabl2.terms.stratego.ITermIndex;
 
 @Value.Immutable
 public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
@@ -27,8 +26,8 @@ public abstract class TermIndex implements ITermIndex, IStrategoAppl2 {
 
     @Override @Value.Parameter public abstract int getId();
 
-    @Value.Auxiliary @Value.Default public ImmutableClassToInstanceMap<Object> getAttachments() {
-        return Terms.NO_ATTACHMENTS;
+    @Value.Auxiliary @Value.Default public IAttachments getAttachments() {
+        return Attachments.empty();
     }
 
     @Override public String getName() {

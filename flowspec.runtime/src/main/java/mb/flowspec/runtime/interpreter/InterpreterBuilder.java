@@ -15,8 +15,8 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.util.M;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import io.usethesource.capsule.BinaryRelation;
@@ -107,9 +107,9 @@ import mb.flowspec.runtime.solver.StaticInfo;
 import mb.flowspec.runtime.solver.Type;
 import mb.flowspec.runtime.solver.UserType;
 import mb.flowspec.terms.B;
-import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 import mb.nabl2.scopegraph.terms.Namespace;
+import mb.nabl2.terms.build.Attachments;
 import mb.nabl2.util.Tuple2;
 
 public class InterpreterBuilder {
@@ -618,7 +618,7 @@ public class InterpreterBuilder {
         Optional<mb.nabl2.terms.stratego.TermIndex> optTI = TermIndex.get(term).map(TermIndex::toNaBL2TermIndex);
         if(optTI.isPresent()) {
             return Namespace.of(ns)
-                .withAttachments(ImmutableClassToInstanceMap.of(mb.nabl2.terms.stratego.TermIndex.class, optTI.get()));
+                .withAttachments(Attachments.of(mb.nabl2.terms.stratego.TermIndex.class, optTI.get()));
         } else {
             return Namespace.of(ns);
         }

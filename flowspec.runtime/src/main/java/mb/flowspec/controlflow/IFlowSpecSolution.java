@@ -1,17 +1,18 @@
 package mb.flowspec.controlflow;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
 import org.metaborg.util.Ref;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multiset;
 
+import io.usethesource.capsule.Set;
 import mb.nabl2.constraints.IConstraint;
 import mb.nabl2.relations.variants.IVariantRelation;
 import mb.nabl2.scopegraph.esop.IEsopNameResolution;
@@ -25,8 +26,10 @@ import mb.nabl2.solver.SolverConfig;
 import mb.nabl2.solver.messages.IMessages;
 import mb.nabl2.symbolic.ISymbolicConstraints;
 import mb.nabl2.terms.IApplTerm;
+import mb.nabl2.terms.IAttachments;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.ITermVar;
+import mb.nabl2.terms.build.Attachments;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.u.IUnifier;
 import mb.nabl2.util.Tuple2;
@@ -143,15 +146,15 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return false;
     }
 
-    default Multiset<ITermVar> getVars() {
-        return ImmutableMultiset.of();
+    default Set.Immutable<ITermVar> getVars() {
+        return Set.Immutable.of();
     }
 
-    default ImmutableClassToInstanceMap<Object> getAttachments() {
-        return ImmutableClassToInstanceMap.of();
+    default IAttachments getAttachments() {
+        return Attachments.empty();
     }
 
-    default IApplTerm withAttachments(ImmutableClassToInstanceMap<Object> value) {
+    default IApplTerm withAttachments(IAttachments value) {
         return this;
     }
 
