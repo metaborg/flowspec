@@ -8,6 +8,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.metaborg.util.Ref;
+import org.metaborg.util.functions.Action1;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Multimap;
@@ -150,6 +151,9 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return Set.Immutable.of();
     }
 
+    default void visitVars(Action1<ITermVar> onVar) {
+    }
+    
     default IAttachments getAttachments() {
         return Attachments.empty();
     }
