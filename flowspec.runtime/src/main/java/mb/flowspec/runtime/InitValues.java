@@ -10,18 +10,17 @@ import mb.flowspec.controlflow.IControlFlowGraph;
 import mb.flowspec.runtime.interpreter.values.Function;
 import mb.flowspec.runtime.lattice.CompleteLattice;
 import mb.flowspec.terms.B;
-import mb.nabl2.scopegraph.esop.IEsopNameResolution;
-import mb.nabl2.scopegraph.esop.IEsopNameResolution.IResolutionCache;
-import mb.nabl2.scopegraph.esop.IEsopScopeGraph;
-import mb.nabl2.scopegraph.esop.IEsopScopeGraph.Immutable;
-import mb.nabl2.scopegraph.terms.Label;
-import mb.nabl2.scopegraph.terms.Occurrence;
-import mb.nabl2.scopegraph.terms.Scope;
 import mb.nabl2.solver.SolverConfig;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.u.IUnifier;
 import mb.nabl2.util.collections.IProperties;
+import mb.scopegraph.pepm16.esop15.IEsopNameResolution;
+import mb.scopegraph.pepm16.esop15.IEsopNameResolution.IResolutionCache;
+import mb.scopegraph.pepm16.esop15.IEsopScopeGraph;
+import mb.scopegraph.pepm16.terms.Label;
+import mb.scopegraph.pepm16.terms.Occurrence;
+import mb.scopegraph.pepm16.terms.Scope;
 
 public class InitValues {
     public final IControlFlowGraph controlFlowGraph;
@@ -36,7 +35,7 @@ public class InitValues {
 
     public InitValues(SolverConfig config, IControlFlowGraph controlFlowGraph,
         Map<String, Map<ICFGNode, Ref<IStrategoTerm>>> properties,
-        Immutable<Scope, Label, Occurrence, ITerm> scopeGraph,
+        IEsopScopeGraph.Immutable<Scope, Label, Occurrence, ITerm> scopeGraph,
         IResolutionCache<Scope, Label, Occurrence> nameResolutionCache,
         mb.nabl2.terms.unification.u.IUnifier.Immutable unifier,
         mb.nabl2.util.collections.IProperties.Immutable<TermIndex, ITerm, ITerm> astProperties,

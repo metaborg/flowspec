@@ -109,8 +109,8 @@ import mb.flowspec.runtime.solver.Type;
 import mb.flowspec.runtime.solver.UserType;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.TermIndex;
-import mb.nabl2.scopegraph.terms.Namespace;
 import mb.nabl2.terms.build.Attachments;
+import mb.scopegraph.pepm16.terms.Namespace;
 
 public class InterpreterBuilder {
     protected final ArrayList<Initializable> initializable = new ArrayList<>();

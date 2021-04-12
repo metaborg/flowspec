@@ -23,17 +23,17 @@ import mb.flowspec.runtime.InitValues;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.IStrategoAppl2;
 import mb.flowspec.terms.ImmutableTermIndex;
-import mb.nabl2.scopegraph.CriticalEdgeException;
-import mb.nabl2.scopegraph.StuckException;
-import mb.nabl2.scopegraph.path.IResolutionPath;
-import mb.nabl2.scopegraph.terms.Label;
-import mb.nabl2.scopegraph.terms.Occurrence;
-import mb.nabl2.scopegraph.terms.Scope;
-import mb.nabl2.scopegraph.terms.path.Paths;
 import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.stratego.StrategoTermIndices;
 import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.terms.stratego.TermIndex;
+import mb.scopegraph.pepm16.CriticalEdgeException;
+import mb.scopegraph.pepm16.StuckException;
+import mb.scopegraph.pepm16.path.IResolutionPath;
+import mb.scopegraph.pepm16.terms.Label;
+import mb.scopegraph.pepm16.terms.Occurrence;
+import mb.scopegraph.pepm16.terms.Scope;
+import mb.scopegraph.pepm16.terms.path.Paths;
 
 @Value.Immutable
 public abstract class Name implements Serializable, IStrategoAppl2 {
