@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import org.metaborg.util.Ref;
 import org.metaborg.util.functions.Action1;
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Multimap;
@@ -33,7 +34,6 @@ import mb.nabl2.terms.ITermVar;
 import mb.nabl2.terms.build.Attachments;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.u.IUnifier;
-import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.collections.IProperties;
 
 public interface IFlowSpecSolution extends ISolution, IApplTerm {

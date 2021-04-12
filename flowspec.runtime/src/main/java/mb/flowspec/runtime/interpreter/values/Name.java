@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.immutables.value.Value;
+import org.metaborg.util.collection.IFunction;
 import org.metaborg.util.task.NullCancel;
 import org.metaborg.util.task.NullProgress;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -33,7 +34,6 @@ import mb.nabl2.terms.ITerm;
 import mb.nabl2.terms.stratego.StrategoTermIndices;
 import mb.nabl2.terms.stratego.StrategoTerms;
 import mb.nabl2.terms.stratego.TermIndex;
-import mb.nabl2.util.collections.IFunction;
 
 @Value.Immutable
 public abstract class Name implements Serializable, IStrategoAppl2 {
