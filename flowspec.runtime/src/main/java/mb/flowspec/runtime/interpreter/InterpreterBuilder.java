@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.metaborg.util.Ref;
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -108,9 +109,8 @@ import mb.flowspec.runtime.solver.Type;
 import mb.flowspec.runtime.solver.UserType;
 import mb.flowspec.terms.B;
 import mb.flowspec.terms.TermIndex;
-import mb.nabl2.scopegraph.terms.Namespace;
 import mb.nabl2.terms.build.Attachments;
-import mb.nabl2.util.Tuple2;
+import mb.scopegraph.pepm16.terms.Namespace;
 
 public class InterpreterBuilder {
     protected final ArrayList<Initializable> initializable = new ArrayList<>();

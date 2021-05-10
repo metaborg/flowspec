@@ -10,10 +10,10 @@ import mb.flowspec.runtime.Initializable;
 import mb.flowspec.runtime.interpreter.locals.ReadVarNode;
 import mb.flowspec.runtime.interpreter.values.Name;
 import mb.flowspec.terms.TermIndex;
-import mb.nabl2.scopegraph.terms.Namespace;
-import mb.nabl2.scopegraph.terms.Occurrence;
-import mb.nabl2.scopegraph.terms.OccurrenceIndex;
 import mb.nabl2.terms.stratego.StrategoTerms;
+import mb.scopegraph.pepm16.terms.Namespace;
+import mb.scopegraph.pepm16.terms.Occurrence;
+import mb.scopegraph.pepm16.terms.OccurrenceIndex;
 
 public class NaBL2OccurrenceNode extends ExpressionNode implements Initializable {
     private final Namespace namespace;

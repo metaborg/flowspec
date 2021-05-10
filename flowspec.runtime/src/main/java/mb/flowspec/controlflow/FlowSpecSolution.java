@@ -5,10 +5,10 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.metaborg.util.Ref;
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import mb.nabl2.solver.ISolution;
-import mb.nabl2.util.Tuple2;
 
 public class FlowSpecSolution implements IFlowSpecSolution, Serializable {
     private ISolution solution;

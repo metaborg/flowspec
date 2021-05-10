@@ -6,16 +6,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.M;
 
 import mb.flowspec.controlflow.ICFGNode.Kind;
 import mb.flowspec.terms.ImmutableTermIndex;
-import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndex;
 import mb.flowspec.terms.TermIndexed;
-import mb.nabl2.util.Tuple2;
 
 public class ControlFlowGraphReader {
     protected final ControlFlowGraphBuilder cfg;

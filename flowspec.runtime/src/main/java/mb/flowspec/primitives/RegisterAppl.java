@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.M;
 import org.spoofax.terms.util.TermUtils;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
@@ -13,9 +15,7 @@ import org.strategoxt.lang.Strategy;
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.ImmutableTransferFunctionAppl;
 import mb.flowspec.controlflow.TransferFunctionAppl;
-import org.spoofax.terms.util.M;
 import mb.flowspec.terms.TermIndexed;
-import mb.nabl2.util.Tuple2;
 
 public class RegisterAppl extends Strategy {
     private final Map<Tuple2<ICFGNode, String>, TransferFunctionAppl> tfAppls;

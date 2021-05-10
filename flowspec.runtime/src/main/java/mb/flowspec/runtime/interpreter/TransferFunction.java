@@ -2,6 +2,7 @@ package mb.flowspec.runtime.interpreter;
 
 import java.util.Map;
 
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.Truffle;
@@ -15,7 +16,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.flowspec.runtime.interpreter.locals.ArgToVarNode;
 import mb.flowspec.terms.TermIndexed;
-import mb.nabl2.util.Tuple2;
 
 @TypeSystemReference(Types.class)
 public class TransferFunction extends RootNode {

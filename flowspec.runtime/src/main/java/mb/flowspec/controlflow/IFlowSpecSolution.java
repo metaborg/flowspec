@@ -8,6 +8,8 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.metaborg.util.Ref;
+import org.metaborg.util.functions.Action1;
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Multimap;
@@ -15,12 +17,6 @@ import com.google.common.collect.Multimap;
 import io.usethesource.capsule.Set;
 import mb.nabl2.constraints.IConstraint;
 import mb.nabl2.relations.variants.IVariantRelation;
-import mb.nabl2.scopegraph.esop.IEsopNameResolution;
-import mb.nabl2.scopegraph.esop.IEsopScopeGraph;
-import mb.nabl2.scopegraph.terms.Label;
-import mb.nabl2.scopegraph.terms.Occurrence;
-import mb.nabl2.scopegraph.terms.OccurrenceIndex;
-import mb.nabl2.scopegraph.terms.Scope;
 import mb.nabl2.solver.ISolution;
 import mb.nabl2.solver.SolverConfig;
 import mb.nabl2.solver.messages.IMessages;
@@ -32,8 +28,13 @@ import mb.nabl2.terms.ITermVar;
 import mb.nabl2.terms.build.Attachments;
 import mb.nabl2.terms.stratego.TermIndex;
 import mb.nabl2.terms.unification.u.IUnifier;
-import mb.nabl2.util.Tuple2;
 import mb.nabl2.util.collections.IProperties;
+import mb.scopegraph.pepm16.esop15.IEsopNameResolution;
+import mb.scopegraph.pepm16.esop15.IEsopScopeGraph;
+import mb.scopegraph.pepm16.terms.Label;
+import mb.scopegraph.pepm16.terms.Occurrence;
+import mb.scopegraph.pepm16.terms.OccurrenceIndex;
+import mb.scopegraph.pepm16.terms.Scope;
 
 public interface IFlowSpecSolution extends ISolution, IApplTerm {
     ISolution solution();
@@ -150,6 +151,9 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
         return Set.Immutable.of();
     }
 
+    default void visitVars(Action1<ITermVar> onVar) {
+    }
+    
     default IAttachments getAttachments() {
         return Attachments.empty();
     }

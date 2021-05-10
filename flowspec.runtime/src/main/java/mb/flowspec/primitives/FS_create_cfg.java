@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.metaborg.util.tuple.Tuple2;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -20,7 +21,6 @@ import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.controlflow.TransferFunctionAppl;
 import mb.nabl2.spoofax.analysis.IResult;
 import mb.nabl2.terms.stratego.StrategoBlob;
-import mb.nabl2.util.Tuple2;
 
 public class FS_create_cfg extends AbstractPrimitive {
     public FS_create_cfg() {
