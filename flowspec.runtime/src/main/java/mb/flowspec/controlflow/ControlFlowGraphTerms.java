@@ -5,9 +5,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.metaborg.util.Ref;
+import org.metaborg.util.collection.Sets;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-
-import com.google.common.collect.Sets;
 
 import io.usethesource.capsule.BinaryRelation;
 

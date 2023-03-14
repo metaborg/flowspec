@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
+import org.metaborg.util.collection.ImList;
+
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
@@ -44,7 +45,7 @@ public class ExtPropNode extends ExpressionNode implements Initializable {
             List<Occurrence> value = nabl2value
                     .flatMap(term -> M.listElems(Occurrence.matcher(), (t, list) -> list)
                             .match(term, PersistentUnifier.Immutable.of()))
-                    .orElseGet(() -> ImmutableList.<Occurrence>builder().build());
+                    .orElseGet(() -> ImList.Immutable.of());
             List<Name> names = value.stream()
                     .map(occ -> Name.fromOccurrence(initValues, occ))
                     .collect(Collectors.toList());
