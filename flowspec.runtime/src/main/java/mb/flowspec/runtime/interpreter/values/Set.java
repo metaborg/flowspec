@@ -2,6 +2,7 @@ package mb.flowspec.runtime.interpreter.values;
 
 import java.io.Serializable;
 
+import org.metaborg.util.collection.CapsuleUtil;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -27,7 +28,7 @@ public class Set<K extends IStrategoTerm> implements ISet<K>, Serializable {
     private final Immutable<K> set;
 
     public Set() {
-        this(Immutable.of());
+        this(CapsuleUtil.immutableSet());
     }
 
     public Set(Immutable<K> set) {

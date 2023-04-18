@@ -1,5 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
+import org.metaborg.util.collection.CapsuleUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
@@ -23,7 +24,7 @@ public class MapLiteralNode extends ExpressionNode {
 
     @Override public IMap<IStrategoTerm, IStrategoTerm> executeIMap(VirtualFrame frame) {
         io.usethesource.capsule.Map.Transient<IStrategoTerm, IStrategoTerm> map =
-            io.usethesource.capsule.Map.Transient.of();
+            CapsuleUtil.transientMap();
         for(ExpressionNode expr : values) {
             try {
                 IStrategoTuple tuple = M.tuple(expr.executeIStrategoTerm(frame), 2);

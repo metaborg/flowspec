@@ -6,6 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.metaborg.util.Ref;
+import org.metaborg.util.collection.CapsuleUtil;
 import org.metaborg.util.collection.ImList;
 import org.metaborg.util.functions.Action1;
 import org.metaborg.util.tuple.Tuple2;
@@ -147,7 +148,7 @@ public interface IFlowSpecSolution extends ISolution, IApplTerm {
     }
 
     default @Override Set.Immutable<ITermVar> getVars() {
-        return Set.Immutable.of();
+        return CapsuleUtil.immutableSet();
     }
 
     default @Override void visitVars(Action1<ITermVar> onVar) {

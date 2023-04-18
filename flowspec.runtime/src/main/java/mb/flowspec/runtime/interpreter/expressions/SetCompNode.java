@@ -1,5 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
+import org.metaborg.util.collection.CapsuleUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -45,7 +46,7 @@ public class SetCompNode extends ExpressionNode {
     public Set<IStrategoTerm> executeISet(VirtualFrame frame) throws UnexpectedResultException {
         // FIXME For now we're assuming exactly one source
         io.usethesource.capsule.Set.Immutable<IStrategoTerm> set = sources[0].executeISet(frame).getSet();
-        io.usethesource.capsule.Set.Transient<IStrategoTerm> result = io.usethesource.capsule.Set.Transient.of();
+        io.usethesource.capsule.Set.Transient<IStrategoTerm> result = CapsuleUtil.transientSet();
         for(Object value : set) {
             boolean keep = this.sourcePatterns[0].matchGeneric(frame, value);
             for (CompPredicateNode pred : predicates) {
