@@ -12,13 +12,11 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.metaborg.util.Ref;
+import org.metaborg.util.iterators.PeekingIterator;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-
-import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
 
 import mb.flowspec.controlflow.IBasicBlock;
 import mb.flowspec.controlflow.ICFGNode;
@@ -207,7 +205,7 @@ public class FixedPoint {
                 fixpointCount++;
                 for(IBasicBlock b : scc) {
                     final IBasicBlock block = blockDir.apply(b);
-                    for(PeekingIterator<ICFGNode> iterator = Iterators.peekingIterator(block.iterator()); iterator
+                    for(PeekingIterator<ICFGNode> iterator = new PeekingIterator<>(block.iterator()); iterator
                         .hasNext();) {
                         final ICFGNode from = iterator.next();
                         if(iterator.hasNext()) {

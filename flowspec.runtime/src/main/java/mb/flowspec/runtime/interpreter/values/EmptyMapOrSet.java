@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import org.metaborg.util.collection.CapsuleUtil;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -34,8 +35,8 @@ public class EmptyMapOrSet<K extends IStrategoTerm, V extends IStrategoTerm> imp
     private final Map.Immutable<K, V> map;
 
     public EmptyMapOrSet() {
-        this.set = Set.Immutable.of();
-        this.map = Map.Immutable.of();
+        this.set = CapsuleUtil.immutableSet();
+        this.map = CapsuleUtil.immutableMap();
     }
 
     @Override
