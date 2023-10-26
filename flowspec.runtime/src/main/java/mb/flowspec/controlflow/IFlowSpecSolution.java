@@ -3,7 +3,7 @@ package mb.flowspec.controlflow;
 import java.util.Arrays;
 import java.util.Objects;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.metaborg.util.Ref;
 import org.metaborg.util.collection.CapsuleUtil;

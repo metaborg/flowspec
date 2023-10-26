@@ -1,6 +1,6 @@
 package mb.flowspec.compiled;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import mb.flowspec.controlflow.ICFGNode;
 import mb.flowspec.runtime.lattice.CompleteLattice;
