@@ -1,5 +1,7 @@
 package mb.flowspec.runtime.lattice;
 
+import org.metaborg.util.collection.CapsuleUtil;
+
 import io.usethesource.capsule.Set;
 
 public class SetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
@@ -19,7 +21,7 @@ public class SetLattice<E> implements CompleteLattice<Set.Immutable<E>> {
 
     @Override
     public Set.Immutable<E> bottom() {
-        return Set.Immutable.of();
+        return CapsuleUtil.immutableSet();
     }
 
     @Override

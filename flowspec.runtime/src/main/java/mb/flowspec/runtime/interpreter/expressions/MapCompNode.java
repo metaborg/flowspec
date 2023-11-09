@@ -1,5 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
+import org.metaborg.util.collection.CapsuleUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
@@ -45,7 +46,7 @@ public class MapCompNode extends ExpressionNode {
     @Override public Map<IStrategoTerm, IStrategoTerm> executeIMap(VirtualFrame frame) throws UnexpectedResultException {
         // FIXME For now we're assuming exactly one source
         io.usethesource.capsule.Map.Immutable<IStrategoTerm, IStrategoTerm> map = sources[0].executeIMap(frame).getMap();
-        io.usethesource.capsule.Map.Transient<IStrategoTerm, IStrategoTerm> result = io.usethesource.capsule.Map.Transient.of();
+        io.usethesource.capsule.Map.Transient<IStrategoTerm, IStrategoTerm> result = CapsuleUtil.transientMap();
         for(java.util.Map.Entry<IStrategoTerm, IStrategoTerm> value : map.entrySet()) {
             boolean keep = this.sourcePatterns[0].matchGeneric(frame, B.tuple(value.getKey(), value.getValue()));
             for(CompPredicateNode pred : predicates) {

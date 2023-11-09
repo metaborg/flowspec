@@ -14,9 +14,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
-import com.google.common.collect.Sets;
+import org.metaborg.util.collection.Sets;
+import org.metaborg.util.iterators.PeekingIterator;
 
 import io.usethesource.capsule.BinaryRelation;
 
@@ -156,7 +155,7 @@ public class Algorithms {
          * Reverse the order of the SCCs, and recompute the reverse postorder on the inverse graph for SCCs with
          * multiple nodes.
          */
-        for(PeekingIterator<Set<N>> iterator = Iterators.peekingIterator(sccs.iterator()); iterator.hasNext();) {
+        for(PeekingIterator<Set<N>> iterator = new PeekingIterator<>(sccs.iterator()); iterator.hasNext();) {
             Set<N> scc = iterator.next();
             if(scc.size() != 1) {
                 /*
@@ -175,7 +174,7 @@ public class Algorithms {
                 do {
                     node = visitingStack.getLast();
                     unvisited.remove(node);
-                    befores = Sets.intersection(prev.apply(node), unvisited);
+                    befores = new HashSet<>(Sets.intersection(prev.apply(node), unvisited));
                     if(!befores.isEmpty()) {
                         // visiting all the children at once so we don't need _another_ list of things
                         visitingStack.addAll(befores);

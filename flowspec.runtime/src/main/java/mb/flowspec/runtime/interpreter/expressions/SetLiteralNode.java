@@ -1,5 +1,6 @@
 package mb.flowspec.runtime.interpreter.expressions;
 
+import org.metaborg.util.collection.CapsuleUtil;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -22,7 +23,7 @@ public class SetLiteralNode extends ExpressionNode {
 
     @Override
     public ISet<IStrategoTerm> executeISet(VirtualFrame frame) {
-        io.usethesource.capsule.Set.Transient<IStrategoTerm> set = io.usethesource.capsule.Set.Transient.of();
+        io.usethesource.capsule.Set.Transient<IStrategoTerm> set = CapsuleUtil.transientSet();
         for (ExpressionNode expr : values) {
             try {
                 set.__insert(expr.executeIStrategoTerm(frame));
