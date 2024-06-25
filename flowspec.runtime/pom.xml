@@ -9,10 +9,6 @@
   <artifactId>flowspec.runtime</artifactId>
   <packaging>jar</packaging>
 
-<!--   <properties>
-    <immutables-version>2.5.3</immutables-version>
-  </properties> -->
-
   <dependencies>
     <dependency>
       <groupId>org.metaborg</groupId>
