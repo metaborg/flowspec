@@ -1,8 +1,8 @@
 ---
 id: org.metaborg:flowspec.lang:${metaborgVersion}
 name: flowspec
-metaborgVersion: 2.5.21
-#metaborgBaselineVersion: 2.4.0
+metaborgVersion: 2.6.0-SNAPSHOT
+#metaborgBaselineVersion: 
 dependencies:
   compile:
   - org.metaborg:org.metaborg.meta.lang.esv:${metaborgVersion}
